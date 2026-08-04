@@ -255,7 +255,14 @@
         }
         window.scrollToPanel = scrollToPanel;
 
+        function isOverlayOpen() {
+            return digitalOverlay.classList.contains('active') ||
+                   physicalOverlay.classList.contains('active') ||
+                   videoModal.classList.contains('active');
+        }
+
         container.addEventListener('wheel', function(e) {
+            if (isOverlayOpen()) return;
             if (currentPanel === 0 && e.deltaY < 0) return;
             e.preventDefault();
             if (isAnimating) return;
@@ -270,6 +277,7 @@
         let isPulling = false;
 
         container.addEventListener('touchstart', function(e) {
+            if (isOverlayOpen()) return;
             touchStartY = e.touches[0].clientY;
             touchStartX = e.touches[0].clientX;
             pullDistance = 0;
@@ -277,6 +285,7 @@
         }, { passive: true });
 
         container.addEventListener('touchmove', function(e) {
+            if (isOverlayOpen()) return;
             if (currentPanel !== 0) return;
             var currentY = e.touches[0].clientY;
             var diff = currentY - touchStartY;
@@ -291,6 +300,7 @@
         }, { passive: true });
 
         container.addEventListener('touchend', function(e) {
+            if (isOverlayOpen()) return;
             if (pullIndicator) {
                 pullIndicator.style.display = 'none';
                 pullIndicator.style.opacity = '0';
