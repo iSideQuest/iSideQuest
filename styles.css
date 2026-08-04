@@ -55,7 +55,6 @@ body {
     overflow-y: scroll;
     -ms-overflow-style: none;
     scrollbar-width: none;
-    scroll-snap-type: y mandatory;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -75,7 +74,6 @@ body {
     padding: 5rem 5% 3rem;
     position: relative;
     background: transparent;
-    scroll-snap-align: start;
 }
 
 /* Hero Section */
