@@ -227,71 +227,30 @@
         const container = document.getElementById('scrollContainer');
         const panels = document.querySelectorAll('.panel');
         const sideNavDots = document.querySelectorAll('.side-nav-dot');
-        let currentPanel = 0;
-        let isAnimating = false;
-
-        function updateSideNav() {
-            sideNavDots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === currentPanel);
-            });
-        }
 
         function scrollToPanel(index) {
-            if (index < 0 || index >= panels.length || isAnimating) return;
-            isAnimating = true;
-            currentPanel = index;
-            updateSideNav();
-
-            const targetTop = index * window.innerHeight;
-            const startTop = container.scrollTop;
-            const distance = targetTop - startTop;
-            const duration = 400;
-            const startTime = performance.now();
-
-            function step(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const eased = 1 - Math.pow(1 - progress, 3);
-                container.scrollTop = startTop + distance * eased;
-
-                if (progress < 1) {
-                    requestAnimationFrame(step);
-                } else {
-                    isAnimating = false;
-                }
-            }
-
-            requestAnimationFrame(step);
+            if (index < 0 || index >= panels.length) return;
+            panels[index].scrollIntoView({ behavior: 'smooth' });
         }
-
         window.scrollToPanel = scrollToPanel;
 
-        container.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            if (isAnimating) return;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const index = Array.from(panels).indexOf(entry.target);
+                    sideNavDots.forEach((dot, i) => {
+                        dot.classList.toggle('active', i === index);
+                    });
+                }
+            });
+        }, { root: container, threshold: 0.6 });
 
-            if (e.deltaY > 0 && currentPanel < panels.length - 1) {
-                scrollToPanel(currentPanel + 1);
-            } else if (e.deltaY < 0 && currentPanel > 0) {
-                scrollToPanel(currentPanel - 1);
-            }
-        }, { passive: false });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-                e.preventDefault();
-                scrollToPanel(currentPanel + 1);
-            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-                e.preventDefault();
-                scrollToPanel(currentPanel - 1);
-            }
-        });
+        panels.forEach(panel => observer.observe(panel));
 
         sideNavDots.forEach(dot => {
             dot.addEventListener('click', (e) => {
                 e.preventDefault();
-                const section = parseInt(dot.dataset.section);
-                scrollToPanel(section);
+                scrollToPanel(parseInt(dot.dataset.section));
             });
         });
 
@@ -306,22 +265,6 @@
                 }
             });
         });
-
-        let touchStartY = 0;
-        container.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-        }, { passive: true });
-
-        container.addEventListener('touchend', (e) => {
-            if (isAnimating) return;
-            const touchEndY = e.changedTouches[0].clientY;
-            const diff = touchStartY - touchEndY;
-
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) scrollToPanel(currentPanel + 1);
-                else scrollToPanel(currentPanel - 1);
-            }
-        }, { passive: true });
 
         // Digital Products Overlay
         const digitalBtn = document.getElementById('digitalProductsBtn');
