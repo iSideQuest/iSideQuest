@@ -51,9 +51,12 @@ body {
 /* Scroll Container */
 .scroll-container {
     height: 100vh;
+    height: 100dvh;
     overflow-y: scroll;
     -ms-overflow-style: none;
     scrollbar-width: none;
+    scroll-snap-type: y mandatory;
+    -webkit-overflow-scrolling: touch;
 }
 
 .scroll-container::-webkit-scrollbar {
@@ -62,6 +65,9 @@ body {
 
 .panel {
     min-height: 100vh;
+    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -69,6 +75,7 @@ body {
     padding: 5rem 5% 3rem;
     position: relative;
     background: transparent;
+    scroll-snap-align: start;
 }
 
 /* Hero Section */
@@ -971,17 +978,17 @@ textarea {
     }
 
     .logo-text {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
 
     .side-nav {
         left: 0.5rem;
-        gap: 1rem;
+        gap: 0.8rem;
     }
 
     .side-nav-dot {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
     }
 
     .side-nav-dot span {
@@ -989,31 +996,42 @@ textarea {
     }
 
     .panel {
-        padding: 5rem 4% 2rem;
+        padding: 4.5rem 4% 1.5rem;
+        justify-content: flex-start;
+        overflow: hidden;
+    }
+
+    .hero {
+        padding-top: 1rem;
     }
 
     .hero-title {
-        font-size: 2.5rem;
+        font-size: 1.8rem;
+        margin-bottom: 0.2rem;
     }
 
     .hero-subtitle {
-        font-size: 1rem;
+        font-size: 0.7rem;
         letter-spacing: 1px;
+        margin-bottom: 0.3rem;
     }
 
     .hero-description {
-        font-size: 1rem;
+        font-size: 0.8rem;
+        margin-bottom: 0.8rem;
+        max-width: 95%;
     }
 
     .cta-button {
-        padding: 0.8rem 1.5rem;
-        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
     }
 
     .category-row,
     .category-row.reverse {
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
     }
 
     .category-image-col {
@@ -1022,59 +1040,96 @@ textarea {
 
     .image-placeholder {
         aspect-ratio: 16/9;
-        font-size: 3rem;
+        font-size: 1.8rem;
+        min-height: 60px;
     }
 
     .category-title {
-        font-size: 1.3rem;
+        font-size: 1rem;
+        margin-bottom: 0.15rem;
+    }
+
+    .category-divider {
+        margin-bottom: 0.3rem;
     }
 
     .category-description {
-        font-size: 0.9rem;
+        font-size: 0.7rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .category-list {
+        margin-bottom: 0.5rem;
     }
 
     .category-list li {
-        font-size: 0.85rem;
+        font-size: 0.65rem;
+        padding: 0.1rem 0;
     }
 
     .category-button {
         width: 100%;
         text-align: center;
+        padding: 0.4rem 0.7rem;
+        font-size: 0.7rem;
     }
 
     .section-title {
-        font-size: 1.8rem;
+        font-size: 1.2rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .section-subtitle {
+        font-size: 0.8rem;
+        margin-bottom: 0.5rem;
     }
 
     .about-content p {
-        font-size: 1rem;
+        font-size: 0.75rem;
+        margin-bottom: 0.7rem;
     }
 
     .stat-number {
-        font-size: 2rem;
+        font-size: 1.3rem;
     }
 
     .stat-label {
-        font-size: 0.8rem;
+        font-size: 0.6rem;
     }
 
     .stats {
-        gap: 1.5rem;
+        gap: 0.6rem;
+        margin-top: 0.3rem;
     }
 
     .form-row {
         grid-template-columns: 1fr;
+        gap: 0.4rem;
     }
 
     .contact-form input,
     .contact-form textarea {
-        font-size: 0.9rem;
+        font-size: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    .contact-form textarea {
+        rows: 2;
+    }
+
+    .form-group {
+        margin-bottom: 0.4rem;
+    }
+
+    .submit-button {
+        padding: 0.5rem;
+        font-size: 0.75rem;
     }
 
     .overlay-content {
-        padding: 1.5rem;
+        padding: 1rem;
         width: 95%;
-        max-height: 85vh;
+        max-height: 80vh;
     }
 
     .overlay-content.tall {
@@ -1082,49 +1137,57 @@ textarea {
     }
 
     .overlay-title {
-        font-size: 1.5rem;
+        font-size: 1.1rem;
+        margin-bottom: 0.3rem;
     }
 
     .overlay-title.centered {
-        font-size: 1.5rem;
+        font-size: 1.1rem;
+        margin-bottom: 0.3rem;
     }
 
     .overlay-subtitle.large {
-        font-size: 1.2rem;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
     }
 
     .overlay-products {
         grid-template-columns: 1fr;
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
     .overlay-card {
-        padding: 1.5rem;
+        padding: 0.8rem;
     }
 
     .overlay-card h3 {
-        font-size: 1.1rem;
+        font-size: 0.85rem;
     }
 
     .overlay-card p {
-        font-size: 0.85rem;
+        font-size: 0.65rem;
     }
 
     .sidekick-buttons {
         grid-template-columns: 1fr;
+        gap: 0.5rem;
     }
 
     .sidekick-btn {
-        padding: 1.2rem;
-        font-size: 0.8rem;
+        padding: 0.6rem;
+        font-size: 0.65rem;
     }
 
     .scroll-arrows.top {
-        top: 4rem;
+        top: 3.5rem;
+    }
+
+    .scroll-arrows.bottom {
+        bottom: 0.5rem;
     }
 
     .scroll-arrow {
-        font-size: 1.5rem;
+        font-size: 1.1rem;
     }
 
     .video-modal-content {
@@ -1132,7 +1195,7 @@ textarea {
     }
 
     .video-modal-close {
-        top: -35px;
-        font-size: 2rem;
+        top: -30px;
+        font-size: 1.5rem;
     }
 }
