@@ -42,7 +42,7 @@
                 <p class="hero-description">Premium upgrade components & digital enhancements for your favorite games</p>
                 <a href="#categories" class="cta-button">Explore Products</a>
             </div>
-            <div class="scroll-indicator">
+            <div class="scroll-indicator" onclick="scrollToPanel(1)">
                 <span>&#8595;</span>
             </div>
         </section>
@@ -230,7 +230,7 @@
 
         function scrollToPanel(index) {
             if (index < 0 || index >= panels.length) return;
-            panels[index].scrollIntoView({ behavior: 'smooth' });
+            panels[index].scrollIntoView();
         }
         window.scrollToPanel = scrollToPanel;
 

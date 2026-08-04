@@ -56,7 +56,6 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
     scroll-snap-type: y mandatory;
-    scroll-behavior: smooth;
 }
 
 .scroll-container::-webkit-scrollbar {
@@ -76,14 +75,12 @@ body {
     position: relative;
     background: transparent;
     scroll-snap-align: start;
-    scroll-snap-stop: always;
 }
 
 /* Hero Section */
 .hero {
     position: relative;
     text-align: center;
-    overflow: hidden;
     padding: 2rem;
 }
 
@@ -228,6 +225,7 @@ body {
     font-size: 2rem;
     color: var(--text-muted);
     animation: bounce 2s infinite;
+    cursor: pointer;
 }
 
 @keyframes bounce {
@@ -997,12 +995,16 @@ textarea {
     }
 
     .panel {
+        height: 100vh;
+        height: 100dvh;
+        min-height: unset;
         padding: 4.5rem 4% 1.5rem;
         justify-content: flex-start;
+        overflow: hidden;
     }
 
     .hero {
-        padding-top: 1rem;
+        padding-top: 2rem;
     }
 
     .hero-title {
