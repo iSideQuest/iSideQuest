@@ -29,8 +29,6 @@ body {
     background-color: var(--dark);
     color: var(--text);
     line-height: 1.6;
-    overflow: hidden;
-    overscroll-behavior: none;
 }
 
 /* Fixed Background */
@@ -68,6 +66,11 @@ body {
     100% { filter: drop-shadow(0 0 40px rgba(0, 206, 201, 0.5)); }
 }
 
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* ============================================
    SCROLL SYSTEM
    ============================================ */
@@ -96,7 +99,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 5rem 4% 1.5rem;
+    padding: 3.8rem 4% 1rem;
     position: relative;
     background: transparent;
     overflow: hidden;
@@ -305,7 +308,7 @@ body {
     font-family: 'Orbitron', sans-serif;
     font-size: 1.1rem;
     text-align: center;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.1rem;
     background: linear-gradient(135deg, var(--text), var(--primary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -316,7 +319,7 @@ body {
     text-align: center;
     color: var(--text-muted);
     font-size: 0.7rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
 }
 
 /* ============================================
@@ -326,7 +329,7 @@ body {
     background: transparent;
     justify-content: center;
     align-items: center;
-    padding: 4.5rem 4% 1rem;
+    padding: 3.5rem 4% 0.8rem;
     gap: 0.6rem;
 }
 
@@ -439,7 +442,7 @@ body {
     background: transparent;
     justify-content: center;
     align-items: center;
-    padding: 4.5rem 4% 1rem;
+    padding: 3.5rem 4% 0.8rem;
 }
 
 .about-content {
@@ -492,7 +495,7 @@ body {
     background: transparent;
     justify-content: flex-start;
     align-items: center;
-    padding: 4.5rem 5% 1rem;
+    padding: 3.5rem 5% 0.8rem;
 }
 
 .contact-form {
@@ -531,7 +534,7 @@ input:focus, textarea:focus {
 
 textarea {
     resize: vertical;
-    min-height: 40px;
+    min-height: 32px;
     margin-bottom: 0.3rem;
 }
 
@@ -928,7 +931,7 @@ textarea {
 /* ============================================
    DESKTOP STYLES (min-width: 769px)
    ============================================ */
-@media (min-width: 769px) {
+@media (min-width: 1024px) {
 
     .navbar {
         padding: 1.5rem 5%;
