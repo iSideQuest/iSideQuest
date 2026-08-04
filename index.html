@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iSideQuest - Elevate Your Board Game Experience</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Fixed Background -->
+    <div class="fixed-background"></div>
+
+    <!-- Fixed Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <a href="#home" class="logo-text" onclick="scrollToPanel(0)">Welcome To iSideQuest</a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#categories">Products</a></li>
+            <li><a href="#about">About iSideQuest</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Side Navigation Dots -->
+    <div class="side-nav">
+        <a href="#home" class="side-nav-dot active" data-section="0"><span>Home</span></a>
+        <a href="#categories" class="side-nav-dot" data-section="1"><span>Products</span></a>
+        <a href="#about" class="side-nav-dot" data-section="2"><span>About iSideQuest</span></a>
+        <a href="#contact" class="side-nav-dot" data-section="3"><span>Contact</span></a>
+    </div>
+
+    <!-- Scroll Container -->
+    <main class="scroll-container" id="scrollContainer">
+        <!-- Hero Section -->
+        <section id="home" class="panel hero">
+            <div class="hero-content">
+                <h1 class="hero-title">iSideQuest</h1>
+                <p class="hero-subtitle">Elevate Your Board Game Experience</p>
+                <p class="hero-description">Premium upgrade components & digital enhancements for your favorite games</p>
+                <a href="#categories" class="cta-button">Explore Products</a>
+            </div>
+            <div class="scroll-indicator">
+                <span>&#8595;</span>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section id="categories" class="panel categories-section">
+            <div class="scroll-arrows top">
+                <span class="scroll-arrow up" onclick="scrollToPanel(0)">&#8593;</span>
+            </div>
+
+            <div class="category-row">
+                <div class="category-text">
+                    <h3 class="category-title">Physical Products</h3>
+                    <div class="category-divider"></div>
+                    <p class="category-description">
+                        Premium upgrade components crafted with precision. Transform your board games 
+                        with high-quality metal, wood, and resin pieces that enhance gameplay and aesthetics.
+                    </p>
+                    <ul class="category-list">
+                        <li>Metal coins & tokens</li>
+                        <li>Custom player pieces</li>
+                        <li>Premium dice sets</li>
+                        <li>Resource bundles</li>
+                        <li>Card holders & organizers</li>
+                    </ul>
+                </div>
+                <div class="category-image-col">
+                    <div class="image-placeholder" id="physicalImage">&#9876;</div>
+                    <a href="#physical-products" class="category-button" id="physicalProductsBtn">Browse Physical Products &#8594;</a>
+                </div>
+            </div>
+
+            <div class="category-row">
+                <div class="category-text">
+                    <h3 class="category-title">Digital Products</h3>
+                    <div class="category-divider"></div>
+                    <p class="category-description">
+                        Innovative apps and digital designs to complement your tabletop experience. 
+                        Companion apps, digital rulebooks, and downloadable content for enhanced gaming.
+                    </p>
+                    <ul class="category-list">
+                        <li>Companion apps</li>
+                        <li>Digital rulebooks</li>
+                        <li>Printable inserts</li>
+                        <li>Score trackers</li>
+                        <li>Game organizers & guides</li>
+                    </ul>
+                </div>
+                <div class="category-image-col">
+                    <div class="image-placeholder" id="digitalImage">&#128204;</div>
+                    <a href="#digital-products" class="category-button digital-btn" id="digitalProductsBtn">Browse Digital Products &#8594;</a>
+                </div>
+            </div>
+
+            <div class="scroll-arrows bottom">
+                <span class="scroll-arrow down" onclick="scrollToPanel(2)">&#8595;</span>
+            </div>
+        </section>
+
+        <!-- Digital Products Overlay -->
+        <div class="overlay" id="digitalOverlay">
+            <div class="overlay-content tall">
+                <button class="overlay-close" id="closeOverlay">&times;</button>
+                <h2 class="overlay-title centered">Digital Products</h2>
+                <p class="overlay-subtitle centered large">Select One:</p>
+                <div class="overlay-products">
+                    <div class="overlay-card" id="sidekickCard">
+                        <h3>SideKick</h3>
+                        <p>The ultimate board game companion app. Track scores, manage campaigns, and access digital rulebooks all in one place.</p>
+                        <span class="overlay-price">Free</span>
+                    </div>
+                    <div class="overlay-card">
+                        <h3>PrintForge</h3>
+                        <p>Customizable box organizers and inserts. Download templates, personalize, and 3D print for perfect game storage.</p>
+                        <span class="overlay-price">$4.99</span>
+                    </div>
+                    <div class="overlay-card">
+                        <h3>CampaignLog</h3>
+                        <p>Digital campaign journal for legacy and story-driven games. Save progress, track achievements, and share with friends.</p>
+                        <span class="overlay-price">$6.99</span>
+                    </div>
+                </div>
+                <div class="sidekick-buttons" id="sidekickButtons" style="display: none;">
+                    <button class="sidekick-btn" id="whatIsSidekick">What Is SideKick?</button>
+                    <button class="sidekick-btn" id="howToGet">How To Get SideKick</button>
+                    <button class="sidekick-btn primary" id="goToSidekick">Go To SideKick</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Physical Products Overlay -->
+        <div class="overlay" id="physicalOverlay">
+            <div class="overlay-content">
+                <button class="overlay-close" id="closePhysical">&times;</button>
+                <h2 class="overlay-title">Physical Products</h2>
+                <p class="overlay-subtitle">Premium upgrade components</p>
+                <div class="overlay-products">
+                    <div class="overlay-card">
+                        <h3>Metal Coins</h3>
+                        <p>Antiqued copper coins in sets of 50 for enhanced gameplay immersion.</p>
+                        <span class="overlay-price">$24.99</span>
+                    </div>
+                    <div class="overlay-card">
+                        <h3>Resin Tokens</h3>
+                        <p>100 premium resource tokens in vibrant colors for all your games.</p>
+                        <span class="overlay-price">$19.99</span>
+                    </div>
+                    <div class="overlay-card">
+                        <h3>Custom Dice</h3>
+                        <p>Precision-crafted metal dice sets with custom engravings.</p>
+                        <span class="overlay-price">$14.99</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Modal -->
+        <div class="video-modal" id="videoModal">
+            <div class="video-modal-content">
+                <button class="video-modal-close" id="closeVideoModal">&times;</button>
+                <video id="videoPlayer" controls>
+                    <source src="Videos/What Is SideKick.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <section id="about" class="panel about-section">
+            <div class="scroll-arrows top">
+                <span class="scroll-arrow up" onclick="scrollToPanel(1)">&#8593;</span>
+            </div>
+            <div class="about-content">
+                <h2 class="section-title">About iSideQuest</h2>
+                <p>
+                    We believe board games deserve the best components. iSideQuest was founded 
+                    with a passion for enhancing tabletop experiences through premium physical 
+                    upgrades and innovative digital solutions. Whether you're looking to elevate 
+                    the tactile feel of your game nights or add smart digital companions to your 
+                    sessions, we've got you covered.
+                </p>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">Products</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">1000+</span>
+                        <span class="stat-label">Happy Gamers</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">Games Supported</span>
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-arrows bottom">
+                <span class="scroll-arrow down" onclick="scrollToPanel(3)">&#8595;</span>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="panel contact-section">
+            <div class="scroll-arrows top">
+                <span class="scroll-arrow up" onclick="scrollToPanel(2)">&#8593;</span>
+            </div>
+            <h2 class="section-title">Get In Touch</h2>
+            <p class="section-subtitle">Have questions? We'd love to hear from you</p>
+            <form class="contact-form" action="mailto:iSideQuestContact@gmail.com" method="post" enctype="text/plain">
+                <div class="form-row">
+                    <input type="text" name="name" placeholder="Your Name" required>
+                    <input type="email" name="email" placeholder="Your Email" required>
+                </div>
+                <input type="text" name="subject" placeholder="Subject" required>
+                <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
+                <button type="submit" class="submit-button">Send Message</button>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        const container = document.getElementById('scrollContainer');
+        const panels = document.querySelectorAll('.panel');
+        const sideNavDots = document.querySelectorAll('.side-nav-dot');
+        let currentPanel = 0;
+        let isAnimating = false;
+
+        function updateSideNav() {
+            sideNavDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentPanel);
+            });
+        }
+
+        function scrollToPanel(index) {
+            if (index < 0 || index >= panels.length || isAnimating) return;
+            isAnimating = true;
+            currentPanel = index;
+            updateSideNav();
+
+            const target = panels[index];
+            const targetTop = target.offsetTop;
+            const startTop = container.scrollTop;
+            const distance = targetTop - startTop;
+            const duration = 400;
+            const startTime = performance.now();
+
+            function step(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                container.scrollTop = startTop + distance * eased;
+
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    isAnimating = false;
+                }
+            }
+
+            requestAnimationFrame(step);
+        }
+
+        window.scrollToPanel = scrollToPanel;
+
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (isAnimating) return;
+
+            if (e.deltaY > 0 && currentPanel < panels.length - 1) {
+                scrollToPanel(currentPanel + 1);
+            } else if (e.deltaY < 0 && currentPanel > 0) {
+                scrollToPanel(currentPanel - 1);
+            }
+        }, { passive: false });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                e.preventDefault();
+                scrollToPanel(currentPanel + 1);
+            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                e.preventDefault();
+                scrollToPanel(currentPanel - 1);
+            }
+        });
+
+        sideNavDots.forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = parseInt(dot.dataset.section);
+                scrollToPanel(section);
+            });
+        });
+
+        document.querySelectorAll('.nav-links a, .cta-button').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const href = link.getAttribute('href');
+                const target = document.querySelector(href);
+                if (target) {
+                    const index = Array.from(panels).indexOf(target.closest('.panel') || target);
+                    if (index !== -1) scrollToPanel(index);
+                }
+            });
+        });
+
+        let touchStartY = 0;
+        container.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        container.addEventListener('touchend', (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = touchStartY - touchEndY;
+
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) scrollToPanel(currentPanel + 1);
+                else scrollToPanel(currentPanel - 1);
+            }
+        }, { passive: true });
+
+        // Digital Products Overlay
+        const digitalBtn = document.getElementById('digitalProductsBtn');
+        const digitalOverlay = document.getElementById('digitalOverlay');
+        const closeOverlay = document.getElementById('closeOverlay');
+
+        digitalBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            digitalOverlay.classList.add('active');
+        });
+
+        closeOverlay.addEventListener('click', () => {
+            digitalOverlay.classList.remove('active');
+            sidekickButtons.style.display = 'none';
+            sidekickCard.classList.remove('selected');
+        });
+
+        digitalOverlay.addEventListener('click', (e) => {
+            if (e.target === digitalOverlay) {
+                digitalOverlay.classList.remove('active');
+                sidekickButtons.style.display = 'none';
+                sidekickCard.classList.remove('selected');
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (videoModal.classList.contains('active')) {
+                    videoModal.classList.remove('active');
+                    videoPlayer.pause();
+                    videoPlayer.currentTime = 0;
+                } else if (digitalOverlay.classList.contains('active')) {
+                    digitalOverlay.classList.remove('active');
+                    sidekickButtons.style.display = 'none';
+                } else if (physicalOverlay.classList.contains('active')) {
+                    physicalOverlay.classList.remove('active');
+                }
+            }
+        });
+
+        // SideKick Toggle Buttons
+        const sidekickCard = document.getElementById('sidekickCard');
+        const sidekickButtons = document.getElementById('sidekickButtons');
+        const whatIsSidekick = document.getElementById('whatIsSidekick');
+        const howToGet = document.getElementById('howToGet');
+        const goToSidekick = document.getElementById('goToSidekick');
+        const videoModal = document.getElementById('videoModal');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const closeVideoModal = document.getElementById('closeVideoModal');
+
+        sidekickCard.addEventListener('click', () => {
+            if (sidekickButtons.style.display === 'none' || sidekickButtons.style.display === '') {
+                sidekickButtons.style.display = 'flex';
+                sidekickCard.classList.add('selected');
+            } else {
+                sidekickButtons.style.display = 'none';
+                sidekickCard.classList.remove('selected');
+            }
+        });
+
+        whatIsSidekick.addEventListener('click', (e) => {
+            e.stopPropagation();
+            videoModal.classList.add('active');
+            videoPlayer.play();
+        });
+
+        closeVideoModal.addEventListener('click', () => {
+            videoModal.classList.remove('active');
+            videoPlayer.pause();
+            videoPlayer.currentTime = 0;
+        });
+
+        videoModal.addEventListener('click', (e) => {
+            if (e.target === videoModal) {
+                videoModal.classList.remove('active');
+                videoPlayer.pause();
+                videoPlayer.currentTime = 0;
+            }
+        });
+
+        howToGet.addEventListener('click', (e) => {
+            e.stopPropagation();
+            alert('SideKick is available for free on iOS and Android. Download it from the App Store or Google Play Store.');
+        });
+
+        goToSidekick.addEventListener('click', (e) => {
+            e.stopPropagation();
+            alert('Redirecting to SideKick website...');
+        });
+
+        // Physical Products Overlay
+        const physicalBtn = document.getElementById('physicalProductsBtn');
+        const physicalImage = document.getElementById('physicalImage');
+        const physicalOverlay = document.getElementById('physicalOverlay');
+        const closePhysical = document.getElementById('closePhysical');
+
+        physicalBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            physicalOverlay.classList.add('active');
+        });
+
+        physicalImage.addEventListener('click', () => {
+            physicalOverlay.classList.add('active');
+        });
+
+        closePhysical.addEventListener('click', () => {
+            physicalOverlay.classList.remove('active');
+        });
+
+        physicalOverlay.addEventListener('click', (e) => {
+            if (e.target === physicalOverlay) {
+                physicalOverlay.classList.remove('active');
+            }
+        });
+
+        // Digital Products Image Click
+        const digitalImage = document.getElementById('digitalImage');
+
+        digitalImage.addEventListener('click', () => {
+            digitalOverlay.classList.add('active');
+        });
+    </script>
+</body>
+</html>
