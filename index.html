@@ -239,6 +239,11 @@
         function scrollToPanel(index) {
             if (index < 0 || index >= panels.length || isAnimating) return;
             isAnimating = true;
+
+            if (panels[currentPanel] && panels[currentPanel].classList.contains('categories-section')) {
+                panels[currentPanel].scrollTop = 0;
+            }
+
             currentPanel = index;
             updateSideNav();
 
@@ -266,10 +271,24 @@
 
         window.scrollToPanel = scrollToPanel;
 
-        container.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            if (isAnimating) return;
+        function canScrollPanel(panel, direction) {
+            if (!panel || !panel.classList.contains('categories-section')) return false;
+            const atTop = panel.scrollTop <= 0;
+            const atBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 2;
+            if (direction > 0 && !atBottom) return true;
+            if (direction < 0 && !atTop) return true;
+            return false;
+        }
 
+        container.addEventListener('wheel', (e) => {
+            if (isAnimating) return;
+            const currentPanelEl = panels[currentPanel];
+
+            if (canScrollPanel(currentPanelEl, e.deltaY)) {
+                return;
+            }
+
+            e.preventDefault();
             if (e.deltaY > 0 && currentPanel < panels.length - 1) {
                 scrollToPanel(currentPanel + 1);
             } else if (e.deltaY < 0 && currentPanel > 0) {
@@ -278,10 +297,13 @@
         }, { passive: false });
 
         document.addEventListener('keydown', (e) => {
+            const currentPanelEl = panels[currentPanel];
             if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                if (canScrollPanel(currentPanelEl, 1)) return;
                 e.preventDefault();
                 scrollToPanel(currentPanel + 1);
             } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                if (canScrollPanel(currentPanelEl, -1)) return;
                 e.preventDefault();
                 scrollToPanel(currentPanel - 1);
             }
@@ -317,8 +339,10 @@
             if (isAnimating) return;
             const touchEndY = e.changedTouches[0].clientY;
             const diff = touchStartY - touchEndY;
+            const currentPanelEl = panels[currentPanel];
 
             if (Math.abs(diff) > 30) {
+                if (canScrollPanel(currentPanelEl, diff)) return;
                 if (diff > 0) scrollToPanel(currentPanel + 1);
                 else scrollToPanel(currentPanel - 1);
             }
