@@ -970,29 +970,169 @@ textarea {
         display: none;
     }
 
+    .logo-text {
+        font-size: 1rem;
+    }
+
     .side-nav {
-        left: 1rem;
+        left: 0.5rem;
+        gap: 1rem;
+    }
+
+    .side-nav-dot {
+        width: 10px;
+        height: 10px;
     }
 
     .side-nav-dot span {
         display: none;
     }
-    
+
+    .panel {
+        padding: 5rem 4% 2rem;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+
+    .hero-description {
+        font-size: 1rem;
+    }
+
+    .cta-button {
+        padding: 0.8rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
     .category-row,
     .category-row.reverse {
         flex-direction: column;
-        gap: 2rem;
+        gap: 1.5rem;
     }
-    
-    .category-image {
+
+    .category-image-col {
+        align-items: center;
+    }
+
+    .image-placeholder {
+        aspect-ratio: 16/9;
+        font-size: 3rem;
+    }
+
+    .category-title {
+        font-size: 1.3rem;
+    }
+
+    .category-description {
+        font-size: 0.9rem;
+    }
+
+    .category-list li {
+        font-size: 0.85rem;
+    }
+
+    .category-button {
         width: 100%;
+        text-align: center;
     }
-    
+
+    .section-title {
+        font-size: 1.8rem;
+    }
+
+    .about-content p {
+        font-size: 1rem;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+    }
+
+    .stats {
+        gap: 1.5rem;
+    }
+
     .form-row {
         grid-template-columns: 1fr;
     }
-    
-    .stats {
-        gap: 2rem;
+
+    .contact-form input,
+    .contact-form textarea {
+        font-size: 0.9rem;
+    }
+
+    .overlay-content {
+        padding: 1.5rem;
+        width: 95%;
+        max-height: 85vh;
+    }
+
+    .overlay-content.tall {
+        min-height: auto;
+    }
+
+    .overlay-title {
+        font-size: 1.5rem;
+    }
+
+    .overlay-title.centered {
+        font-size: 1.5rem;
+    }
+
+    .overlay-subtitle.large {
+        font-size: 1.2rem;
+    }
+
+    .overlay-products {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .overlay-card {
+        padding: 1.5rem;
+    }
+
+    .overlay-card h3 {
+        font-size: 1.1rem;
+    }
+
+    .overlay-card p {
+        font-size: 0.85rem;
+    }
+
+    .sidekick-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .sidekick-btn {
+        padding: 1.2rem;
+        font-size: 0.8rem;
+    }
+
+    .scroll-arrows.top {
+        top: 4rem;
+    }
+
+    .scroll-arrow {
+        font-size: 1.5rem;
+    }
+
+    .video-modal-content {
+        width: 95%;
+    }
+
+    .video-modal-close {
+        top: -35px;
+        font-size: 2rem;
     }
 }
