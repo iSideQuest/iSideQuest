@@ -250,7 +250,7 @@
             isAnimating = true;
             currentPanel = index;
             updateSideNav();
-            wrapper.style.transform = 'translateY(-' + (index * 100) + 'vh)';
+            wrapper.style.transform = 'translateY(calc(' + index + ' * -100dvh))';
             setTimeout(function() { isAnimating = false; }, 500);
         }
         window.scrollToPanel = scrollToPanel;
