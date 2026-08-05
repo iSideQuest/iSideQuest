@@ -191,6 +191,36 @@ body {
     display: none;
 }
 
+.music-toggle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--gray);
+    border: 2px solid var(--text-muted);
+    color: var(--text-muted);
+    font-size: 0.6rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin-top: 0.5rem;
+}
+
+.music-toggle:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--text);
+}
+
+.music-toggle.playing {
+    background: var(--secondary);
+    border-color: var(--secondary);
+    color: var(--text);
+    box-shadow: 0 0 8px rgba(0, 206, 201, 0.6);
+}
+
 /* ============================================
    HERO SECTION
    ============================================ */
@@ -1178,6 +1208,12 @@ textarea {
         text-shadow: 0 0 10px rgba(0, 206, 201, 0.8), 0 0 20px rgba(0, 206, 201, 0.5);
     }
 
+    .music-toggle {
+        width: 24px;
+        height: 24px;
+        font-size: 0.7rem;
+    }
+
     /* Overlay */
     .overlay-content {
         padding: 2rem;
@@ -1326,6 +1362,13 @@ textarea {
     .side-nav-dot.active span {
         color: var(--secondary);
         text-shadow: 0 0 10px rgba(0, 206, 201, 0.8), 0 0 20px rgba(0, 206, 201, 0.5);
+    }
+
+    .music-toggle {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+        margin-top: 0.8rem;
     }
 
     /* Panels */

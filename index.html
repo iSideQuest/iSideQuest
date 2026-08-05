@@ -35,7 +35,13 @@
         <a href="#categories" class="side-nav-dot" data-section="1"><span>Products</span></a>
         <a href="#about" class="side-nav-dot" data-section="2"><span>About iSideQuest</span></a>
         <a href="#contact" class="side-nav-dot" data-section="3"><span>Contact</span></a>
+        <button class="music-toggle" id="musicToggle" title="Toggle Music">&#9835;</button>
     </div>
+
+    <!-- Background Music -->
+    <audio id="bgMusic" loop>
+        <source src="Music/Meditation.mp3" type="audio/mpeg">
+    </audio>
 
     <!-- Scroll Container -->
     <main class="scroll-container" id="scrollContainer">
@@ -455,6 +461,21 @@
                 } else if (physicalOverlay.classList.contains('active')) {
                     closePhysicalOverlay();
                 }
+            }
+        });
+
+        // Music Toggle
+        const bgMusic = document.getElementById('bgMusic');
+        const musicToggle = document.getElementById('musicToggle');
+
+        musicToggle.addEventListener('click', () => {
+            if (bgMusic.paused) {
+                bgMusic.play();
+                musicToggle.classList.add('playing');
+            } else {
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+                musicToggle.classList.remove('playing');
             }
         });
     </script>
