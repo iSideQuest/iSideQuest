@@ -59,47 +59,16 @@
                 <span class="scroll-arrow up" onclick="scrollToPanel(0)">&#8593;</span>
             </div>
 
-            <div class="category-row">
-                <div class="category-text">
-                    <h3 class="category-title">Physical Products</h3>
-                    <div class="category-divider"></div>
-                    <p class="category-description">
-                        Premium upgrade components crafted with precision. Transform your board games 
-                        with high-quality metal, wood, and resin pieces that enhance gameplay and aesthetics.
-                    </p>
-                    <ul class="category-list">
-                        <li>Metal coins & tokens</li>
-                        <li>Custom player pieces</li>
-                        <li>Premium dice sets</li>
-                        <li>Resource bundles</li>
-                        <li>Card holders & organizers</li>
-                    </ul>
+            <div class="category-cards">
+                <div class="category-card" id="physicalProductsBtn">
+                    <h3 class="category-card-title">Physical Products</h3>
+                    <p class="category-card-desc">Premium upgrade components crafted with precision to transform your board games.</p>
+                    <div class="category-card-image">&#9876;</div>
                 </div>
-                <div class="category-image-col">
-                    <div class="image-placeholder" id="physicalImage">&#9876;</div>
-                    <a href="#physical-products" class="category-button" id="physicalProductsBtn">Browse Physical Products &#8594;</a>
-                </div>
-            </div>
-
-            <div class="category-row">
-                <div class="category-text">
-                    <h3 class="category-title">Digital Products</h3>
-                    <div class="category-divider"></div>
-                    <p class="category-description">
-                        Innovative apps and digital designs to complement your tabletop experience. 
-                        Companion apps, digital rulebooks, and downloadable content for enhanced gaming.
-                    </p>
-                    <ul class="category-list">
-                        <li>Companion apps</li>
-                        <li>Digital rulebooks</li>
-                        <li>Printable inserts</li>
-                        <li>Score trackers</li>
-                        <li>Game organizers & guides</li>
-                    </ul>
-                </div>
-                <div class="category-image-col">
-                    <div class="image-placeholder" id="digitalImage">&#128204;</div>
-                    <a href="#digital-products" class="category-button digital-btn" id="digitalProductsBtn">Browse Digital Products &#8594;</a>
+                <div class="category-card" id="digitalProductsBtn">
+                    <h3 class="category-card-title">Digital Products</h3>
+                    <p class="category-card-desc">Innovative apps and digital designs to complement your tabletop experience.</p>
+                    <div class="category-card-image">&#128204;</div>
                 </div>
             </div>
 
@@ -451,17 +420,12 @@
 
         // Physical Products Overlay
         const physicalBtn = document.getElementById('physicalProductsBtn');
-        const physicalImage = document.getElementById('physicalImage');
         const physicalOverlay = document.getElementById('physicalOverlay');
         const closePhysical = document.getElementById('closePhysical');
 
         physicalBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            physicalOverlay.classList.add('active');
-        });
-
-        physicalImage.addEventListener('click', () => {
             physicalOverlay.classList.add('active');
         });
 
@@ -473,13 +437,6 @@
             if (e.target === physicalOverlay) {
                 physicalOverlay.classList.remove('active');
             }
-        });
-
-        // Digital Products Image Click
-        const digitalImage = document.getElementById('digitalImage');
-
-        digitalImage.addEventListener('click', () => {
-            digitalOverlay.classList.add('active');
         });
     </script>
 </body>
