@@ -19,7 +19,7 @@
     <!-- Fixed Navbar -->
     <nav class="navbar">
         <div class="logo">
-            <a href="#home" class="logo-text" onclick="scrollToPanel(0)">Welcome To iSideQuest</a>
+            <a href="#home" class="logo-text" onclick="scrollToPanel(0)">iSideQuest</a>
         </div>
         <ul class="nav-links">
             <li><a href="#home">Home</a></li>
@@ -43,7 +43,7 @@
         <!-- Hero Section -->
         <section id="home" class="panel hero">
             <div class="hero-content">
-                <h1 class="hero-title">iSideQuest</h1>
+                <h1 class="hero-title">Welcome To<br>iSideQuest</h1>
                 <p class="hero-subtitle">Elevate Your Board Game Experience</p>
                 <p class="hero-description">Premium upgrade components & digital enhancements for your favorite games</p>
                 <a href="#categories" class="cta-button">Explore Products</a>
@@ -147,15 +147,9 @@
                         <p>Customizable box organizers and inserts. Download templates, personalize, and 3D print for perfect game storage.</p>
                         <span class="overlay-price">$4.99</span>
                     </div>
-                    <div class="overlay-card" id="campaignlogCard" data-product="campaignlog">
-                        <h3>CampaignLog</h3>
-                        <p>Digital campaign journal for legacy and story-driven games. Save progress, track achievements, and share with friends.</p>
-                        <span class="overlay-price">$6.99</span>
-                    </div>
                 </div>
                 <div class="product-actions" id="digitalActions">
                     <button class="action-btn" data-action="learn">Learn More</button>
-                    <button class="action-btn" data-action="demo">Watch Demo</button>
                     <button class="action-btn primary" data-action="get">Get Now</button>
                 </div>
             </div>
@@ -178,15 +172,9 @@
                         <p>100 premium resource tokens in vibrant colors for all your games.</p>
                         <span class="overlay-price">$19.99</span>
                     </div>
-                    <div class="overlay-card" id="diceCard" data-product="dice">
-                        <h3>Custom Dice</h3>
-                        <p>Precision-crafted metal dice sets with custom engravings.</p>
-                        <span class="overlay-price">$14.99</span>
-                    </div>
                 </div>
                 <div class="product-actions" id="physicalActions">
                     <button class="action-btn" data-action="learn">Learn More</button>
-                    <button class="action-btn" data-action="gallery">View Gallery</button>
                     <button class="action-btn primary" data-action="buy">Buy Now</button>
                 </div>
             </div>
@@ -376,9 +364,6 @@
                 const product = digitalOverlay.querySelector('.overlay-card.selected')?.dataset.product;
                 if (action === 'learn') {
                     alert(`Learn more about ${product}`);
-                } else if (action === 'demo') {
-                    videoModal.classList.add('active');
-                    videoPlayer.play();
                 } else if (action === 'get') {
                     alert(`Getting ${product}...`);
                 }
@@ -428,8 +413,6 @@
                 const product = physicalOverlay.querySelector('.overlay-card.selected')?.dataset.product;
                 if (action === 'learn') {
                     alert(`Learn more about ${product}`);
-                } else if (action === 'gallery') {
-                    alert(`Opening ${product} gallery...`);
                 } else if (action === 'buy') {
                     alert(`Adding ${product} to cart...`);
                 }

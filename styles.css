@@ -610,7 +610,7 @@ textarea {
 
 .overlay-products {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.6rem;
     width: 100%;
 }
@@ -673,7 +673,7 @@ textarea {
    ============================================ */
 .product-actions {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.6rem;
     margin-top: 1rem;
     padding-top: 1rem;
@@ -1171,7 +1171,7 @@ textarea {
     }
 
     .overlay-products {
-        gap: 1.2rem;
+        gap: 1.5rem;
     }
 
     .overlay-card {
