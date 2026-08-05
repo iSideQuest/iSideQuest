@@ -217,6 +217,11 @@ body {
     animation: glow 3s ease-in-out infinite alternate;
 }
 
+.hero-welcome {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
 .hero-subtitle {
     font-size: 0.8rem;
     color: var(--secondary);
@@ -925,6 +930,10 @@ textarea {
         font-size: 2.7rem;
     }
 
+    .hero-welcome {
+        font-size: 1.2rem;
+    }
+
     .hero-subtitle {
         font-size: 1rem;
     }
@@ -1044,6 +1053,10 @@ textarea {
 
     .hero-title {
         font-size: 3.2rem;
+    }
+
+    .hero-welcome {
+        font-size: 1.4rem;
     }
 
     .hero-subtitle {
@@ -1345,6 +1358,10 @@ textarea {
     .hero-title {
         font-size: clamp(3rem, 10vw, 6rem);
         margin-bottom: 1rem;
+    }
+
+    .hero-welcome {
+        font-size: clamp(1.2rem, 3vw, 1.8rem);
     }
 
     .hero-subtitle {
