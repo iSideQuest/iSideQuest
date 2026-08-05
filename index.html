@@ -149,8 +149,9 @@
                     </div>
                 </div>
                 <div class="product-actions" id="digitalActions">
-                    <button class="action-btn" data-action="learn">Learn More</button>
-                    <button class="action-btn primary" data-action="get">Get Now</button>
+                    <button class="action-btn" data-action="learn">What Is SideKick</button>
+                    <button class="action-btn" data-action="howto">How To Get</button>
+                    <button class="action-btn primary" data-action="go">Go To SideKick</button>
                 </div>
             </div>
         </div>
@@ -174,8 +175,9 @@
                     </div>
                 </div>
                 <div class="product-actions" id="physicalActions">
-                    <button class="action-btn" data-action="learn">Learn More</button>
-                    <button class="action-btn primary" data-action="buy">Buy Now</button>
+                    <button class="action-btn" data-action="learn">What Is SideKick</button>
+                    <button class="action-btn" data-action="howto">How To Get</button>
+                    <button class="action-btn primary" data-action="go">Go To SideKick</button>
                 </div>
             </div>
         </div>
@@ -364,8 +366,10 @@
                 const product = digitalOverlay.querySelector('.overlay-card.selected')?.dataset.product;
                 if (action === 'learn') {
                     alert(`Learn more about ${product}`);
-                } else if (action === 'get') {
-                    alert(`Getting ${product}...`);
+                } else if (action === 'howto') {
+                    alert(`How to get ${product}`);
+                } else if (action === 'go') {
+                    alert(`Going to ${product}...`);
                 }
             });
         });
@@ -413,8 +417,10 @@
                 const product = physicalOverlay.querySelector('.overlay-card.selected')?.dataset.product;
                 if (action === 'learn') {
                     alert(`Learn more about ${product}`);
-                } else if (action === 'buy') {
-                    alert(`Adding ${product} to cart...`);
+                } else if (action === 'howto') {
+                    alert(`How to get ${product}`);
+                } else if (action === 'go') {
+                    alert(`Going to ${product}...`);
                 }
             });
         });

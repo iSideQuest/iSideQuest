@@ -675,10 +675,9 @@ textarea {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 0.6rem;
-    margin-top: 1rem;
-    padding-top: 1rem;
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
     border-top: 1px solid var(--gray);
-    min-height: 50px;
 }
 
 .action-btn {
@@ -697,6 +696,17 @@ textarea {
     min-height: 44px;
     opacity: 0;
     pointer-events: none;
+}
+
+.action-btn.primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border: none;
+}
+
+.product-actions .action-btn:last-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 50%;
 }
 
 .product-actions.has-selection .action-btn {
@@ -1199,14 +1209,19 @@ textarea {
 
     .action-btn {
         padding: 1rem 0.8rem;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
     }
 
     .product-actions {
-        gap: 1.2rem;
-        margin-top: 1.5rem;
-        padding-top: 1.5rem;
-        min-height: 60px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+    }
+
+    .product-actions .action-btn:last-child {
+        grid-column: auto;
+        width: 100%;
     }
 }
 
