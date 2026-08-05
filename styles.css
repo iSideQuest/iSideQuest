@@ -540,9 +540,10 @@ textarea {
     border-radius: 16px;
     padding: 1rem;
     max-width: 1000px;
-    width: 95%;
-    max-height: 80vh;
+    width: 88%;
+    max-height: 85vh;
     overflow-y: auto;
+    overflow-x: hidden;
     position: relative;
     border: 1px solid var(--gray);
     will-change: transform, opacity;
@@ -552,7 +553,7 @@ textarea {
 }
 
 .overlay-content.tall {
-    max-height: 85vh;
+    max-height: 90vh;
     min-height: auto;
 }
 
@@ -670,6 +671,7 @@ textarea {
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid var(--gray);
+    min-height: 50px;
 }
 
 .action-btn {
@@ -686,6 +688,13 @@ textarea {
     transition: all 0.2s ease;
     text-align: center;
     min-height: 44px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.product-actions.has-selection .action-btn {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .action-btn:hover {
@@ -980,6 +989,7 @@ textarea {
         gap: 0.8rem;
         margin-top: 1.2rem;
         padding-top: 1.2rem;
+        min-height: 55px;
     }
 
     .action-btn {
@@ -1143,6 +1153,7 @@ textarea {
     .overlay-content {
         padding: 2rem;
         border-radius: 18px;
+        width: 92%;
     }
 
     .overlay-title {
@@ -1190,6 +1201,7 @@ textarea {
         gap: 1.2rem;
         margin-top: 1.5rem;
         padding-top: 1.5rem;
+        min-height: 60px;
     }
 }
 
@@ -1432,6 +1444,7 @@ textarea {
     .overlay-content {
         padding: 3rem;
         border-radius: 20px;
+        width: 95%;
     }
 
     .overlay-content.tall {
