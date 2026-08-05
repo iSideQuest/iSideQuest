@@ -343,13 +343,16 @@ body {
     flex: 1;
     justify-content: center;
     max-width: 600px;
+    padding: 3rem 0;
+    overflow: hidden;
+    max-height: calc(100dvh - 10rem);
 }
 
 .category-card {
     background: var(--dark-light);
     border: 1px solid var(--gray);
     border-radius: 12px;
-    padding: 1.2rem;
+    padding: 0.8rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -357,6 +360,7 @@ body {
     flex: 1;
     cursor: pointer;
     transition: border-color 0.3s ease, transform 0.3s ease;
+    min-height: 0;
 }
 
 .category-card:hover {
@@ -373,9 +377,9 @@ body {
 
 .category-card-desc {
     color: var(--text-muted);
-    font-size: 0.75rem;
-    margin-bottom: 0.8rem;
-    line-height: 1.5;
+    font-size: 0.7rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
 }
 
 .category-card-image {
@@ -386,9 +390,10 @@ body {
     width: 80%;
     background: linear-gradient(135deg, var(--gray), var(--dark));
     border-radius: 8px;
-    font-size: 2rem;
+    font-size: 1.8rem;
     border: 1px solid var(--gray);
-    min-height: 60px;
+    min-height: 40px;
+    max-height: 200px;
 }
 
 /* ============================================
@@ -1019,24 +1024,27 @@ textarea {
     }
 
     .category-cards {
-        gap: 1.5rem;
+        gap: 1.2rem;
+        padding: 3rem 0;
     }
 
     .category-card {
-        padding: 1.5rem;
+        padding: 1rem;
     }
 
     .category-card-title {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
     }
 
     .category-card-desc {
-        font-size: 0.95rem;
+        font-size: 0.85rem;
+        margin-bottom: 0.6rem;
     }
 
     .category-card-image {
-        font-size: 3rem;
-        min-height: 80px;
+        font-size: 2.5rem;
+        min-height: 60px;
+        max-height: 250px;
     }
 
     /* About */
@@ -1302,27 +1310,30 @@ textarea {
     }
 
     .category-cards {
-        gap: 2rem;
+        gap: 1.5rem;
         max-width: 700px;
+        padding: 4rem 0;
+        max-height: calc(100dvh - 12rem);
     }
 
     .category-card {
-        padding: 2rem;
+        padding: 1.2rem;
     }
 
     .category-card-title {
-        font-size: 1.6rem;
-        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+        margin-bottom: 0.3rem;
     }
 
     .category-card-desc {
-        font-size: 1rem;
-        margin-bottom: 1rem;
+        font-size: 0.95rem;
+        margin-bottom: 0.8rem;
     }
 
     .category-card-image {
-        font-size: 4rem;
-        min-height: 100px;
+        font-size: 3rem;
+        min-height: 80px;
+        max-height: 300px;
     }
 
     /* About */
