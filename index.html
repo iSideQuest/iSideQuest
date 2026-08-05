@@ -155,7 +155,7 @@
                     </div>
                 </div>
                 <div class="product-actions" id="digitalActions">
-                    <button class="action-btn" data-action="learn">What Is SideKick</button>
+                    <button class="action-btn" data-action="learn">What Is SideKick?</button>
                     <button class="action-btn" data-action="howto">How To Get</button>
                     <button class="action-btn primary" data-action="go">Go To SideKick</button>
                 </div>
@@ -181,9 +181,23 @@
                     </div>
                 </div>
                 <div class="product-actions" id="physicalActions">
-                    <button class="action-btn" data-action="learn">What Is SideKick</button>
+                    <button class="action-btn" data-action="learn">What Is SideKick?</button>
                     <button class="action-btn" data-action="howto">How To Get</button>
                     <button class="action-btn primary" data-action="go">Go To SideKick</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- How To Get Overlay -->
+        <div class="overlay" id="howtoOverlay">
+            <div class="overlay-content small">
+                <button class="overlay-close" id="closeHowto">&times;</button>
+                <h2 class="overlay-title centered">How To Get SideKick</h2>
+                <p class="overlay-subtitle centered large">Select Your Platform:</p>
+                <div class="howto-buttons">
+                    <button class="howto-btn" data-platform="android">Android</button>
+                    <button class="howto-btn" data-platform="ios">iPhone iOS</button>
+                    <button class="howto-btn" data-platform="pc">PC</button>
                 </div>
             </div>
         </div>
@@ -373,9 +387,9 @@
                 if (action === 'learn') {
                     alert(`Learn more about ${product}`);
                 } else if (action === 'howto') {
-                    alert(`How to get ${product}`);
+                    document.getElementById('howtoOverlay').classList.add('active');
                 } else if (action === 'go') {
-                    alert(`Going to ${product}...`);
+                    window.location.href = 'SideKick/test.html';
                 }
             });
         });
@@ -424,10 +438,32 @@
                 if (action === 'learn') {
                     alert(`Learn more about ${product}`);
                 } else if (action === 'howto') {
-                    alert(`How to get ${product}`);
+                    document.getElementById('howtoOverlay').classList.add('active');
                 } else if (action === 'go') {
-                    alert(`Going to ${product}...`);
+                    window.location.href = 'SideKick/test.html';
                 }
+            });
+        });
+
+        // How To Get Overlay
+        const howtoOverlay = document.getElementById('howtoOverlay');
+        const closeHowto = document.getElementById('closeHowto');
+
+        closeHowto.addEventListener('click', () => {
+            howtoOverlay.classList.remove('active');
+        });
+
+        howtoOverlay.addEventListener('click', (e) => {
+            if (e.target === howtoOverlay) {
+                howtoOverlay.classList.remove('active');
+            }
+        });
+
+        document.querySelectorAll('.howto-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const platform = btn.dataset.platform;
+                alert(`Opening ${platform} store...`);
+                howtoOverlay.classList.remove('active');
             });
         });
 
@@ -456,6 +492,8 @@
                     videoModal.classList.remove('active');
                     videoPlayer.pause();
                     videoPlayer.currentTime = 0;
+                } else if (howtoOverlay.classList.contains('active')) {
+                    howtoOverlay.classList.remove('active');
                 } else if (digitalOverlay.classList.contains('active')) {
                     closeDigitalOverlay();
                 } else if (physicalOverlay.classList.contains('active')) {

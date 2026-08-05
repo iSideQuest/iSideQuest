@@ -765,6 +765,38 @@ textarea {
 }
 
 /* ============================================
+   HOW TO GET OVERLAY
+   ============================================ */
+.howto-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+
+.howto-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--dark);
+    border: 1px solid var(--gray);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    min-height: 44px;
+}
+
+.howto-btn:hover {
+    border-color: var(--primary);
+    background: var(--gray);
+    transform: translateY(-2px);
+}
+
+/* ============================================
    VIDEO MODAL
    ============================================ */
 .video-modal {
@@ -1053,6 +1085,11 @@ textarea {
         min-height: 48px;
     }
 
+    .howto-btn {
+        padding: 1.1rem;
+        font-size: 0.85rem;
+    }
+
     input, textarea {
         font-size: 0.9rem;
         padding: 0.7rem;
@@ -1271,6 +1308,11 @@ textarea {
     .product-actions .action-btn:last-child {
         grid-column: auto;
         width: 100%;
+    }
+
+    .howto-btn {
+        padding: 1.2rem;
+        font-size: 0.9rem;
     }
 }
 
@@ -1606,6 +1648,11 @@ textarea {
     .sidekick-btn:hover,
     .action-btn:hover {
         transform: translateY(-3px);
+    }
+
+    .howto-btn {
+        padding: 1.4rem 1.5rem;
+        font-size: 1rem;
     }
 
     /* Video Modal */
