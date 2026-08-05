@@ -385,7 +385,7 @@
                 const action = btn.dataset.action;
                 const product = digitalOverlay.querySelector('.overlay-card.selected')?.dataset.product;
                 if (action === 'learn') {
-                    window.location.href = 'Videos/What Is SideKick.mp4';
+                    document.getElementById('videoModal').classList.add('active');
                 } else if (action === 'howto') {
                     document.getElementById('howtoOverlay').classList.add('active');
                 } else if (action === 'go') {
@@ -436,7 +436,7 @@
                 const action = btn.dataset.action;
                 const product = physicalOverlay.querySelector('.overlay-card.selected')?.dataset.product;
                 if (action === 'learn') {
-                    window.location.href = 'Videos/What Is SideKick.mp4';
+                    document.getElementById('videoModal').classList.add('active');
                 } else if (action === 'howto') {
                     document.getElementById('howtoOverlay').classList.add('active');
                 } else if (action === 'go') {
@@ -461,8 +461,8 @@
 
         document.querySelectorAll('.howto-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                window.location.href = 'Videos/What Is SideKick.mp4';
                 howtoOverlay.classList.remove('active');
+                document.getElementById('videoModal').classList.add('active');
             });
         });
 

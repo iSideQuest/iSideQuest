@@ -823,9 +823,9 @@ textarea {
 
 .video-modal-content {
     position: relative;
-    width: 95%;
-    max-width: 800px;
-    max-height: 80vh;
+    width: 85%;
+    max-width: 600px;
+    max-height: 70vh;
 }
 
 .video-modal-close {
@@ -846,7 +846,7 @@ textarea {
 
 #videoPlayer {
     width: 100%;
-    max-height: 80vh;
+    max-height: 70vh;
     border-radius: 8px;
 }
 
@@ -1662,7 +1662,7 @@ textarea {
 
     .video-modal-content {
         width: 100%;
-        max-width: 800px;
+        max-width: 700px;
     }
 
     .video-modal-close {
