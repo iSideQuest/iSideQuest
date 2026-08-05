@@ -609,14 +609,14 @@ textarea {
 
 .overlay-products {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
 }
 
 .overlay-card {
     background: var(--dark);
     border-radius: 12px;
-    padding: 0.8rem;
+    padding: 0.6rem;
     border: 1px solid var(--gray);
     cursor: pointer;
     will-change: transform;
@@ -636,21 +636,25 @@ textarea {
 
 .overlay-card h3 {
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.8rem;
-    margin-bottom: 0.3rem;
+    font-size: 0.7rem;
+    margin-bottom: 0.2rem;
     color: var(--text);
 }
 
 .overlay-card p {
     color: var(--text-muted);
-    font-size: 0.6rem;
-    margin-bottom: 0.5rem;
-    line-height: 1.4;
+    font-size: 0.5rem;
+    margin-bottom: 0.3rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .overlay-price {
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     color: var(--secondary);
     font-weight: 700;
 }
@@ -660,23 +664,22 @@ textarea {
    ============================================ */
 .product-actions {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid var(--gray);
-    justify-items: center;
 }
 
 .action-btn {
     width: 100%;
-    padding: 0.6rem;
+    padding: 0.5rem;
     background: var(--dark);
     border: 1px solid var(--gray);
     border-radius: 8px;
     color: var(--text);
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.65rem;
+    font-size: 0.5rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -947,12 +950,26 @@ textarea {
         font-size: 1.3rem;
     }
 
+    .overlay-card {
+        padding: 0.7rem;
+    }
+
     .overlay-card h3 {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
     }
 
     .overlay-card p {
-        font-size: 0.7rem;
+        font-size: 0.6rem;
+        -webkit-line-clamp: 3;
+    }
+
+    .overlay-price {
+        font-size: 0.85rem;
+    }
+
+    .action-btn {
+        padding: 0.6rem;
+        font-size: 0.6rem;
     }
 
     input, textarea {
@@ -1120,8 +1137,12 @@ textarea {
         font-size: 1rem;
     }
 
+    .overlay-products {
+        gap: 1rem;
+    }
+
     .overlay-card {
-        padding: 1.5rem;
+        padding: 1.2rem;
     }
 
     .overlay-card h3 {
@@ -1131,6 +1152,7 @@ textarea {
     .overlay-card p {
         font-size: 0.85rem;
         line-height: 1.5;
+        -webkit-line-clamp: 3;
     }
 
     .overlay-price {
@@ -1143,8 +1165,14 @@ textarea {
     }
 
     .action-btn {
-        padding: 0.7rem;
-        font-size: 0.7rem;
+        padding: 0.8rem;
+        font-size: 0.75rem;
+    }
+
+    .product-actions {
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
     }
 }
 
