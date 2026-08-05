@@ -137,52 +137,57 @@
                 <h2 class="overlay-title centered">Digital Products</h2>
                 <p class="overlay-subtitle centered large">Select One:</p>
                 <div class="overlay-products">
-                    <div class="overlay-card" id="sidekickCard">
+                    <div class="overlay-card" id="sidekickCard" data-product="sidekick">
                         <h3>SideKick</h3>
                         <p>The ultimate board game companion app. Track scores, manage campaigns, and access digital rulebooks all in one place.</p>
                         <span class="overlay-price">Free</span>
                     </div>
-                    <div class="overlay-card">
+                    <div class="overlay-card" id="printforgeCard" data-product="printforge">
                         <h3>PrintForge</h3>
                         <p>Customizable box organizers and inserts. Download templates, personalize, and 3D print for perfect game storage.</p>
                         <span class="overlay-price">$4.99</span>
                     </div>
-                    <div class="overlay-card">
+                    <div class="overlay-card" id="campaignlogCard" data-product="campaignlog">
                         <h3>CampaignLog</h3>
                         <p>Digital campaign journal for legacy and story-driven games. Save progress, track achievements, and share with friends.</p>
                         <span class="overlay-price">$6.99</span>
                     </div>
                 </div>
-                <div class="sidekick-buttons" id="sidekickButtons" style="display: none;">
-                    <button class="sidekick-btn" id="whatIsSidekick">What Is SideKick?</button>
-                    <button class="sidekick-btn" id="howToGet">How To Get SideKick</button>
-                    <button class="sidekick-btn primary" id="goToSidekick">Go To SideKick</button>
+                <div class="product-actions" id="digitalActions" style="display: none;">
+                    <button class="action-btn" data-action="learn">Learn More</button>
+                    <button class="action-btn" data-action="demo">Watch Demo</button>
+                    <button class="action-btn primary" data-action="get">Get Now</button>
                 </div>
             </div>
         </div>
 
         <!-- Physical Products Overlay -->
         <div class="overlay" id="physicalOverlay">
-            <div class="overlay-content">
+            <div class="overlay-content tall">
                 <button class="overlay-close" id="closePhysical">&times;</button>
-                <h2 class="overlay-title">Physical Products</h2>
-                <p class="overlay-subtitle">Premium upgrade components</p>
+                <h2 class="overlay-title centered">Physical Products</h2>
+                <p class="overlay-subtitle centered large">Select One:</p>
                 <div class="overlay-products">
-                    <div class="overlay-card">
+                    <div class="overlay-card" id="coinsCard" data-product="coins">
                         <h3>Metal Coins</h3>
                         <p>Antiqued copper coins in sets of 50 for enhanced gameplay immersion.</p>
                         <span class="overlay-price">$24.99</span>
                     </div>
-                    <div class="overlay-card">
+                    <div class="overlay-card" id="tokensCard" data-product="tokens">
                         <h3>Resin Tokens</h3>
                         <p>100 premium resource tokens in vibrant colors for all your games.</p>
                         <span class="overlay-price">$19.99</span>
                     </div>
-                    <div class="overlay-card">
+                    <div class="overlay-card" id="diceCard" data-product="dice">
                         <h3>Custom Dice</h3>
                         <p>Precision-crafted metal dice sets with custom engravings.</p>
                         <span class="overlay-price">$14.99</span>
                     </div>
+                </div>
+                <div class="product-actions" id="physicalActions" style="display: none;">
+                    <button class="action-btn" data-action="learn">Learn More</button>
+                    <button class="action-btn" data-action="gallery">View Gallery</button>
+                    <button class="action-btn primary" data-action="buy">Buy Now</button>
                 </div>
             </div>
         </div>
@@ -332,6 +337,8 @@
         const digitalBtn = document.getElementById('digitalProductsBtn');
         const digitalOverlay = document.getElementById('digitalOverlay');
         const closeOverlay = document.getElementById('closeOverlay');
+        const digitalActions = document.getElementById('digitalActions');
+        const digitalCards = digitalOverlay.querySelectorAll('.overlay-card');
 
         digitalBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -339,60 +346,100 @@
             digitalOverlay.classList.add('active');
         });
 
-        closeOverlay.addEventListener('click', () => {
+        function closeDigitalOverlay() {
             digitalOverlay.classList.remove('active');
-            sidekickButtons.style.display = 'none';
-            sidekickCard.classList.remove('selected');
-        });
+            digitalCards.forEach(card => card.classList.remove('selected'));
+            digitalActions.style.display = 'none';
+        }
+
+        closeOverlay.addEventListener('click', closeDigitalOverlay);
 
         digitalOverlay.addEventListener('click', (e) => {
             if (e.target === digitalOverlay) {
-                digitalOverlay.classList.remove('active');
-                sidekickButtons.style.display = 'none';
-                sidekickCard.classList.remove('selected');
+                closeDigitalOverlay();
             }
         });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (videoModal.classList.contains('active')) {
-                    videoModal.classList.remove('active');
-                    videoPlayer.pause();
-                    videoPlayer.currentTime = 0;
-                } else if (digitalOverlay.classList.contains('active')) {
-                    digitalOverlay.classList.remove('active');
-                    sidekickButtons.style.display = 'none';
-                } else if (physicalOverlay.classList.contains('active')) {
-                    physicalOverlay.classList.remove('active');
+        digitalCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.stopPropagation();
+                digitalCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                digitalActions.style.display = 'grid';
+            });
+        });
+
+        digitalActions.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const action = btn.dataset.action;
+                const product = digitalOverlay.querySelector('.overlay-card.selected')?.dataset.product;
+                if (action === 'learn') {
+                    alert(`Learn more about ${product}`);
+                } else if (action === 'demo') {
+                    videoModal.classList.add('active');
+                    videoPlayer.play();
+                } else if (action === 'get') {
+                    alert(`Getting ${product}...`);
                 }
+            });
+        });
+
+        // Physical Products Overlay
+        const physicalBtn = document.getElementById('physicalProductsBtn');
+        const physicalOverlay = document.getElementById('physicalOverlay');
+        const closePhysical = document.getElementById('closePhysical');
+        const physicalActions = document.getElementById('physicalActions');
+        const physicalCards = physicalOverlay.querySelectorAll('.overlay-card');
+
+        physicalBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            physicalOverlay.classList.add('active');
+        });
+
+        function closePhysicalOverlay() {
+            physicalOverlay.classList.remove('active');
+            physicalCards.forEach(card => card.classList.remove('selected'));
+            physicalActions.style.display = 'none';
+        }
+
+        closePhysical.addEventListener('click', closePhysicalOverlay);
+
+        physicalOverlay.addEventListener('click', (e) => {
+            if (e.target === physicalOverlay) {
+                closePhysicalOverlay();
             }
         });
 
-        // SideKick Toggle Buttons
-        const sidekickCard = document.getElementById('sidekickCard');
-        const sidekickButtons = document.getElementById('sidekickButtons');
-        const whatIsSidekick = document.getElementById('whatIsSidekick');
-        const howToGet = document.getElementById('howToGet');
-        const goToSidekick = document.getElementById('goToSidekick');
+        physicalCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.stopPropagation();
+                physicalCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                physicalActions.style.display = 'grid';
+            });
+        });
+
+        physicalActions.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const action = btn.dataset.action;
+                const product = physicalOverlay.querySelector('.overlay-card.selected')?.dataset.product;
+                if (action === 'learn') {
+                    alert(`Learn more about ${product}`);
+                } else if (action === 'gallery') {
+                    alert(`Opening ${product} gallery...`);
+                } else if (action === 'buy') {
+                    alert(`Adding ${product} to cart...`);
+                }
+            });
+        });
+
+        // Video Modal
         const videoModal = document.getElementById('videoModal');
         const videoPlayer = document.getElementById('videoPlayer');
         const closeVideoModal = document.getElementById('closeVideoModal');
-
-        sidekickCard.addEventListener('click', () => {
-            if (sidekickButtons.style.display === 'none' || sidekickButtons.style.display === '') {
-                sidekickButtons.style.display = 'flex';
-                sidekickCard.classList.add('selected');
-            } else {
-                sidekickButtons.style.display = 'none';
-                sidekickCard.classList.remove('selected');
-            }
-        });
-
-        whatIsSidekick.addEventListener('click', (e) => {
-            e.stopPropagation();
-            videoModal.classList.add('active');
-            videoPlayer.play();
-        });
 
         closeVideoModal.addEventListener('click', () => {
             videoModal.classList.remove('active');
@@ -408,34 +455,17 @@
             }
         });
 
-        howToGet.addEventListener('click', (e) => {
-            e.stopPropagation();
-            alert('SideKick is available for free on iOS and Android. Download it from the App Store or Google Play Store.');
-        });
-
-        goToSidekick.addEventListener('click', (e) => {
-            e.stopPropagation();
-            alert('Redirecting to SideKick website...');
-        });
-
-        // Physical Products Overlay
-        const physicalBtn = document.getElementById('physicalProductsBtn');
-        const physicalOverlay = document.getElementById('physicalOverlay');
-        const closePhysical = document.getElementById('closePhysical');
-
-        physicalBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            physicalOverlay.classList.add('active');
-        });
-
-        closePhysical.addEventListener('click', () => {
-            physicalOverlay.classList.remove('active');
-        });
-
-        physicalOverlay.addEventListener('click', (e) => {
-            if (e.target === physicalOverlay) {
-                physicalOverlay.classList.remove('active');
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (videoModal.classList.contains('active')) {
+                    videoModal.classList.remove('active');
+                    videoPlayer.pause();
+                    videoPlayer.currentTime = 0;
+                } else if (digitalOverlay.classList.contains('active')) {
+                    closeDigitalOverlay();
+                } else if (physicalOverlay.classList.contains('active')) {
+                    closePhysicalOverlay();
+                }
             }
         });
     </script>
