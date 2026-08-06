@@ -100,7 +100,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 3.5rem 10% 1rem;
+    padding: 4.5rem 10% 2.5rem;
     position: relative;
     background: transparent;
     overflow: hidden;
@@ -311,7 +311,7 @@ body {
 }
 
 .scroll-arrows.top {
-    top: 4.5rem;
+    top: 4rem;
 }
 
 .scroll-arrows.bottom {
@@ -378,14 +378,15 @@ body {
     max-width: 600px;
     flex: 1;
     justify-content: center;
-    max-height: calc(100vh - 200px);
+    max-height: calc(100vh - 150px);
+    padding: 0 1rem;
 }
 
 .category-card {
     background: var(--dark-light);
     border: 1px solid var(--gray);
     border-radius: 12px;
-    padding: 1rem;
+    padding: 0.8rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -420,7 +421,7 @@ body {
     justify-content: center;
     width: 80%;
     flex: 1;
-    min-height: 140px;
+    min-height: 100px;
     background: linear-gradient(135deg, var(--gray), var(--dark));
     border-radius: 8px;
     font-size: 1.8rem;
@@ -1165,7 +1166,7 @@ textarea {
 
     .category-cards {
         gap: 1.2rem;
-        max-height: calc(100vh - 220px);
+        max-height: calc(100vh - 140px);
     }
 
     .category-card {
@@ -1496,7 +1497,7 @@ textarea {
     .category-cards {
         gap: 1.5rem;
         max-width: 700px;
-        max-height: calc(100vh - 240px);
+        max-height: calc(100vh - 170px);
     }
 
     .category-card {
