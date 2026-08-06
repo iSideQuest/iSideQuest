@@ -373,7 +373,7 @@ body {
 .category-cards {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: .5rem;
     width: 100%;
     max-width: 600px;
     flex: 1;
@@ -1490,13 +1490,13 @@ textarea {
 
     /* Categories */
     .categories-section {
-        padding-top: 6rem;
+        padding-top: 7.2rem;
     }
 
     .category-cards {
-        gap: 1.5rem;
+        gap: .5rem;
         max-width: 700px;
-        max-height: calc(100vh - 220px);
+        max-height: calc(97vh - 220px);
     }
 
     .category-card {
