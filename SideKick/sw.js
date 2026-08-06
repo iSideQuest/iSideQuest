@@ -1,15 +1,14 @@
 // SideKick Service Worker
-// Scope: /sidekick/
 
 const CACHE_NAME = 'sidekick-v2';
 
-// Files to cache on install — the core app shell
+// Files to cache on install — the core app shell (relative paths)
 const PRECACHE = [
-  '/sidekick/',
-  '/sidekick/index.html',
-  '/sidekick/manifest.json',
-  '/sidekick/icon-192.png',
-  '/sidekick/icon-512.png',
+  './',
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
 ];
 
 // External Firebase/CDN URLs we do NOT cache — they must always be live
@@ -72,7 +71,7 @@ self.addEventListener('fetch', event => {
         return caches.match(event.request).then(cached => {
           if (cached) return cached;
           if (event.request.destination === 'document') {
-            return caches.match('/sidekick/index.html');
+            return caches.match('./index.html');
           }
         });
       })
