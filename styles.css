@@ -378,7 +378,7 @@ body {
     max-width: 600px;
     flex: 1;
     justify-content: center;
-    max-height: calc(100vh - 180px);
+    max-height: calc(97vh - 190px);
 }
 
 .category-card {
