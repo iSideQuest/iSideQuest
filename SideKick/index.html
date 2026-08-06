@@ -1754,21 +1754,33 @@
     bottom: 16px;
     left: 16px;
     z-index: 20;
+    display: flex;
+    gap: 6px;
+    align-items: center;
   }
+  .host-game-menu .host-manage-btn {
+    position: static;
+    bottom: auto;
+    right: auto;
+    display: none;
+  }
+  .host-game-menu .host-manage-btn.visible { display: flex; align-items: center; }
   .host-game-menu-btn {
-    width: 40px;
+    min-width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 10px;
     background: rgba(0,0,0,0.45);
     border: 1px solid rgba(255,255,255,0.15);
     color: rgba(255,255,255,0.85);
-    font-size: 1.25rem;
-    padding: 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 0 0.7rem;
     cursor: pointer;
     display: none;
     align-items: center;
     justify-content: center;
     text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    white-space: nowrap;
   }
   .host-game-menu-btn.visible { display: flex; }
   .host-game-menu-drawer {
@@ -1829,20 +1841,26 @@
   .exit-btn:active { background: rgba(180,0,0,0.5); color: #fff; }
 
 
-  /* ── SETTINGS PANEL ── */
-  .settings-panel {
+  /* ── ACTIVE TOP BAR ── */
+  .active-top-bar {
     position: absolute;
-    top: 14px;
-    left: 14px;
+    top: 12px; left: 0; right: 0;
     z-index: 20;
-    pointer-events: all;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
+    align-items: center;
+    justify-content: flex-start;
+    pointer-events: none;
+    padding: 0 12px;
   }
-  .settings-gear {
-    width: 40px; height: 40px;
+  .active-top-bar > * { pointer-events: all; }
+  .active-sound-btn {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    top: auto;
+    left: auto;
+    z-index: 20;
+    width: 38px; height: 38px;
     border-radius: 50%;
     background: rgba(0,0,0,0.45);
     border: 1px solid rgba(255,255,255,0.15);
@@ -1850,11 +1868,21 @@
     font-size: 1.1rem;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    padding: 0; width: 40px;
-    transition: background 0.2s, transform 0.3s;
-    flex-shrink: 0;
+    padding: 0;
+    transition: background 0.2s;
   }
-  .settings-gear.open { transform: rotate(60deg); background: rgba(124,92,191,0.5); color:#fff; }
+  .active-sound-btn:active { background: rgba(124,92,191,0.5); }
+  .active-room-code {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.5);
+    background: rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 0.35rem 0.85rem;
+    white-space: nowrap;
+  }
   .settings-drawer {
     overflow: hidden;
     max-height: 0;
@@ -1913,7 +1941,6 @@
     .exit-btn { top: 10px; right: 10px; }
     .settings-panel { top: 10px; left: 10px; }
     .settings-gear { width: 34px; height: 34px; font-size: 1rem; }
-    .host-manage-btn { bottom: 10px; right: 10px; }
     .host-game-menu { bottom: 10px; left: 10px; }
     #screen-active .pass-tap-btn { padding: 36px 10px; }
   }
@@ -2361,7 +2388,7 @@
   }
   .round-indicator.visible { display: flex; }
   .round-indicator-label {
-    font-size: 0.7rem;
+    font-size: 1rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.14em;
@@ -2374,7 +2401,7 @@
     text-shadow: 0 0 10px rgba(251,191,36,0.6), 0 1px 6px rgba(0,0,0,0.8);
   }
   .round-indicator-fraction {
-    font-size: 0.62rem;
+    font-size: 0.78rem;
     font-weight: 700;
     color: rgba(255,255,255,0.45);
     letter-spacing: 0.08em;
@@ -3829,7 +3856,7 @@
     <!-- Wizard buttons (outside cards area, pinned to bottom) -->
     <div id="create-wizard-btns" style="width:100%;max-width:380px;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
       <button class="btn-primary" id="create-next-btn" onclick="createNextStep()" style="width:100%;">Next →</button>
-      <button class="btn-primary" id="create-final-btn" onclick="onCreateFinalBtn()" style="width:100%;display:none;">Create Room</button>
+      <button class="btn-primary" id="create-final-btn" onclick="onCreateFinalBtn()" style="width:100%;display:none;">Next →</button>
       <p id="create-status" class="status"></p>
       <button class="btn-secondary btn-sm" id="create-home-btn" onclick="goHome()" style="width:100%;">← Home</button>
     </div>
@@ -3942,7 +3969,7 @@
   <div class="screen-content-scaler" id="scaler-lobby" style="display:flex;flex-direction:column;height:100%;">
 
     <!-- Page header -->
-    <div class="logo" style="font-size:1.5rem;letter-spacing:0.04em;margin-bottom:0.4rem;text-align:center;">Room Code</div>
+    <div class="logo" style="font-size:1.5rem;letter-spacing:0.04em;margin-bottom:0.4rem;text-align:center;">Player Lobby</div>
 
     <!-- Card 1: QR code + room code -->
     <div class="card" style="max-width:480px;margin-bottom:0.35rem;text-align:center; padding: 0.4rem 0.5rem 0.2rem;">
@@ -4015,7 +4042,11 @@
   <div class="touch-guard touch-guard-top"></div>
   <div class="touch-guard touch-guard-bottom"></div>
   <button class="exit-btn" onclick="confirmLeave()">⬡ Exit Room</button>
-  <button class="host-manage-btn" id="host-manage-btn" onclick="openManagePanel()">👥 Players</button>
+  <!-- Host game menu (bottom-left) -->
+  <div class="host-game-menu" id="host-game-menu-active">
+    <button class="host-game-menu-btn" id="host-game-menu-btn-active" onclick="openHostCrownMenu()">Host Menu</button>
+    <button class="host-manage-btn" id="host-manage-btn" onclick="openManagePanel()">👥 Players</button>
+  </div>
   <button class="status-effects-btn" id="status-btn-active" onclick="openStatusMenu()" title="Status Effects">🩹</button>
   <!-- Nudge counter shown to active player -->
   <!-- Nudge counter - hidden, tracked for awards only -->
@@ -4037,19 +4068,16 @@
     <div class="round-indicator-label" id="round-label-active">Round 1</div>
     <div class="round-indicator-fraction" id="round-fraction-active">1/1</div>
   </div>
-  <!-- Host game menu (bottom-left) -->
-  <div class="host-game-menu" id="host-game-menu-active">
-    <button class="host-game-menu-btn" id="host-game-menu-btn-active" onclick="openHostCrownMenu()">👑</button>
-  </div>
   <button class="action-btn btn-left" onclick="passTurn('left')" id="btn-left">
     <div class="btn-arrow">←</div>
     <div class="btn-label">Pass Left</div>
     <div class="btn-player-name" id="left-player-name"></div>
   </button>
   <div class="active-divider" id="active-divider"></div>
-  <div class="settings-panel">
-    <button class="settings-gear" id="settings-gear-btn" onclick="openSettingsOverlay()" title="Settings">⚙️</button>
+  <div class="active-top-bar">
+    <div class="active-room-code" id="active-room-code"></div>
   </div>
+  <button class="active-sound-btn" id="active-sound-btn" onclick="toggleSound()">🔊</button>
   <div class="active-center" id="active-center">
     <div class="active-center-its">It's Your Turn</div>
     <div class="active-center-name" id="active-player-display"></div>
@@ -4123,20 +4151,21 @@
 <!--  SCREEN: WAITING (inactive player)          -->
 <!-- ═══════════════════════════════════════════ -->
 <div id="screen-waiting" class="screen">
+  <div class="active-top-bar">
+    <div class="active-room-code" id="active-room-code-wait"></div>
+  </div>
+  <button class="active-sound-btn" id="active-sound-btn-wait" onclick="toggleSound()">🔊</button>
   <!-- Touch guards: prevent accidental pass-turn taps on button zones -->
   <div class="touch-guard touch-guard-top"></div>
   <div class="touch-guard touch-guard-bottom"></div>
   <button class="exit-btn" onclick="confirmLeave()">⬡ Exit Room</button>
-  <button class="host-manage-btn" id="host-manage-btn-wait" onclick="openManagePanel()">👥 Players</button>
-  <button class="undo-turn-btn" id="undo-turn-btn" onclick="undoTurn()" title="Undo Pass">↩ Undo Pass</button>
-  <button class="status-effects-btn" id="status-btn-wait" onclick="openStatusMenu()" title="Status Effects">🩹</button>
   <!-- Host game menu (bottom-left) -->
   <div class="host-game-menu" id="host-game-menu-wait">
-    <button class="host-game-menu-btn" id="host-game-menu-btn-wait" onclick="openHostCrownMenu()">👑</button>
+    <button class="host-game-menu-btn" id="host-game-menu-btn-wait" onclick="openHostCrownMenu()">Host Menu</button>
+    <button class="host-manage-btn" id="host-manage-btn-wait" onclick="openManagePanel()">👥 Players</button>
   </div>
-  <div class="settings-panel">
-    <button class="settings-gear" id="settings-gear-btn-wait" onclick="openSettingsOverlay()" title="Settings">⚙️</button>
-  </div>
+  <button class="undo-turn-btn" id="undo-turn-btn" onclick="undoTurn()" title="Undo Pass">↩ Undo Pass</button>
+  <button class="status-effects-btn" id="status-btn-wait" onclick="openStatusMenu()" title="Status Effects">🩹</button>
   <!-- Round indicator (top-center, visible when Rounds feature is on) -->
   <div class="round-indicator" id="round-indicator-wait">
     <div class="round-indicator-label" id="round-label-wait">Round 1</div>
@@ -4219,7 +4248,7 @@
   <div class="buzz-bottom-bar">
     <!-- Left: host crown (hidden for non-hosts) -->
     <div id="host-crown-buzz" style="display:none;">
-      <button class="host-game-menu-btn" id="host-crown-btn-buzz" onclick="openHostCrownMenu()" style="width:36px;height:36px;font-size:1rem;">👑</button>
+      <button class="host-game-menu-btn" id="host-crown-btn-buzz" onclick="openHostCrownMenu()" style="min-width:36px;height:36px;font-size:0.75rem;padding:0 0.5rem;">Host Menu</button>
     </div>
     <!-- Center: spacer (kept for grid layout) -->
     <div id="buzz-bottom-spacer"></div>
@@ -4242,6 +4271,17 @@
   </div>
   <div id="buzz-complete-wait" style="display:none; color:var(--muted); font-size:0.85rem;">Waiting for host...</div>
 </div>
+<!-- ═══════════════════════════════════════════ -->
+<!--  SCREEN: RECONFIGURING (host starting new game) -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="screen-reconfiguring" class="screen">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:2rem;text-align:center;">
+    <div style="font-size:3rem;margin-bottom:1rem;">🔄</div>
+    <div style="font-size:1.15rem;font-weight:700;color:var(--text);margin-bottom:0.5rem;">Please Wait</div>
+    <div style="font-size:0.9rem;color:var(--muted);line-height:1.5;">The host is starting a new game.<br>Settings may change.</div>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════════════ -->
 <div class="awards-standby" id="awards-standby">
   <div class="awards-standby-icon">🏆</div>
@@ -4458,6 +4498,16 @@
 <div class="info-overlay" id="midgame-settings-overlay">
   <div class="info-modal" style="width:min(360px,92vw);max-height:88vh;overflow-y:auto;padding:1.5rem 1.25rem;">
     <div style="font-size:1.05rem;font-weight:800;color:var(--text);text-align:center;margin-bottom:1.1rem;">⚙️ Room Settings</div>
+
+    <!-- Turn Direction -->
+    <div class="feature-row" style="margin-bottom:0.5rem;">
+      <span class="feature-name" style="font-size:0.9rem;">Direction</span>
+    </div>
+    <div id="mg-direction-buttons" style="display:flex;gap:0.4rem;margin-bottom:0.75rem;">
+      <button class="mg-dir-btn" data-dir="ccw" onclick="mgSetDirection('ccw')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">↺ Counterclockwise</button>
+      <button class="mg-dir-btn" data-dir="both" onclick="mgSetDirection('both')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">⇅ Both Directions</button>
+      <button class="mg-dir-btn" data-dir="cw" onclick="mgSetDirection('cw')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">↻ Clockwise</button>
+    </div>
 
     <!-- Nudge -->
     <div class="feature-row" style="margin-bottom:0.5rem;">
@@ -6402,6 +6452,7 @@ tryAutoResume();
 window.showCreateRoom = function() {
   if (!requireHostAccount()) return;
   editingRoom = false;
+  startingNewGame = false;
   myColor = '';
   // Auto-fill avatar from profile (host is always logged in)
   const profileAv = getSavedAvatar();
@@ -6536,6 +6587,7 @@ window.joinNextStep = function() {
 // ── CREATE ROOM WIZARD ──
 let createStep = 1;
 let editingRoom = false;
+let startingNewGame = false;
 
 function renderCreateStep() {
   const area = document.getElementById('create-cards-area');
@@ -6642,6 +6694,7 @@ window.openToolsOverlay = function() {
 };
 window.closeToolsOverlay = function() {
   document.getElementById('tools-overlay').classList.remove('show');
+  openHostCrownMenu();
 };
 
 // ── TUTORIAL OVERLAY ──
@@ -7228,6 +7281,7 @@ window.goHome = function() {
     clearSession();
   }
   editingRoom = false;
+  startingNewGame = false;
   // Reset QR (inline lobby card)
   const qrBox = document.getElementById('qr-code-lobby');
   if (qrBox) qrBox.innerHTML = '';
@@ -7352,13 +7406,15 @@ window.goBackToCreate = async function() {
 };
 
 window.onCreateFinalBtn = function() {
-  if (editingRoom) { returnToLobby(); } else { createRoom(); }
+  if (startingNewGame) { startNewGame(); } else if (editingRoom) { returnToLobby(); } else { createRoom(); }
 };
 
 function renderEditRoomButtons() {
   const finalBtn = document.getElementById('create-final-btn');
   if (finalBtn) {
-    if (editingRoom) { finalBtn.textContent = 'Back to Lobby →'; } else { finalBtn.textContent = 'Create Room'; }
+    if (startingNewGame) { finalBtn.textContent = 'Start Game →'; }
+    else if (editingRoom) { finalBtn.textContent = 'Back to Lobby →'; }
+    else { finalBtn.textContent = 'Next →'; }
   }
 }
 
@@ -7412,6 +7468,7 @@ window.saveRoomChanges = async function() {
 
 window.returnToLobby = function() {
   editingRoom = false;
+  startingNewGame = false;
   document.getElementById('display-code').textContent = roomCode;
   showScreen('lobby');
   generateLobbyQR();
@@ -7616,6 +7673,8 @@ let hostMenuOpen = { active: false, wait: false };
 window.openHostCrownMenu = function() {
   const codeEl = document.getElementById('host-crown-room-code');
   if (codeEl) codeEl.textContent = roomCode || '----';
+  const erBtn = document.getElementById('host-crown-endround-btn');
+  if (erBtn) erBtn.style.display = featureRoundsEnabled ? '' : 'none';
   document.getElementById('host-crown-overlay').classList.add('show');
 };
 
@@ -7685,6 +7744,9 @@ window.openMidGameSettings = function() {
   const modeRadio = document.querySelector(`input[name="mg-nudge-mode"][value="${nudgeMode}"]`);
   if (modeRadio) modeRadio.checked = true;
 
+  // Highlight current direction
+  mgHighlightDirection(passDirection);
+
   if (featureTimersEnabled) {
     document.getElementById('mg-timer-turn-on').checked          = timerCfg.turn;
     document.getElementById('mg-timer-turn-visible').checked     = timerCfg.turnVisible;
@@ -7709,6 +7771,21 @@ window.openMidGameSettings = function() {
 
 window.closeMidGameSettings = function() {
   document.getElementById('midgame-settings-overlay').classList.remove('show');
+  openHostCrownMenu();
+};
+
+window.mgHighlightDirection = function(dir) {
+  document.querySelectorAll('.mg-dir-btn').forEach(btn => {
+    const active = btn.dataset.dir === dir;
+    btn.style.background = active ? 'var(--accent)' : 'rgba(255,255,255,0.06)';
+    btn.style.borderColor = active ? 'var(--accent)' : 'var(--border)';
+    btn.style.color = active ? '#fff' : 'var(--text)';
+  });
+};
+
+window.mgSetDirection = function(dir) {
+  passDirection = dir;
+  mgHighlightDirection(dir);
 };
 
 window.onMidGameToggle = function(key, checked) {
@@ -7780,7 +7857,7 @@ window.saveMidGameSettings = async function() {
     await update(ref(db), updates);
     suppressNextTurnSound = true;
     statusEl.textContent = '✓ Applied!';
-    setTimeout(closeMidGameSettings, 700);
+    closeMidGameSettings();
   } catch(e) {
     statusEl.textContent = 'Error: ' + e.message;
   }
@@ -8774,42 +8851,15 @@ window.toggleSound = function() {
   const icon = soundEnabled ? '🔊' : '🔇';
   const btn = document.getElementById('sound-toggle');
   if (btn) { btn.textContent = icon; btn.classList.toggle('active-ctrl', soundEnabled); }
+  const activeBtn = document.getElementById('active-sound-btn');
+  if (activeBtn) activeBtn.textContent = icon;
+  const waitBtn = document.getElementById('active-sound-btn-wait');
+  if (waitBtn) waitBtn.textContent = icon;
 };
 
 // ── ORIENTATION CONTROL ──────────────────────
-let currentOrientation = 'auto';
-window.setOrientation = function(mode) {
-  currentOrientation = mode;
-  ['portrait','landscape','auto'].forEach(m => {
-    const b = document.getElementById('orient-' + m);
-    if (b) b.classList.toggle('active-ctrl', m === mode);
-  });
-  applyOrientation(mode);
-};
-
-async function applyOrientation(mode) {
-  if (mode === 'auto') {
-    try { screen.orientation.unlock(); } catch(e) {}
-    if (document.fullscreenElement) {
-      try { await document.exitFullscreen(); } catch(e) {}
-    }
-    return;
-  }
-  try {
-    const type = mode === 'portrait' ? 'portrait-primary' : 'landscape-primary';
-    await screen.orientation.lock(type);
-  } catch(e) {
-    try {
-      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
-      const type = mode === 'portrait' ? 'portrait-primary' : 'landscape-primary';
-      await screen.orientation.lock(type);
-    } catch(e2) {}
-  }
-}
-
 function resetOrientation() {
-  currentOrientation = 'auto';
-  try { screen.orientation.unlock(); } catch(e) {}
+  try { screen.orientation.lock('portrait-primary').catch(()=>{}); } catch(e) {}
 }
 
 // ── WAKE LOCK (keep screen on during game) ──────────────
@@ -9199,11 +9249,17 @@ async function joinAsNewPlayer(code, room, name) {
   haptic(15);
   saveSession();
 
-  if (room.status === 'playing') {
-    document.getElementById('wl-code').textContent = code;
-    listenGameState();
-    return;
-  }
+    if (room.status === 'playing') {
+      cleanupListeners();
+      listenGameState();
+      return;
+    }
+
+    // Non-host players: show reconfiguring screen while host sets up new game
+    if (room.status === 'reconfiguring' && !isHost) {
+      showScreen('reconfiguring');
+      return;
+    }
 
   document.getElementById('wl-code').textContent = code;
   showScreen('waiting-lobby');
@@ -9351,6 +9407,155 @@ window.startGame = async function() {
   haptic(20);
 };
 
+// ── START NEW GAME ──────────────────────────
+window.startNewGameSetup = async function() {
+  if (!db || !roomCode) return;
+  const confirmed = await appConfirm('Start a new game? All players will return to the lobby and settings can be reconfigured.');
+  if (!confirmed) return;
+  // Set room status to reconfiguring so non-host players see the wait screen
+  await update(ref(db), {
+    [`rooms/${roomCode}/status`]: 'reconfiguring'
+  });
+  // Clean up listeners and take host to the wizard (starting from step 1)
+  cleanupListeners();
+  startingNewGame = true;
+  editingRoom = false;
+  // Pre-fill wizard with current settings (like goBackToCreate)
+  const nameEl = document.getElementById('host-name');
+  if (nameEl && myName) nameEl.value = myName;
+  if (myColor) {
+    const colorBtn = document.getElementById('host-color-btn');
+    const colorLabel = document.getElementById('host-color-label');
+    if (colorBtn) { colorBtn.style.background = myColor; colorBtn.style.borderColor = myColor; }
+    const colorName = PLAYER_COLORS.find(c => c.hex === myColor)?.name || myColor;
+    if (colorLabel) colorLabel.textContent = colorName;
+  }
+  const savedAv = roomAvatarSelection || getSavedAvatar();
+  if (savedAv) {
+    const avLabel = document.getElementById('host-avatar-label');
+    if (avLabel) avLabel.textContent = savedAv + ' Select Avatar';
+  }
+  if (turnMode) {
+    const tmClassic = document.getElementById('tm-btn-classic');
+    const tmSpeed = document.getElementById('tm-btn-speed');
+    if (turnMode === 'classic') {
+      if (tmClassic) tmClassic.classList.add('selected');
+      if (tmSpeed) tmSpeed.classList.remove('selected');
+    } else {
+      if (tmSpeed) tmSpeed.classList.add('selected');
+      if (tmClassic) tmClassic.classList.remove('selected');
+    }
+    const selTxt = document.getElementById('tm-summary');
+    const dirLabels = { cw: '↻ Left', both: '↔ Both', ccw: '↺ Right' };
+    if (selTxt) {
+      if (turnMode === 'classic') {
+        selTxt.innerHTML = `♟️ Classic Turns — <span>${dirLabels[passDirection] || passDirection}</span>`;
+      } else {
+        selTxt.innerHTML = `⚡ Speed Round — <span>${speedMode === 'firstToTap' ? 'First to Tap' : 'Down the Line'}</span>`;
+      }
+    }
+    document.getElementById('tm-required-note').style.display = 'none';
+  }
+  const toggleMap = {
+    'feature-nudge-toggle': featureNudgeEnabled,
+    'feature-awards-toggle': featureAwardsEnabled,
+    'feature-vp-toggle': featureVPEnabled,
+    'feature-status-toggle': featureStatusEffectsEnabled,
+    'feature-dnd-toggle': featureDndEnabled,
+    'feature-rounds-toggle': featureRoundsEnabled,
+    'feature-timers-toggle': featureTimersEnabled
+  };
+  Object.entries(toggleMap).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = val;
+  });
+  const nudgeEditBtn = document.getElementById('nudge-edit-btn');
+  if (nudgeEditBtn) nudgeEditBtn.classList.toggle('visible', featureNudgeEnabled);
+  const timersEditBtn = document.getElementById('timers-edit-btn');
+  if (timersEditBtn) timersEditBtn.classList.toggle('visible', featureTimersEnabled);
+  const roundsEditBtn = document.getElementById('rounds-edit-btn');
+  if (roundsEditBtn) roundsEditBtn.classList.toggle('visible', featureRoundsEnabled);
+  updateFeaturesSummary();
+  // Start from step 1 so host can redo all steps
+  createStep = 1;
+  renderCreateStep();
+  renderEditRoomButtons();
+  showScreen('create');
+};
+
+window.startNewGame = async function() {
+  if (!db || !roomCode) return;
+  const name = document.getElementById('host-name').value.trim();
+  if (!name) { status('create-status', 'Enter your name.', 'error'); return; }
+  if (!turnMode || (turnMode === 'classic' && !passDirection)) {
+    document.getElementById('tm-required-note').style.display = 'block';
+    status('create-status', 'Choose a turn mode to continue.', 'error');
+    return;
+  }
+  document.getElementById('tm-required-note').style.display = 'none';
+  myName = name;
+  const av = roomAvatarSelection || '👤';
+  const updates = {};
+  // Update host player info
+  updates[`rooms/${roomCode}/players/${myId}/name`] = name;
+  updates[`rooms/${roomCode}/players/${myId}/color`] = myColor;
+  updates[`rooms/${roomCode}/players/${myId}/avatar`] = av;
+  // Update all features
+  updates[`rooms/${roomCode}/features/passDirection`] = passDirection;
+  updates[`rooms/${roomCode}/features/turnMode`] = turnMode;
+  updates[`rooms/${roomCode}/features/speedMode`] = turnMode === 'speedRound' ? speedMode : '';
+  updates[`rooms/${roomCode}/features/speedRoundsTotal`] = turnMode === 'speedRound' ? speedRoundsTotal : 0;
+  updates[`rooms/${roomCode}/features/nudge`] = featureNudgeEnabled;
+  updates[`rooms/${roomCode}/features/nudgeDelay`] = featureNudgeEnabled ? (parseInt(document.getElementById('nudge-delay').value) || 30) : 0;
+  updates[`rooms/${roomCode}/features/nudgeMode`] = featureNudgeEnabled ? (document.querySelector('input[name="nudge-mode"]:checked')?.value || 'multi') : 'multi';
+  updates[`rooms/${roomCode}/features/awards`] = featureAwardsEnabled;
+  updates[`rooms/${roomCode}/features/victoryPoints`] = featureVPEnabled;
+  updates[`rooms/${roomCode}/features/statusEffects`] = featureStatusEffectsEnabled;
+  updates[`rooms/${roomCode}/features/dndTurnComponents`] = featureDndEnabled;
+  updates[`rooms/${roomCode}/features/timers`] = featureTimersEnabled;
+  updates[`rooms/${roomCode}/features/timerTurnOn`] = featureTimersEnabled && document.getElementById('timer-turn-on').checked;
+  updates[`rooms/${roomCode}/features/timerTurnVisible`] = document.getElementById('timer-turn-visible').checked;
+  updates[`rooms/${roomCode}/features/timerRoundOn`] = featureTimersEnabled && document.getElementById('timer-round-on').checked;
+  updates[`rooms/${roomCode}/features/timerRoundVisible`] = document.getElementById('timer-round-visible').checked;
+  updates[`rooms/${roomCode}/features/timerGameOn`] = featureTimersEnabled && document.getElementById('timer-game-on').checked;
+  updates[`rooms/${roomCode}/features/timerGameVisible`] = document.getElementById('timer-game-visible').checked;
+  updates[`rooms/${roomCode}/features/timerCountdownOn`] = featureTimersEnabled && document.getElementById('timer-countdown-on').checked;
+  updates[`rooms/${roomCode}/features/timerCountdownVisible`] = document.getElementById('timer-countdown-visible').checked;
+  updates[`rooms/${roomCode}/features/timerCountdownSecs`] = (parseInt(document.getElementById('timer-countdown-min').value)||0)*60 + (parseInt(document.getElementById('timer-countdown-sec').value)||30);
+  updates[`rooms/${roomCode}/features/rounds`] = featureRoundsEnabled;
+  updates[`rooms/${roomCode}/features/roundsTotal`] = featureRoundsEnabled ? (parseInt(document.getElementById('rounds-total').value) || 3) : 0;
+  updates[`rooms/${roomCode}/features/undo`] = featureUndoEnabled;
+  // Reset game state — keep players and room code
+  updates[`rooms/${roomCode}/status`] = 'lobby';
+  updates[`rooms/${roomCode}/activePlayerIndex`] = 0;
+  updates[`rooms/${roomCode}/previousPlayerId`] = null;
+  updates[`rooms/${roomCode}/previousPlayerIndex`] = null;
+  updates[`rooms/${roomCode}/currentRound`] = featureRoundsEnabled ? 1 : 0;
+  updates[`rooms/${roomCode}/timerRound`] = 0;
+  updates[`rooms/${roomCode}/timerGame`] = 0;
+  updates[`rooms/${roomCode}/timerCountdown`] = featureTimersEnabled && document.getElementById('timer-countdown-on').checked ? (parseInt(document.getElementById('timer-countdown-min').value)||0)*60 + (parseInt(document.getElementById('timer-countdown-sec').value)||30) : 0;
+  // Reset buzz state if speed round
+  if (turnMode === 'speedRound') {
+    updates[`rooms/${roomCode}/buzz`] = {
+      phase: 'waiting',
+      currentRound: 1,
+      totalRounds: speedRoundsTotal || 10,
+      scores: {},
+      tapOrder: {},
+      winner: null,
+      dtlIndex: 0,
+      roundStartTime: serverNow()
+    };
+  }
+  await update(ref(db), updates);
+  haptic(20);
+  startingNewGame = false;
+  document.getElementById('display-code').textContent = roomCode;
+  showScreen('lobby');
+  generateLobbyQR();
+  listenLobby();
+};
+
 // ── GAME STATE LISTENER ──────────────────────────
 let lastActivePlayerId = null;
 function listenGameState() {
@@ -9378,6 +9583,12 @@ function listenGameState() {
     const room = snap.val();
     // Room closed by host — send everyone home immediately
     if (room.status === 'closed') { hideAllAwardOverlays(); showScreen('home'); return; }
+    // Host starting new game — show reconfiguring screen
+    if (room.status === 'reconfiguring') {
+      hideAllAwardOverlays();
+      showScreen('reconfiguring');
+      return;
+    }
     // Host saved the game — pause everyone on the Game Saved screen
     if (room.status === 'saved') {
       hideAllAwardOverlays();
@@ -9390,6 +9601,11 @@ function listenGameState() {
     if (room.status === 'playing') {
       hideAllAwardOverlays();
       // fall through to normal game rendering below
+    }
+    // Non-host players: stay on reconfiguring screen while host is in lobby setting up new game
+    if (room.status === 'lobby' && !isHost) {
+      showScreen('reconfiguring');
+      return;
     }
     if (room.status !== 'playing' && room.status !== 'ceremony' && room.status !== 'vp-entry') { showScreen('home'); return; }
 
@@ -9528,6 +9744,10 @@ function listenGameState() {
       else syncTimersFromRoom(room);
       clearNudgeTimer();
       showScreen('active');
+      const activeRC = document.getElementById('active-room-code');
+      if (activeRC && roomCode) activeRC.textContent = 'Room Code: ' + roomCode;
+      const activeSB = document.getElementById('active-sound-btn');
+      if (activeSB) { activeSB.textContent = soundEnabled ? '🔊' : '🔇'; }
       requestWakeLock();
       if (soundEnabled && !suppressNextTurnSound && (turnChanged || firstTurn)) playTurnSound();
       suppressNextTurnSound = false;
@@ -9596,6 +9816,10 @@ function listenGameState() {
       if (turnChanged || firstTurn) initTimersForTurn(room, false);
       else syncTimersFromRoom(room);
       showScreen('waiting');
+      const waitRC = document.getElementById('active-room-code-wait');
+      if (waitRC && roomCode) waitRC.textContent = 'Room Code: ' + roomCode;
+      const waitSB = document.getElementById('active-sound-btn-wait');
+      if (waitSB) waitSB.textContent = soundEnabled ? '🔊' : '🔇';
       // Reset the active screen background so it doesn't persist for next turn
       document.getElementById('screen-active').style.background = '';
       requestWakeLock();
@@ -10579,17 +10803,6 @@ window.dismissInstall = function() {
     </div>
     <div style="height:1px; background:var(--border); margin-bottom:0.75rem;"></div>
 
-    <!-- Orientation -->
-    <div style="margin-bottom:0.75rem;">
-      <div style="font-size:0.9rem; font-weight:600; color:var(--text); margin-bottom:0.5rem;">Screen Orientation</div>
-      <div style="display:flex; gap:0.5rem;">
-        <button class="ctrl-btn" id="orient-portrait" onclick="setOrientation('portrait')" title="Portrait" style="flex:1; width:auto; height:48px; font-size:1.1rem; border-radius:10px;">📱<br><span style="font-size:0.62rem;">Portrait</span></button>
-        <button class="ctrl-btn" id="orient-landscape" onclick="setOrientation('landscape')" title="Landscape" style="flex:1; width:auto; height:48px; font-size:1.1rem; border-radius:10px;">🔲<br><span style="font-size:0.62rem;">Landscape</span></button>
-        <button class="ctrl-btn active-ctrl" id="orient-auto" onclick="setOrientation('auto')" title="Auto" style="flex:1; width:auto; height:48px; font-size:1.1rem; border-radius:10px;">🔄<br><span style="font-size:0.62rem;">Auto</span></button>
-      </div>
-    </div>
-    <div style="height:1px; background:var(--border); margin-bottom:0.75rem;"></div>
-
     <!-- Room Code -->
     <div style="text-align:center; margin-bottom:1.1rem;">
       <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.25rem;">Room Code</div>
@@ -10619,8 +10832,9 @@ window.dismissInstall = function() {
     </div>
     <button class="host-menu-item" style="width:100%; border-radius:10px; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); openMidGameSettings()">⚙️ Room Settings</button>
     <button class="host-menu-item" style="width:100%; border-radius:10px; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); openToolsOverlay()">🧰 Tools</button>
-    <button class="host-menu-item" style="width:100%; border-radius:10px; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); hostMenuAction('end-round')">🔁 End Round</button>
+    <button class="host-menu-item" id="host-crown-endround-btn" style="width:100%; border-radius:10px; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); hostMenuAction('end-round')">🔁 End Round</button>
     <button class="host-menu-item" style="width:100%; border-radius:10px; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); hostMenuAction('save-game')">💾 Save Game</button>
+    <button class="host-menu-item" style="width:100%; border-radius:10px; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); startNewGameSetup()">🔄 Start New Game</button>
     <button class="host-menu-item danger" style="width:100%; border-radius:10px; margin-bottom:0.75rem;" onclick="closeHostCrownMenu(); hostMenuAction('end-game')">🏆 End Game</button>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeHostCrownMenu()">✕ Close</button>
   </div>
