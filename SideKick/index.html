@@ -411,6 +411,27 @@
     white-space: nowrap;
     z-index: 1;
   }
+  .lobby-kick-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(248,113,113,0.85);
+    border: none;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    z-index: 5;
+  }
+  .lobby-kick-btn:active { background: rgba(248,113,113,1); }
   .player-badge.active-turn { background: #1a3a1a; color: #4ade80; }
 
   .drag-handle {
@@ -9120,6 +9141,28 @@ window.kickPlayer = async function(playerId, playerName) {
   await update(ref(db), updates);
 };
 
+// Kick a player from the lobby (no active turn to handle)
+window.kickPlayerLobby = async function(playerId, playerName) {
+  if (!db || !roomCode) return;
+  if (!await showConfirm(`Remove ${playerName} from the room? They can rejoin later with the room code, but as a new player.`)) return;
+
+  const snap = await get(ref(db, `rooms/${roomCode}`));
+  if (!snap.exists()) return;
+  const room = snap.val();
+  const allPlayers = buildOrderedPlayers(room.players || {});
+  if (allPlayers.length <= 1) {
+    showAlert("Can't remove the last player in the room.");
+    return;
+  }
+
+  const updates = {};
+  updates[`rooms/${roomCode}/players/${playerId}`] = null;
+  // Recompute order for remaining players
+  const remaining = allPlayers.filter(p => p.id !== playerId);
+  remaining.forEach((p, i) => { updates[`rooms/${roomCode}/players/${p.id}/order`] = i; });
+  await update(ref(db), updates);
+};
+
 // ── CREATE ROOM ──────────────────────────────
 window.createRoom = async function() {
   if (!requireDb()) return;
@@ -9410,7 +9453,7 @@ window.startGame = async function() {
 // ── START NEW GAME ──────────────────────────
 window.startNewGameSetup = async function() {
   if (!db || !roomCode) return;
-  const confirmed = await appConfirm('Start a new game? All players will return to the lobby and settings can be reconfigured.');
+  const confirmed = await showConfirm('Start a new game? All players will return to the lobby and settings can be reconfigured.');
   if (!confirmed) return;
   // Set room status to reconfiguring so non-host players see the wait screen
   await update(ref(db), {
@@ -10215,6 +10258,15 @@ function renderLobbyList(players) {
         </div>
       </div>
       <div class="player-name">${esc(p.name)}</div>`;
+    // Add kick button for host (can't kick self)
+    if (isHost && p.id !== myId) {
+      const kickBtn = document.createElement('button');
+      kickBtn.className = 'lobby-kick-btn';
+      kickBtn.textContent = '×';
+      kickBtn.title = 'Remove ' + p.name;
+      kickBtn.addEventListener('click', (e) => { e.stopPropagation(); kickPlayerLobby(p.id, p.name); });
+      div.appendChild(kickBtn);
+    }
     el.appendChild(div);
   });
   makeDraggable(el, async (srcId, destId) => {
