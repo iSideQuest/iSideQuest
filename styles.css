@@ -1490,13 +1490,13 @@ textarea {
 
     /* Categories */
     .categories-section {
-        padding-top: 7.2rem;
+        padding-top: 7.25rem;
     }
 
     .category-cards {
         gap: .5rem;
         max-width: 700px;
-        max-height: calc(97vh - 220px);
+        max-height: calc(97vh - 190px);
     }
 
     .category-card {
