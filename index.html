@@ -390,6 +390,7 @@
                 const product = digitalOverlay.querySelector('.overlay-card.selected')?.dataset.product;
                 if (action === 'learn') {
                     document.getElementById('videoModal').classList.add('active');
+                    videoPlayer.play();
                 } else if (action === 'howto') {
                     document.getElementById('howtoOverlay').classList.add('active');
                 } else if (action === 'go') {
@@ -441,6 +442,7 @@
                 const product = physicalOverlay.querySelector('.overlay-card.selected')?.dataset.product;
                 if (action === 'learn') {
                     document.getElementById('videoModal').classList.add('active');
+                    videoPlayer.play();
                 } else if (action === 'howto') {
                     document.getElementById('howtoOverlay').classList.add('active');
                 } else if (action === 'go') {
@@ -467,6 +469,7 @@
             btn.addEventListener('click', () => {
                 howtoOverlay.classList.remove('active');
                 document.getElementById('videoModal').classList.add('active');
+                videoPlayer.play();
             });
         });
 
