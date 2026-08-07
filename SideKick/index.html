@@ -2339,8 +2339,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    margin: 1rem 0;
+    gap: 0.75rem;
+    margin: 1.5rem 0 2rem;
   }
   .vp-dial-value {
     font-size: 3rem;
@@ -2351,6 +2351,7 @@
     line-height: 1;
     user-select: none;
     -webkit-user-select: none;
+    margin-bottom: 0.5rem;
   }
   .vp-dial-outer {
     position: relative;
@@ -2384,10 +2385,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
-    font-size: 1.6rem;
-    font-weight: 800;
-    letter-spacing: 0.05em;
     cursor: pointer;
     z-index: 2;
     transition: background 0.15s;
@@ -2396,12 +2393,12 @@
   .vp-dial-center:active { background: #1a1a2e; }
   .vp-dial-knob {
     position: absolute;
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     background: #888;
     border: 2px solid #aaa;
-    top: -16px;
+    top: -19px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 3;
@@ -4529,7 +4526,7 @@
           <div class="vp-dial-minus">-</div>
           <div class="vp-dial-plus">+</div>
         </div>
-        <div class="vp-dial-center" id="vp-dial-center">OK</div>
+        <div class="vp-dial-center" id="vp-dial-center"></div>
       </div>
     </div>
     <button class="vp-submit-btn" onclick="submitVP()" style="margin-top:0.75rem;">Submit Points</button>
@@ -10690,9 +10687,9 @@ function vpDialInit() {
 
     vpDialLastAngle = angle;
 
-    // Accumulate sub-degree movement — every 3 degrees = 1 point
+    // Accumulate sub-degree movement — every 7.2 degrees = 1 point (50 per rotation)
     vpDialAccumulator += delta;
-    const step = 3;
+    const step = 7.2;
     if (vpDialAccumulator >= step) {
       const pts = Math.floor(vpDialAccumulator / step);
       vpDialValue += pts;
@@ -10739,11 +10736,12 @@ function vpDialUpdateDisplay() {
   valueEl.textContent = (vpDialValue >= 0 ? '+' : '') + vpDialValue;
   valueEl.style.color = vpDialValue > 0 ? '#4ade80' : vpDialValue < 0 ? '#e74c3c' : '#fff';
 
-  // Rotate knob around the track — knob orbits the center of the 220px dial
-  // Knob is at top-center; transform-origin Y = radius (110px) from knob center
-  const angle = vpDialValue * 3; // 3 degrees per point
+  // Rotate knob around the track
+  // Knob is 38px, top:-19px → knob center at outer circle top edge (y=0)
+  // Outer circle center at y=110 → transform-origin Y = 110 - (-19) = 129px
+  const angle = vpDialValue * 7.2; // 7.2 degrees per point (50 per rotation)
   knob.style.transform = `translateX(-50%) rotate(${angle}deg)`;
-  knob.style.transformOrigin = '50% 110px';
+  knob.style.transformOrigin = '50% 129px';
 }
 
 function vpDialFeedback() {
