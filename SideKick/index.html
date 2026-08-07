@@ -2334,6 +2334,103 @@
   }
   .vp-begin-btn.show { display: block; }
 
+  /* ── VP ROTARY DIAL ── */
+  .vp-dial-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+  .vp-dial-value {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #4ade80;
+    text-shadow: 0 0 20px rgba(74,222,128,0.4);
+    min-height: 3.6rem;
+    line-height: 1;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .vp-dial-outer {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: #111;
+    border: 4px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .vp-dial-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .vp-dial-center {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    z-index: 2;
+    transition: background 0.15s;
+    border: 3px solid #222;
+  }
+  .vp-dial-center:active { background: #1a1a2e; }
+  .vp-dial-knob {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #888;
+    border: 2px solid #aaa;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    pointer-events: none;
+  }
+  .vp-dial-minus {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #e74c3c;
+    pointer-events: none;
+    text-shadow: 0 0 8px rgba(231,76,60,0.5);
+  }
+  .vp-dial-plus {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #4ade80;
+    pointer-events: none;
+    text-shadow: 0 0 8px rgba(74,222,128,0.5);
+  }
+
   /* ── D&D TURN COMPONENTS ── */
   .dnd-action-grid {
     width: 180px; height: 180px;
@@ -4422,12 +4519,20 @@
 <!--  VICTORY POINTS ENTRY OVERLAY               -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="vp-overlay" id="vp-overlay">
-  <div style="font-size:2.5rem;">🏅</div>
-  <div class="vp-overlay-title">Enter Your Score</div>
-  <div class="vp-overlay-sub" id="vp-overlay-sub">How many Victory Points did you earn?</div>
+  <div class="vp-overlay-title">Enter Your Points</div>
   <div id="vp-input-section">
-    <input class="vp-score-input" id="vp-score-input" type="number" min="0" max="99999" placeholder="0" inputmode="numeric">
-    <button class="vp-submit-btn" onclick="submitVP()" style="margin-top:0.75rem;">Submit Score</button>
+    <div class="vp-dial-wrapper" id="vp-dial-wrapper">
+      <div class="vp-dial-value" id="vp-dial-value">+0</div>
+      <div class="vp-dial-outer" id="vp-dial-outer">
+        <div class="vp-dial-track" id="vp-dial-track">
+          <div class="vp-dial-knob" id="vp-dial-knob"></div>
+          <div class="vp-dial-minus">-</div>
+          <div class="vp-dial-plus">+</div>
+        </div>
+        <div class="vp-dial-center" id="vp-dial-center">OK</div>
+      </div>
+    </div>
+    <button class="vp-submit-btn" onclick="submitVP()" style="margin-top:0.75rem;">Submit Points</button>
   </div>
   <div id="vp-waiting-section" style="display:none; flex-direction:column; align-items:center; gap:0.75rem; width:100%;">
     <div class="vp-submitted-msg">✓ Score submitted! Waiting for others…</div>
@@ -10508,8 +10613,10 @@ function showVPEntryOverlay(room) {
     inputSection.style.display   = 'none';
     waitingSection.style.display = 'flex';
   } else {
-    inputSection.style.display   = 'block';
+    inputSection.style.display   = '';
     waitingSection.style.display = 'none';
+    vpDialReset();
+    vpDialInit();
   }
 
   // Render waiting list
@@ -10539,10 +10646,117 @@ function showVPEntryOverlay(room) {
   }
 }
 
+// ── VP ROTARY DIAL ──────────────────────────────
+let vpDialValue = 0;
+let vpDialDragging = false;
+let vpDialLastAngle = 0;
+let vpDialAccumulator = 0;
+
+function vpDialInit() {
+  const outer = document.getElementById('vp-dial-outer');
+  const knob  = document.getElementById('vp-dial-knob');
+  const valueEl = document.getElementById('vp-dial-value');
+  const center = document.getElementById('vp-dial-center');
+  if (!outer || !knob || !valueEl) return;
+
+  vpDialValue = 0;
+  vpDialUpdateDisplay();
+
+  function getAngle(e) {
+    const rect = outer.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
+  }
+
+  function onStart(e) {
+    e.preventDefault();
+    vpDialDragging = true;
+    vpDialLastAngle = getAngle(e);
+    vpDialAccumulator = 0;
+  }
+
+  function onMove(e) {
+    if (!vpDialDragging) return;
+    e.preventDefault();
+    const angle = getAngle(e);
+    let delta = angle - vpDialLastAngle;
+
+    // Handle wrap-around at ±180°
+    if (delta > 180)  delta -= 360;
+    if (delta < -180) delta += 360;
+
+    vpDialLastAngle = angle;
+
+    // Accumulate sub-degree movement — every 3 degrees = 1 point
+    vpDialAccumulator += delta;
+    const step = 3;
+    if (vpDialAccumulator >= step) {
+      const pts = Math.floor(vpDialAccumulator / step);
+      vpDialValue += pts;
+      vpDialAccumulator -= pts * step;
+      vpDialUpdateDisplay();
+    } else if (vpDialAccumulator <= -step) {
+      const pts = Math.ceil(vpDialAccumulator / step);
+      vpDialValue += pts;
+      vpDialAccumulator -= pts * step;
+      vpDialUpdateDisplay();
+    }
+  }
+
+  function onEnd() {
+    vpDialDragging = false;
+    vpDialAccumulator = 0;
+  }
+
+  outer.addEventListener('mousedown', onStart);
+  outer.addEventListener('touchstart', onStart, { passive: false });
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', onMove, { passive: false });
+  window.addEventListener('mouseup', onEnd);
+  window.addEventListener('touchend', onEnd);
+
+  // OK button submits
+  if (center) {
+    center.addEventListener('click', () => {
+      if (vpDialValue !== 0 || document.getElementById('vp-input-section').style.display !== 'none') {
+        window.submitVP();
+      }
+    });
+  }
+}
+
+function vpDialUpdateDisplay() {
+  const valueEl = document.getElementById('vp-dial-value');
+  const knob = document.getElementById('vp-dial-knob');
+  if (!valueEl) return;
+
+  // Update value text
+  valueEl.textContent = (vpDialValue >= 0 ? '+' : '') + vpDialValue;
+  valueEl.style.color = vpDialValue > 0 ? '#4ade80' : vpDialValue < 0 ? '#e74c3c' : '#fff';
+
+  // Rotate knob around the track — knob orbits the center of the 220px dial
+  // Knob is at top-center; transform-origin Y = radius (110px) from knob center
+  const angle = vpDialValue * 3; // 3 degrees per point
+  knob.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+  knob.style.transformOrigin = '50% 110px';
+}
+
+// Reset dial when VP overlay opens
+function vpDialReset() {
+  vpDialValue = 0;
+  vpDialUpdateDisplay();
+  const inputSection = document.getElementById('vp-input-section');
+  const waitSection  = document.getElementById('vp-waiting-section');
+  if (inputSection) inputSection.style.display = '';
+  if (waitSection)  waitSection.style.display  = 'none';
+}
+
 window.submitVP = async function() {
   if (!db || !roomCode) return;
-  const val = parseInt(document.getElementById('vp-score-input').value);
-  if (isNaN(val) || val < 0) { showAlert('Please enter a valid score.'); return; }
+  const val = vpDialValue;
   const updates = {};
   updates[`rooms/${roomCode}/vpScores/${myId}`]  = val;
   updates[`rooms/${roomCode}/vpReady/${myId}`]   = true;

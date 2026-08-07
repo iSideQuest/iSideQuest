@@ -1,6 +1,6 @@
 // SideKick Service Worker
 
-const CACHE_NAME = 'sidekick-v9';
+const CACHE_NAME = 'sidekick-v10';
 
 // Files to cache on install — the core app shell (relative paths)
 const PRECACHE = [
