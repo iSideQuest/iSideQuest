@@ -10698,11 +10698,13 @@ function vpDialInit() {
       vpDialValue += pts;
       vpDialAccumulator -= pts * step;
       vpDialUpdateDisplay();
+      vpDialFeedback();
     } else if (vpDialAccumulator <= -step) {
       const pts = Math.ceil(vpDialAccumulator / step);
       vpDialValue += pts;
       vpDialAccumulator -= pts * step;
       vpDialUpdateDisplay();
+      vpDialFeedback();
     }
   }
 
@@ -10742,6 +10744,34 @@ function vpDialUpdateDisplay() {
   const angle = vpDialValue * 3; // 3 degrees per point
   knob.style.transform = `translateX(-50%) rotate(${angle}deg)`;
   knob.style.transformOrigin = '50% 110px';
+}
+
+function vpDialFeedback() {
+  // Mobile: short vibrate. Desktop: short click sound.
+  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+    haptic(5);
+  } else {
+    vpDialClick();
+  }
+}
+
+let _vpDialAudioCtx = null;
+function vpDialClick() {
+  try {
+    if (!_vpDialAudioCtx) _vpDialAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = _vpDialAudioCtx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.04);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.05);
+  } catch {}
 }
 
 // Reset dial when VP overlay opens
