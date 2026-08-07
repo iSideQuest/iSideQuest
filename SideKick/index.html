@@ -1887,7 +1887,6 @@
   }
   .active-sound-btn:active { background: rgba(124,92,191,0.5); }
   .active-room-code {
-    font-size: 0.85rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     color: rgba(255,255,255,0.5);
@@ -1896,6 +1895,19 @@
     border-radius: 10px;
     padding: 0.35rem 0.85rem;
     white-space: nowrap;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .active-room-code-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.7;
+  }
+  .active-room-code-value {
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.85);
   }
   .settings-drawer {
     overflow: hidden;
@@ -4168,7 +4180,10 @@
   </button>
   <div class="active-divider" id="active-divider"></div>
   <div class="active-top-bar">
-    <div class="active-room-code" id="active-room-code"></div>
+    <div class="active-room-code" id="active-room-code">
+      <div class="active-room-code-label">Room Code</div>
+      <div class="active-room-code-value" id="active-room-code-val"></div>
+    </div>
   </div>
   <button class="active-sound-btn" id="active-sound-btn" onclick="toggleSound()">🔊</button>
   <div class="active-center" id="active-center">
@@ -4245,7 +4260,10 @@
 <!-- ═══════════════════════════════════════════ -->
 <div id="screen-waiting" class="screen">
   <div class="active-top-bar">
-    <div class="active-room-code" id="active-room-code-wait"></div>
+    <div class="active-room-code" id="active-room-code-wait">
+      <div class="active-room-code-label">Room Code</div>
+      <div class="active-room-code-value" id="active-room-code-wait-val"></div>
+    </div>
   </div>
   <button class="active-sound-btn" id="active-sound-btn-wait" onclick="toggleSound()">🔊</button>
   <!-- Touch guards: prevent accidental pass-turn taps on button zones -->
@@ -9848,8 +9866,8 @@ function listenGameState() {
       else syncTimersFromRoom(room);
       clearNudgeTimer();
       showScreen('active');
-      const activeRC = document.getElementById('active-room-code');
-      if (activeRC && roomCode) activeRC.textContent = 'Room Code: ' + roomCode;
+      const activeRC = document.getElementById('active-room-code-val');
+      if (activeRC && roomCode) activeRC.textContent = roomCode;
       const activeSB = document.getElementById('active-sound-btn');
       if (activeSB) { activeSB.textContent = soundEnabled ? '🔊' : '🔇'; }
       requestWakeLock();
@@ -9920,8 +9938,8 @@ function listenGameState() {
       if (turnChanged || firstTurn) initTimersForTurn(room, false);
       else syncTimersFromRoom(room);
       showScreen('waiting');
-      const waitRC = document.getElementById('active-room-code-wait');
-      if (waitRC && roomCode) waitRC.textContent = 'Room Code: ' + roomCode;
+      const waitRC = document.getElementById('active-room-code-wait-val');
+      if (waitRC && roomCode) waitRC.textContent = roomCode;
       const waitSB = document.getElementById('active-sound-btn-wait');
       if (waitSB) waitSB.textContent = soundEnabled ? '🔊' : '🔇';
       // Reset the active screen background so it doesn't persist for next turn
