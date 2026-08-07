@@ -2334,6 +2334,48 @@
   }
   .vp-begin-btn.show { display: block; }
 
+  /* ── VP CEREMONY RANKINGS ── */
+  .vp-rankings-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 0.5rem 0.7rem;
+  }
+  .vp-rankings-place {
+    font-size: 1.1rem;
+    font-weight: 800;
+    min-width: 2.2rem;
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+  }
+  .vp-rankings-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .vp-rankings-avatar img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+  .vp-rankings-name {
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .vp-rankings-score {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    white-space: nowrap;
+  }
+
   /* ── VP ROTARY DIAL ── */
   .vp-dial-wrapper {
     display: flex;
@@ -4511,6 +4553,38 @@
   <div id="awards-wait-msg" style="display:none; color:var(--muted); font-size:0.85rem; margin-top:1rem;">Waiting for host...</div>
 </div>
 
+<!-- ═══════════════════════════════════════════ -->
+<!--  VP CEREMONY: STANDBY                       -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="awards-standby" id="vp-standby">
+  <div class="awards-standby-icon">🏅</div>
+  <div class="awards-standby-text" id="vp-standby-text">Victory Ceremony</div>
+  <button id="vp-skip-btn" onclick="skipVPCeremony()" style="display:none; margin-top:1.5rem; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:rgba(255,255,255,0.5); font-size:0.78rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; padding:0.5rem 1.25rem; border-radius:20px; cursor:pointer;">⏭ Skip</button>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  VP CEREMONY: WINNER REVEAL (winner's phone) -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="awards-reveal" id="vp-reveal">
+  <canvas id="vp-canvas"></canvas>
+  <div class="awards-reveal-card">
+    <div class="awards-category-label">And the winner is...</div>
+    <div class="awards-winner-name" id="vp-reveal-name"></div>
+    <div class="awards-winner-stat" id="vp-reveal-num" style="font-size:1.8rem; font-weight:800; margin-top:0.5rem;"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  VP CEREMONY: RANKINGS BOARD                -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="awards-gameover" id="vp-rankings">
+  <div style="font-size:3rem;">🏅</div>
+  <div class="awards-gameover-title">Victory Points</div>
+  <div class="awards-gameover-sub" style="margin-bottom:0.5rem;">Final Standings</div>
+  <div id="vp-rankings-list" style="width:min(340px,90vw); display:flex; flex-direction:column; gap:0.5rem;"></div>
+  <button class="btn-primary" id="vp-rankings-close" onclick="closeVPRankings()" style="display:none; margin-top:1rem; min-width:200px;">Done</button>
+</div>
+
 
 <!-- ═══════════════════════════════════════════ -->
 <!--  VICTORY POINTS ENTRY OVERLAY               -->
@@ -4534,7 +4608,7 @@
   <div id="vp-waiting-section" style="display:none; flex-direction:column; align-items:center; gap:0.75rem; width:100%;">
     <div class="vp-submitted-msg">✓ Score submitted! Waiting for others…</div>
     <div class="vp-waiting-list" id="vp-waiting-list"></div>
-    <button class="vp-begin-btn" id="vp-begin-btn" onclick="beginAwardsAfterVP()">🏆 Begin Achievement Awards</button>
+    <button class="vp-begin-btn" id="vp-begin-btn" onclick="beginAfterVP()">🏆 Begin Ceremony</button>
   </div>
 </div>
 
@@ -4577,6 +4651,15 @@
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-vp-toggle" type="checkbox" onchange="onVPToggle(this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">🏅 Victory Points</span>
       <button class="feature-info-btn" onclick="showFeatureInfo('vp')" title="What is this?">?</button>
+    </div>
+    <div id="vp-mode-row" class="creator-only" style="display:none; margin:-0.5rem 0 0.75rem 2.8rem; gap:0.5rem; align-items:center;">
+      <span style="font-size:0.78rem; color:var(--muted);">Who wins?</span>
+      <label style="display:flex; align-items:center; gap:0.3rem; cursor:pointer; font-size:0.78rem; color:var(--text);">
+        <input type="radio" name="vp-mode" value="highest" checked onchange="onVPModeChange(this.value)" style="accent-color:var(--accent);"> Highest
+      </label>
+      <label style="display:flex; align-items:center; gap:0.3rem; cursor:pointer; font-size:0.78rem; color:var(--text);">
+        <input type="radio" name="vp-mode" value="lowest" onchange="onVPModeChange(this.value)" style="accent-color:var(--accent);"> Lowest
+      </label>
     </div>
 
     <!-- STATUS EFFECTS -->
@@ -6393,6 +6476,7 @@ window.buzzPlayAgain = async function() {
 let featureNudgeEnabled = false;
 let featureAwardsEnabled = false;
 let featureVPEnabled = false;
+let vpHighestWins = true; // true = highest wins, false = lowest wins
 let featureStatusEffectsEnabled = false;
 let featureDndEnabled = false;
 let featureRoundsEnabled = false;
@@ -6630,7 +6714,7 @@ async function tryAutoResume() {
         showScreen('waiting-lobby');
         listenWaitingLobby();
       }
-    } else if (room.status === 'playing' || room.status === 'ceremony' || room.status === 'vp-entry') {
+    } else if (room.status === 'playing' || room.status === 'ceremony' || room.status === 'vp-entry' || room.status === 'vp-ceremony') {
       listenGameState();
     } else if (room.status === 'gameover') {
       showGameOver();
@@ -7593,6 +7677,13 @@ window.goBackToCreate = async function() {
     const el = document.getElementById(id);
     if (el) el.checked = val;
   });
+  // Sync VP mode row visibility and radio selection
+  const vpModeRow = document.getElementById('vp-mode-row');
+  if (vpModeRow) {
+    vpModeRow.style.display = featureVPEnabled ? 'flex' : 'none';
+    const vpRadio = document.querySelector('input[name="vp-mode"][value="' + (vpHighestWins ? 'highest' : 'lowest') + '"]');
+    if (vpRadio) vpRadio.checked = true;
+  }
   // Sync edit buttons visibility
   const nudgeEditBtn = document.getElementById('nudge-edit-btn');
   if (nudgeEditBtn) nudgeEditBtn.classList.toggle('visible', featureNudgeEnabled);
@@ -7645,6 +7736,7 @@ window.saveRoomChanges = async function() {
   updates[`rooms/${roomCode}/features/nudgeMode`] = featureNudgeEnabled ? (document.querySelector('input[name="nudge-mode"]:checked')?.value || 'multi') : 'multi';
   updates[`rooms/${roomCode}/features/awards`] = featureAwardsEnabled;
   updates[`rooms/${roomCode}/features/victoryPoints`] = featureVPEnabled;
+  updates[`rooms/${roomCode}/features/vpHighestWins`] = vpHighestWins;
   updates[`rooms/${roomCode}/features/statusEffects`] = featureStatusEffectsEnabled;
   updates[`rooms/${roomCode}/features/dndTurnComponents`] = featureDndEnabled;
   updates[`rooms/${roomCode}/features/timers`] = featureTimersEnabled;
@@ -8079,7 +8171,13 @@ window.onAwardsToggle = function(checked) {
 
 window.onVPToggle = function(checked) {
   featureVPEnabled = checked;
+  const modeRow = document.getElementById('vp-mode-row');
+  if (modeRow) modeRow.style.display = checked ? 'flex' : 'none';
   updateFeaturesSummary();
+};
+
+window.onVPModeChange = function(val) {
+  vpHighestWins = (val === 'highest');
 };
 
 window.onStatusEffectsToggle = function(checked) {
@@ -8707,6 +8805,12 @@ function hideAllAwardOverlays() {
   document.getElementById('awards-gameover').classList.remove('show');
   const vpOv = document.getElementById('vp-overlay');
   if (vpOv) vpOv.classList.remove('show');
+  const vpStandby = document.getElementById('vp-standby');
+  if (vpStandby) vpStandby.classList.remove('show');
+  const vpReveal = document.getElementById('vp-reveal');
+  if (vpReveal) vpReveal.classList.remove('show');
+  const vpRankings = document.getElementById('vp-rankings');
+  if (vpRankings) vpRankings.classList.remove('show');
   stopFireworks();
 }
 
@@ -8883,7 +8987,7 @@ let fireworksRAF = null;
 let fireworksParticles = [];
 
 function startFireworks(playerColor) {
-  const canvas = document.getElementById('awards-canvas');
+  const canvas = document.getElementById('awards-canvas') || document.getElementById('vp-canvas');
   if (!canvas) return;
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -8966,8 +9070,10 @@ function startFireworks(playerColor) {
 function stopFireworks() {
   if (fireworksRAF) { cancelAnimationFrame(fireworksRAF); fireworksRAF = null; }
   fireworksParticles = [];
-  const canvas = document.getElementById('awards-canvas');
-  if (canvas) canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+  ['awards-canvas', 'vp-canvas'].forEach(id => {
+    const c = document.getElementById(id);
+    if (c) c.getContext('2d').clearRect(0, 0, c.width, c.height);
+  });
 }
 
 // ── SETTINGS PANEL TOGGLE ──────────────────────
@@ -9729,6 +9835,7 @@ window.startNewGame = async function() {
   updates[`rooms/${roomCode}/features/nudgeMode`] = featureNudgeEnabled ? (document.querySelector('input[name="nudge-mode"]:checked')?.value || 'multi') : 'multi';
   updates[`rooms/${roomCode}/features/awards`] = featureAwardsEnabled;
   updates[`rooms/${roomCode}/features/victoryPoints`] = featureVPEnabled;
+  updates[`rooms/${roomCode}/features/vpHighestWins`] = vpHighestWins;
   updates[`rooms/${roomCode}/features/statusEffects`] = featureStatusEffectsEnabled;
   updates[`rooms/${roomCode}/features/dndTurnComponents`] = featureDndEnabled;
   updates[`rooms/${roomCode}/features/timers`] = featureTimersEnabled;
@@ -9840,6 +9947,7 @@ function listenGameState() {
     nudgeMode = roomFeatures.nudgeMode || 'multi';
     featureAwardsEnabled = !!roomFeatures.awards;
     featureVPEnabled              = !!roomFeatures.victoryPoints;
+    vpHighestWins                 = roomFeatures.vpHighestWins !== false;
     featureStatusEffectsEnabled   = !!roomFeatures.statusEffects;
     featureDndEnabled             = !!roomFeatures.dndTurnComponents;
     featureTimersEnabled          = !!roomFeatures.timers;
@@ -9884,6 +9992,12 @@ function listenGameState() {
     // Handle ceremony state pushed by host
     if (room.status === 'ceremony') {
       handleCeremonyState(room);
+      return;
+    }
+
+    // Handle VP-only ceremony state
+    if (room.status === 'vp-ceremony') {
+      handleVPCeremonyState(room);
       return;
     }
 
@@ -10640,6 +10754,12 @@ function showVPEntryOverlay(room) {
   if (beginBtn && isHost) {
     const allReady = localPlayers.length > 0 && localPlayers.every(p => vpReady[p.id]);
     beginBtn.classList.toggle('show', allReady);
+    // Update button text based on what's enabled
+    if (featureAwardsEnabled) {
+      beginBtn.textContent = '🏆 Begin Achievement Awards';
+    } else {
+      beginBtn.textContent = '🏆 Begin Victory Ceremony';
+    }
   }
 }
 
@@ -10794,17 +10914,176 @@ window.submitVP = async function() {
   vpSubmitted = true;
 };
 
-window.beginAwardsAfterVP = async function() {
+window.beginAfterVP = async function() {
   if (!db || !roomCode || !isHost) return;
   if (featureAwardsEnabled) {
+    // Awards ceremony handles VP as first award
     await update(ref(db, `rooms/${roomCode}`), { status: 'ceremony', ceremonyStep: 'standby' });
     document.getElementById('vp-overlay').classList.remove('show');
     runCeremonyAsHost();
+  } else if (featureVPEnabled) {
+    // VP-only ceremony
+    await update(ref(db, `rooms/${roomCode}`), { status: 'vp-ceremony', vpCeremonyStep: 'standby' });
+    document.getElementById('vp-overlay').classList.remove('show');
+    runVPCeremonyAsHost();
   } else {
     await update(ref(db, `rooms/${roomCode}`), { status: 'gameover' });
     document.getElementById('vp-overlay').classList.remove('show');
     showGameOver();
   }
+};
+
+// Keep old name for backwards compatibility
+window.beginAwardsAfterVP = window.beginAfterVP;
+
+// ── VP-ONLY CEREMONY ──────────────────────────────
+async function runVPCeremonyAsHost() {
+  if (!db || !roomCode) return;
+  ceremonyAborted = false;
+  const snap = await get(ref(db, `rooms/${roomCode}`));
+  if (!snap.exists()) return;
+  const room = snap.val();
+  const players = buildOrderedPlayers(room.players || {});
+  const vpScores = room.vpScores || {};
+
+  // Sort players by VP (highest or lowest wins)
+  const sorted = players
+    .map(p => ({ ...p, vp: vpScores[p.id] ?? 0 }))
+    .sort((a, b) => vpHighestWins ? (b.vp - a.vp) : (a.vp - b.vp));
+
+  if (sorted.length === 0) {
+    await update(ref(db, `rooms/${roomCode}`), { status: 'gameover', vpCeremonyStep: 'gameover' });
+    return;
+  }
+
+  const winner = sorted[0];
+
+  // Phase 1: Standby — "And the winner is..."
+  await update(ref(db, `rooms/${roomCode}`), {
+    vpCeremonyStep: 'announce',
+    vpCeremonyWinner: {
+      name: winner.name, color: winner.color || '#7c3aed', id: winner.id
+    }
+  });
+  speakText('And the winner is...');
+  await sleepAbortable(4500);
+  if (ceremonyAborted) return;
+
+  // Phase 2: Reveal — show winner name + fireworks
+  await update(ref(db, `rooms/${roomCode}`), { vpCeremonyStep: 'reveal' });
+  speakText('Player ' + (sorted.indexOf(winner) + 1) + '! ' + winner.name);
+  await sleepAbortable(5000);
+  if (ceremonyAborted) return;
+
+  // Phase 3: Rankings board
+  await update(ref(db, `rooms/${roomCode}`), {
+    vpCeremonyStep: 'rankings',
+    vpCeremonyRankings: sorted.map((p, i) => ({
+      place: i + 1, name: p.name, color: p.color || 'var(--accent)',
+      avatar: p.avatar || '👤', vp: p.vp
+    }))
+  });
+  await sleepAbortable(10000);
+  if (ceremonyAborted) return;
+
+  // Done
+  await update(ref(db, `rooms/${roomCode}`), { status: 'gameover', vpCeremonyStep: 'gameover' });
+}
+
+// Handle VP ceremony state on non-host devices
+function handleVPCeremonyState(room) {
+  const step = room.vpCeremonyStep || 'standby';
+  const winner = room.vpCeremonyWinner || null;
+  const rankings = room.vpCeremonyRankings || [];
+
+  if (step === 'gameover') {
+    hideAllAwardOverlays();
+    showGameOver();
+    return;
+  }
+
+  if (step === 'standby' || step === 'announce') {
+    hideAllAwardOverlays();
+    showVPStandby(step === 'announce');
+    return;
+  }
+
+  if (step === 'reveal' && winner) {
+    hideAllAwardOverlays();
+    const isWinner = winner.id === myId;
+    if (isWinner) {
+      showVPWinnerReveal(winner);
+    } else {
+      showVPStandby(true);
+    }
+    return;
+  }
+
+  if (step === 'rankings' && rankings.length > 0) {
+    hideAllAwardOverlays();
+    showVPRankings(rankings);
+    return;
+  }
+}
+
+function showVPStandby(announcing) {
+  const el = document.getElementById('vp-standby');
+  const txt = document.getElementById('vp-standby-text');
+  const skipBtn = document.getElementById('vp-skip-btn');
+  if (txt) txt.textContent = announcing ? 'And the winner is...' : 'Victory Ceremony';
+  if (skipBtn) skipBtn.style.display = isHost ? 'block' : 'none';
+  el.classList.add('show');
+}
+
+function showVPWinnerReveal(winner) {
+  const reveal = document.getElementById('vp-reveal');
+  const nameEl = document.getElementById('vp-reveal-name');
+  const numEl = document.getElementById('vp-reveal-num');
+  // Find player index
+  const idx = localPlayers.findIndex(p => p.id === winner.id);
+  if (nameEl) {
+    nameEl.textContent = winner.name;
+    nameEl.style.color = winner.color;
+  }
+  if (numEl) numEl.textContent = 'Player ' + (idx >= 0 ? idx + 1 : '?') + '!';
+  reveal.classList.add('show');
+  startFireworks(winner.color);
+}
+
+function showVPRankings(rankings) {
+  const el = document.getElementById('vp-rankings');
+  const list = document.getElementById('vp-rankings-list');
+  if (!list) return;
+  list.innerHTML = '';
+  const medals = ['🥇', '🥈', '🥉'];
+  const placeLabels = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
+  rankings.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'vp-rankings-item';
+    div.innerHTML = `
+      <div class="vp-rankings-place">${medals[i] || placeLabels[i] || (i+1)+'th'}</div>
+      <div class="vp-rankings-avatar" style="border-color:${p.color};">${avatarHTML(p.avatar, 28)}</div>
+      <div class="vp-rankings-name" style="color:${p.color};">${esc(p.name)}</div>
+      <div class="vp-rankings-score">${p.vp} pt${p.vp !== 1 ? 's' : ''}</div>`;
+    list.appendChild(div);
+  });
+  // Host-only close button
+  const closeBtn = document.getElementById('vp-rankings-close');
+  if (closeBtn) closeBtn.style.display = isHost ? 'block' : 'none';
+  el.classList.add('show');
+}
+
+window.skipVPCeremony = async function() {
+  if (!db || !roomCode || !isHost) return;
+  ceremonyAborted = true;
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  stopFireworks();
+  await update(ref(db, `rooms/${roomCode}`), { status: 'gameover', vpCeremonyStep: 'gameover' });
+};
+
+window.closeVPRankings = async function() {
+  if (!db || !roomCode || !isHost) return;
+  await update(ref(db, `rooms/${roomCode}`), { status: 'gameover', vpCeremonyStep: 'gameover' });
 };
 
 // ── DRAG-TO-REORDER ──────────────────────────────
