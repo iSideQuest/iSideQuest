@@ -4848,7 +4848,7 @@
     </div>
 
     <!-- ACHIEVEMENT AWARDS -->
-    <div class="feature-row">
+    <div class="feature-row creator-only">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-awards-toggle" type="checkbox" onchange="onAwardsToggle(this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">🏆 Achievement Awards</span>
       <button class="feature-info-btn" onclick="showFeatureInfo('awards')" title="What is this?">?</button>
@@ -4863,12 +4863,12 @@
     </div>
 
     <!-- VICTORY POINTS -->
-    <div class="feature-row creator-only" style="margin-bottom:0.75rem;">
+    <div class="feature-row" style="margin-bottom:0.75rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-vp-toggle" type="checkbox" onchange="onVPToggle(this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">🏅 Victory Points</span>
       <button class="feature-info-btn" onclick="showFeatureInfo('vp')" title="What is this?">?</button>
     </div>
-    <div id="vp-mode-row" class="creator-only" style="display:none; margin:-0.5rem 0 0.75rem 2.8rem; gap:0.5rem; align-items:center;">
+    <div id="vp-mode-row" style="display:none; margin:-0.5rem 0 0.75rem 2.8rem; gap:0.5rem; align-items:center;">
       <span style="font-size:0.78rem; color:var(--muted);">Who wins?</span>
       <label style="display:flex; align-items:center; gap:0.3rem; cursor:pointer; font-size:0.78rem; color:var(--text);">
         <input type="radio" name="vp-mode" value="highest" checked onchange="onVPModeChange(this.value)" style="accent-color:var(--accent);"> Highest
@@ -4886,7 +4886,7 @@
     </div>
 
     <!-- ROUNDS -->
-    <div class="feature-row creator-only" style="margin-bottom:0.75rem;">
+    <div class="feature-row" style="margin-bottom:0.75rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-rounds-toggle" type="checkbox" onchange="onRoundsToggle(this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">🔢 Rounds</span>
       <button class="feature-edit-btn" id="rounds-edit-btn" onclick="openFeatureSettings('rounds')" title="Edit settings">EDIT</button>
@@ -5038,13 +5038,13 @@
     </div>
 
     <!-- Achievement Awards -->
-    <div class="feature-row" style="margin-bottom:0.75rem;">
+    <div class="feature-row creator-only" style="margin-bottom:0.75rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-awards-toggle" type="checkbox" onchange="onMidGameToggle('awards',this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">🏆 Achievement Awards</span>
     </div>
 
     <!-- Victory Points -->
-    <div class="feature-row creator-only" style="margin-bottom:0.5rem;">
+    <div class="feature-row" style="margin-bottom:0.5rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-vp-toggle" type="checkbox" onchange="onMidGameToggle('vp',this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">🏅 Victory Points</span>
     </div>
@@ -5092,7 +5092,7 @@
     </div>
 
     <!-- Rounds -->
-    <div class="creator-only">
+    <div>
     <div class="feature-row" style="margin-bottom:0.5rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-rounds-toggle" type="checkbox" onchange="onMidGameToggle('rounds',this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">🔢 Rounds</span>
@@ -8254,14 +8254,27 @@ window.hostMenuAction = async function(action) {
     openToolsOverlay();
   } else if (action === 'end-round') {
     const doEndRound = async () => {
+      // If both Rounds and VP are enabled, collect VP for this round first
+      if (featureRoundsEnabled && featureVPEnabled) {
+        if (await showConfirm(`End Round ${currentRound} and collect Victory Points?`)) {
+          // Close host menu
+          closeHostCrownMenu();
+          // Set status to round-vp-entry so all players see the VP input overlay
+          await update(ref(db, `rooms/${roomCode}`), {
+            status: 'round-vp-entry',
+            vpRoundReady: null,
+            vpRoundDraft: null
+          });
+        }
+        return;
+      }
+      // Original logic: just advance the round
       const updates = {};
-      // Advance round counter if Rounds feature is on
       if (featureRoundsEnabled) {
         const nextRound = Math.min(currentRound + 1, roundsTotal);
         currentRound = nextRound;
         updates[`rooms/${roomCode}/currentRound`] = nextRound;
       }
-      // Reset round timer if Timers feature is on
       if (featureTimersEnabled && timerCfg.round) {
         timerRound = 0;
         updates[`rooms/${roomCode}/timerRound`] = 0;
@@ -8280,7 +8293,17 @@ window.hostMenuAction = async function(action) {
       saveCurrentGame();
     }
   } else if (action === 'end-game') {
-    if (await showConfirm('End the game' + (featureAwardsEnabled ? ' and start the Achievement Awards?' : '?'))) {
+    let msg = 'End the game';
+    if (featureVPEnabled && featureRoundsEnabled) {
+      msg += ' and show the final Victory Point results?';
+    } else if (featureAwardsEnabled) {
+      msg += ' and start the Achievement Awards?';
+    } else if (featureVPEnabled) {
+      msg += ' and start the Victory Point ceremony?';
+    } else {
+      msg += '?';
+    }
+    if (await showConfirm(msg)) {
       triggerEndGame();
     }
   }
@@ -8847,6 +8870,52 @@ function playBuzzerSound() {
 
 async function triggerEndGame() {
   if (!db || !roomCode) return;
+
+  // If both Rounds and VP are enabled, compute totals from per-round scores
+  if (featureVPEnabled && featureRoundsEnabled) {
+    const snap = await get(ref(db, `rooms/${roomCode}`));
+    const room = snap.val() || {};
+    const roundScores = room.vpRoundScores || {};
+    // Include any scores from the current round if we're mid-collection
+    const finalScores = {};
+    localPlayers.forEach(p => { finalScores[p.id] = 0; });
+    Object.values(roundScores).forEach(roundData => {
+      Object.entries(roundData).forEach(([pid, score]) => {
+        if (finalScores[pid] == null) finalScores[pid] = 0;
+        finalScores[pid] += (parseInt(score) || 0);
+      });
+    });
+    // Also include vpRoundDraft if players submitted for current round but didn't advance yet
+    const draft = room.vpRoundDraft || {};
+    if (room.vpRoundReady) {
+      Object.entries(room.vpRoundReady).forEach(([pid, ready]) => {
+        if (ready && draft[pid] != null) {
+          finalScores[pid] = (finalScores[pid] || 0) + (parseInt(draft[pid]) || 0);
+        }
+      });
+    }
+
+    const updates = {};
+    updates[`rooms/${roomCode}/vpScores`] = finalScores;
+    updates[`rooms/${roomCode}/vpReady`] = null;
+    updates[`rooms/${roomCode}/vpRoundScores`] = null;
+    updates[`rooms/${roomCode}/vpRoundReady`] = null;
+    updates[`rooms/${roomCode}/vpRoundDraft`] = null;
+
+    if (featureAwardsEnabled) {
+      updates[`rooms/${roomCode}/status`] = 'ceremony';
+      updates[`rooms/${roomCode}/ceremonyStep`] = 'standby';
+      await update(ref(db), updates);
+      runCeremonyAsHost();
+    } else {
+      updates[`rooms/${roomCode}/status`] = 'vp-ceremony';
+      updates[`rooms/${roomCode}/vpCeremonyStep`] = 'standby';
+      await update(ref(db), updates);
+      runVPCeremonyAsHost();
+    }
+    return;
+  }
+
   if (featureVPEnabled) {
     // Push vp-entry status — all players see the score entry overlay
     await update(ref(db, `rooms/${roomCode}`), { status: 'vp-entry', vpScores: null, vpReady: null });
@@ -9193,6 +9262,9 @@ window.playAgain = async function() {
   updates[`rooms/${roomCode}/playerTimes`] = null;
   updates[`rooms/${roomCode}/vpScores`] = null;
   updates[`rooms/${roomCode}/vpReady`] = null;
+  updates[`rooms/${roomCode}/vpRoundScores`] = null;
+  updates[`rooms/${roomCode}/vpRoundReady`] = null;
+  updates[`rooms/${roomCode}/vpRoundDraft`] = null;
   updates[`rooms/${roomCode}/timerRound`] = 0;
   updates[`rooms/${roomCode}/timerGame`] = 0;
   updates[`rooms/${roomCode}/ceremonyStep`] = null;
@@ -10316,7 +10388,7 @@ function listenGameState() {
       showScreen('reconfiguring');
       return;
     }
-    if (room.status !== 'playing' && room.status !== 'ceremony' && room.status !== 'vp-entry' && room.status !== 'vp-ceremony') { showScreen('home'); return; }
+    if (room.status !== 'playing' && room.status !== 'ceremony' && room.status !== 'vp-entry' && room.status !== 'vp-ceremony' && room.status !== 'round-vp-entry') { showScreen('home'); return; }
 
     localPlayers = buildOrderedPlayers(room.players || {});
     const activeIdx = room.activePlayerIndex || 0;
@@ -10369,6 +10441,13 @@ function listenGameState() {
     if (room.status === 'vp-entry') {
       stopTimerTick();
       showVPEntryOverlay(room);
+      return;
+    }
+
+    // Per-round VP entry (Rounds + VP combined)
+    if (room.status === 'round-vp-entry') {
+      stopTimerTick();
+      showRoundVPEntryOverlay(room);
       return;
     }
 
@@ -11098,6 +11177,13 @@ function showVPEntryOverlay(room) {
   overlay.classList.add('show');
   vpSubmitted = false;
 
+  // Reset submit button to end-game VP function
+  const submitBtn = overlay.querySelector('.vp-submit-btn');
+  if (submitBtn) submitBtn.setAttribute('onclick', 'submitVP()');
+  // Reset title
+  const titleEl = overlay.querySelector('.vp-overlay-title');
+  if (titleEl) titleEl.textContent = 'Enter Your Points';
+
   const vpReady  = room.vpReady  || {};
   const vpScores = room.vpScores || {};
   const myReady  = vpReady[myId];
@@ -11141,6 +11227,8 @@ function showVPEntryOverlay(room) {
   // Host sees Begin button once all ready
   const beginBtn = document.getElementById('vp-begin-btn');
   if (beginBtn && isHost) {
+    // Reset onclick to end-game VP ceremony
+    beginBtn.setAttribute('onclick', 'beginAfterVP()');
     const allReady = localPlayers.length > 0 && localPlayers.every(p => vpReady[p.id]);
     beginBtn.classList.toggle('show', allReady);
     // Update button text based on what's enabled
@@ -11149,6 +11237,8 @@ function showVPEntryOverlay(room) {
     } else {
       beginBtn.textContent = '🏆 Begin Victory Ceremony';
     }
+  } else if (beginBtn && !isHost) {
+    beginBtn.classList.remove('show');
   }
 }
 
@@ -11323,6 +11413,152 @@ window.beginAfterVP = async function() {
 
 // Keep old name for backwards compatibility
 window.beginAwardsAfterVP = window.beginAfterVP;
+
+// ── PER-ROUND VP ENTRY (Rounds + VP combined) ─────
+let roundVPSubmitted = false;
+
+function showRoundVPEntryOverlay(room) {
+  const overlay = document.getElementById('vp-overlay');
+  if (!overlay) return;
+  overlay.classList.add('show');
+  roundVPSubmitted = false;
+
+  // Update title to show round number
+  const titleEl = overlay.querySelector('.vp-overlay-title');
+  if (titleEl) titleEl.textContent = `Round ${currentRound} — Enter Your Points`;
+
+  // Swap submit button to round VP function
+  const submitBtn = overlay.querySelector('.vp-submit-btn');
+  if (submitBtn) submitBtn.setAttribute('onclick', 'submitRoundVP()');
+
+  const vpRoundReady  = room.vpRoundReady  || {};
+  const myReady  = vpRoundReady[myId];
+
+  const inputSection   = document.getElementById('vp-input-section');
+  const waitingSection = document.getElementById('vp-waiting-section');
+
+  if (myReady) {
+    inputSection.style.display   = 'none';
+    waitingSection.style.display = 'flex';
+    vpDialReady = false;
+  } else {
+    inputSection.style.display   = '';
+    waitingSection.style.display = 'none';
+    if (!vpDialReady) {
+      vpDialReset();
+      vpDialInit();
+      vpDialReady = true;
+    }
+  }
+
+  // Render waiting list
+  const waitList = document.getElementById('vp-waiting-list');
+  if (waitList) {
+    waitList.innerHTML = '';
+    localPlayers.forEach(p => {
+      const ready = vpRoundReady[p.id];
+      const dotColor = p.color || 'var(--accent)';
+      const div = document.createElement('div');
+      div.className = 'vp-waiting-item';
+      div.innerHTML = `
+        <div class="vp-waiting-dot" style="background:${ready ? '#4ade80' : 'rgba(255,255,255,0.2)'}"></div>
+        <span style="color:${ready ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.4)'}">
+          ${esc(p.name)}${ready ? ' ✓' : ' (waiting…)'}
+        </span>`;
+      waitList.appendChild(div);
+    });
+  }
+
+  // Host sees "Next Round" or "Final Results" button once all ready
+  const beginBtn = document.getElementById('vp-begin-btn');
+  if (beginBtn && isHost) {
+    const allReady = localPlayers.length > 0 && localPlayers.every(p => vpRoundReady[p.id]);
+    beginBtn.classList.toggle('show', allReady);
+    const isFinalRound = currentRound >= roundsTotal;
+    beginBtn.textContent = isFinalRound ? '🏆 Final Results' : '➡️ Next Round';
+    beginBtn.onclick = isFinalRound ? () => nextRoundAfterVP(true) : () => nextRoundAfterVP(false);
+  } else if (beginBtn && !isHost) {
+    beginBtn.classList.remove('show');
+  }
+}
+
+window.submitRoundVP = async function() {
+  if (!db || !roomCode) return;
+  const val = vpDialValue;
+  const updates = {};
+  updates[`rooms/${roomCode}/vpRoundDraft/${myId}`] = val;
+  updates[`rooms/${roomCode}/vpRoundReady/${myId}`]  = true;
+  await update(ref(db), updates);
+  document.getElementById('vp-input-section').style.display   = 'none';
+  document.getElementById('vp-waiting-section').style.display = 'flex';
+  roundVPSubmitted = true;
+};
+
+window.nextRoundAfterVP = async function(isFinalRound) {
+  if (!db || !roomCode || !isHost) return;
+
+  // Collect all round scores from Firebase
+  const snap = await get(ref(db, `rooms/${roomCode}`));
+  if (!snap.exists()) return;
+  const room = snap.val();
+  const vpRoundDraft = room.vpRoundDraft || {};
+
+  // Save this round's scores into vpRoundScores/{roundNumber}
+  const updates = {};
+  updates[`rooms/${roomCode}/vpRoundScores/${currentRound}`] = vpRoundDraft;
+  updates[`rooms/${roomCode}/vpRoundReady`] = null;
+  updates[`rooms/${roomCode}/vpRoundDraft`] = null;
+
+  if (isFinalRound) {
+    // Compute final VP totals from all rounds
+    const roundScores = room.vpRoundScores || {};
+    // Include the round we just saved
+    roundScores[currentRound] = vpRoundDraft;
+
+    const finalScores = {};
+    localPlayers.forEach(p => { finalScores[p.id] = 0; });
+    Object.values(roundScores).forEach(roundData => {
+      Object.entries(roundData).forEach(([pid, score]) => {
+        if (finalScores[pid] == null) finalScores[pid] = 0;
+        finalScores[pid] += (parseInt(score) || 0);
+      });
+    });
+
+    // Write final totals to vpScores and transition to ceremony
+    updates[`rooms/${roomCode}/vpScores`] = finalScores;
+    updates[`rooms/${roomCode}/vpReady`] = null;
+    updates[`rooms/${roomCode}/status`] = featureAwardsEnabled ? 'ceremony' : 'vp-ceremony';
+    if (!featureAwardsEnabled) {
+      updates[`rooms/${roomCode}/vpCeremonyStep`] = 'standby';
+    } else {
+      updates[`rooms/${roomCode}/ceremonyStep`] = 'standby';
+    }
+
+    await update(ref(db), updates);
+    document.getElementById('vp-overlay').classList.remove('show');
+
+    if (featureAwardsEnabled) {
+      runCeremonyAsHost();
+    } else {
+      runVPCeremonyAsHost();
+    }
+  } else {
+    // Advance to next round
+    const nextRound = currentRound + 1;
+    updates[`rooms/${roomCode}/currentRound`] = nextRound;
+    updates[`rooms/${roomCode}/status`] = 'playing';
+
+    // Reset round timer if Timers feature is on
+    if (featureTimersEnabled && timerCfg.round) {
+      timerRound = 0;
+      updates[`rooms/${roomCode}/timerRound`] = 0;
+      renderTimers();
+    }
+
+    await update(ref(db), updates);
+    document.getElementById('vp-overlay').classList.remove('show');
+  }
+};
 
 // ── VP-ONLY CEREMONY ──────────────────────────────
 async function runVPCeremonyAsHost() {
