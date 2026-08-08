@@ -856,6 +856,14 @@
     100% { opacity: 1;   transform: scale(1.05); }
   }
 
+  /* ── VP CEREMONY BLACKOUT ── */
+  .vp-ceremony-blackout {
+    background: #000 !important;
+  }
+  .vp-ceremony-blackout > *:not(.touch-guard) {
+    display: none !important;
+  }
+
   .awards-reveal {
     display: none;
     position: fixed;
@@ -9009,10 +9017,12 @@ function hideAllAwardOverlays() {
   if (vpSpectator) vpSpectator.classList.remove('show');
   const vpRankings = document.getElementById('vp-rankings');
   if (vpRankings) vpRankings.classList.remove('show');
-  // Restore body/screen after non-winner black screen
-  document.body.style.background = '';
+  // Remove non-winner blackout from game screen
   const sa = document.getElementById('screen-active');
-  if (sa) sa.style.display = '';
+  if (sa) {
+    sa.classList.remove('vp-ceremony-blackout');
+    sa.style.zIndex = '';
+  }
   stopFireworks();
 }
 
@@ -10983,6 +10993,8 @@ function cleanupListeners() {
 // ── VICTORY POINTS ENTRY ──────────────────────
 let vpSubmitted = false;
 
+let vpDialReady = false;
+
 function showVPEntryOverlay(room) {
   const overlay = document.getElementById('vp-overlay');
   if (!overlay) return;
@@ -10999,11 +11011,15 @@ function showVPEntryOverlay(room) {
   if (myReady) {
     inputSection.style.display   = 'none';
     waitingSection.style.display = 'flex';
+    vpDialReady = false;
   } else {
     inputSection.style.display   = '';
     waitingSection.style.display = 'none';
-    vpDialReset();
-    vpDialInit();
+    if (!vpDialReady) {
+      vpDialReset();
+      vpDialInit();
+      vpDialReady = true;
+    }
   }
 
   // Render waiting list
@@ -11246,7 +11262,7 @@ async function runVPCeremonyAsHost() {
 
   // Phase 2: Reveal — show winner name + fireworks
   await update(ref(db, `rooms/${roomCode}`), { vpCeremonyStep: 'reveal' });
-  speakText('Player ' + (sorted.indexOf(winner) + 1) + '! ' + winner.name);
+  speakText('Player ' + (players.findIndex(p => p.id === winner.id) + 1) + '! ' + winner.name);
   await sleepAbortable(5000);
   if (ceremonyAborted) return;
 
@@ -11284,9 +11300,12 @@ function handleVPCeremonyState(room) {
     if (winner.id === myId) {
       showVPWinnerReveal(winner);
     } else {
-      // Non-winners: screen goes black until rankings appear
-      document.body.style.background = '#000';
-      document.getElementById('screen-active').style.display = 'none';
+      // Non-winners: black out the game screen completely
+      const sa = document.getElementById('screen-active');
+      if (sa) {
+        sa.classList.add('vp-ceremony-blackout');
+        sa.style.zIndex = '8000';
+      }
     }
     return;
   }
@@ -11324,8 +11343,14 @@ function showVPWinnerReveal(winner) {
     nameEl.style.color = winner.color;
   }
   if (numEl) numEl.textContent = 'Player ' + (idx >= 0 ? idx + 1 : '?');
-  // Light up the entire background with winner's color — bright, pulsing
+  // Light up the entire background with winner's color
   reveal.style.background = `radial-gradient(ellipse at center, ${winner.color}cc 0%, ${winner.color}55 35%, ${winner.color}18 60%, #050510 100%)`;
+  // Hide game UI behind the overlay
+  const sa = document.getElementById('screen-active');
+  if (sa) {
+    sa.classList.add('vp-ceremony-blackout');
+    sa.style.zIndex = '0';
+  }
   reveal.classList.add('show');
   startFireworksForCanvas('vp-canvas-winner', winner.color, true);
 }
