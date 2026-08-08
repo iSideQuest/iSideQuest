@@ -960,6 +960,118 @@
     color: rgba(255,255,255,0.55);
   }
 
+  /* ── VP WINNER REVEAL (winner's phone — bright) ── */
+  .vp-reveal-winner {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 8100;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, var(--accent) 0%, #1a0a3e 70%, #000 100%);
+  }
+  .vp-reveal-winner.show { display: flex; }
+  .vp-reveal-winner #vp-canvas-winner {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .vp-win-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    animation: vpRevealIn 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  .vp-win-flash {
+    font-size: 1.3rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    color: #FFD700;
+    text-shadow: 0 0 20px rgba(255,215,0,0.6);
+    animation: vpFlashPulse 0.8s ease-in-out infinite alternate;
+    margin-bottom: 0.3rem;
+  }
+  @keyframes vpFlashPulse {
+    0%   { opacity: 0.7; transform: scale(1); }
+    100% { opacity: 1;   transform: scale(1.08); }
+  }
+  .vp-win-trophy {
+    font-size: 5.5rem;
+    animation: vpTrophyBounce 1s ease infinite alternate;
+    filter: drop-shadow(0 0 25px rgba(255,215,0,0.6));
+  }
+  .vp-win-name {
+    font-size: 3.2rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 40px currentColor, 0 0 80px currentColor, 0 0 120px currentColor;
+    line-height: 1.1;
+    animation: vpNameGlow 1.2s ease-in-out infinite alternate;
+  }
+  .vp-win-player-num {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.7);
+    margin-top: 0.2rem;
+  }
+
+  /* ── VP SPECTATOR REVEAL (others — darker) ── */
+  .vp-reveal-spectator {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 8100;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a15 60%, #000 100%);
+  }
+  .vp-reveal-spectator.show { display: flex; }
+  .vp-reveal-spectator #vp-canvas-spectator {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .vp-spec-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    animation: vpRevealIn 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  .vp-spec-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 0.3rem;
+    animation: vpFadeIn 0.6s ease forwards;
+  }
+  .vp-spec-trophy {
+    font-size: 4rem;
+    filter: drop-shadow(0 0 12px rgba(255,215,0,0.3));
+    animation: vpTrophyBounce 1s ease infinite alternate;
+  }
+  .vp-spec-name {
+    font-size: 2.8rem;
+    font-weight: 900;
+    line-height: 1.1;
+    animation: vpNameGlow 1.5s ease-in-out infinite alternate;
+  }
+  .vp-spec-player-num {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.4);
+    margin-top: 0.2rem;
+  }
+
   .awards-gameover {
     display: none;
     position: fixed;
@@ -4627,15 +4739,28 @@
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
-<!--  VP CEREMONY: WINNER REVEAL (all phones)    -->
+<!--  VP CEREMONY: WINNER REVEAL (WINNER's phone — bright) -->
 <!-- ═══════════════════════════════════════════ -->
-<div class="awards-reveal" id="vp-reveal">
-  <canvas id="vp-canvas"></canvas>
-  <div class="vp-reveal-content">
-    <div class="vp-reveal-subtitle" id="vp-reveal-subtitle">And the winner is...</div>
-    <div class="vp-reveal-trophy">🏆</div>
-    <div class="vp-reveal-name" id="vp-reveal-name"></div>
-    <div class="vp-reveal-player-num" id="vp-reveal-num"></div>
+<div class="vp-reveal-winner" id="vp-reveal-winner">
+  <canvas id="vp-canvas-winner"></canvas>
+  <div class="vp-win-inner">
+    <div class="vp-win-flash">🎉 YOU WIN! 🎉</div>
+    <div class="vp-win-trophy">🏆</div>
+    <div class="vp-win-name" id="vp-win-name"></div>
+    <div class="vp-win-player-num" id="vp-win-num"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  VP CEREMONY: WINNER REVEAL (OTHERS — darker) -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="vp-reveal-spectator" id="vp-reveal-spectator">
+  <canvas id="vp-canvas-spectator"></canvas>
+  <div class="vp-spec-inner">
+    <div class="vp-spec-label">And the winner is...</div>
+    <div class="vp-spec-trophy">🏆</div>
+    <div class="vp-spec-name" id="vp-spec-name"></div>
+    <div class="vp-spec-player-num" id="vp-spec-num"></div>
   </div>
 </div>
 
@@ -4648,6 +4773,7 @@
   <div class="awards-gameover-sub" style="margin-bottom:0.5rem;">Final Standings</div>
   <div id="vp-rankings-list" style="width:min(340px,90vw); display:flex; flex-direction:column; gap:0.5rem;"></div>
   <button class="btn-primary" id="vp-rankings-close" onclick="closeVPRankings()" style="display:none; margin-top:1rem; min-width:200px;">Done</button>
+  <div id="vp-rankings-wait" style="display:none; color:var(--muted); font-size:0.85rem; margin-top:1rem;">Waiting for host to close…</div>
 </div>
 
 
@@ -8872,8 +8998,10 @@ function hideAllAwardOverlays() {
   if (vpOv) vpOv.classList.remove('show');
   const vpStandby = document.getElementById('vp-standby');
   if (vpStandby) vpStandby.classList.remove('show');
-  const vpReveal = document.getElementById('vp-reveal');
-  if (vpReveal) vpReveal.classList.remove('show');
+  const vpWinner = document.getElementById('vp-reveal-winner');
+  if (vpWinner) vpWinner.classList.remove('show');
+  const vpSpectator = document.getElementById('vp-reveal-spectator');
+  if (vpSpectator) vpSpectator.classList.remove('show');
   const vpRankings = document.getElementById('vp-rankings');
   if (vpRankings) vpRankings.classList.remove('show');
   stopFireworks();
@@ -9053,7 +9181,11 @@ let fireworksParticles = [];
 let confettiParticles = [];
 
 function startFireworks(playerColor) {
-  const canvas = document.getElementById('awards-canvas') || document.getElementById('vp-canvas');
+  startFireworksForCanvas('awards-canvas', playerColor, true);
+}
+
+function startFireworksForCanvas(canvasId, playerColor, intense) {
+  const canvas = document.getElementById(canvasId);
   if (!canvas) return;
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -9078,16 +9210,16 @@ function startFireworks(playerColor) {
   ];
 
   function spawnBurst(x, y) {
-    const count = 30 + Math.floor(Math.random() * 20);
+    const count = intense ? (35 + Math.floor(Math.random() * 20)) : (15 + Math.floor(Math.random() * 10));
     for (let i = 0; i < count; i++) {
       const angle  = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
-      const speed  = 4 + Math.random() * 7;
+      const speed  = intense ? (4 + Math.random() * 7) : (2 + Math.random() * 4);
       fireworksParticles.push({
         x, y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         alpha: 1,
-        size: 3 + Math.random() * 4,
+        size: intense ? (3 + Math.random() * 4) : (2 + Math.random() * 3),
         color: palette[Math.floor(Math.random() * palette.length)],
         gravity: 0.12 + Math.random() * 0.08,
         decay: 0.012 + Math.random() * 0.01
@@ -9096,10 +9228,10 @@ function startFireworks(playerColor) {
   }
 
   function spawnConfettiBurst(x, y) {
-    const count = 40 + Math.floor(Math.random() * 25);
+    const count = intense ? (45 + Math.floor(Math.random() * 25)) : (20 + Math.floor(Math.random() * 12));
     for (let i = 0; i < count; i++) {
       const angle  = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.6;
-      const speed  = 3 + Math.random() * 8;
+      const speed  = intense ? (3 + Math.random() * 8) : (2 + Math.random() * 5);
       confettiParticles.push({
         x, y,
         vx: Math.cos(angle) * speed,
@@ -9126,7 +9258,7 @@ function startFireworks(playerColor) {
   }
 
   function rainConfetti() {
-    const count = 8 + Math.floor(Math.random() * 6);
+    const count = intense ? (10 + Math.floor(Math.random() * 6)) : (5 + Math.floor(Math.random() * 4));
     for (let i = 0; i < count; i++) {
       confettiParticles.push({
         x: Math.random() * canvas.width,
@@ -9147,19 +9279,17 @@ function startFireworks(playerColor) {
     }
   }
 
-  // Initial volley — big burst
-  for (let i = 0; i < 5; i++) setTimeout(launchRandom, i * 250);
-  // Confetti rain starts immediately
+  // Initial volley
+  const initBursts = intense ? 5 : 2;
+  for (let i = 0; i < initBursts; i++) setTimeout(launchRandom, i * 250);
   rainConfetti();
-  const confettiRainInterval = setInterval(rainConfetti, 300);
-  // Ongoing bursts
-  const launchInterval = setInterval(launchRandom, 700);
+  const confettiRainInterval = setInterval(rainConfetti, intense ? 300 : 600);
+  const launchInterval = setInterval(launchRandom, intense ? 700 : 1400);
 
   const ctx = canvas.getContext('2d');
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw fireworks particles
     fireworksParticles = fireworksParticles.filter(p => p.alpha > 0.02);
     for (const p of fireworksParticles) {
       ctx.save();
@@ -9177,7 +9307,6 @@ function startFireworks(playerColor) {
       p.size  *= 0.993;
     }
 
-    // Draw confetti particles
     confettiParticles = confettiParticles.filter(p => p.alpha > 0.02);
     for (const p of confettiParticles) {
       ctx.save();
@@ -9200,15 +9329,15 @@ function startFireworks(playerColor) {
   }
   draw();
 
-  setTimeout(() => clearInterval(launchInterval), 5000);
-  setTimeout(() => clearInterval(confettiRainInterval), 5000);
+  setTimeout(() => clearInterval(launchInterval), intense ? 5000 : 3000);
+  setTimeout(() => clearInterval(confettiRainInterval), intense ? 5000 : 3000);
 }
 
 function stopFireworks() {
   if (fireworksRAF) { cancelAnimationFrame(fireworksRAF); fireworksRAF = null; }
   fireworksParticles = [];
   confettiParticles = [];
-  ['awards-canvas', 'vp-canvas'].forEach(id => {
+  ['awards-canvas', 'vp-canvas', 'vp-canvas-winner', 'vp-canvas-spectator'].forEach(id => {
     const c = document.getElementById(id);
     if (c) c.getContext('2d').clearRect(0, 0, c.width, c.height);
   });
@@ -11113,7 +11242,7 @@ async function runVPCeremonyAsHost() {
   await sleepAbortable(5000);
   if (ceremonyAborted) return;
 
-  // Phase 3: Rankings board
+  // Phase 3: Rankings board — stays until host closes
   await update(ref(db, `rooms/${roomCode}`), {
     vpCeremonyStep: 'rankings',
     vpCeremonyRankings: sorted.map((p, i) => ({
@@ -11121,11 +11250,7 @@ async function runVPCeremonyAsHost() {
       avatar: p.avatar || '👤', vp: p.vp
     }))
   });
-  await sleepAbortable(10000);
-  if (ceremonyAborted) return;
-
-  // Done
-  await update(ref(db, `rooms/${roomCode}`), { status: 'gameover', vpCeremonyStep: 'gameover' });
+  // No auto-transition — host clicks Done to end game
 }
 
 // Handle VP ceremony state on non-host devices
@@ -11148,7 +11273,11 @@ function handleVPCeremonyState(room) {
 
   if (step === 'reveal' && winner) {
     hideAllAwardOverlays();
-    showVPWinnerReveal(winner);
+    if (winner.id === myId) {
+      showVPWinnerReveal(winner);
+    } else {
+      showVPSpectatorReveal(winner);
+    }
     return;
   }
 
@@ -11176,19 +11305,33 @@ function showVPStandby(announcing) {
 }
 
 function showVPWinnerReveal(winner) {
-  const reveal = document.getElementById('vp-reveal');
-  const nameEl = document.getElementById('vp-reveal-name');
-  const numEl = document.getElementById('vp-reveal-num');
-  const subEl = document.getElementById('vp-reveal-subtitle');
+  const reveal = document.getElementById('vp-reveal-winner');
+  const nameEl = document.getElementById('vp-win-name');
+  const numEl = document.getElementById('vp-win-num');
   const idx = localPlayers.findIndex(p => p.id === winner.id);
-  if (subEl) subEl.textContent = 'And the winner is...';
+  if (nameEl) {
+    nameEl.textContent = winner.name;
+    nameEl.style.color = winner.color;
+  }
+  if (numEl) numEl.textContent = 'Player ' + (idx >= 0 ? idx + 1 : '?');
+  // Tint the background with winner's color
+  reveal.style.background = `radial-gradient(ellipse at center, ${winner.color}88 0%, ${winner.color}22 40%, #0a0a15 70%, #000 100%)`;
+  reveal.classList.add('show');
+  startFireworksForCanvas('vp-canvas-winner', winner.color, true);
+}
+
+function showVPSpectatorReveal(winner) {
+  const reveal = document.getElementById('vp-reveal-spectator');
+  const nameEl = document.getElementById('vp-spec-name');
+  const numEl = document.getElementById('vp-spec-num');
+  const idx = localPlayers.findIndex(p => p.id === winner.id);
   if (nameEl) {
     nameEl.textContent = winner.name;
     nameEl.style.color = winner.color;
   }
   if (numEl) numEl.textContent = 'Player ' + (idx >= 0 ? idx + 1 : '?');
   reveal.classList.add('show');
-  startFireworks(winner.color);
+  startFireworksForCanvas('vp-canvas-spectator', winner.color, false);
 }
 
 function showVPRankings(rankings) {
@@ -11210,7 +11353,9 @@ function showVPRankings(rankings) {
     list.appendChild(div);
   });
   const closeBtn = document.getElementById('vp-rankings-close');
+  const waitMsg = document.getElementById('vp-rankings-wait');
   if (closeBtn) closeBtn.style.display = isHost ? 'block' : 'none';
+  if (waitMsg) waitMsg.style.display = isHost ? 'none' : 'block';
   el.classList.add('show');
 }
 
