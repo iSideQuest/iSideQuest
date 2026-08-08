@@ -6042,15 +6042,32 @@ async function syncProfileFromFirebase() {
   const uid = currentUser?.uid;
   if (!uid) return;
   const profile = await loadProfileFromFirebase(uid);
-  if (!profile) return;
-  // Only overwrite localStorage if Firebase has data
-  if (profile.preferredName) localStorage.setItem('sk_preferred_name_' + uid, profile.preferredName);
-  if (profile.avatar) localStorage.setItem('sk_avatar_' + uid, profile.avatar);
-  if (profile.hostedCount != null) localStorage.setItem('sk_hosted_count', String(profile.hostedCount));
-  if (profile.roomsCount != null) localStorage.setItem('sk_rooms_count', String(profile.roomsCount));
-  if (profile.awards) localStorage.setItem('sk_awards_' + uid, JSON.stringify(profile.awards));
-  if (profile.theme) localStorage.setItem('sk_theme', profile.theme);
-  if (profile.namedTheme) localStorage.setItem('sk_named_theme', profile.namedTheme);
+  // If Firebase has data, pull it into localStorage
+  if (profile) {
+    if (profile.preferredName) localStorage.setItem('sk_preferred_name_' + uid, profile.preferredName);
+    if (profile.avatar) localStorage.setItem('sk_avatar_' + uid, profile.avatar);
+    if (profile.hostedCount != null) localStorage.setItem('sk_hosted_count', String(profile.hostedCount));
+    if (profile.roomsCount != null) localStorage.setItem('sk_rooms_count', String(profile.roomsCount));
+    if (profile.awards) localStorage.setItem('sk_awards_' + uid, JSON.stringify(profile.awards));
+    if (profile.theme) localStorage.setItem('sk_theme', profile.theme);
+    if (profile.namedTheme) localStorage.setItem('sk_named_theme', profile.namedTheme);
+    if (profile.namedTheme || profile.theme) {
+      applyFullTheme(profile.namedTheme || 'default', profile.theme === 'light');
+    }
+  }
+  // Migrate legacy localStorage data to Firebase if Firebase is empty
+  if (!profile || (!profile.preferredName && !profile.avatar)) {
+    const legacyName = localStorage.getItem('sk_preferred_name') || '';
+    const legacyAvatar = localStorage.getItem('sk_avatar') || '';
+    if (legacyName || legacyAvatar) {
+      const data = {};
+      if (legacyName) { data.preferredName = legacyName; localStorage.setItem('sk_preferred_name_' + uid, legacyName); }
+      if (legacyAvatar) { data.avatar = legacyAvatar; localStorage.setItem('sk_avatar_' + uid, legacyAvatar); }
+      syncProfileToFirebase(uid, data);
+    }
+  }
+  // Refresh UI now that localStorage is populated
+  updateAccountButtonUI();
 }
 
 const AVATARS = [
@@ -9066,14 +9083,25 @@ function hideAllAwardOverlays() {
   if (vpSpectator) vpSpectator.classList.remove('show');
   const vpRankings = document.getElementById('vp-rankings');
   if (vpRankings) vpRankings.classList.remove('show');
-  // Remove non-winner blackout from game screen
-  const sa = document.getElementById('screen-active');
+  // Remove non-winner blackout from whatever screen is active
+  const sa = document.querySelector('.screen.active');
   if (sa) {
     sa.classList.remove('vp-ceremony-blackout');
     sa.style.zIndex = '';
     sa.style.background = '';
-    // Restore inline styles on children
     sa.querySelectorAll(':scope > *').forEach(ch => {
+      ch.style.removeProperty('display');
+      ch.style.removeProperty('visibility');
+      ch.style.removeProperty('opacity');
+    });
+  }
+  // Also clean up any screen-active that might have blackout (in case it became active)
+  const saFixed = document.getElementById('screen-active');
+  if (saFixed && saFixed !== sa) {
+    saFixed.classList.remove('vp-ceremony-blackout');
+    saFixed.style.zIndex = '';
+    saFixed.style.background = '';
+    saFixed.querySelectorAll(':scope > *').forEach(ch => {
       ch.style.removeProperty('display');
       ch.style.removeProperty('visibility');
       ch.style.removeProperty('opacity');
@@ -11369,26 +11397,25 @@ function handleVPCeremonyState(room) {
     if (winner.id === myId) {
       showVPWinnerReveal(winner);
     } else {
-      // Non-winners: black out the game screen completely
-      const sa = document.getElementById('screen-active');
+      // Non-winners: black out whatever screen is currently active
+      const sa = document.querySelector('.screen.active');
       if (sa) {
         sa.classList.add('vp-ceremony-blackout');
         sa.style.zIndex = '8000';
         sa.style.background = '#000';
-        // Force-hide every child via inline style as backup
         sa.querySelectorAll(':scope > *').forEach(ch => {
           ch.style.setProperty('display', 'none', 'important');
           ch.style.setProperty('visibility', 'hidden', 'important');
           ch.style.setProperty('opacity', '0', 'important');
         });
       }
-      // Also insert a fixed full-screen black cover above everything
+      // Full-screen black cover on <html> to avoid body stacking issues
       let cover = document.getElementById('vp-blackout-cover');
       if (!cover) {
         cover = document.createElement('div');
         cover.id = 'vp-blackout-cover';
         cover.className = 'vp-blackout-cover';
-        document.body.appendChild(cover);
+        document.documentElement.appendChild(cover);
       }
     }
     return;
@@ -11430,7 +11457,7 @@ function showVPWinnerReveal(winner) {
   // Light up the entire background with winner's color
   reveal.style.background = `radial-gradient(ellipse at center, ${winner.color}cc 0%, ${winner.color}55 35%, ${winner.color}18 60%, #050510 100%)`;
   // Hide game UI behind the overlay
-  const sa = document.getElementById('screen-active');
+  const sa = document.querySelector('.screen.active');
   if (sa) {
     sa.classList.add('vp-ceremony-blackout');
     sa.style.zIndex = '0';
