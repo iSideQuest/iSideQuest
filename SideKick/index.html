@@ -9933,7 +9933,7 @@ function listenGameState() {
       showScreen('reconfiguring');
       return;
     }
-    if (room.status !== 'playing' && room.status !== 'ceremony' && room.status !== 'vp-entry') { showScreen('home'); return; }
+    if (room.status !== 'playing' && room.status !== 'ceremony' && room.status !== 'vp-entry' && room.status !== 'vp-ceremony') { showScreen('home'); return; }
 
     localPlayers = buildOrderedPlayers(room.players || {});
     const activeIdx = room.activePlayerIndex || 0;
