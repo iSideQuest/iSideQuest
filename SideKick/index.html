@@ -9009,6 +9009,10 @@ function hideAllAwardOverlays() {
   if (vpSpectator) vpSpectator.classList.remove('show');
   const vpRankings = document.getElementById('vp-rankings');
   if (vpRankings) vpRankings.classList.remove('show');
+  // Restore body/screen after non-winner black screen
+  document.body.style.background = '';
+  const sa = document.getElementById('screen-active');
+  if (sa) sa.style.display = '';
   stopFireworks();
 }
 
@@ -11280,7 +11284,9 @@ function handleVPCeremonyState(room) {
     if (winner.id === myId) {
       showVPWinnerReveal(winner);
     } else {
-      showVPSpectatorReveal(winner);
+      // Non-winners: screen goes black until rankings appear
+      document.body.style.background = '#000';
+      document.getElementById('screen-active').style.display = 'none';
     }
     return;
   }
