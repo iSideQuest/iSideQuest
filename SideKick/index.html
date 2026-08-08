@@ -860,11 +860,20 @@
   .vp-ceremony-blackout {
     background: #000 !important;
     overflow: hidden !important;
+    color: transparent !important;
   }
   .vp-ceremony-blackout > * {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  .vp-blackout-cover {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 9000;
+    pointer-events: none;
   }
 
   .awards-reveal {
@@ -9062,7 +9071,17 @@ function hideAllAwardOverlays() {
   if (sa) {
     sa.classList.remove('vp-ceremony-blackout');
     sa.style.zIndex = '';
+    sa.style.background = '';
+    // Restore inline styles on children
+    sa.querySelectorAll(':scope > *').forEach(ch => {
+      ch.style.removeProperty('display');
+      ch.style.removeProperty('visibility');
+      ch.style.removeProperty('opacity');
+    });
   }
+  // Remove full-screen blackout cover
+  const cover = document.getElementById('vp-blackout-cover');
+  if (cover) cover.remove();
   stopFireworks();
 }
 
@@ -11355,6 +11374,21 @@ function handleVPCeremonyState(room) {
       if (sa) {
         sa.classList.add('vp-ceremony-blackout');
         sa.style.zIndex = '8000';
+        sa.style.background = '#000';
+        // Force-hide every child via inline style as backup
+        sa.querySelectorAll(':scope > *').forEach(ch => {
+          ch.style.setProperty('display', 'none', 'important');
+          ch.style.setProperty('visibility', 'hidden', 'important');
+          ch.style.setProperty('opacity', '0', 'important');
+        });
+      }
+      // Also insert a fixed full-screen black cover above everything
+      let cover = document.getElementById('vp-blackout-cover');
+      if (!cover) {
+        cover = document.createElement('div');
+        cover.id = 'vp-blackout-cover';
+        cover.className = 'vp-blackout-cover';
+        document.body.appendChild(cover);
       }
     }
     return;
@@ -11400,6 +11434,12 @@ function showVPWinnerReveal(winner) {
   if (sa) {
     sa.classList.add('vp-ceremony-blackout');
     sa.style.zIndex = '0';
+    sa.style.background = '#000';
+    sa.querySelectorAll(':scope > *').forEach(ch => {
+      ch.style.setProperty('display', 'none', 'important');
+      ch.style.setProperty('visibility', 'hidden', 'important');
+      ch.style.setProperty('opacity', '0', 'important');
+    });
   }
   reveal.classList.add('show');
   startFireworksForCanvas('vp-canvas-winner', winner.color, true);
