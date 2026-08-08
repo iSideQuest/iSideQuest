@@ -859,9 +859,12 @@
   /* ── VP CEREMONY BLACKOUT ── */
   .vp-ceremony-blackout {
     background: #000 !important;
+    overflow: hidden !important;
   }
-  .vp-ceremony-blackout > *:not(.touch-guard) {
+  .vp-ceremony-blackout > * {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
   }
 
   .awards-reveal {
@@ -5977,6 +5980,8 @@ function saveAvatar(emoji) {
     const uid = currentUser?.uid || '';
     if (uid) localStorage.setItem('sk_avatar_' + uid, emoji);
     else localStorage.setItem('sk_avatar', emoji);
+    // Sync to Firebase
+    if (uid && db) set(ref(db, `users/${uid}/avatar`), emoji).catch(() => {});
   } catch {}
   if (roomCode && myId) {
     set(ref(db, `rooms/${roomCode}/players/${myId}/avatar`), emoji).catch(() => {});
@@ -6003,7 +6008,40 @@ function saveName(name) {
     const uid = currentUser?.uid || '';
     if (uid) localStorage.setItem('sk_preferred_name_' + uid, name);
     else localStorage.setItem('sk_preferred_name', name);
+    // Sync to Firebase
+    if (uid && db) set(ref(db, `users/${uid}/preferredName`), name).catch(() => {});
   } catch {}
+}
+
+// ── FIREBASE USER PROFILE SYNC ───────────────────
+// Saves per-user data to Firebase so it survives uninstall/reinstall
+function syncProfileToFirebase(uid, data) {
+  if (!db || !uid) return;
+  set(ref(db, `users/${uid}`), data).catch(() => {});
+}
+
+async function loadProfileFromFirebase(uid) {
+  if (!db || !uid) return null;
+  try {
+    const snap = await get(ref(db, `users/${uid}`));
+    return snap.exists() ? snap.val() : null;
+  } catch { return null; }
+}
+
+// Call on login to pull Firebase data into localStorage
+async function syncProfileFromFirebase() {
+  const uid = currentUser?.uid;
+  if (!uid) return;
+  const profile = await loadProfileFromFirebase(uid);
+  if (!profile) return;
+  // Only overwrite localStorage if Firebase has data
+  if (profile.preferredName) localStorage.setItem('sk_preferred_name_' + uid, profile.preferredName);
+  if (profile.avatar) localStorage.setItem('sk_avatar_' + uid, profile.avatar);
+  if (profile.hostedCount != null) localStorage.setItem('sk_hosted_count', String(profile.hostedCount));
+  if (profile.roomsCount != null) localStorage.setItem('sk_rooms_count', String(profile.roomsCount));
+  if (profile.awards) localStorage.setItem('sk_awards_' + uid, JSON.stringify(profile.awards));
+  if (profile.theme) localStorage.setItem('sk_theme', profile.theme);
+  if (profile.namedTheme) localStorage.setItem('sk_named_theme', profile.namedTheme);
 }
 
 const AVATARS = [
@@ -6840,6 +6878,8 @@ function initFirebase(cfg) {
       isCreator = user ? CREATOR_UIDS.includes(user.uid) : false;
       document.body.classList.toggle('user-mode', !!user && !isCreator);
       updateAccountButtonUI();
+      // Sync profile from Firebase into localStorage on login
+      if (user) syncProfileFromFirebase();
     });
   } catch(e) {
     status('home-status', 'Firebase error: ' + e.message, 'error');
@@ -9034,6 +9074,8 @@ function showWinnerReveal(award) {
       const list = JSON.parse(localStorage.getItem(key) || '[]');
       list.push({ key: award.key, category: award.category, trophy: award.trophy, stat: award.stat, date: Date.now() });
       localStorage.setItem(key, JSON.stringify(list));
+      // Sync to Firebase
+      if (db) set(ref(db, `users/${uid}/awards`), list).catch(() => {});
     }
   } catch {}
   const reveal = document.getElementById('awards-reveal');
@@ -9150,9 +9192,17 @@ window.closeRoomFinal = async function() {
 window.endGameFinal = async function() {
   try {
     const prevHosted = parseInt(localStorage.getItem('sk_hosted_count') || '0', 10);
-    localStorage.setItem('sk_hosted_count', String(prevHosted + 1));
+    const newHosted = prevHosted + 1;
+    localStorage.setItem('sk_hosted_count', String(newHosted));
     const prevRooms = parseInt(localStorage.getItem('sk_rooms_count') || '0', 10);
-    localStorage.setItem('sk_rooms_count', String(prevRooms + 1));
+    const newRooms = prevRooms + 1;
+    localStorage.setItem('sk_rooms_count', String(newRooms));
+    // Sync to Firebase
+    const uid = currentUser?.uid;
+    if (uid && db) {
+      set(ref(db, `users/${uid}/hostedCount`), newHosted).catch(() => {});
+      set(ref(db, `users/${uid}/roomsCount`), newRooms).catch(() => {});
+    }
   } catch {}
   hideAllAwardOverlays();
   stopFireworks();
@@ -11560,6 +11610,12 @@ window.toggleTheme = function() {
   localStorage.setItem('sk_theme', isLight ? 'light' : 'dark');
   const namedTheme = localStorage.getItem('sk_named_theme') || 'default';
   if (namedTheme === 'default') applyFullTheme('default', isLight);
+  // Sync to Firebase
+  const uid = currentUser?.uid;
+  if (uid && db) {
+    set(ref(db, `users/${uid}/theme`), isLight ? 'light' : 'dark').catch(() => {});
+    set(ref(db, `users/${uid}/namedTheme`), namedTheme).catch(() => {});
+  }
 };
 
 window.openThemesOverlay = function() {
@@ -11617,6 +11673,9 @@ window.selectTheme = function(themeName) {
     const radio = activeOpt.querySelector('input[type="radio"]');
     if (radio) radio.checked = true;
   }
+  // Sync to Firebase
+  const uid = currentUser?.uid;
+  if (uid && db) set(ref(db, `users/${uid}/namedTheme`), themeName).catch(() => {});
 };
 
 // Apply saved theme on load
