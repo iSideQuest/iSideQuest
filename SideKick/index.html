@@ -9254,6 +9254,7 @@ window.playAgain = async function() {
   const updates = {};
   updates[`rooms/${roomCode}/status`] = 'playing';
   updates[`rooms/${roomCode}/activePlayerIndex`] = 0;
+  updates[`rooms/${roomCode}/currentRound`] = 1;
   updates[`rooms/${roomCode}/previousPlayerId`] = null;
   updates[`rooms/${roomCode}/previousPlayerIndex`] = null;
   updates[`rooms/${roomCode}/nudges`] = null;
