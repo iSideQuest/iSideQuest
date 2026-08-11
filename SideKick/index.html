@@ -4684,7 +4684,7 @@
     </div>
   </div>
   <button class="active-sound-btn" id="active-sound-btn" onclick="toggleSound()">🔊</button>
-  <button class="active-ui-btn" id="active-ui-btn" onclick="toggleUIMode()">UI</button>
+  <button class="active-ui-btn" id="active-ui-btn" onclick="window.toggleUIMode()">UI</button>
   <!-- Wheel overlay (shown when wheel UI mode is active) -->
   <div class="wheel-overlay" id="wheel-overlay-active">
     <div class="wheel-svg-wrap" id="wheel-svg-wrap-active">
@@ -4777,7 +4777,7 @@
     </div>
   </div>
   <button class="active-sound-btn" id="active-sound-btn-wait" onclick="toggleSound()">🔊</button>
-  <button class="active-ui-btn" id="active-ui-btn-wait" onclick="toggleUIMode()">UI</button>
+  <button class="active-ui-btn" id="active-ui-btn-wait" onclick="window.toggleUIMode()">UI</button>
   <!-- Wheel overlay (shown when wheel UI mode is active) -->
   <div class="wheel-overlay" id="wheel-overlay-wait">
     <div class="wheel-svg-wrap" id="wheel-svg-wrap-wait">
@@ -9947,55 +9947,50 @@ function _playNudgeSoundSynth() {
 // ── WHEEL UI MODE ──────────────────────────────
 let wheelUIMode = localStorage.getItem('sk_ui_mode') === 'wheel';
 
-function toggleUIMode() {
-  try {
-    wheelUIMode = !wheelUIMode;
-    localStorage.setItem('sk_ui_mode', wheelUIMode ? 'wheel' : 'classic');
-    applyUIMode();
-    // Re-render wheel if switching to wheel mode (need current game state from Firebase)
-    if (wheelUIMode && typeof localPlayers !== 'undefined' && localPlayers.length && typeof myId !== 'undefined') {
-      const activeScreen = document.getElementById('screen-active');
-      const waitScreen = document.getElementById('screen-waiting');
-      const apId = window._currentActivePlayerId;
-      const ap = apId ? localPlayers.find(p => p.id === apId) : localPlayers[0];
-      const dir = typeof passDirection !== 'undefined' ? passDirection : 'both';
-      if (activeScreen && activeScreen.classList.contains('active')) {
-        if (ap) renderWheel('active', localPlayers, ap.id, myId, dir, true);
-      } else if (waitScreen && waitScreen.classList.contains('active')) {
-        if (ap) renderWheel('wait', localPlayers, ap.id, myId, dir, false);
-      }
-    }
-  } catch(e) { console.error('toggleUIMode error:', e); }
-}
+window.toggleUIMode = function() {
+  wheelUIMode = !wheelUIMode;
+  try { localStorage.setItem('sk_ui_mode', wheelUIMode ? 'wheel' : 'classic'); } catch(e) {}
+  applyUIMode();
+  if (wheelUIMode && window._currentActivePlayerId && localPlayers && localPlayers.length && myId) {
+    try {
+      var dir = passDirection || 'both';
+      var isAct = document.getElementById('screen-active') && document.getElementById('screen-active').classList.contains('active');
+      var isWait = document.getElementById('screen-waiting') && document.getElementById('screen-waiting').classList.contains('active');
+      if (isAct) renderWheel('active', localPlayers, window._currentActivePlayerId, myId, dir, true);
+      else if (isWait) renderWheel('wait', localPlayers, window._currentActivePlayerId, myId, dir, false);
+    } catch(e) { console.error('[SK] wheel render:', e); }
+  }
+};
 
 function applyUIMode() {
   try {
-    // Update toggle button labels
     const ab = document.getElementById('active-ui-btn');
     const wb = document.getElementById('active-ui-btn-wait');
-    [ab, wb].forEach(btn => { if (btn) btn.textContent = wheelUIMode ? 'Classic' : 'UI'; });
+    if (ab) ab.textContent = wheelUIMode ? 'Classic' : 'UI';
+    if (wb) wb.textContent = wheelUIMode ? 'Classic' : 'UI';
 
     const isWheel = wheelUIMode;
-    const dir = typeof passDirection !== 'undefined' ? passDirection : 'both';
 
-    // Active screen
-    const wOvA = document.getElementById('wheel-overlay-active');
+    // Active screen classic buttons
     const btnL = document.getElementById('btn-left');
     const btnR = document.getElementById('btn-right');
     const divd = document.getElementById('active-divider');
     const actC = document.getElementById('active-center');
     const tapB = document.getElementById('pass-tap-btn');
-    if (wOvA) wOvA.classList.toggle('visible', isWheel);
-    if (btnL) btnL.style.display = isWheel ? 'none' : (dir === 'both' || !dir) ? '' : 'none';
-    if (btnR) btnR.style.display = isWheel ? 'none' : (dir === 'both' || !dir) ? '' : 'none';
-    if (divd) divd.style.display = isWheel ? 'none' : (dir === 'both' || !dir) ? '' : 'none';
-    if (actC) actC.style.display = isWheel ? 'none' : (dir === 'both' || !dir) ? '' : 'none';
-    if (tapB) tapB.style.display = isWheel ? 'none' : (dir !== 'both' && dir) ? '' : 'none';
+    const showBoth = isWheel ? false : (!passDirection || passDirection === 'both');
+    const showTap  = isWheel ? false : (!!passDirection && passDirection !== 'both');
+    if (btnL) btnL.style.display = showBoth ? '' : 'none';
+    if (btnR) btnR.style.display = showBoth ? '' : 'none';
+    if (divd) divd.style.display = showBoth ? '' : 'none';
+    if (actC) actC.style.display = showBoth ? '' : 'none';
+    if (tapB) tapB.style.display = showTap ? '' : 'none';
 
-    // Waiting screen
+    // Wheel overlays
+    const wOvA = document.getElementById('wheel-overlay-active');
     const wOvW = document.getElementById('wheel-overlay-wait');
+    if (wOvA) wOvA.classList.toggle('visible', isWheel);
     if (wOvW) wOvW.classList.toggle('visible', isWheel);
-  } catch(e) { console.error('applyUIMode error:', e); }
+  } catch(e) { console.error('[SideKick] applyUIMode error:', e); }
 }
 
 // Build SVG arc path for a donut wedge
@@ -10013,7 +10008,8 @@ function wheelArcPath(cx, cy, rIn, rOut, startDeg, endDeg) {
 }
 
 // Render the wheel for a given context ('active' or 'wait')
-function renderWheel(ctx, players, activePlayerId, myId, passDir, isMyTurn) {
+function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn) {
+  try {
   const svgId = ctx === 'active' ? 'wheel-svg-active' : 'wheel-svg-wait';
   const centerNameId = ctx === 'active' ? 'wheel-center-name-active' : 'wheel-center-name-wait';
   const centerCircleId = ctx === 'active' ? 'wheel-center-active' : 'wheel-center-wait';
@@ -10022,7 +10018,7 @@ function renderWheel(ctx, players, activePlayerId, myId, passDir, isMyTurn) {
   const centerName = document.getElementById(centerNameId);
   const centerCircle = document.getElementById(centerCircleId);
   const dirArea = document.getElementById(dirAreaId);
-  if (!svg || !players.length) return;
+  if (!svg || !players || !players.length) return;
 
   const activePlayer = players.find(p => p.id === activePlayerId);
   if (!activePlayer) return;
@@ -10034,9 +10030,8 @@ function renderWheel(ctx, players, activePlayerId, myId, passDir, isMyTurn) {
   const SEG_DEG = 360 / N;
 
   // "You" player is always at the bottom (180 degrees = 6 o'clock)
-  const myIdx = players.findIndex(p => p.id === myId);
-  // Rotate so that "You" is at the bottom: rotate = 180 - (myIdx * SEG_DEG + SEG_DEG/2)
-  const myAngleDeg = myIdx * SEG_DEG + SEG_DEG / 2;
+  const myIdx = players.findIndex(p => p.id === myIdParam);
+  const myAngleDeg = (myIdx >= 0 ? myIdx : 0) * SEG_DEG + SEG_DEG / 2;
   const rotationOffset = 180 - myAngleDeg;
 
   let svgContent = '';
@@ -10045,29 +10040,27 @@ function renderWheel(ctx, players, activePlayerId, myId, passDir, isMyTurn) {
     const startDeg = rotationOffset + i * SEG_DEG + GAP_DEG / 2;
     const endDeg   = rotationOffset + (i + 1) * SEG_DEG - GAP_DEG / 2;
     const isActive = p.id === activePlayerId;
-    const isSelf   = p.id === myId;
+    const isSelf   = p.id === myIdParam;
     const nameColor = p.color || '#aaa';
     const displayName = isSelf ? 'You' : (p.name || 'Player');
 
-    // Segment path
     const path = wheelArcPath(CX, CY, INNER_R, OUTER_R, startDeg, endDeg);
-    const strokeColor = isActive ? (nameColor === '#000000' || nameColor.toLowerCase() === '#000000' ? '#ffffff' : nameColor) : 'rgba(255,255,255,0.12)';
+    const strokeColor = isActive ? ((nameColor || '').toLowerCase() === '#000000' ? '#ffffff' : nameColor) : 'rgba(255,255,255,0.12)';
     const strokeWidth = isActive ? 3 : 1;
-    svgContent += `<path d="${path}" fill="#0a0a0f" stroke="${strokeColor}" stroke-width="${strokeWidth}"/>`;
+    svgContent += '<path d="' + path + '" fill="#0a0a0f" stroke="' + strokeColor + '" stroke-width="' + strokeWidth + '"/>';
 
-    // Name label
     const midDeg = rotationOffset + (i + 0.5) * SEG_DEG;
     const midRad = midDeg * Math.PI / 180;
     const labelR = (INNER_R + OUTER_R) / 2;
     const lx = CX + labelR * Math.cos(midRad);
     const ly = CY + labelR * Math.sin(midRad);
-    const displayColor = (nameColor.toLowerCase() === '#000000' && isActive) ? '#ffffff' : (isActive ? nameColor : 'rgba(255,255,255,0.75)');
-    svgContent += `<text x="${lx.toFixed(2)}" y="${ly.toFixed(2)}" text-anchor="middle" dominant-baseline="central" fill="${displayColor}" font-family="Inter,sans-serif" font-size="${N > 6 ? 9 : (N > 4 ? 11 : 13)}" font-weight="700">${esc(displayName)}</text>`;
+    const displayColor = ((nameColor || '').toLowerCase() === '#000000' && isActive) ? '#ffffff' : (isActive ? nameColor : 'rgba(255,255,255,0.75)');
+    const fontSize = N > 6 ? 9 : (N > 4 ? 11 : 13);
+    svgContent += '<text x="' + lx.toFixed(2) + '" y="' + ly.toFixed(2) + '" text-anchor="middle" dominant-baseline="central" fill="' + displayColor + '" font-family="Inter,sans-serif" font-size="' + fontSize + '" font-weight="700">' + esc(displayName) + '</text>';
   });
 
   svg.innerHTML = svgContent;
 
-  // Center circle
   const activeColor = activePlayer.color || '#aaa';
   const centerBorderColor = (activeColor.toLowerCase() === '#000000') ? '#ffffff' : activeColor;
   if (centerCircle) centerCircle.style.borderColor = centerBorderColor;
@@ -10076,50 +10069,45 @@ function renderWheel(ctx, players, activePlayerId, myId, passDir, isMyTurn) {
     centerName.style.color = centerBorderColor;
   }
 
-  // Direction area (only for active screen)
   if (dirArea) {
     if (ctx === 'active' && isMyTurn) {
       const nextCW  = players[(players.indexOf(activePlayer) + 1) % N];
       const nextCCW = players[(players.indexOf(activePlayer) - 1 + N) % N];
       if (passDir === 'both' || !passDir) {
-        const leftName  = nextCW  ? (nextCW.id === myId ? 'You' : nextCW.name) : '';
-        const rightName = nextCCW ? (nextCCW.id === myId ? 'You' : nextCCW.name) : '';
-        dirArea.innerHTML = `<div class="wheel-both-area" id="wheel-tap-both-${ctx}">
-          <div class="wheel-both-half"><div class="wheel-both-label">Pass Left</div><div class="wheel-both-arrow">&#8592;</div><div class="wheel-both-player">to ${esc(leftName)}</div></div>
-          <div class="wheel-both-half"><div class="wheel-both-label">Pass Right</div><div class="wheel-both-arrow">&#8594;</div><div class="wheel-both-player">to ${esc(rightName)}</div></div>
-        </div>`;
-        // Add tap zones
+        const leftName  = nextCW  ? (nextCW.id === myIdParam ? 'You' : (nextCW.name || '')) : '';
+        const rightName = nextCCW ? (nextCCW.id === myIdParam ? 'You' : (nextCCW.name || '')) : '';
+        dirArea.innerHTML = '<div class="wheel-both-area" id="wheel-tap-both-' + ctx + '">'
+          + '<div class="wheel-both-half"><div class="wheel-both-label">Pass Left</div><div class="wheel-both-arrow">&#8592;</div><div class="wheel-both-player">to ' + esc(leftName) + '</div></div>'
+          + '<div class="wheel-both-half"><div class="wheel-both-label">Pass Right</div><div class="wheel-both-arrow">&#8594;</div><div class="wheel-both-player">to ' + esc(rightName) + '</div></div>'
+          + '</div>';
         const tapBoth = document.getElementById('wheel-tap-both-' + ctx);
         if (tapBoth) {
           const zL = document.createElement('div');
           zL.className = 'wheel-tap-zone-left';
-          zL.addEventListener('pointerup', () => passTurn('left'));
+          zL.addEventListener('pointerup', function() { passTurn('left'); });
           tapBoth.appendChild(zL);
           const zR = document.createElement('div');
           zR.className = 'wheel-tap-zone-right';
-          zR.addEventListener('pointerup', () => passTurn('right'));
+          zR.addEventListener('pointerup', function() { passTurn('right'); });
           tapBoth.appendChild(zR);
         }
       } else {
         const arrow = passDir === 'cw' ? '&#8635;' : '&#8634;';
         const nextP = passDir === 'cw' ? nextCW : nextCCW;
-        const nextName = nextP ? (nextP.id === myId ? 'You' : nextP.name) : '';
-        dirArea.innerHTML = `<div class="wheel-tap-label">It's Your Turn</div>
-          <div class="wheel-pass-arrow">${arrow}</div>
-          <div class="wheel-pass-to">Pass to ${esc(nextName)}</div>`;
-        // Full screen tap zone
-        const tapZone = document.createElement('div');
+        const nextName = nextP ? (nextP.id === myIdParam ? 'You' : (nextP.name || '')) : '';
+        dirArea.innerHTML = '<div class="wheel-tap-label">It\'s Your Turn</div>'
+          + '<div class="wheel-pass-arrow">' + arrow + '</div>'
+          + '<div class="wheel-pass-to">Pass to ' + esc(nextName) + '</div>';
+        var tapZone = document.createElement('div');
         tapZone.className = 'wheel-tap-zone';
-        tapZone.addEventListener('pointerup', () => passTurnSingle());
+        tapZone.addEventListener('pointerup', function() { passTurnSingle(); });
         dirArea.parentElement.appendChild(tapZone);
       }
-    } else if (ctx === 'active' && !isMyTurn) {
-      dirArea.innerHTML = '';
     } else {
-      // Waiting screen — no direction area needed
       dirArea.innerHTML = '';
     }
   }
+  } catch(e) { console.error('[SideKick] renderWheel error:', e); }
 }
 
 // Clean up old tap zones from wheel overlays
@@ -10928,11 +10916,9 @@ function listenGameState() {
       if (activeRC && roomCode) activeRC.textContent = roomCode;
       const activeSB = document.getElementById('active-sound-btn');
       if (activeSB) { activeSB.textContent = soundEnabled ? '🔊' : '🔇'; }
-      // Wheel UI: apply mode + render wheel
-      clearWheelTapZones('active');
-      applyUIMode();
+      // Wheel UI: apply mode if needed
       window._currentActivePlayerId = activePlayer.id;
-      if (wheelUIMode) renderWheel('active', localPlayers, activePlayer.id, myId, passDirection, true);
+      if (wheelUIMode) { clearWheelTapZones('active'); applyUIMode(); renderWheel('active', localPlayers, activePlayer.id, myId, passDirection, true); }
       requestWakeLock();
       if (soundEnabled && !suppressNextTurnSound && (turnChanged || firstTurn)) playTurnSound();
       suppressNextTurnSound = false;
@@ -11005,11 +10991,9 @@ function listenGameState() {
       if (waitRC && roomCode) waitRC.textContent = roomCode;
       const waitSB = document.getElementById('active-sound-btn-wait');
       if (waitSB) waitSB.textContent = soundEnabled ? '🔊' : '🔇';
-      // Wheel UI: apply mode + render wheel
-      clearWheelTapZones('wait');
-      applyUIMode();
+      // Wheel UI: apply mode if needed
       window._currentActivePlayerId = activePlayer.id;
-      if (wheelUIMode) renderWheel('wait', localPlayers, activePlayer.id, myId, passDirection, false);
+      if (wheelUIMode) { clearWheelTapZones('wait'); applyUIMode(); renderWheel('wait', localPlayers, activePlayer.id, myId, passDirection, false); }
       // Reset the active screen background so it doesn't persist for next turn
       document.getElementById('screen-active').style.background = '';
       requestWakeLock();
