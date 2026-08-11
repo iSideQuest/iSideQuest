@@ -2195,12 +2195,9 @@
   }
   .wheel-both-area {
     margin-top: 1.2rem;
-    display: flex;
     width: 100%;
     pointer-events: none;
     min-height: 100px;
-    gap: 2rem;
-    padding: 0 1.5rem;
     position: relative;
   }
   .wheel-both-area::before {
@@ -2212,13 +2209,17 @@
     transform: translateX(-50%);
   }
   .wheel-both-half {
-    flex: 1;
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.3rem;
   }
+  .wheel-both-half:first-child { left: 0; }
+  .wheel-both-half:last-child { right: 0; }
   .wheel-both-label {
     font-size: 1.1rem;
     font-weight: 700;
@@ -4816,7 +4817,7 @@
     <div class="round-indicator-label" id="round-label-wait">Round 1</div>
     <div class="round-indicator-fraction" id="round-fraction-wait">1/1</div>
   </div>
-  <div style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:0; width:100%;">
+  <div id="wait-content-wrap" style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:0; width:100%;">
     <!-- Timer bar (waiting) -->
     <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:1.5rem;" id="timer-bar-wait">
       <div class="timer-row" id="timer-row-turn-wait"></div>
@@ -10002,6 +10003,10 @@ function applyUIMode() {
     const wOvW = document.getElementById('wheel-overlay-wait');
     if (wOvA) wOvA.classList.toggle('visible', isWheel);
     if (wOvW) wOvW.classList.toggle('visible', isWheel);
+
+    // Hide waiting screen text behind wheel overlay
+    const waitWrap = document.getElementById('wait-content-wrap');
+    if (waitWrap) waitWrap.style.display = isWheel ? 'none' : '';
   } catch(e) { console.error('[SideKick] applyUIMode error:', e); }
 }
 
