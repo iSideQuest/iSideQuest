@@ -505,8 +505,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 1rem;
+    justify-content: flex-end;
+    padding-bottom: 30vh;
+    gap: 0.6rem;
     font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
@@ -519,14 +520,14 @@
   .btn-left { background: rgba(0,0,0,0.18); color: #fff; }
   .btn-right { background: rgba(0,0,0,0.18); color: #fff; }
 
-  .btn-arrow { font-size: 7rem; line-height: 1; }
-  .btn-label { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.9; }
-  .btn-player-name { font-size: 1rem; opacity: 0.8; margin-top: -0.25rem; font-weight: 600; }
+  .btn-arrow { font-size: 8rem; line-height: 1; }
+  .btn-label { font-size: 1.6rem; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.9; font-weight: 800; }
+  .btn-player-name { font-size: 1.15rem; opacity: 0.8; font-weight: 600; }
 
   /* ── ACTIVE SCREEN CENTER ── */
   .active-center {
     position: absolute;
-    top: 50%; left: 50%;
+    top: 32%; left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
     pointer-events: none;
@@ -535,17 +536,17 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.2rem;
+    gap: 0.3rem;
   }
   .active-center-its {
-    font-size: 1.5rem;
+    font-size: 2.5rem;
     font-weight: 800;
     color: rgba(255,255,255,0.92);
     text-shadow: 0 0 24px rgba(0,0,0,0.9);
     letter-spacing: -0.01em;
   }
   .active-center-name {
-    font-size: 1rem;
+    font-size: 1.4rem;
     font-weight: 600;
     color: rgba(255,255,255,0.55);
     text-shadow: 0 0 12px rgba(0,0,0,0.8);
@@ -2339,9 +2340,9 @@
     .pass-tap-arrow { font-size: 5.5rem; }
     .pass-tap-label { font-size: 0.95rem; }
     .pass-tap-player { font-size: 0.8rem; }
-    .active-center { top: 50%; transform: translate(-50%, -50%); }
-    .active-center-its { font-size: 1.15rem; }
-    .active-center-name { font-size: 0.85rem; }
+    .active-center { top: 32%; transform: translate(-50%, -50%); }
+    .active-center-its { font-size: 1.8rem; }
+    .active-center-name { font-size: 1rem; }
     .btn-arrow { font-size: 4.5rem; }
     .btn-label { font-size: 0.95rem; }
     .btn-player-name { font-size: 0.85rem; }
@@ -4696,8 +4697,8 @@
     <div class="round-indicator-fraction" id="round-fraction-active">1/1</div>
   </div>
   <button class="action-btn btn-left" onclick="passTurn('left')" id="btn-left">
-    <div class="btn-arrow">←</div>
     <div class="btn-label">Pass Left</div>
+    <div class="btn-arrow">←</div>
     <div class="btn-player-name" id="left-player-name"></div>
   </button>
   <div class="active-divider" id="active-divider"></div>
@@ -4726,8 +4727,8 @@
     <div class="active-center-name" id="active-player-display"></div>
   </div>
   <button class="action-btn btn-right" onclick="passTurn('right')" id="btn-right">
-    <div class="btn-arrow">→</div>
     <div class="btn-label">Pass Right</div>
+    <div class="btn-arrow">→</div>
     <div class="btn-player-name" id="right-player-name"></div>
   </button>
   <!-- Single-tap pass button (shown for CW or CCW mode) -->
@@ -10920,8 +10921,8 @@ function listenGameState() {
       const leftIdx2 = activePlayers[(activeActiveIdx + 1) % n];
       const rightIdx2 = activePlayers[(activeActiveIdx - 1 + n) % n];
       document.getElementById('active-player-display').textContent = myName;
-      document.getElementById('left-player-name').textContent  = leftIdx2 ? leftIdx2.name : '';
-      document.getElementById('right-player-name').textContent = rightIdx2 ? rightIdx2.name : '';
+      document.getElementById('left-player-name').textContent  = leftIdx2 ? 'to ' + leftIdx2.name : '';
+      document.getElementById('right-player-name').textContent = rightIdx2 ? 'to ' + rightIdx2.name : '';
       // Apply neighbor colors to buttons (semi-transparent so player bg gradient shows through)
       const leftColor  = leftIdx2?.color  || '#2563eb';
       const rightColor = rightIdx2?.color || '#c05e00';
