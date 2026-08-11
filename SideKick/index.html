@@ -2119,8 +2119,8 @@
   }
   .wheel-svg-wrap {
     position: relative;
-    width: min(320px, 80vw);
-    height: min(320px, 80vw);
+    width: min(380px, 90vw);
+    height: min(380px, 90vw);
     pointer-events: none;
   }
   .wheel-svg-wrap svg {
@@ -2131,8 +2131,8 @@
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 32%;
-    height: 32%;
+    width: 34%;
+    height: 34%;
     border-radius: 50%;
     background: #0a0a0f;
     border: 3px solid rgba(255,255,255,0.15);
@@ -2145,7 +2145,7 @@
     transition: border-color 0.3s;
   }
   .wheel-center-label {
-    font-size: 0.55rem;
+    font-size: 0.6rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.12em;
@@ -2154,7 +2154,7 @@
     text-align: center;
   }
   .wheel-center-name {
-    font-size: 0.65rem;
+    font-size: 0.72rem;
     font-weight: 800;
     color: rgba(255,255,255,0.7);
     margin-top: 2px;
@@ -4705,7 +4705,7 @@
   <!-- Wheel overlay (shown when wheel UI mode is active) -->
   <div class="wheel-overlay" id="wheel-overlay-active">
     <div class="wheel-svg-wrap" id="wheel-svg-wrap-active">
-      <svg id="wheel-svg-active" viewBox="0 0 300 300"></svg>
+      <svg id="wheel-svg-active" viewBox="0 0 400 400"></svg>
       <div class="wheel-center-circle" id="wheel-center-active">
         <div class="wheel-center-label">Active<br>Player:</div>
         <div class="wheel-center-name" id="wheel-center-name-active"></div>
@@ -4798,7 +4798,7 @@
   <!-- Wheel overlay (shown when wheel UI mode is active) -->
   <div class="wheel-overlay" id="wheel-overlay-wait">
     <div class="wheel-svg-wrap" id="wheel-svg-wrap-wait">
-      <svg id="wheel-svg-wait" viewBox="0 0 300 300"></svg>
+      <svg id="wheel-svg-wait" viewBox="0 0 400 400"></svg>
       <div class="wheel-center-circle" id="wheel-center-wait">
         <div class="wheel-center-label">Active<br>Player:</div>
         <div class="wheel-center-name" id="wheel-center-name-wait"></div>
@@ -10045,8 +10045,8 @@ function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
   if (!activePlayer) return;
 
   const N = players.length;
-  const CX = 150, CY = 150;
-  const OUTER_R = 140, INNER_R = 46;
+  const CX = 200, CY = 200;
+  const OUTER_R = 190, INNER_R = 62;
   const GAP_DEG = N <= 2 ? 2 : (N <= 5 ? 3 : 4);
   const SEG_DEG = 360 / N;
 
@@ -10061,13 +10061,9 @@ function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
   players.forEach((p, i) => {
     const isActive = p.id === activePlayerId;
     const isSelf   = p.id === myIdParam;
-    // For active player, extend arc into the gap zones on both sides for a continuous border
-    const startDeg = isActive
-      ? rotationOffset + i * SEG_DEG - GAP_DEG / 2
-      : rotationOffset + i * SEG_DEG + GAP_DEG / 2;
-    const endDeg = isActive
-      ? rotationOffset + (i + 1) * SEG_DEG + GAP_DEG / 2
-      : rotationOffset + (i + 1) * SEG_DEG - GAP_DEG / 2;
+    // All segments use the same arc size (uniform fills)
+    const startDeg = rotationOffset + i * SEG_DEG + GAP_DEG / 2;
+    const endDeg   = rotationOffset + (i + 1) * SEG_DEG - GAP_DEG / 2;
     const nameColor = p.color || '#aaa';
     const displayName = isSelf ? 'You' : (p.name || 'Player');
 
@@ -10076,15 +10072,33 @@ function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
     const strokeWidth = isActive ? 3 : 1;
     svgContent += '<path d="' + path + '" fill="#0a0a0f" stroke="' + strokeColor + '" stroke-width="' + strokeWidth + '"/>';
 
+    // For active player, draw an extended border path that fills the gaps
+    if (isActive) {
+      const extStart = rotationOffset + i * SEG_DEG - GAP_DEG / 2;
+      const extEnd   = rotationOffset + (i + 1) * SEG_DEG + GAP_DEG / 2;
+      const extPath  = wheelArcPath(CX, CY, INNER_R, OUTER_R, extStart, extEnd);
+      svgContent += '<path d="' + extPath + '" fill="none" stroke="' + strokeColor + '" stroke-width="' + strokeWidth + '"/>';
+    }
+
+    // Truncate long names and adapt font size
+    let label = displayName;
+    const maxChars = N > 6 ? 8 : (N > 4 ? 10 : 14);
+    if (label.length > maxChars) label = label.substring(0, maxChars - 1) + '\u2026';
     const midDeg = rotationOffset + (i + 0.5) * SEG_DEG;
     const midRad = midDeg * Math.PI / 180;
     const labelR = (INNER_R + OUTER_R) / 2;
     const lx = CX + labelR * Math.cos(midRad);
     const ly = CY + labelR * Math.sin(midRad);
     const displayColor = ((nameColor || '').toLowerCase() === '#000000' && isActive) ? '#ffffff' : (isActive ? nameColor : 'rgba(255,255,255,0.75)');
-    const fontSize = N > 6 ? 9 : (N > 4 ? 11 : 13);
+    const fontSize = N > 7 ? 11 : (N > 5 ? 12 : (N > 3 ? 13 : 14));
     const glowFilter = isActive ? ' filter="url(#' + glowId + ')"' : '';
-    svgContent += '<text x="' + lx.toFixed(2) + '" y="' + ly.toFixed(2) + '" text-anchor="middle" dominant-baseline="central" fill="' + displayColor + '" font-family="Inter,sans-serif" font-size="' + fontSize + '" font-weight="700"' + glowFilter + '>' + esc(displayName) + '</text>';
+    // Rotate text along the arc direction
+    const textAngle = midDeg + (midDeg > 180 ? 180 : 0) + (midDeg <= 180 ? 0 : 180);
+    let textRot = midDeg;
+    // Keep text readable: if upside-down, flip 180
+    if (midDeg > 90 && midDeg < 270) textRot = midDeg + 180;
+    const txform = 'rotate(' + textRot.toFixed(1) + ' ' + lx.toFixed(2) + ' ' + ly.toFixed(2) + ')';
+    svgContent += '<text x="' + lx.toFixed(2) + '" y="' + ly.toFixed(2) + '" text-anchor="middle" dominant-baseline="central" fill="' + displayColor + '" font-family="Inter,sans-serif" font-size="' + fontSize + '" font-weight="700" transform="' + txform + '"' + glowFilter + '>' + esc(label) + '</text>';
   });
 
   svg.innerHTML = svgContent;
