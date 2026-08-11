@@ -2153,16 +2153,11 @@
     line-height: 1.1;
     text-align: center;
   }
-  .wheel-center-name {
-    font-size: 0.72rem;
-    font-weight: 800;
-    color: rgba(255,255,255,0.7);
+  .wheel-center-avatar {
+    font-size: 2.4rem;
+    line-height: 1;
     margin-top: 2px;
     text-align: center;
-    max-width: 90%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
   .wheel-direction-area {
     margin-top: 1.2rem;
@@ -2256,6 +2251,18 @@
   .wheel-tap-zone-right {
     position: absolute;
     top: 0; bottom: 0; left: 50%; right: 0;
+    z-index: 5;
+    pointer-events: all;
+  }
+  .wheel-full-tap-left {
+    position: absolute;
+    top: 0; bottom: 0; left: 0; width: 50%;
+    z-index: 5;
+    pointer-events: all;
+  }
+  .wheel-full-tap-right {
+    position: absolute;
+    top: 0; bottom: 0; right: 0; width: 50%;
     z-index: 5;
     pointer-events: all;
   }
@@ -4707,8 +4714,8 @@
     <div class="wheel-svg-wrap" id="wheel-svg-wrap-active">
       <svg id="wheel-svg-active" viewBox="0 0 400 400"></svg>
       <div class="wheel-center-circle" id="wheel-center-active">
-        <div class="wheel-center-label">Active<br>Player:</div>
-        <div class="wheel-center-name" id="wheel-center-name-active"></div>
+        <div class="wheel-center-label">Active<br>Player</div>
+        <div class="wheel-center-avatar" id="wheel-center-avatar-active"></div>
       </div>
     </div>
     <div class="wheel-direction-area" id="wheel-dir-active"></div>
@@ -4800,8 +4807,8 @@
     <div class="wheel-svg-wrap" id="wheel-svg-wrap-wait">
       <svg id="wheel-svg-wait" viewBox="0 0 400 400"></svg>
       <div class="wheel-center-circle" id="wheel-center-wait">
-        <div class="wheel-center-label">Active<br>Player:</div>
-        <div class="wheel-center-name" id="wheel-center-name-wait"></div>
+        <div class="wheel-center-label">Active<br>Player</div>
+        <div class="wheel-center-avatar" id="wheel-center-avatar-wait"></div>
       </div>
     </div>
     <div class="wheel-direction-area" id="wheel-dir-wait"></div>
@@ -10037,11 +10044,11 @@ function wheelArcPath(cx, cy, rIn, rOut, startDeg, endDeg) {
 function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn) {
   try {
   const svgId = ctx === 'active' ? 'wheel-svg-active' : 'wheel-svg-wait';
-  const centerNameId = ctx === 'active' ? 'wheel-center-name-active' : 'wheel-center-name-wait';
+  const centerAvatarId = ctx === 'active' ? 'wheel-center-avatar-active' : 'wheel-center-avatar-wait';
   const centerCircleId = ctx === 'active' ? 'wheel-center-active' : 'wheel-center-wait';
   const dirAreaId = ctx === 'active' ? 'wheel-dir-active' : 'wheel-dir-wait';
   const svg = document.getElementById(svgId);
-  const centerName = document.getElementById(centerNameId);
+  const centerAvatar = document.getElementById(centerAvatarId);
   const centerCircle = document.getElementById(centerCircleId);
   const dirArea = document.getElementById(dirAreaId);
   if (!svg || !players || !players.length) return;
@@ -10084,19 +10091,30 @@ function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
       activeBorderColor = (nameColor || '').toLowerCase() === '#000000' ? '#ffffff' : nameColor;
     }
 
-    // Truncate long names and adapt font size
+    // Truncate long names (max 10 chars)
     let label = displayName;
-    const maxChars = N > 6 ? 10 : (N > 4 ? 12 : 16);
-    if (label.length > maxChars) label = label.substring(0, maxChars - 1) + '\u2026';
+    if (label.length > 10) label = label.substring(0, 9) + '\u2026';
     const midDeg = rotationOffset + (i + 0.5) * SEG_DEG;
     const midRad = midDeg * Math.PI / 180;
     const labelR = (INNER_R + OUTER_R) / 2;
     const lx = CX + labelR * Math.cos(midRad);
     const ly = CY + labelR * Math.sin(midRad);
     const displayColor = ((nameColor || '').toLowerCase() === '#000000' && isActive) ? '#ffffff' : (isActive ? nameColor : 'rgba(255,255,255,0.8)');
-    const fontSize = N > 7 ? 13 : (N > 5 ? 14 : (N > 3 ? 15 : 16));
+    const fontSize = N > 7 ? 15 : (N > 5 ? 16 : (N > 3 ? 17 : 18));
     const glowFilter = isActive ? ' filter="url(#' + glowId + ')"' : '';
-    svgContent += '<text x="' + lx.toFixed(2) + '" y="' + ly.toFixed(2) + '" text-anchor="middle" dominant-baseline="central" fill="' + displayColor + '" font-family="Inter,sans-serif" font-size="' + fontSize + '" font-weight="700"' + glowFilter + '>' + esc(label) + '</text>';
+    // Split name into words for multi-line
+    const words = label.split(' ');
+    if (words.length > 1) {
+      const lineH = fontSize + 2;
+      const startY = ly - ((words.length - 1) * lineH) / 2;
+      svgContent += '<text x="' + lx.toFixed(2) + '" text-anchor="middle" fill="' + displayColor + '" font-family="Inter,sans-serif" font-size="' + fontSize + '" font-weight="700"' + glowFilter + '>';
+      words.forEach(function(w, wi) {
+        svgContent += '<tspan x="' + lx.toFixed(2) + '" y="' + (startY + wi * lineH).toFixed(2) + '">' + esc(w) + '</tspan>';
+      });
+      svgContent += '</text>';
+    } else {
+      svgContent += '<text x="' + lx.toFixed(2) + '" y="' + ly.toFixed(2) + '" text-anchor="middle" dominant-baseline="central" fill="' + displayColor + '" font-family="Inter,sans-serif" font-size="' + fontSize + '" font-weight="700"' + glowFilter + '>' + esc(label) + '</text>';
+    }
   });
 
   // Draw active player's colored border on top of everything
@@ -10109,9 +10127,8 @@ function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
   const activeColor = activePlayer.color || '#aaa';
   const centerBorderColor = (activeColor.toLowerCase() === '#000000') ? '#ffffff' : activeColor;
   if (centerCircle) centerCircle.style.borderColor = centerBorderColor;
-  if (centerName) {
-    centerName.textContent = activePlayer.name || 'Player';
-    centerName.style.color = centerBorderColor;
+  if (centerAvatar) {
+    centerAvatar.textContent = activePlayer.avatar || '👤';
   }
 
   if (dirArea) {
@@ -10127,14 +10144,18 @@ function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
           + '</div>';
         const tapBoth = document.getElementById('wheel-tap-both-' + ctx);
         if (tapBoth) {
-          const zL = document.createElement('div');
-          zL.className = 'wheel-tap-zone-left';
-          zL.addEventListener('pointerup', function() { passTurn('left'); });
-          tapBoth.appendChild(zL);
-          const zR = document.createElement('div');
-          zR.className = 'wheel-tap-zone-right';
-          zR.addEventListener('pointerup', function() { passTurn('right'); });
-          tapBoth.appendChild(zR);
+          const ovId = ctx === 'active' ? 'wheel-overlay-active' : 'wheel-overlay-wait';
+          const ov = document.getElementById(ovId);
+          if (ov) {
+            const zL = document.createElement('div');
+            zL.className = 'wheel-full-tap-left';
+            zL.addEventListener('pointerup', function() { passTurn('left'); });
+            ov.appendChild(zL);
+            const zR = document.createElement('div');
+            zR.className = 'wheel-full-tap-right';
+            zR.addEventListener('pointerup', function() { passTurn('right'); });
+            ov.appendChild(zR);
+          }
         }
       } else {
         const arrow = passDir === 'cw' ? '&#8635;' : '&#8634;';
@@ -10160,7 +10181,7 @@ function clearWheelTapZones(ctx) {
   const ovId = ctx === 'active' ? 'wheel-overlay-active' : 'wheel-overlay-wait';
   const ov = document.getElementById(ovId);
   if (!ov) return;
-  ov.querySelectorAll('.wheel-tap-zone, .wheel-tap-zone-left, .wheel-tap-zone-right').forEach(el => el.remove());
+  ov.querySelectorAll('.wheel-tap-zone, .wheel-tap-zone-left, .wheel-tap-zone-right, .wheel-full-tap-left, .wheel-full-tap-right').forEach(el => el.remove());
   // Also clear direction area content
   const dirId = ctx === 'active' ? 'wheel-dir-active' : 'wheel-dir-wait';
   const dir = document.getElementById(dirId);
