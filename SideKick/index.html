@@ -10014,18 +10014,23 @@ function applyUIMode() {
   } catch(e) { console.error('[SideKick] applyUIMode error:', e); }
 }
 
-// Build SVG arc path for a donut wedge
+// Build SVG arc path for a donut wedge (single closed subpath)
 function wheelArcPath(cx, cy, rIn, rOut, startDeg, endDeg) {
   const s = startDeg * Math.PI / 180;
   const e = endDeg * Math.PI / 180;
   const steps = 40;
-  let outer = '', inner = '';
-  for (let i = 0; i <= steps; i++) {
+  let d = 'M ' + (cx + rOut * Math.cos(s)).toFixed(2) + ',' + (cy + rOut * Math.sin(s)).toFixed(2);
+  for (let i = 1; i <= steps; i++) {
     const a = s + (e - s) * (i / steps);
-    outer += (i ? 'L' : 'M') + (cx + rOut * Math.cos(a)).toFixed(2) + ',' + (cy + rOut * Math.sin(a)).toFixed(2) + ' ';
-    inner = (i ? 'L' : 'M') + (cx + rIn * Math.cos(a)).toFixed(2) + ',' + (cy + rIn * Math.sin(a)).toFixed(2) + ' ' + inner;
+    d += ' L ' + (cx + rOut * Math.cos(a)).toFixed(2) + ',' + (cy + rOut * Math.sin(a)).toFixed(2);
   }
-  return outer + inner + 'Z';
+  d += ' L ' + (cx + rIn * Math.cos(e)).toFixed(2) + ',' + (cy + rIn * Math.sin(e)).toFixed(2);
+  for (let i = steps - 1; i >= 0; i--) {
+    const a = s + (e - s) * (i / steps);
+    d += ' L ' + (cx + rIn * Math.cos(a)).toFixed(2) + ',' + (cy + rIn * Math.sin(a)).toFixed(2);
+  }
+  d += ' Z';
+  return d;
 }
 
 // Render the wheel for a given context ('active' or 'wait')
@@ -10047,7 +10052,7 @@ function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
   const N = players.length;
   const CX = 200, CY = 200;
   const OUTER_R = 190, INNER_R = 62;
-  const GAP_DEG = N <= 2 ? 2 : (N <= 5 ? 3 : 4);
+  const GAP_DEG = 0;
   const SEG_DEG = 360 / N;
 
   // "You" player is always at the bottom (90 degrees = 6 o'clock in SVG coords)
@@ -10058,48 +10063,46 @@ function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
   const glowId = 'glow-' + ctx;
   let svgContent = '<defs><filter id="' + glowId + '" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
 
+  let activeBorderPath = '';
+  let activeBorderColor = '';
+
   players.forEach((p, i) => {
     const isActive = p.id === activePlayerId;
     const isSelf   = p.id === myIdParam;
-    // All segments use the same arc size (uniform fills)
-    const startDeg = rotationOffset + i * SEG_DEG + GAP_DEG / 2;
-    const endDeg   = rotationOffset + (i + 1) * SEG_DEG - GAP_DEG / 2;
+    const startDeg = rotationOffset + i * SEG_DEG;
+    const endDeg   = rotationOffset + (i + 1) * SEG_DEG;
     const nameColor = p.color || '#aaa';
     const displayName = isSelf ? 'You' : (p.name || 'Player');
 
     const path = wheelArcPath(CX, CY, INNER_R, OUTER_R, startDeg, endDeg);
-    const strokeColor = isActive ? ((nameColor || '').toLowerCase() === '#000000' ? '#ffffff' : nameColor) : 'rgba(255,255,255,0.12)';
-    const strokeWidth = isActive ? 3 : 1;
-    svgContent += '<path d="' + path + '" fill="#0a0a0f" stroke="' + strokeColor + '" stroke-width="' + strokeWidth + '"/>';
+    const strokeColor = 'rgba(255,255,255,0.18)';
+    svgContent += '<path d="' + path + '" fill="#0a0a0f" stroke="' + strokeColor + '" stroke-width="1"/>';
 
-    // For active player, draw an extended border path that fills the gaps
+    // Save active player's path for drawing border on top
     if (isActive) {
-      const extStart = rotationOffset + i * SEG_DEG - GAP_DEG / 2;
-      const extEnd   = rotationOffset + (i + 1) * SEG_DEG + GAP_DEG / 2;
-      const extPath  = wheelArcPath(CX, CY, INNER_R, OUTER_R, extStart, extEnd);
-      svgContent += '<path d="' + extPath + '" fill="none" stroke="' + strokeColor + '" stroke-width="' + strokeWidth + '"/>';
+      activeBorderPath = path;
+      activeBorderColor = (nameColor || '').toLowerCase() === '#000000' ? '#ffffff' : nameColor;
     }
 
     // Truncate long names and adapt font size
     let label = displayName;
-    const maxChars = N > 6 ? 8 : (N > 4 ? 10 : 14);
+    const maxChars = N > 6 ? 10 : (N > 4 ? 12 : 16);
     if (label.length > maxChars) label = label.substring(0, maxChars - 1) + '\u2026';
     const midDeg = rotationOffset + (i + 0.5) * SEG_DEG;
     const midRad = midDeg * Math.PI / 180;
     const labelR = (INNER_R + OUTER_R) / 2;
     const lx = CX + labelR * Math.cos(midRad);
     const ly = CY + labelR * Math.sin(midRad);
-    const displayColor = ((nameColor || '').toLowerCase() === '#000000' && isActive) ? '#ffffff' : (isActive ? nameColor : 'rgba(255,255,255,0.75)');
-    const fontSize = N > 7 ? 11 : (N > 5 ? 12 : (N > 3 ? 13 : 14));
+    const displayColor = ((nameColor || '').toLowerCase() === '#000000' && isActive) ? '#ffffff' : (isActive ? nameColor : 'rgba(255,255,255,0.8)');
+    const fontSize = N > 7 ? 13 : (N > 5 ? 14 : (N > 3 ? 15 : 16));
     const glowFilter = isActive ? ' filter="url(#' + glowId + ')"' : '';
-    // Rotate text along the arc direction
-    const textAngle = midDeg + (midDeg > 180 ? 180 : 0) + (midDeg <= 180 ? 0 : 180);
-    let textRot = midDeg;
-    // Keep text readable: if upside-down, flip 180
-    if (midDeg > 90 && midDeg < 270) textRot = midDeg + 180;
-    const txform = 'rotate(' + textRot.toFixed(1) + ' ' + lx.toFixed(2) + ' ' + ly.toFixed(2) + ')';
-    svgContent += '<text x="' + lx.toFixed(2) + '" y="' + ly.toFixed(2) + '" text-anchor="middle" dominant-baseline="central" fill="' + displayColor + '" font-family="Inter,sans-serif" font-size="' + fontSize + '" font-weight="700" transform="' + txform + '"' + glowFilter + '>' + esc(label) + '</text>';
+    svgContent += '<text x="' + lx.toFixed(2) + '" y="' + ly.toFixed(2) + '" text-anchor="middle" dominant-baseline="central" fill="' + displayColor + '" font-family="Inter,sans-serif" font-size="' + fontSize + '" font-weight="700"' + glowFilter + '>' + esc(label) + '</text>';
   });
+
+  // Draw active player's colored border on top of everything
+  if (activeBorderPath) {
+    svgContent += '<path d="' + activeBorderPath + '" fill="none" stroke="' + activeBorderColor + '" stroke-width="3"/>';
+  }
 
   svg.innerHTML = svgContent;
 
