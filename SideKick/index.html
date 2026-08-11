@@ -2867,6 +2867,92 @@
     text-shadow: 0 0 8px rgba(74,222,128,0.5);
   }
 
+  /* ── NUDGE DIAL ── */
+  .nd-dial-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.75rem 0 1rem;
+  }
+  .nd-dial-value {
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: var(--accent);
+    text-shadow: 0 0 16px rgba(124,92,191,0.4);
+    min-height: 2.8rem;
+    line-height: 1;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .nd-dial-outer {
+    position: relative;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: #111;
+    border: 3px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .nd-dial-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nd-dial-center {
+    position: relative;
+    width: 86px;
+    height: 86px;
+    border-radius: 50%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    border: 2px solid #222;
+  }
+  .nd-dial-knob {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #888;
+    border: 2px solid #aaa;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    pointer-events: none;
+  }
+  .nd-dial-plus {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #4ade80;
+    pointer-events: none;
+    text-shadow: 0 0 8px rgba(74,222,128,0.5);
+  }
+  .nd-dial-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+
   /* ── D&D TURN COMPONENTS ── */
   .dnd-action-grid {
     width: 180px; height: 180px;
@@ -5137,13 +5223,18 @@
     <div class="feature-settings-modal-title">👉 Nudge Settings</div>
 
     <div style="font-size:0.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Unlock After</div>
-    <div style="display:flex;gap:0.5rem;align-items:center;">
-      <input type="number" id="nudge-delay" value="30" min="0" max="3600" step="5" style="width:64px;text-align:center;padding:0.3rem 0.4rem;font-size:0.9rem;margin:0;">
-      <span class="feature-unit">sec</span>
-      <span style="color:var(--muted);font-size:0.8rem;">or</span>
-      <input type="number" id="nudge-delay-min" value="" min="0" max="60" step="1" placeholder="—" style="width:54px;text-align:center;padding:0.3rem 0.4rem;font-size:0.9rem;margin:0;" oninput="syncNudgeMinutes(this.value)">
-      <span class="feature-unit">min</span>
+    <div class="nd-dial-wrapper">
+      <div class="nd-dial-value" id="nd-dial-value">30s</div>
+      <div class="nd-dial-outer" id="nd-dial-outer">
+        <div class="nd-dial-track" id="nd-dial-track">
+          <div class="nd-dial-knob" id="nd-dial-knob"></div>
+          <div class="nd-dial-plus">+</div>
+        </div>
+        <div class="nd-dial-center" id="nd-dial-center"></div>
+      </div>
+      <div class="nd-dial-label">rotate to adjust</div>
     </div>
+    <input type="hidden" id="nudge-delay" value="30">
 
     <div style="font-size:0.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;margin-top:0.5rem;">Nudge Mode</div>
     <div style="display:flex;flex-direction:column;gap:0.5rem;">
@@ -8155,6 +8246,7 @@ window.goBackToCreate = async function() {
   if (timersEditBtn) timersEditBtn.classList.toggle('visible', featureTimersEnabled);
   const roundsEditBtn = document.getElementById('rounds-edit-btn');
   if (roundsEditBtn) roundsEditBtn.classList.toggle('visible', featureRoundsEnabled);
+  document.getElementById('nudge-delay').value = nudgeDelaySeconds;
   updateFeaturesSummary();
   createStep = 3;
   renderCreateStep();
@@ -8579,10 +8671,7 @@ window.onMidGameToggle = function(key, checked) {
   }
 };
 
-window.mgSyncNudgeMin = function(val) {
-  const mins = parseFloat(val);
-  if (!isNaN(mins) && mins >= 0) document.getElementById('mg-nudge-delay').value = Math.round(mins * 60);
-};
+window.mgSyncNudgeMin = function() {};
 
 window.mgCountdownToggle = function(checked) {
   document.getElementById('mg-countdown-inputs').style.display = checked ? 'flex' : 'none';
@@ -8590,6 +8679,7 @@ window.mgCountdownToggle = function(checked) {
 
 window.openNudgeOverlay = function() {
   document.getElementById('nudge-settings-overlay').classList.add('show');
+  ndDialInit('mg-nd-dial-outer','mg-nd-dial-knob','mg-nd-dial-value','mg-nudge-delay', parseInt(document.getElementById('mg-nudge-delay').value) || 30);
 };
 window.closeNudgeOverlay = function() {
   document.getElementById('nudge-settings-overlay').classList.remove('show');
@@ -8733,17 +8823,11 @@ function updateFeaturesSummary() {
 
 window.openFeatureSettings = function(key) {
   document.getElementById(key + '-settings-overlay').classList.add('show');
+  if (key === 'nudge') ndDialInit('nd-dial-outer','nd-dial-knob','nd-dial-value','nudge-delay', parseInt(document.getElementById('nudge-delay').value) || 30);
 };
 
 window.closeFeatureSettings = function(key) {
   document.getElementById(key + '-settings-overlay').classList.remove('show');
-};
-
-window.syncNudgeMinutes = function(val) {
-  const mins = parseFloat(val);
-  if (!isNaN(mins) && mins >= 0) {
-    document.getElementById('nudge-delay').value = Math.round(mins * 60);
-  }
 };
 
 // ── ROUND INDICATOR ──────────────────────────
@@ -10689,6 +10773,7 @@ window.startNewGameSetup = async function() {
   if (timersEditBtn) timersEditBtn.classList.toggle('visible', featureTimersEnabled);
   const roundsEditBtn = document.getElementById('rounds-edit-btn');
   if (roundsEditBtn) roundsEditBtn.classList.toggle('visible', featureRoundsEnabled);
+  document.getElementById('nudge-delay').value = nudgeDelaySeconds;
   updateFeaturesSummary();
   // Start from step 1 so host can redo all steps
   createStep = 1;
@@ -11852,6 +11937,114 @@ window.beginAfterVP = async function() {
   }
 };
 
+// ── NUDGE DIAL ──────────────────────────────
+function ndDialFormatTime(secs) {
+  if (secs < 60) return secs + 's';
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return s > 0 ? m + 'm ' + s + 's' : m + 'm';
+}
+
+function ndDialInit(outerId, knobId, valueId, hiddenId, initialSecs) {
+  const outer = document.getElementById(outerId);
+  const knob = document.getElementById(knobId);
+  const valueEl = document.getElementById(valueId);
+  const hidden = document.getElementById(hiddenId);
+  if (!outer || !knob || !valueEl || !hidden) return;
+
+  let val = Math.max(0, Math.min(3600, parseInt(hidden.value) || initialSecs || 30));
+  let dragging = false;
+  let lastAngle = 0;
+  let accumulator = 0;
+
+  function updateDisplay() {
+    valueEl.textContent = ndDialFormatTime(val);
+    valueEl.style.color = val > 0 ? 'var(--accent)' : '#666';
+    const angle = val * 0.3; // 0.3 degrees per second — 1200 seconds = full rotation
+    knob.style.transform = 'translateX(-50%) rotate(' + angle + 'deg)';
+    knob.style.transformOrigin = '50% 101px';
+  }
+
+  function getAngle(e) {
+    const rect = outer.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
+  }
+
+  function onStart(e) {
+    e.preventDefault();
+    dragging = true;
+    lastAngle = getAngle(e);
+    accumulator = 0;
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const angle = getAngle(e);
+    let delta = angle - lastAngle;
+    if (delta > 180)  delta -= 360;
+    if (delta < -180) delta += 360;
+    lastAngle = angle;
+    accumulator += delta;
+    const step = 5; // 5 degrees per tick = 5 seconds
+    if (accumulator >= step) {
+      const ticks = Math.floor(accumulator / step);
+      val = Math.min(3600, val + ticks * 5);
+      accumulator -= ticks * step;
+      hidden.value = val;
+      updateDisplay();
+      ndDialFeedback();
+    }
+  }
+
+  function onEnd() {
+    dragging = false;
+    accumulator = 0;
+  }
+
+  // Remove old listeners by replacing element with clone
+  const newOuter = outer.cloneNode(true);
+  outer.parentNode.replaceChild(newOuter, outer);
+  const newKnob = newOuter.querySelector('.nd-dial-knob');
+  const newCenter = newOuter.querySelector('.nd-dial-center');
+
+  newOuter.addEventListener('mousedown', onStart);
+  newOuter.addEventListener('touchstart', onStart, { passive: false });
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', onMove, { passive: false });
+  window.addEventListener('mouseup', onEnd);
+  window.addEventListener('touchend', onEnd);
+
+  updateDisplay();
+}
+
+let _ndDialAudioCtx = null;
+function ndDialFeedback() {
+  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+    haptic(5);
+  } else {
+    try {
+      if (!_ndDialAudioCtx) _ndDialAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = _ndDialAudioCtx;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.05);
+    } catch {}
+  }
+}
+
 // Keep old name for backwards compatibility
 window.beginAwardsAfterVP = window.beginAfterVP;
 
@@ -12646,13 +12839,18 @@ window.dismissInstall = function() {
   <div class="manage-card" style="max-width:320px; padding:1.25rem;">
     <div style="font-size:1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:1rem;">👉 Nudge Settings</div>
     <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Unlock After</div>
-    <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.75rem;">
-      <input type="number" id="mg-nudge-delay" value="30" min="0" max="3600" step="5" style="width:60px;text-align:center;padding:0.3rem;font-size:0.85rem;margin:0;">
-      <span style="font-size:0.8rem;color:var(--muted);">sec</span>
-      <span style="color:var(--muted);font-size:0.8rem;">or</span>
-      <input type="number" id="mg-nudge-delay-min" value="" min="0" max="60" step="1" placeholder="—" style="width:52px;text-align:center;padding:0.3rem;font-size:0.85rem;margin:0;" oninput="mgSyncNudgeMin(this.value)">
-      <span style="font-size:0.8rem;color:var(--muted);">min</span>
+    <div class="nd-dial-wrapper">
+      <div class="nd-dial-value" id="mg-nd-dial-value">30s</div>
+      <div class="nd-dial-outer" id="mg-nd-dial-outer">
+        <div class="nd-dial-track" id="mg-nd-dial-track">
+          <div class="nd-dial-knob" id="mg-nd-dial-knob"></div>
+          <div class="nd-dial-plus">+</div>
+        </div>
+        <div class="nd-dial-center" id="mg-nd-dial-center"></div>
+      </div>
+      <div class="nd-dial-label">rotate to adjust</div>
     </div>
+    <input type="hidden" id="mg-nudge-delay" value="30">
     <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Nudge Mode</div>
     <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;">
       <label style="display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;margin:0;font-size:0.82rem;color:var(--text);line-height:1.4;">
