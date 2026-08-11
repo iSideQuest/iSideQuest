@@ -411,27 +411,6 @@
     white-space: nowrap;
     z-index: 1;
   }
-  .lobby-kick-btn {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: rgba(248,113,113,0.85);
-    border: none;
-    color: #fff;
-    font-size: 0.7rem;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    padding: 0;
-    z-index: 5;
-  }
-  .lobby-kick-btn:active { background: rgba(248,113,113,1); }
   .player-badge.active-turn { background: #1a3a1a; color: #4ade80; }
 
   .drag-handle {
@@ -557,19 +536,23 @@
     background: #050508;
     position: relative;
     overflow: hidden;
-    justify-content: flex-start;
-    padding-top: 25vh;
+    justify-content: center;
   }
   .wait-heading {
-    display: none;
+    font-size: 2rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 2rem;
   }
   .wait-active-label {
-    font-size: 1.8rem;
-    font-weight: 700;
+    font-size: 0.9rem;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.14em;
     color: rgba(255,255,255,0.4);
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
   }
   .wait-active-name {
     font-size: 3.2rem;
@@ -590,9 +573,11 @@
   .wait-active-avatar {
     font-size: 3.2rem;
     line-height: 1;
-    width: 56px; height: 56px;
+    width: 48px; height: 48px;
     display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
     filter: drop-shadow(0 0 12px var(--wait-active-glow, rgba(74,222,128,0.4)));
+  }
   }
 
   @keyframes flashIn {
@@ -851,30 +836,6 @@
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
-  @keyframes vpPulse {
-    0%   { opacity: 0.5; transform: scale(1); }
-    100% { opacity: 1;   transform: scale(1.05); }
-  }
-
-  /* ── VP CEREMONY BLACKOUT ── */
-  .vp-ceremony-blackout {
-    background: #000 !important;
-    overflow: hidden !important;
-    color: transparent !important;
-  }
-  .vp-ceremony-blackout > * {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
-  .vp-blackout-cover {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 9000;
-    pointer-events: none;
-  }
 
   .awards-reveal {
     display: none;
@@ -883,71 +844,16 @@
     z-index: 8100;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
+    padding-bottom: 12vh;
     background: #000;
   }
   .awards-reveal.show { display: flex; }
-  #awards-canvas, #vp-canvas {
+  #awards-canvas {
     position: absolute;
     inset: 0;
     pointer-events: none;
   }
-  .vp-reveal-content {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.4rem;
-    animation: vpRevealIn 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;
-  }
-  @keyframes vpRevealIn {
-    0%   { opacity: 0; transform: translateY(-50px) scale(0.6); }
-    60%  { opacity: 1; transform: translateY(8px) scale(1.05); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  .vp-reveal-subtitle {
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.5);
-    margin-bottom: 0.3rem;
-    animation: vpFadeIn 0.6s ease forwards;
-  }
-  @keyframes vpFadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-  }
-  .vp-reveal-trophy {
-    font-size: 5rem;
-    animation: vpTrophyBounce 1s ease infinite alternate;
-    filter: drop-shadow(0 0 20px rgba(255,215,0,0.5));
-  }
-  @keyframes vpTrophyBounce {
-    0%   { transform: translateY(0) scale(1); }
-    100% { transform: translateY(-8px) scale(1.08); }
-  }
-  .vp-reveal-name {
-    font-size: 3rem;
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 0 0 40px currentColor, 0 0 80px currentColor;
-    line-height: 1.1;
-    animation: vpNameGlow 1.5s ease-in-out infinite alternate;
-  }
-  @keyframes vpNameGlow {
-    0%   { text-shadow: 0 0 30px currentColor, 0 0 60px currentColor; }
-    100% { text-shadow: 0 0 50px currentColor, 0 0 100px currentColor, 0 0 140px currentColor; }
-  }
-  .vp-reveal-player-num {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: rgba(255,255,255,0.6);
-    margin-top: 0.2rem;
-  }
-
-  /* Awards ceremony reveal (shared with VP reveal overlay) */
   .awards-reveal-card {
     position: relative;
     z-index: 1;
@@ -978,123 +884,6 @@
   .awards-winner-stat {
     font-size: 0.9rem;
     color: rgba(255,255,255,0.55);
-  }
-
-  /* ── VP WINNER REVEAL (winner's phone — bright) ── */
-  .vp-reveal-winner {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 8100;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: radial-gradient(ellipse at center, var(--accent) 0%, #1a0a3e 70%, #000 100%);
-    animation: vpWinnerGlow 2s ease-in-out infinite alternate;
-  }
-  .vp-reveal-winner.show { display: flex; }
-  @keyframes vpWinnerGlow {
-    0%   { filter: brightness(1); }
-    100% { filter: brightness(1.3); }
-  }
-  .vp-reveal-winner #vp-canvas-winner {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-  .vp-win-inner {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.3rem;
-    animation: vpRevealIn 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;
-  }
-  .vp-win-flash {
-    font-size: 1.5rem;
-    font-weight: 900;
-    letter-spacing: 0.12em;
-    color: #FFD700;
-    text-shadow: 0 0 20px rgba(255,215,0,0.8), 0 0 40px rgba(255,215,0,0.4);
-    animation: vpFlashPulse 0.6s ease-in-out infinite alternate;
-    margin-bottom: 0.3rem;
-  }
-  @keyframes vpFlashPulse {
-    0%   { opacity: 0.7; transform: scale(1); }
-    100% { opacity: 1;   transform: scale(1.1); }
-  }
-  .vp-win-trophy {
-    font-size: 6rem;
-    animation: vpTrophyBounce 1s ease infinite alternate;
-    filter: drop-shadow(0 0 30px rgba(255,215,0,0.7));
-  }
-  .vp-win-name {
-    font-size: 3.5rem;
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 0 0 40px currentColor, 0 0 80px currentColor, 0 0 120px currentColor, 0 0 160px currentColor;
-    line-height: 1.1;
-    animation: vpNameGlow 1.2s ease-in-out infinite alternate;
-  }
-  .vp-win-player-num {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: rgba(255,255,255,0.7);
-    margin-top: 0.2rem;
-  }
-
-  /* ── VP SPECTATOR REVEAL (others — darker) ── */
-  .vp-reveal-spectator {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 8100;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a15 60%, #000 100%);
-  }
-  .vp-reveal-spectator.show { display: flex; }
-  .vp-reveal-spectator #vp-canvas-spectator {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-  .vp-spec-inner {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.3rem;
-    animation: vpRevealIn 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;
-  }
-  .vp-spec-label {
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.4);
-    margin-bottom: 0.3rem;
-    animation: vpFadeIn 0.6s ease forwards;
-  }
-  .vp-spec-trophy {
-    font-size: 4rem;
-    filter: drop-shadow(0 0 12px rgba(255,215,0,0.3));
-    animation: vpTrophyBounce 1s ease infinite alternate;
-  }
-  .vp-spec-name {
-    font-size: 2.8rem;
-    font-weight: 900;
-    line-height: 1.1;
-    animation: vpNameGlow 1.5s ease-in-out infinite alternate;
-  }
-  .vp-spec-player-num {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: rgba(255,255,255,0.4);
-    margin-top: 0.2rem;
   }
 
   .awards-gameover {
@@ -1965,26 +1754,21 @@
     bottom: 16px;
     left: 16px;
     z-index: 20;
-    display: flex;
-    gap: 6px;
-    align-items: center;
   }
   .host-game-menu-btn {
-    min-width: 40px;
+    width: 40px;
     height: 40px;
-    border-radius: 10px;
+    border-radius: 50%;
     background: rgba(0,0,0,0.45);
     border: 1px solid rgba(255,255,255,0.15);
     color: rgba(255,255,255,0.85);
-    font-size: 0.82rem;
-    font-weight: 700;
-    padding: 0 0.7rem;
+    font-size: 1.25rem;
+    padding: 0;
     cursor: pointer;
     display: none;
     align-items: center;
     justify-content: center;
     text-shadow: 0 1px 4px rgba(0,0,0,0.6);
-    white-space: nowrap;
   }
   .host-game-menu-btn.visible { display: flex; }
   .host-game-menu-drawer {
@@ -2024,20 +1808,20 @@
     position: absolute;
     top: 14px;
     right: 14px;
-    height: auto;
-    border-radius: 10px;
+    height: 28px;
+    border-radius: 14px;
     background: rgba(0,0,0,0.45);
     border: 1px solid rgba(255,255,255,0.15);
-    color: rgba(255,255,255,0.5);
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.45);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 20;
-    padding: 0.8rem 0.85rem;
+    padding: 0 10px;
     white-space: nowrap;
     width: auto;
     text-transform: uppercase;
@@ -2045,251 +1829,32 @@
   .exit-btn:active { background: rgba(180,0,0,0.5); color: #fff; }
 
 
-  /* ── ACTIVE TOP BAR ── */
-  .active-top-bar {
+  /* ── SETTINGS PANEL ── */
+  .settings-panel {
     position: absolute;
-    top: 12px; left: 0; right: 0;
+    top: 14px;
+    left: 14px;
     z-index: 20;
+    pointer-events: all;
     display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    pointer-events: none;
-    padding: 0 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
   }
-  .active-top-bar > * { pointer-events: all; }
-  .active-sound-btn {
-    position: absolute;
-    bottom: 14px;
-    right: 14px;
-    top: auto;
-    left: auto;
-    z-index: 20;
-    width: 42px; height: 42px;
+  .settings-gear {
+    width: 40px; height: 40px;
     border-radius: 50%;
     background: rgba(0,0,0,0.45);
     border: 1px solid rgba(255,255,255,0.15);
     color: rgba(255,255,255,0.65);
-    font-size: 1.3rem;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    padding: 0;
-    transition: background 0.2s;
-  }
-  .active-sound-btn:active { background: rgba(124,92,191,0.5); }
-
-  /* ── UI TOGGLE BUTTON ── */
-  .active-ui-btn {
-    position: absolute;
-    bottom: 14px;
-    right: 64px;
-    top: auto;
-    left: auto;
-    z-index: 20;
-    width: 42px; height: 42px;
-    border-radius: 50%;
-    background: rgba(0,0,0,0.45);
-    border: 1px solid rgba(255,255,255,0.15);
-    color: rgba(255,255,255,0.65);
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    padding: 0;
-    transition: background 0.2s;
-  }
-  .active-ui-btn:active { background: rgba(124,92,191,0.5); }
-
-  /* ── WHEEL OVERLAY ── */
-  .wheel-overlay {
-    position: absolute;
-    top: 68px;
-    bottom: 68px;
-    left: 0;
-    right: 0;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 15;
-    pointer-events: none;
-  }
-  .wheel-overlay.visible {
-    display: flex;
-  }
-  .wheel-svg-wrap {
-    position: relative;
-    width: min(380px, 90vw);
-    height: min(380px, 90vw);
-    pointer-events: none;
-  }
-  .wheel-svg-wrap svg {
-    width: 100%;
-    height: 100%;
-  }
-  .wheel-center-circle {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 34%;
-    height: 34%;
-    border-radius: 50%;
-    background: #0a0a0f;
-    border: 3px solid rgba(255,255,255,0.15);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    z-index: 2;
-    transition: border-color 0.3s;
-  }
-  .wheel-center-label {
-    font-size: 0.6rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: rgba(255,255,255,0.45);
-    line-height: 1.1;
-    text-align: center;
-  }
-  .wheel-center-avatar {
-    font-size: 2.4rem;
-    line-height: 1;
-    margin-top: 2px;
-    text-align: center;
-  }
-  .wheel-direction-area {
-    margin-top: 1.2rem;
-    text-align: center;
-    pointer-events: none;
-    min-height: 100px;
-    width: 100%;
-    align-self: stretch;
-  }
-  .wheel-tap-label {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: rgba(255,255,255,0.85);
-    text-shadow: 0 0 20px rgba(0,0,0,0.7);
-  }
-  .wheel-pass-arrow {
-    font-size: 4.5rem;
-    line-height: 1;
-    opacity: 0.85;
-    filter: drop-shadow(0 2px 10px rgba(0,0,0,0.4));
-    animation: wheelPulse 2.2s ease-in-out infinite;
-  }
-  @keyframes wheelPulse {
-    0%,100% { transform: scale(1); opacity: 0.85; }
-    50%     { transform: scale(1.06); opacity: 1; }
-  }
-  .wheel-pass-to {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: rgba(255,255,255,0.5);
-    margin-top: 4px;
-  }
-  .wheel-both-area {
-    margin-top: 1.2rem;
-    width: 100%;
-    pointer-events: none;
-    min-height: 100px;
-    position: relative;
-    display: flex;
-    justify-content: space-around;
-  }
-  .wheel-both-area::before {
-    content: '';
-    position: absolute;
-    top: 0; bottom: 0; left: 50%;
-    width: 1px;
-    background: rgba(255,255,255,0.15);
-    transform: translateX(-50%);
-    pointer-events: none;
-  }
-  .wheel-both-half {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.3rem;
-    pointer-events: none;
-  }
-  .wheel-both-left { }
-  .wheel-both-right { }
-  .wheel-both-label {
     font-size: 1.1rem;
-    font-weight: 700;
-    color: rgba(255,255,255,0.85);
-    text-shadow: 0 0 16px rgba(0,0,0,0.6);
-    white-space: nowrap;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0; width: 40px;
+    transition: background 0.2s, transform 0.3s;
+    flex-shrink: 0;
   }
-  .wheel-both-arrow {
-    font-size: 3rem;
-    line-height: 1;
-    opacity: 0.85;
-  }
-  .wheel-both-player {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: rgba(255,255,255,0.45);
-  }
-  .wheel-tap-zone {
-    position: absolute;
-    inset: 0;
-    z-index: 5;
-    pointer-events: all;
-  }
-  .wheel-tap-zone-left {
-    position: absolute;
-    top: 0; bottom: 0; left: 0; right: 50%;
-    z-index: 5;
-    pointer-events: all;
-  }
-  .wheel-tap-zone-right {
-    position: absolute;
-    top: 0; bottom: 0; left: 50%; right: 0;
-    z-index: 5;
-    pointer-events: all;
-  }
-  .wheel-full-tap-left {
-    position: absolute;
-    top: 0; bottom: 0; left: 0; width: 50%;
-    z-index: 5;
-    pointer-events: all;
-  }
-  .wheel-full-tap-right {
-    position: absolute;
-    top: 0; bottom: 0; right: 0; width: 50%;
-    z-index: 5;
-    pointer-events: all;
-  }
-
-  .active-room-code {
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    color: rgba(255,255,255,0.5);
-    background: rgba(0,0,0,0.45);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 10px;
-    padding: 0.35rem 0.85rem;
-    white-space: nowrap;
-    text-align: center;
-    line-height: 1.2;
-  }
-  .active-room-code-label {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    opacity: 0.7;
-  }
-  .active-room-code-value {
-    font-size: 0.95rem;
-    letter-spacing: 0.12em;
-    color: rgba(255,255,255,0.85);
-  }
+  .settings-gear.open { transform: rotate(60deg); background: rgba(124,92,191,0.5); color:#fff; }
   .settings-drawer {
     overflow: hidden;
     max-height: 0;
@@ -2348,6 +1913,7 @@
     .exit-btn { top: 10px; right: 10px; }
     .settings-panel { top: 10px; left: 10px; }
     .settings-gear { width: 34px; height: 34px; font-size: 1rem; }
+    .host-manage-btn { bottom: 10px; right: 10px; }
     .host-game-menu { bottom: 10px; left: 10px; }
     #screen-active .pass-tap-btn { padding: 36px 10px; }
   }
@@ -2721,147 +2287,6 @@
   }
   .vp-begin-btn.show { display: block; }
 
-  /* ── VP CEREMONY RANKINGS ── */
-  .vp-rankings-item {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 10px;
-    padding: 0.5rem 0.7rem;
-    animation: vpRankSlideIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
-  }
-  @keyframes vpRankSlideIn {
-    0%   { opacity: 0; transform: translateX(-20px) scale(0.9); }
-    100% { opacity: 1; transform: translateX(0) scale(1); }
-  }
-  .vp-rankings-place {
-    font-size: 1.1rem;
-    font-weight: 800;
-    min-width: 2.2rem;
-    text-align: center;
-    color: rgba(255,255,255,0.7);
-  }
-  .vp-rankings-avatar {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    border: 2px solid var(--accent);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1rem;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-  .vp-rankings-avatar img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
-  .vp-rankings-name {
-    flex: 1;
-    font-size: 0.95rem;
-    font-weight: 700;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .vp-rankings-score {
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: rgba(255,255,255,0.6);
-    white-space: nowrap;
-  }
-
-  /* ── VP ROTARY DIAL ── */
-  .vp-dial-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    margin: 1.5rem 0 2rem;
-  }
-  .vp-dial-value {
-    font-size: 3rem;
-    font-weight: 900;
-    color: #4ade80;
-    text-shadow: 0 0 20px rgba(74,222,128,0.4);
-    min-height: 3.6rem;
-    line-height: 1;
-    user-select: none;
-    -webkit-user-select: none;
-    margin-bottom: 0.5rem;
-  }
-  .vp-dial-outer {
-    position: relative;
-    width: 220px;
-    height: 220px;
-    border-radius: 50%;
-    background: #111;
-    border: 4px solid #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  .vp-dial-track {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .vp-dial-center {
-    position: relative;
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    background: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 2;
-    transition: background 0.15s;
-    border: 3px solid #222;
-  }
-  .vp-dial-center:active { background: #1a1a2e; }
-  .vp-dial-knob {
-    position: absolute;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: #888;
-    border: 2px solid #aaa;
-    top: -19px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 3;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-    pointer-events: none;
-  }
-  .vp-dial-minus {
-    position: absolute;
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.8rem;
-    font-weight: 900;
-    color: #e74c3c;
-    pointer-events: none;
-    text-shadow: 0 0 8px rgba(231,76,60,0.5);
-  }
-  .vp-dial-plus {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.8rem;
-    font-weight: 900;
-    color: #4ade80;
-    pointer-events: none;
-    text-shadow: 0 0 8px rgba(74,222,128,0.5);
-  }
-
   /* ── D&D TURN COMPONENTS ── */
   .dnd-action-grid {
     width: 180px; height: 180px;
@@ -2924,7 +2349,7 @@
   /* ── ROUND INDICATOR ── */
   .round-indicator {
     position: absolute;
-    top: 20px;
+    top: 14px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 25;
@@ -2936,7 +2361,7 @@
   }
   .round-indicator.visible { display: flex; }
   .round-indicator-label {
-    font-size: 1rem;
+    font-size: 0.7rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.14em;
@@ -2949,7 +2374,7 @@
     text-shadow: 0 0 10px rgba(251,191,36,0.6), 0 1px 6px rgba(0,0,0,0.8);
   }
   .round-indicator-fraction {
-    font-size: 0.78rem;
+    font-size: 0.62rem;
     font-weight: 700;
     color: rgba(255,255,255,0.45);
     letter-spacing: 0.08em;
@@ -4183,89 +3608,9 @@
     border-radius: 10px; width: 100%;
     word-break: break-all;
   }
-
-  /* ── PASSWORD GATE ── */
-  #password-gate {
-    position: fixed; inset: 0;
-    background: var(--bg);
-    z-index: 99999;
-    display: flex; align-items: center; justify-content: center;
-    padding: 1.5rem;
-  }
-  #password-gate.hidden { display: none; }
-  #password-gate-card {
-    background: #13131a;
-    border: 1px solid #2a2a3a;
-    border-radius: 16px;
-    padding: 2rem 1.5rem;
-    width: 100%;
-    max-width: 340px;
-    text-align: center;
-  }
-  #password-gate-card .pw-title {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--text);
-    margin-bottom: 0.3rem;
-  }
-  #password-gate-card .pw-sub {
-    font-size: 0.78rem;
-    color: var(--muted);
-    margin-bottom: 1.2rem;
-  }
-  #password-gate-card input {
-    width: 100%;
-    padding: 0.7rem 0.9rem;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: #1a1a28;
-    color: var(--text);
-    font-size: 1rem;
-    font-family: inherit;
-    text-align: center;
-    letter-spacing: 0.15em;
-    outline: none;
-    margin-bottom: 0.8rem;
-    -webkit-appearance: none;
-  }
-  #password-gate-card input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(124,92,191,0.25);
-  }
-  #password-gate-card .pw-submit {
-    width: 100%;
-    padding: 0.7rem;
-    border-radius: 999px;
-    border: none;
-    background: var(--accent);
-    color: #fff;
-    font-size: 0.95rem;
-    font-weight: 700;
-    font-family: inherit;
-    cursor: pointer;
-    transition: background 0.15s, transform 0.1s;
-  }
-  #password-gate-card .pw-submit:active { transform: scale(0.97); }
-  #password-gate-card .pw-error {
-    color: #e74c3c;
-    font-size: 0.78rem;
-    margin-top: 0.5rem;
-    min-height: 1.1em;
-  }
 </style>
 </head>
 <body>
-
-<!-- PASSWORD GATE -->
-<div id="password-gate">
-  <div id="password-gate-card">
-    <div class="pw-title">🔒 SideKick</div>
-    <div class="pw-sub">Enter the access code to continue</div>
-    <input type="password" id="pw-input" placeholder="Access code" autocomplete="off">
-    <button class="pw-submit" onclick="checkPassword()">Enter</button>
-    <div class="pw-error" id="pw-error"></div>
-  </div>
-</div>
 
 <!-- ═══════════════════════════════════════════ -->
 <!--  FIREBASE SETUP OVERLAY                     -->
@@ -4484,7 +3829,7 @@
     <!-- Wizard buttons (outside cards area, pinned to bottom) -->
     <div id="create-wizard-btns" style="width:100%;max-width:380px;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
       <button class="btn-primary" id="create-next-btn" onclick="createNextStep()" style="width:100%;">Next →</button>
-      <button class="btn-primary" id="create-final-btn" onclick="onCreateFinalBtn()" style="width:100%;display:none;">Next →</button>
+      <button class="btn-primary" id="create-final-btn" onclick="onCreateFinalBtn()" style="width:100%;display:none;">Create Room</button>
       <p id="create-status" class="status"></p>
       <button class="btn-secondary btn-sm" id="create-home-btn" onclick="goHome()" style="width:100%;">← Home</button>
     </div>
@@ -4597,7 +3942,7 @@
   <div class="screen-content-scaler" id="scaler-lobby" style="display:flex;flex-direction:column;height:100%;">
 
     <!-- Page header -->
-    <div class="logo" style="font-size:1.5rem;letter-spacing:0.04em;margin-bottom:0.4rem;text-align:center;">Player Lobby</div>
+    <div class="logo" style="font-size:1.5rem;letter-spacing:0.04em;margin-bottom:0.4rem;text-align:center;">Room Code</div>
 
     <!-- Card 1: QR code + room code -->
     <div class="card" style="max-width:480px;margin-bottom:0.35rem;text-align:center; padding: 0.4rem 0.5rem 0.2rem;">
@@ -4669,11 +4014,8 @@
   <!-- Touch guards: prevent accidental pass-turn taps on button zones -->
   <div class="touch-guard touch-guard-top"></div>
   <div class="touch-guard touch-guard-bottom"></div>
-  <button class="exit-btn" onclick="confirmLeave()">Exit Room</button>
-  <!-- Host game menu (bottom-left) -->
-  <div class="host-game-menu" id="host-game-menu-active">
-    <button class="host-game-menu-btn" id="host-game-menu-btn-active" onclick="openHostCrownMenu()">Host Menu</button>
-  </div>
+  <button class="exit-btn" onclick="confirmLeave()">⬡ Exit Room</button>
+  <button class="host-manage-btn" id="host-manage-btn" onclick="openManagePanel()">👥 Players</button>
   <button class="status-effects-btn" id="status-btn-active" onclick="openStatusMenu()" title="Status Effects">🩹</button>
   <!-- Nudge counter shown to active player -->
   <!-- Nudge counter - hidden, tracked for awards only -->
@@ -4695,31 +4037,18 @@
     <div class="round-indicator-label" id="round-label-active">Round 1</div>
     <div class="round-indicator-fraction" id="round-fraction-active">1/1</div>
   </div>
+  <!-- Host game menu (bottom-left) -->
+  <div class="host-game-menu" id="host-game-menu-active">
+    <button class="host-game-menu-btn" id="host-game-menu-btn-active" onclick="openHostCrownMenu()">👑</button>
+  </div>
   <button class="action-btn btn-left" onclick="passTurn('left')" id="btn-left">
     <div class="btn-arrow">←</div>
     <div class="btn-label">Pass Left</div>
     <div class="btn-player-name" id="left-player-name"></div>
   </button>
   <div class="active-divider" id="active-divider"></div>
-  <div class="active-top-bar">
-    <div class="active-room-code" id="active-room-code">
-      <div class="active-room-code-label">Room Code</div>
-      <div class="active-room-code-value" id="active-room-code-val"></div>
-    </div>
-  </div>
-  <button class="active-sound-btn" id="active-sound-btn" onclick="toggleSound()">🔊</button>
-  <button class="active-ui-btn" id="active-ui-btn" onclick="window.toggleUIMode()">UI</button>
-  <!-- Wheel overlay (shown when wheel UI mode is active) -->
-  <div class="wheel-overlay" id="wheel-overlay-active">
-    <div class="wheel-svg-wrap" id="wheel-svg-wrap-active">
-      <svg id="wheel-svg-active" viewBox="0 0 400 400"></svg>
-      <div class="wheel-center-circle" id="wheel-center-active">
-        <div class="wheel-center-label">Active<br>Player</div>
-        <div class="wheel-center-avatar" id="wheel-center-avatar-active"></div>
-      </div>
-    </div>
-    <div class="wheel-direction-area" id="wheel-dir-active"></div>
-    <!-- Tap zones drawn on top by JS -->
+  <div class="settings-panel">
+    <button class="settings-gear" id="settings-gear-btn" onclick="openSettingsOverlay()" title="Settings">⚙️</button>
   </div>
   <div class="active-center" id="active-center">
     <div class="active-center-its">It's Your Turn</div>
@@ -4794,41 +4123,26 @@
 <!--  SCREEN: WAITING (inactive player)          -->
 <!-- ═══════════════════════════════════════════ -->
 <div id="screen-waiting" class="screen">
-  <div class="active-top-bar">
-    <div class="active-room-code" id="active-room-code-wait">
-      <div class="active-room-code-label">Room Code</div>
-      <div class="active-room-code-value" id="active-room-code-wait-val"></div>
-    </div>
-  </div>
-  <button class="active-sound-btn" id="active-sound-btn-wait" onclick="toggleSound()">🔊</button>
-  <button class="active-ui-btn" id="active-ui-btn-wait" onclick="window.toggleUIMode()">UI</button>
-  <!-- Wheel overlay (shown when wheel UI mode is active) -->
-  <div class="wheel-overlay" id="wheel-overlay-wait">
-    <div class="wheel-svg-wrap" id="wheel-svg-wrap-wait">
-      <svg id="wheel-svg-wait" viewBox="0 0 400 400"></svg>
-      <div class="wheel-center-circle" id="wheel-center-wait">
-        <div class="wheel-center-label">Active<br>Player</div>
-        <div class="wheel-center-avatar" id="wheel-center-avatar-wait"></div>
-      </div>
-    </div>
-    <div class="wheel-direction-area" id="wheel-dir-wait"></div>
-  </div>
   <!-- Touch guards: prevent accidental pass-turn taps on button zones -->
   <div class="touch-guard touch-guard-top"></div>
   <div class="touch-guard touch-guard-bottom"></div>
-  <button class="exit-btn" onclick="confirmLeave()">Exit Room</button>
-  <!-- Host game menu (bottom-left) -->
-  <div class="host-game-menu" id="host-game-menu-wait">
-    <button class="host-game-menu-btn" id="host-game-menu-btn-wait" onclick="openHostCrownMenu()">Host Menu</button>
-  </div>
+  <button class="exit-btn" onclick="confirmLeave()">⬡ Exit Room</button>
+  <button class="host-manage-btn" id="host-manage-btn-wait" onclick="openManagePanel()">👥 Players</button>
   <button class="undo-turn-btn" id="undo-turn-btn" onclick="undoTurn()" title="Undo Pass">↩ Undo Pass</button>
   <button class="status-effects-btn" id="status-btn-wait" onclick="openStatusMenu()" title="Status Effects">🩹</button>
+  <!-- Host game menu (bottom-left) -->
+  <div class="host-game-menu" id="host-game-menu-wait">
+    <button class="host-game-menu-btn" id="host-game-menu-btn-wait" onclick="openHostCrownMenu()">👑</button>
+  </div>
+  <div class="settings-panel">
+    <button class="settings-gear" id="settings-gear-btn-wait" onclick="openSettingsOverlay()" title="Settings">⚙️</button>
+  </div>
   <!-- Round indicator (top-center, visible when Rounds feature is on) -->
   <div class="round-indicator" id="round-indicator-wait">
     <div class="round-indicator-label" id="round-label-wait">Round 1</div>
     <div class="round-indicator-fraction" id="round-fraction-wait">1/1</div>
   </div>
-  <div id="wait-content-wrap" style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:0; width:100%;">
+  <div style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:0; width:100%;">
     <!-- Timer bar (waiting) -->
     <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:1.5rem;" id="timer-bar-wait">
       <div class="timer-row" id="timer-row-turn-wait"></div>
@@ -4843,8 +4157,7 @@
       <div class="wait-active-avatar" id="waiting-active-avatar"></div>
     </div>
 
-  </div>
-    <!-- NUDGE AREA (outside wait-content-wrap so it stays visible in wheel mode) -->
+    <!-- NUDGE AREA -->
     <div class="nudge-area" id="nudge-area">
       <button class="nudge-btn" id="nudge-btn" onclick="sendNudge()">
         <span class="back"></span>
@@ -4855,6 +4168,7 @@
       <span id="nudge-limit-msg" style="display:none;color:#e05555;font-size:0.82rem;font-weight:600;">Nudge limit reached for this turn (50 max).</span>
       <span class="nudge-locked-label" id="nudge-locked-label">Unlocks in <span id="nudge-countdown">--</span>s</span>
     </div>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
@@ -4905,10 +4219,14 @@
   <div class="buzz-bottom-bar">
     <!-- Left: host crown (hidden for non-hosts) -->
     <div id="host-crown-buzz" style="display:none;">
-      <button class="host-game-menu-btn" id="host-crown-btn-buzz" onclick="openHostCrownMenu()" style="min-width:36px;height:36px;font-size:0.75rem;padding:0 0.5rem;">Host Menu</button>
+      <button class="host-game-menu-btn" id="host-crown-btn-buzz" onclick="openHostCrownMenu()" style="width:36px;height:36px;font-size:1rem;">👑</button>
     </div>
     <!-- Center: spacer (kept for grid layout) -->
     <div id="buzz-bottom-spacer"></div>
+    <!-- Right: players button (host only) -->
+    <div>
+      <button class="host-manage-btn" id="host-manage-btn-buzz" style="position:static;transform:none;margin:0;" onclick="openManagePanel()">👥</button>
+    </div>
   </div>
 </div>
 
@@ -4924,17 +4242,6 @@
   </div>
   <div id="buzz-complete-wait" style="display:none; color:var(--muted); font-size:0.85rem;">Waiting for host...</div>
 </div>
-<!-- ═══════════════════════════════════════════ -->
-<!--  SCREEN: RECONFIGURING (host starting new game) -->
-<!-- ═══════════════════════════════════════════ -->
-<div id="screen-reconfiguring" class="screen">
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:2rem;text-align:center;">
-    <div style="font-size:3rem;margin-bottom:1rem;">🔄</div>
-    <div style="font-size:1.15rem;font-weight:700;color:var(--text);margin-bottom:0.5rem;">Please Wait</div>
-    <div style="font-size:0.9rem;color:var(--muted);line-height:1.5;">The host is starting a new game.<br>Settings may change.</div>
-  </div>
-</div>
-
 <!-- ═══════════════════════════════════════════ -->
 <div class="awards-standby" id="awards-standby">
   <div class="awards-standby-icon">🏆</div>
@@ -4970,77 +4277,22 @@
   <div id="awards-wait-msg" style="display:none; color:var(--muted); font-size:0.85rem; margin-top:1rem;">Waiting for host...</div>
 </div>
 
-<!-- ═══════════════════════════════════════════ -->
-<!--  VP CEREMONY: STANDBY                       -->
-<!-- ═══════════════════════════════════════════ -->
-<div class="awards-standby" id="vp-standby">
-  <div class="awards-standby-icon">🏅</div>
-  <div class="awards-standby-text" id="vp-standby-text">Victory Ceremony</div>
-  <button id="vp-skip-btn" onclick="skipVPCeremony()" style="display:none; margin-top:1.5rem; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:rgba(255,255,255,0.5); font-size:0.78rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; padding:0.5rem 1.25rem; border-radius:20px; cursor:pointer;">⏭ Skip</button>
-</div>
-
-<!-- ═══════════════════════════════════════════ -->
-<!--  VP CEREMONY: WINNER REVEAL (WINNER's phone — bright) -->
-<!-- ═══════════════════════════════════════════ -->
-<div class="vp-reveal-winner" id="vp-reveal-winner">
-  <canvas id="vp-canvas-winner"></canvas>
-  <div class="vp-win-inner">
-    <div class="vp-win-flash">🎉 YOU WIN! 🎉</div>
-    <div class="vp-win-trophy">🏆</div>
-    <div class="vp-win-name" id="vp-win-name"></div>
-    <div class="vp-win-player-num" id="vp-win-num"></div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════ -->
-<!--  VP CEREMONY: WINNER REVEAL (OTHERS — darker) -->
-<!-- ═══════════════════════════════════════════ -->
-<div class="vp-reveal-spectator" id="vp-reveal-spectator">
-  <canvas id="vp-canvas-spectator"></canvas>
-  <div class="vp-spec-inner">
-    <div class="vp-spec-label">And the winner is...</div>
-    <div class="vp-spec-trophy">🏆</div>
-    <div class="vp-spec-name" id="vp-spec-name"></div>
-    <div class="vp-spec-player-num" id="vp-spec-num"></div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════ -->
-<!--  VP CEREMONY: RANKINGS BOARD                -->
-<!-- ═══════════════════════════════════════════ -->
-<div class="awards-gameover" id="vp-rankings">
-  <div style="font-size:3rem;">🏅</div>
-  <div class="awards-gameover-title">Victory Points</div>
-  <div class="awards-gameover-sub" style="margin-bottom:0.5rem;">Final Standings</div>
-  <div id="vp-rankings-list" style="width:min(340px,90vw); display:flex; flex-direction:column; gap:0.5rem;"></div>
-  <button class="btn-primary" id="vp-rankings-close" onclick="closeVPRankings()" style="display:none; margin-top:1rem; min-width:200px;">Done</button>
-  <div id="vp-rankings-wait" style="display:none; color:var(--muted); font-size:0.85rem; margin-top:1rem;">Waiting for host to close…</div>
-</div>
-
 
 <!-- ═══════════════════════════════════════════ -->
 <!--  VICTORY POINTS ENTRY OVERLAY               -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="vp-overlay" id="vp-overlay">
-  <div class="vp-overlay-title">Enter Your Points</div>
+  <div style="font-size:2.5rem;">🏅</div>
+  <div class="vp-overlay-title">Enter Your Score</div>
+  <div class="vp-overlay-sub" id="vp-overlay-sub">How many Victory Points did you earn?</div>
   <div id="vp-input-section">
-    <div class="vp-dial-wrapper" id="vp-dial-wrapper">
-      <div class="vp-dial-value" id="vp-dial-value">+0</div>
-      <div class="vp-dial-outer" id="vp-dial-outer">
-        <div class="vp-dial-track" id="vp-dial-track">
-          <div class="vp-dial-knob" id="vp-dial-knob"></div>
-          <div class="vp-dial-minus">-</div>
-          <div class="vp-dial-plus">+</div>
-        </div>
-        <div class="vp-dial-center" id="vp-dial-center"></div>
-      </div>
-    </div>
-    <button class="vp-submit-btn" onclick="submitVP()" style="margin-top:0.75rem;">Submit Points</button>
+    <input class="vp-score-input" id="vp-score-input" type="number" min="0" max="99999" placeholder="0" inputmode="numeric">
+    <button class="vp-submit-btn" onclick="submitVP()" style="margin-top:0.75rem;">Submit Score</button>
   </div>
   <div id="vp-waiting-section" style="display:none; flex-direction:column; align-items:center; gap:0.75rem; width:100%;">
     <div class="vp-submitted-msg">✓ Score submitted! Waiting for others…</div>
     <div class="vp-waiting-list" id="vp-waiting-list"></div>
-    <button class="vp-begin-btn" id="vp-begin-btn" onclick="beginAfterVP()">🏆 Begin Ceremony</button>
+    <button class="vp-begin-btn" id="vp-begin-btn" onclick="beginAwardsAfterVP()">🏆 Begin Achievement Awards</button>
   </div>
 </div>
 
@@ -5064,7 +4316,7 @@
     </div>
 
     <!-- ACHIEVEMENT AWARDS -->
-    <div class="feature-row creator-only">
+    <div class="feature-row">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-awards-toggle" type="checkbox" onchange="onAwardsToggle(this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">🏆 Achievement Awards</span>
       <button class="feature-info-btn" onclick="showFeatureInfo('awards')" title="What is this?">?</button>
@@ -5079,19 +4331,10 @@
     </div>
 
     <!-- VICTORY POINTS -->
-    <div class="feature-row" style="margin-bottom:0.75rem;">
+    <div class="feature-row creator-only" style="margin-bottom:0.75rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-vp-toggle" type="checkbox" onchange="onVPToggle(this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">🏅 Victory Points</span>
       <button class="feature-info-btn" onclick="showFeatureInfo('vp')" title="What is this?">?</button>
-    </div>
-    <div id="vp-mode-row" style="display:none; margin:-0.5rem 0 0.75rem 2.8rem; gap:0.5rem; align-items:center;">
-      <span style="font-size:0.78rem; color:var(--muted);">Who wins?</span>
-      <label style="display:flex; align-items:center; gap:0.3rem; cursor:pointer; font-size:0.78rem; color:var(--text);">
-        <input type="radio" name="vp-mode" value="highest" checked onchange="onVPModeChange(this.value)" style="accent-color:var(--accent);"> Highest
-      </label>
-      <label style="display:flex; align-items:center; gap:0.3rem; cursor:pointer; font-size:0.78rem; color:var(--text);">
-        <input type="radio" name="vp-mode" value="lowest" onchange="onVPModeChange(this.value)" style="accent-color:var(--accent);"> Lowest
-      </label>
     </div>
 
     <!-- STATUS EFFECTS -->
@@ -5102,7 +4345,7 @@
     </div>
 
     <!-- ROUNDS -->
-    <div class="feature-row" style="margin-bottom:0.75rem;">
+    <div class="feature-row creator-only" style="margin-bottom:0.75rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-rounds-toggle" type="checkbox" onchange="onRoundsToggle(this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">🔢 Rounds</span>
       <button class="feature-edit-btn" id="rounds-edit-btn" onclick="openFeatureSettings('rounds')" title="Edit settings">EDIT</button>
@@ -5216,16 +4459,6 @@
   <div class="info-modal" style="width:min(360px,92vw);max-height:88vh;overflow-y:auto;padding:1.5rem 1.25rem;">
     <div style="font-size:1.05rem;font-weight:800;color:var(--text);text-align:center;margin-bottom:1.1rem;">⚙️ Room Settings</div>
 
-    <!-- Turn Direction -->
-    <div class="feature-row" style="margin-bottom:0.5rem;">
-      <span class="feature-name" style="font-size:0.9rem;">Direction</span>
-    </div>
-    <div id="mg-direction-buttons" style="display:flex;gap:0.4rem;margin-bottom:0.75rem;">
-      <button class="mg-dir-btn" data-dir="ccw" onclick="mgSetDirection('ccw')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">↺ Counterclockwise</button>
-      <button class="mg-dir-btn" data-dir="both" onclick="mgSetDirection('both')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">⇅ Both Directions</button>
-      <button class="mg-dir-btn" data-dir="cw" onclick="mgSetDirection('cw')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">↻ Clockwise</button>
-    </div>
-
     <!-- Nudge -->
     <div class="feature-row" style="margin-bottom:0.5rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-nudge-toggle" type="checkbox" onchange="onMidGameToggle('nudge',this.checked)"><span class="toggle-slider"></span></label>
@@ -5254,13 +4487,13 @@
     </div>
 
     <!-- Achievement Awards -->
-    <div class="feature-row creator-only" style="margin-bottom:0.75rem;">
+    <div class="feature-row" style="margin-bottom:0.75rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-awards-toggle" type="checkbox" onchange="onMidGameToggle('awards',this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">🏆 Achievement Awards</span>
     </div>
 
     <!-- Victory Points -->
-    <div class="feature-row" style="margin-bottom:0.5rem;">
+    <div class="feature-row creator-only" style="margin-bottom:0.5rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-vp-toggle" type="checkbox" onchange="onMidGameToggle('vp',this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">🏅 Victory Points</span>
     </div>
@@ -5308,7 +4541,7 @@
     </div>
 
     <!-- Rounds -->
-    <div>
+    <div class="creator-only">
     <div class="feature-row" style="margin-bottom:0.5rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-rounds-toggle" type="checkbox" onchange="onMidGameToggle('rounds',this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">🔢 Rounds</span>
@@ -6205,8 +5438,6 @@ function saveAvatar(emoji) {
     const uid = currentUser?.uid || '';
     if (uid) localStorage.setItem('sk_avatar_' + uid, emoji);
     else localStorage.setItem('sk_avatar', emoji);
-    // Sync to Firebase
-    if (uid && db) set(ref(db, `users/${uid}/avatar`), emoji).catch(() => {});
   } catch {}
   if (roomCode && myId) {
     set(ref(db, `rooms/${roomCode}/players/${myId}/avatar`), emoji).catch(() => {});
@@ -6233,57 +5464,7 @@ function saveName(name) {
     const uid = currentUser?.uid || '';
     if (uid) localStorage.setItem('sk_preferred_name_' + uid, name);
     else localStorage.setItem('sk_preferred_name', name);
-    // Sync to Firebase
-    if (uid && db) set(ref(db, `users/${uid}/preferredName`), name).catch(() => {});
   } catch {}
-}
-
-// ── FIREBASE USER PROFILE SYNC ───────────────────
-// Saves per-user data to Firebase so it survives uninstall/reinstall
-function syncProfileToFirebase(uid, data) {
-  if (!db || !uid) return;
-  set(ref(db, `users/${uid}`), data).catch(() => {});
-}
-
-async function loadProfileFromFirebase(uid) {
-  if (!db || !uid) return null;
-  try {
-    const snap = await get(ref(db, `users/${uid}`));
-    return snap.exists() ? snap.val() : null;
-  } catch { return null; }
-}
-
-// Call on login to pull Firebase data into localStorage
-async function syncProfileFromFirebase() {
-  const uid = currentUser?.uid;
-  if (!uid) return;
-  const profile = await loadProfileFromFirebase(uid);
-  // If Firebase has data, pull it into localStorage
-  if (profile) {
-    if (profile.preferredName) localStorage.setItem('sk_preferred_name_' + uid, profile.preferredName);
-    if (profile.avatar) localStorage.setItem('sk_avatar_' + uid, profile.avatar);
-    if (profile.hostedCount != null) localStorage.setItem('sk_hosted_count', String(profile.hostedCount));
-    if (profile.roomsCount != null) localStorage.setItem('sk_rooms_count', String(profile.roomsCount));
-    if (profile.awards) localStorage.setItem('sk_awards_' + uid, JSON.stringify(profile.awards));
-    if (profile.theme) localStorage.setItem('sk_theme', profile.theme);
-    if (profile.namedTheme) localStorage.setItem('sk_named_theme', profile.namedTheme);
-    if (profile.namedTheme || profile.theme) {
-      applyFullTheme(profile.namedTheme || 'default', profile.theme === 'light');
-    }
-  }
-  // Migrate legacy localStorage data to Firebase if Firebase is empty
-  if (!profile || (!profile.preferredName && !profile.avatar)) {
-    const legacyName = localStorage.getItem('sk_preferred_name') || '';
-    const legacyAvatar = localStorage.getItem('sk_avatar') || '';
-    if (legacyName || legacyAvatar) {
-      const data = {};
-      if (legacyName) { data.preferredName = legacyName; localStorage.setItem('sk_preferred_name_' + uid, legacyName); }
-      if (legacyAvatar) { data.avatar = legacyAvatar; localStorage.setItem('sk_avatar_' + uid, legacyAvatar); }
-      syncProfileToFirebase(uid, data);
-    }
-  }
-  // Refresh UI now that localStorage is populated
-  updateAccountButtonUI();
 }
 
 const AVATARS = [
@@ -6960,7 +6141,6 @@ window.buzzPlayAgain = async function() {
 let featureNudgeEnabled = false;
 let featureAwardsEnabled = false;
 let featureVPEnabled = false;
-let vpHighestWins = true; // true = highest wins, false = lowest wins
 let featureStatusEffectsEnabled = false;
 let featureDndEnabled = false;
 let featureRoundsEnabled = false;
@@ -7120,8 +6300,6 @@ function initFirebase(cfg) {
       isCreator = user ? CREATOR_UIDS.includes(user.uid) : false;
       document.body.classList.toggle('user-mode', !!user && !isCreator);
       updateAccountButtonUI();
-      // Sync profile from Firebase into localStorage on login
-      if (user) syncProfileFromFirebase();
     });
   } catch(e) {
     status('home-status', 'Firebase error: ' + e.message, 'error');
@@ -7200,7 +6378,7 @@ async function tryAutoResume() {
         showScreen('waiting-lobby');
         listenWaitingLobby();
       }
-    } else if (room.status === 'playing' || room.status === 'ceremony' || room.status === 'vp-entry' || room.status === 'vp-ceremony') {
+    } else if (room.status === 'playing' || room.status === 'ceremony' || room.status === 'vp-entry') {
       listenGameState();
     } else if (room.status === 'gameover') {
       showGameOver();
@@ -7224,7 +6402,6 @@ tryAutoResume();
 window.showCreateRoom = function() {
   if (!requireHostAccount()) return;
   editingRoom = false;
-  startingNewGame = false;
   myColor = '';
   // Auto-fill avatar from profile (host is always logged in)
   const profileAv = getSavedAvatar();
@@ -7359,7 +6536,6 @@ window.joinNextStep = function() {
 // ── CREATE ROOM WIZARD ──
 let createStep = 1;
 let editingRoom = false;
-let startingNewGame = false;
 
 function renderCreateStep() {
   const area = document.getElementById('create-cards-area');
@@ -7466,7 +6642,6 @@ window.openToolsOverlay = function() {
 };
 window.closeToolsOverlay = function() {
   document.getElementById('tools-overlay').classList.remove('show');
-  openHostCrownMenu();
 };
 
 // ── TUTORIAL OVERLAY ──
@@ -8053,7 +7228,6 @@ window.goHome = function() {
     clearSession();
   }
   editingRoom = false;
-  startingNewGame = false;
   // Reset QR (inline lobby card)
   const qrBox = document.getElementById('qr-code-lobby');
   if (qrBox) qrBox.innerHTML = '';
@@ -8163,13 +7337,6 @@ window.goBackToCreate = async function() {
     const el = document.getElementById(id);
     if (el) el.checked = val;
   });
-  // Sync VP mode row visibility and radio selection
-  const vpModeRow = document.getElementById('vp-mode-row');
-  if (vpModeRow) {
-    vpModeRow.style.display = featureVPEnabled ? 'flex' : 'none';
-    const vpRadio = document.querySelector('input[name="vp-mode"][value="' + (vpHighestWins ? 'highest' : 'lowest') + '"]');
-    if (vpRadio) vpRadio.checked = true;
-  }
   // Sync edit buttons visibility
   const nudgeEditBtn = document.getElementById('nudge-edit-btn');
   if (nudgeEditBtn) nudgeEditBtn.classList.toggle('visible', featureNudgeEnabled);
@@ -8185,15 +7352,13 @@ window.goBackToCreate = async function() {
 };
 
 window.onCreateFinalBtn = function() {
-  if (startingNewGame) { startNewGame(); } else if (editingRoom) { returnToLobby(); } else { createRoom(); }
+  if (editingRoom) { returnToLobby(); } else { createRoom(); }
 };
 
 function renderEditRoomButtons() {
   const finalBtn = document.getElementById('create-final-btn');
   if (finalBtn) {
-    if (startingNewGame) { finalBtn.textContent = 'Start Game →'; }
-    else if (editingRoom) { finalBtn.textContent = 'Back to Lobby →'; }
-    else { finalBtn.textContent = 'Next →'; }
+    if (editingRoom) { finalBtn.textContent = 'Back to Lobby →'; } else { finalBtn.textContent = 'Create Room'; }
   }
 }
 
@@ -8222,7 +7387,6 @@ window.saveRoomChanges = async function() {
   updates[`rooms/${roomCode}/features/nudgeMode`] = featureNudgeEnabled ? (document.querySelector('input[name="nudge-mode"]:checked')?.value || 'multi') : 'multi';
   updates[`rooms/${roomCode}/features/awards`] = featureAwardsEnabled;
   updates[`rooms/${roomCode}/features/victoryPoints`] = featureVPEnabled;
-  updates[`rooms/${roomCode}/features/vpHighestWins`] = vpHighestWins;
   updates[`rooms/${roomCode}/features/statusEffects`] = featureStatusEffectsEnabled;
   updates[`rooms/${roomCode}/features/dndTurnComponents`] = featureDndEnabled;
   updates[`rooms/${roomCode}/features/timers`] = featureTimersEnabled;
@@ -8248,7 +7412,6 @@ window.saveRoomChanges = async function() {
 
 window.returnToLobby = function() {
   editingRoom = false;
-  startingNewGame = false;
   document.getElementById('display-code').textContent = roomCode;
   showScreen('lobby');
   generateLobbyQR();
@@ -8453,8 +7616,6 @@ let hostMenuOpen = { active: false, wait: false };
 window.openHostCrownMenu = function() {
   const codeEl = document.getElementById('host-crown-room-code');
   if (codeEl) codeEl.textContent = roomCode || '----';
-  const erBtn = document.getElementById('host-crown-endround-btn');
-  if (erBtn) erBtn.style.display = featureRoundsEnabled ? '' : 'none';
   document.getElementById('host-crown-overlay').classList.add('show');
 };
 
@@ -8470,27 +7631,14 @@ window.hostMenuAction = async function(action) {
     openToolsOverlay();
   } else if (action === 'end-round') {
     const doEndRound = async () => {
-      // If both Rounds and VP are enabled, collect VP for this round first
-      if (featureRoundsEnabled && featureVPEnabled) {
-        if (await showConfirm(`End Round ${currentRound} and collect Victory Points?`)) {
-          // Close host menu
-          closeHostCrownMenu();
-          // Set status to round-vp-entry so all players see the VP input overlay
-          await update(ref(db, `rooms/${roomCode}`), {
-            status: 'round-vp-entry',
-            vpRoundReady: null,
-            vpRoundDraft: null
-          });
-        }
-        return;
-      }
-      // Original logic: just advance the round
       const updates = {};
+      // Advance round counter if Rounds feature is on
       if (featureRoundsEnabled) {
         const nextRound = Math.min(currentRound + 1, roundsTotal);
         currentRound = nextRound;
         updates[`rooms/${roomCode}/currentRound`] = nextRound;
       }
+      // Reset round timer if Timers feature is on
       if (featureTimersEnabled && timerCfg.round) {
         timerRound = 0;
         updates[`rooms/${roomCode}/timerRound`] = 0;
@@ -8509,17 +7657,7 @@ window.hostMenuAction = async function(action) {
       saveCurrentGame();
     }
   } else if (action === 'end-game') {
-    let msg = 'End the game';
-    if (featureVPEnabled && featureRoundsEnabled) {
-      msg += ' and show the final Victory Point results?';
-    } else if (featureAwardsEnabled) {
-      msg += ' and start the Achievement Awards?';
-    } else if (featureVPEnabled) {
-      msg += ' and start the Victory Point ceremony?';
-    } else {
-      msg += '?';
-    }
-    if (await showConfirm(msg)) {
+    if (await showConfirm('End the game' + (featureAwardsEnabled ? ' and start the Achievement Awards?' : '?'))) {
       triggerEndGame();
     }
   }
@@ -8547,9 +7685,6 @@ window.openMidGameSettings = function() {
   const modeRadio = document.querySelector(`input[name="mg-nudge-mode"][value="${nudgeMode}"]`);
   if (modeRadio) modeRadio.checked = true;
 
-  // Highlight current direction
-  mgHighlightDirection(passDirection);
-
   if (featureTimersEnabled) {
     document.getElementById('mg-timer-turn-on').checked          = timerCfg.turn;
     document.getElementById('mg-timer-turn-visible').checked     = timerCfg.turnVisible;
@@ -8574,21 +7709,6 @@ window.openMidGameSettings = function() {
 
 window.closeMidGameSettings = function() {
   document.getElementById('midgame-settings-overlay').classList.remove('show');
-  openHostCrownMenu();
-};
-
-window.mgHighlightDirection = function(dir) {
-  document.querySelectorAll('.mg-dir-btn').forEach(btn => {
-    const active = btn.dataset.dir === dir;
-    btn.style.background = active ? 'var(--accent)' : 'rgba(255,255,255,0.06)';
-    btn.style.borderColor = active ? 'var(--accent)' : 'var(--border)';
-    btn.style.color = active ? '#fff' : 'var(--text)';
-  });
-};
-
-window.mgSetDirection = function(dir) {
-  passDirection = dir;
-  mgHighlightDirection(dir);
 };
 
 window.onMidGameToggle = function(key, checked) {
@@ -8660,7 +7780,7 @@ window.saveMidGameSettings = async function() {
     await update(ref(db), updates);
     suppressNextTurnSound = true;
     statusEl.textContent = '✓ Applied!';
-    closeMidGameSettings();
+    setTimeout(closeMidGameSettings, 700);
   } catch(e) {
     statusEl.textContent = 'Error: ' + e.message;
   }
@@ -8680,13 +7800,7 @@ window.onAwardsToggle = function(checked) {
 
 window.onVPToggle = function(checked) {
   featureVPEnabled = checked;
-  const modeRow = document.getElementById('vp-mode-row');
-  if (modeRow) modeRow.style.display = checked ? 'flex' : 'none';
   updateFeaturesSummary();
-};
-
-window.onVPModeChange = function(val) {
-  vpHighestWins = (val === 'highest');
 };
 
 window.onStatusEffectsToggle = function(checked) {
@@ -9077,7 +8191,7 @@ function playBuzzerSound() {
     osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(180, ctx.currentTime);
     osc.frequency.linearRampToValueAtTime(80, ctx.currentTime + 0.4);
-    gain.gain.setValueAtTime(0.8, ctx.currentTime);
+    gain.gain.setValueAtTime(0.6, ctx.currentTime);
     gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.5);
@@ -9086,52 +8200,6 @@ function playBuzzerSound() {
 
 async function triggerEndGame() {
   if (!db || !roomCode) return;
-
-  // If both Rounds and VP are enabled, compute totals from per-round scores
-  if (featureVPEnabled && featureRoundsEnabled) {
-    const snap = await get(ref(db, `rooms/${roomCode}`));
-    const room = snap.val() || {};
-    const roundScores = room.vpRoundScores || {};
-    // Include any scores from the current round if we're mid-collection
-    const finalScores = {};
-    localPlayers.forEach(p => { finalScores[p.id] = 0; });
-    Object.values(roundScores).forEach(roundData => {
-      Object.entries(roundData).forEach(([pid, score]) => {
-        if (finalScores[pid] == null) finalScores[pid] = 0;
-        finalScores[pid] += (parseInt(score) || 0);
-      });
-    });
-    // Also include vpRoundDraft if players submitted for current round but didn't advance yet
-    const draft = room.vpRoundDraft || {};
-    if (room.vpRoundReady) {
-      Object.entries(room.vpRoundReady).forEach(([pid, ready]) => {
-        if (ready && draft[pid] != null) {
-          finalScores[pid] = (finalScores[pid] || 0) + (parseInt(draft[pid]) || 0);
-        }
-      });
-    }
-
-    const updates = {};
-    updates[`rooms/${roomCode}/vpScores`] = finalScores;
-    updates[`rooms/${roomCode}/vpReady`] = null;
-    updates[`rooms/${roomCode}/vpRoundScores`] = null;
-    updates[`rooms/${roomCode}/vpRoundReady`] = null;
-    updates[`rooms/${roomCode}/vpRoundDraft`] = null;
-
-    if (featureAwardsEnabled) {
-      updates[`rooms/${roomCode}/status`] = 'ceremony';
-      updates[`rooms/${roomCode}/ceremonyStep`] = 'standby';
-      await update(ref(db), updates);
-      runCeremonyAsHost();
-    } else {
-      updates[`rooms/${roomCode}/status`] = 'vp-ceremony';
-      updates[`rooms/${roomCode}/vpCeremonyStep`] = 'standby';
-      await update(ref(db), updates);
-      runVPCeremonyAsHost();
-    }
-    return;
-  }
-
   if (featureVPEnabled) {
     // Push vp-entry status — all players see the score entry overlay
     await update(ref(db, `rooms/${roomCode}`), { status: 'vp-entry', vpScores: null, vpReady: null });
@@ -9360,41 +8428,6 @@ function hideAllAwardOverlays() {
   document.getElementById('awards-gameover').classList.remove('show');
   const vpOv = document.getElementById('vp-overlay');
   if (vpOv) vpOv.classList.remove('show');
-  const vpStandby = document.getElementById('vp-standby');
-  if (vpStandby) vpStandby.classList.remove('show');
-  const vpWinner = document.getElementById('vp-reveal-winner');
-  if (vpWinner) vpWinner.classList.remove('show');
-  const vpSpectator = document.getElementById('vp-reveal-spectator');
-  if (vpSpectator) vpSpectator.classList.remove('show');
-  const vpRankings = document.getElementById('vp-rankings');
-  if (vpRankings) vpRankings.classList.remove('show');
-  // Remove non-winner blackout from whatever screen is active
-  const sa = document.querySelector('.screen.active');
-  if (sa) {
-    sa.classList.remove('vp-ceremony-blackout');
-    sa.style.zIndex = '';
-    sa.style.background = '';
-    sa.querySelectorAll(':scope > *').forEach(ch => {
-      ch.style.removeProperty('display');
-      ch.style.removeProperty('visibility');
-      ch.style.removeProperty('opacity');
-    });
-  }
-  // Also clean up any screen-active that might have blackout (in case it became active)
-  const saFixed = document.getElementById('screen-active');
-  if (saFixed && saFixed !== sa) {
-    saFixed.classList.remove('vp-ceremony-blackout');
-    saFixed.style.zIndex = '';
-    saFixed.style.background = '';
-    saFixed.querySelectorAll(':scope > *').forEach(ch => {
-      ch.style.removeProperty('display');
-      ch.style.removeProperty('visibility');
-      ch.style.removeProperty('opacity');
-    });
-  }
-  // Remove full-screen blackout cover
-  const cover = document.getElementById('vp-blackout-cover');
-  if (cover) cover.remove();
   stopFireworks();
 }
 
@@ -9406,8 +8439,6 @@ function showWinnerReveal(award) {
       const list = JSON.parse(localStorage.getItem(key) || '[]');
       list.push({ key: award.key, category: award.category, trophy: award.trophy, stat: award.stat, date: Date.now() });
       localStorage.setItem(key, JSON.stringify(list));
-      // Sync to Firebase
-      if (db) set(ref(db, `users/${uid}/awards`), list).catch(() => {});
     }
   } catch {}
   const reveal = document.getElementById('awards-reveal');
@@ -9470,7 +8501,6 @@ window.playAgain = async function() {
   const updates = {};
   updates[`rooms/${roomCode}/status`] = 'playing';
   updates[`rooms/${roomCode}/activePlayerIndex`] = 0;
-  updates[`rooms/${roomCode}/currentRound`] = 1;
   updates[`rooms/${roomCode}/previousPlayerId`] = null;
   updates[`rooms/${roomCode}/previousPlayerIndex`] = null;
   updates[`rooms/${roomCode}/nudges`] = null;
@@ -9479,9 +8509,6 @@ window.playAgain = async function() {
   updates[`rooms/${roomCode}/playerTimes`] = null;
   updates[`rooms/${roomCode}/vpScores`] = null;
   updates[`rooms/${roomCode}/vpReady`] = null;
-  updates[`rooms/${roomCode}/vpRoundScores`] = null;
-  updates[`rooms/${roomCode}/vpRoundReady`] = null;
-  updates[`rooms/${roomCode}/vpRoundDraft`] = null;
   updates[`rooms/${roomCode}/timerRound`] = 0;
   updates[`rooms/${roomCode}/timerGame`] = 0;
   updates[`rooms/${roomCode}/ceremonyStep`] = null;
@@ -9528,17 +8555,9 @@ window.closeRoomFinal = async function() {
 window.endGameFinal = async function() {
   try {
     const prevHosted = parseInt(localStorage.getItem('sk_hosted_count') || '0', 10);
-    const newHosted = prevHosted + 1;
-    localStorage.setItem('sk_hosted_count', String(newHosted));
+    localStorage.setItem('sk_hosted_count', String(prevHosted + 1));
     const prevRooms = parseInt(localStorage.getItem('sk_rooms_count') || '0', 10);
-    const newRooms = prevRooms + 1;
-    localStorage.setItem('sk_rooms_count', String(newRooms));
-    // Sync to Firebase
-    const uid = currentUser?.uid;
-    if (uid && db) {
-      set(ref(db, `users/${uid}/hostedCount`), newHosted).catch(() => {});
-      set(ref(db, `users/${uid}/roomsCount`), newRooms).catch(() => {});
-    }
+    localStorage.setItem('sk_rooms_count', String(prevRooms + 1));
   } catch {}
   hideAllAwardOverlays();
   stopFireworks();
@@ -9580,22 +8599,16 @@ function _speakTextTTS(text) {
   window.speechSynthesis.speak(utt);
 }
 
-// ── FIREWORKS + CONFETTI CANVAS ──────────────────
+// ── FIREWORKS CANVAS ────────────────────────────
 let fireworksRAF = null;
 let fireworksParticles = [];
-let confettiParticles = [];
 
 function startFireworks(playerColor) {
-  startFireworksForCanvas('awards-canvas', playerColor, true);
-}
-
-function startFireworksForCanvas(canvasId, playerColor, intense) {
-  const canvas = document.getElementById(canvasId);
+  const canvas = document.getElementById('awards-canvas');
   if (!canvas) return;
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
   fireworksParticles = [];
-  confettiParticles = [];
   stopFireworks();
 
   function hexToRgb(hex) {
@@ -9606,95 +8619,47 @@ function startFireworksForCanvas(canvasId, playerColor, intense) {
   }
 
   const base = hexToRgb(playerColor || '#7c3aed');
+  // Complementary palette — player color + white + gold
   const palette = [
-    playerColor, '#ffffff', '#FFD700', '#FF69B4',
+    playerColor,
+    '#ffffff',
+    '#FFD700',
     `rgb(${Math.min(base.r+80,255)},${Math.min(base.g+80,255)},${Math.min(base.b+80,255)})`
-  ];
-  const confettiColors = [
-    playerColor, '#FFD700', '#FF69B4', '#00e5ff', '#76ff03', '#ff6e40', '#e040fb', '#ffffff'
   ];
 
   function spawnBurst(x, y) {
-    const count = intense ? (35 + Math.floor(Math.random() * 20)) : (15 + Math.floor(Math.random() * 10));
+    const count = 28 + Math.floor(Math.random() * 18);
     for (let i = 0; i < count; i++) {
       const angle  = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
-      const speed  = intense ? (4 + Math.random() * 7) : (2 + Math.random() * 4);
+      const speed  = 3 + Math.random() * 6;
       fireworksParticles.push({
         x, y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         alpha: 1,
-        size: intense ? (3 + Math.random() * 4) : (2 + Math.random() * 3),
+        size: 3 + Math.random() * 4,
         color: palette[Math.floor(Math.random() * palette.length)],
         gravity: 0.12 + Math.random() * 0.08,
-        decay: 0.012 + Math.random() * 0.01
+        decay: 0.013 + Math.random() * 0.01
       });
     }
   }
 
-  function spawnConfettiBurst(x, y) {
-    const count = intense ? (45 + Math.floor(Math.random() * 25)) : (20 + Math.floor(Math.random() * 12));
-    for (let i = 0; i < count; i++) {
-      const angle  = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.6;
-      const speed  = intense ? (3 + Math.random() * 8) : (2 + Math.random() * 5);
-      confettiParticles.push({
-        x, y,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 2,
-        alpha: 1,
-        w: 4 + Math.random() * 6,
-        h: 8 + Math.random() * 12,
-        color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
-        rotation: Math.random() * Math.PI * 2,
-        rotSpeed: (Math.random() - 0.5) * 0.3,
-        gravity: 0.15 + Math.random() * 0.1,
-        decay: 0.006 + Math.random() * 0.005,
-        wobble: Math.random() * Math.PI * 2,
-        wobbleSpeed: 0.05 + Math.random() * 0.08
-      });
-    }
-  }
-
+  // Launch bursts at random intervals
   function launchRandom() {
     const x = canvas.width  * (0.15 + Math.random() * 0.7);
-    const y = canvas.height * (0.1  + Math.random() * 0.45);
+    const y = canvas.height * (0.1  + Math.random() * 0.5);
     spawnBurst(x, y);
-    spawnConfettiBurst(x, y);
-  }
-
-  function rainConfetti() {
-    const count = intense ? (10 + Math.floor(Math.random() * 6)) : (5 + Math.floor(Math.random() * 4));
-    for (let i = 0; i < count; i++) {
-      confettiParticles.push({
-        x: Math.random() * canvas.width,
-        y: -10 - Math.random() * 40,
-        vx: (Math.random() - 0.5) * 1.5,
-        vy: 2 + Math.random() * 3,
-        alpha: 0.9 + Math.random() * 0.1,
-        w: 4 + Math.random() * 5,
-        h: 8 + Math.random() * 10,
-        color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
-        rotation: Math.random() * Math.PI * 2,
-        rotSpeed: (Math.random() - 0.5) * 0.2,
-        gravity: 0.02 + Math.random() * 0.02,
-        decay: 0.003 + Math.random() * 0.003,
-        wobble: Math.random() * Math.PI * 2,
-        wobbleSpeed: 0.03 + Math.random() * 0.06
-      });
-    }
   }
 
   // Initial volley
-  const initBursts = intense ? 5 : 2;
-  for (let i = 0; i < initBursts; i++) setTimeout(launchRandom, i * 250);
-  rainConfetti();
-  const confettiRainInterval = setInterval(rainConfetti, intense ? 300 : 600);
-  const launchInterval = setInterval(launchRandom, intense ? 700 : 1400);
+  for (let i = 0; i < 4; i++) setTimeout(launchRandom, i * 280);
+  // Ongoing
+  const launchInterval = setInterval(launchRandom, 600);
 
   const ctx = canvas.getContext('2d');
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     fireworksParticles = fireworksParticles.filter(p => p.alpha > 0.02);
     for (const p of fireworksParticles) {
       ctx.save();
@@ -9711,41 +8676,19 @@ function startFireworksForCanvas(canvasId, playerColor, intense) {
       p.alpha -= p.decay;
       p.size  *= 0.993;
     }
-
-    confettiParticles = confettiParticles.filter(p => p.alpha > 0.02);
-    for (const p of confettiParticles) {
-      ctx.save();
-      ctx.globalAlpha = p.alpha;
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rotation);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-      ctx.restore();
-      p.wobble += p.wobbleSpeed;
-      p.x += p.vx + Math.sin(p.wobble) * 1.2;
-      p.y += p.vy;
-      p.vy += p.gravity;
-      p.vx *= 0.99;
-      p.rotation += p.rotSpeed;
-      p.alpha -= p.decay;
-    }
-
     fireworksRAF = requestAnimationFrame(draw);
   }
   draw();
 
-  setTimeout(() => clearInterval(launchInterval), intense ? 5000 : 3000);
-  setTimeout(() => clearInterval(confettiRainInterval), intense ? 5000 : 3000);
+  // Clean up after reveal period
+  setTimeout(() => clearInterval(launchInterval), 5000);
 }
 
 function stopFireworks() {
   if (fireworksRAF) { cancelAnimationFrame(fireworksRAF); fireworksRAF = null; }
   fireworksParticles = [];
-  confettiParticles = [];
-  ['awards-canvas', 'vp-canvas', 'vp-canvas-winner', 'vp-canvas-spectator'].forEach(id => {
-    const c = document.getElementById(id);
-    if (c) c.getContext('2d').clearRect(0, 0, c.width, c.height);
-  });
+  const canvas = document.getElementById('awards-canvas');
+  if (canvas) canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
 }
 
 // ── SETTINGS PANEL TOGGLE ──────────────────────
@@ -9831,15 +8774,42 @@ window.toggleSound = function() {
   const icon = soundEnabled ? '🔊' : '🔇';
   const btn = document.getElementById('sound-toggle');
   if (btn) { btn.textContent = icon; btn.classList.toggle('active-ctrl', soundEnabled); }
-  const activeBtn = document.getElementById('active-sound-btn');
-  if (activeBtn) activeBtn.textContent = icon;
-  const waitBtn = document.getElementById('active-sound-btn-wait');
-  if (waitBtn) waitBtn.textContent = icon;
 };
 
 // ── ORIENTATION CONTROL ──────────────────────
+let currentOrientation = 'auto';
+window.setOrientation = function(mode) {
+  currentOrientation = mode;
+  ['portrait','landscape','auto'].forEach(m => {
+    const b = document.getElementById('orient-' + m);
+    if (b) b.classList.toggle('active-ctrl', m === mode);
+  });
+  applyOrientation(mode);
+};
+
+async function applyOrientation(mode) {
+  if (mode === 'auto') {
+    try { screen.orientation.unlock(); } catch(e) {}
+    if (document.fullscreenElement) {
+      try { await document.exitFullscreen(); } catch(e) {}
+    }
+    return;
+  }
+  try {
+    const type = mode === 'portrait' ? 'portrait-primary' : 'landscape-primary';
+    await screen.orientation.lock(type);
+  } catch(e) {
+    try {
+      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+      const type = mode === 'portrait' ? 'portrait-primary' : 'landscape-primary';
+      await screen.orientation.lock(type);
+    } catch(e2) {}
+  }
+}
+
 function resetOrientation() {
-  try { screen.orientation.lock('portrait-primary').catch(()=>{}); } catch(e) {}
+  currentOrientation = 'auto';
+  try { screen.orientation.unlock(); } catch(e) {}
 }
 
 // ── WAKE LOCK (keep screen on during game) ──────────────
@@ -9893,7 +8863,6 @@ function getCustomAudio(key) {
 function playCustomOrFallback(key, fallbackFn) {
   const audio = getCustomAudio(key);
   if (audio) {
-    audio.volume = 1.0;
     audio.currentTime = 0;
     audio.play().catch(() => fallbackFn());
   } else {
@@ -9936,7 +8905,7 @@ function _playTurnSoundSynth() {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, now + start);
       gain.gain.setValueAtTime(0, now + start);
-      gain.gain.linearRampToValueAtTime(0.5, now + start + 0.04);
+      gain.gain.linearRampToValueAtTime(0.25, now + start + 0.04);
       gain.gain.linearRampToValueAtTime(0, now + end);
       osc.start(now + start);
       osc.stop(now + end + 0.05);
@@ -9959,233 +8928,12 @@ function _playNudgeSoundSynth() {
       gain.connect(ctx.destination);
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(freq, now + start);
-      gain.gain.setValueAtTime(0.6, now + start);
+      gain.gain.setValueAtTime(0.3, now + start);
       gain.gain.linearRampToValueAtTime(0, now + end);
       osc.start(now + start);
       osc.stop(now + end + 0.02);
     });
   } catch(e) {}
-}
-
-
-// ── WHEEL UI MODE ──────────────────────────────
-let wheelUIMode = localStorage.getItem('sk_ui_mode') === 'wheel';
-
-window.toggleUIMode = function() {
-  wheelUIMode = !wheelUIMode;
-  try { localStorage.setItem('sk_ui_mode', wheelUIMode ? 'wheel' : 'classic'); } catch(e) {}
-  applyUIMode();
-  if (wheelUIMode && window._currentActivePlayerId && localPlayers && localPlayers.length && myId) {
-    try {
-      var dir = passDirection || 'both';
-      var isAct = document.getElementById('screen-active') && document.getElementById('screen-active').classList.contains('active');
-      var isWait = document.getElementById('screen-waiting') && document.getElementById('screen-waiting').classList.contains('active');
-      if (isAct) renderWheel('active', localPlayers, window._currentActivePlayerId, myId, dir, true);
-      else if (isWait) renderWheel('wait', localPlayers, window._currentActivePlayerId, myId, dir, false);
-    } catch(e) { console.error('[SK] wheel render:', e); }
-  }
-};
-
-function applyUIMode() {
-  try {
-    const ab = document.getElementById('active-ui-btn');
-    const wb = document.getElementById('active-ui-btn-wait');
-    if (ab) ab.textContent = wheelUIMode ? 'Classic' : 'UI';
-    if (wb) wb.textContent = wheelUIMode ? 'Classic' : 'UI';
-
-    const isWheel = wheelUIMode;
-
-    // Active screen classic buttons
-    const btnL = document.getElementById('btn-left');
-    const btnR = document.getElementById('btn-right');
-    const divd = document.getElementById('active-divider');
-    const actC = document.getElementById('active-center');
-    const tapB = document.getElementById('pass-tap-btn');
-    const showBoth = isWheel ? false : (!passDirection || passDirection === 'both');
-    const showTap  = isWheel ? false : (!!passDirection && passDirection !== 'both');
-    if (btnL) btnL.style.display = showBoth ? '' : 'none';
-    if (btnR) btnR.style.display = showBoth ? '' : 'none';
-    if (divd) divd.style.display = showBoth ? '' : 'none';
-    if (actC) actC.style.display = showBoth ? '' : 'none';
-    if (tapB) tapB.style.display = showTap ? '' : 'none';
-
-    // Wheel overlays
-    const wOvA = document.getElementById('wheel-overlay-active');
-    const wOvW = document.getElementById('wheel-overlay-wait');
-    if (wOvA) wOvA.classList.toggle('visible', isWheel);
-    if (wOvW) wOvW.classList.toggle('visible', isWheel);
-
-    // Hide waiting screen text behind wheel overlay
-    const waitWrap = document.getElementById('wait-content-wrap');
-    if (waitWrap) waitWrap.style.display = isWheel ? 'none' : '';
-  } catch(e) { console.error('[SideKick] applyUIMode error:', e); }
-}
-
-// Build SVG arc path for a donut wedge (single closed subpath)
-function wheelArcPath(cx, cy, rIn, rOut, startDeg, endDeg) {
-  const s = startDeg * Math.PI / 180;
-  const e = endDeg * Math.PI / 180;
-  const steps = 40;
-  let d = 'M ' + (cx + rOut * Math.cos(s)).toFixed(2) + ',' + (cy + rOut * Math.sin(s)).toFixed(2);
-  for (let i = 1; i <= steps; i++) {
-    const a = s + (e - s) * (i / steps);
-    d += ' L ' + (cx + rOut * Math.cos(a)).toFixed(2) + ',' + (cy + rOut * Math.sin(a)).toFixed(2);
-  }
-  d += ' L ' + (cx + rIn * Math.cos(e)).toFixed(2) + ',' + (cy + rIn * Math.sin(e)).toFixed(2);
-  for (let i = steps - 1; i >= 0; i--) {
-    const a = s + (e - s) * (i / steps);
-    d += ' L ' + (cx + rIn * Math.cos(a)).toFixed(2) + ',' + (cy + rIn * Math.sin(a)).toFixed(2);
-  }
-  d += ' Z';
-  return d;
-}
-
-// Render the wheel for a given context ('active' or 'wait')
-function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn) {
-  try {
-  const svgId = ctx === 'active' ? 'wheel-svg-active' : 'wheel-svg-wait';
-  const centerAvatarId = ctx === 'active' ? 'wheel-center-avatar-active' : 'wheel-center-avatar-wait';
-  const centerCircleId = ctx === 'active' ? 'wheel-center-active' : 'wheel-center-wait';
-  const dirAreaId = ctx === 'active' ? 'wheel-dir-active' : 'wheel-dir-wait';
-  const svg = document.getElementById(svgId);
-  const centerAvatar = document.getElementById(centerAvatarId);
-  const centerCircle = document.getElementById(centerCircleId);
-  const dirArea = document.getElementById(dirAreaId);
-  if (!svg || !players || !players.length) return;
-
-  const activePlayer = players.find(p => p.id === activePlayerId);
-  if (!activePlayer) return;
-
-  const N = players.length;
-  const CX = 200, CY = 200;
-  const OUTER_R = 190, INNER_R = 62;
-  const GAP_DEG = 0;
-  const SEG_DEG = 360 / N;
-
-  // "You" player is always at the bottom (90 degrees = 6 o'clock in SVG coords)
-  const myIdx = players.findIndex(p => p.id === myIdParam);
-  const myAngleDeg = (myIdx >= 0 ? myIdx : 0) * SEG_DEG + SEG_DEG / 2;
-  const rotationOffset = 90 - myAngleDeg;
-
-  const glowId = 'glow-' + ctx;
-  let svgContent = '<defs><filter id="' + glowId + '" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
-
-  let activeBorderPath = '';
-  let activeBorderColor = '';
-
-  players.forEach((p, i) => {
-    const isActive = p.id === activePlayerId;
-    const isSelf   = p.id === myIdParam;
-    const startDeg = rotationOffset + i * SEG_DEG;
-    const endDeg   = rotationOffset + (i + 1) * SEG_DEG;
-    const nameColor = p.color || '#aaa';
-    const displayName = isSelf ? 'You' : (p.name || 'Player');
-
-    const path = wheelArcPath(CX, CY, INNER_R, OUTER_R, startDeg, endDeg);
-    const strokeColor = 'rgba(255,255,255,0.18)';
-    svgContent += '<path d="' + path + '" fill="#0a0a0f" stroke="' + strokeColor + '" stroke-width="1"/>';
-
-    // Save active player's path for drawing border on top
-    if (isActive) {
-      activeBorderPath = path;
-      activeBorderColor = (nameColor || '').toLowerCase() === '#000000' ? '#ffffff' : nameColor;
-    }
-
-    // Truncate long names (max 10 chars)
-    let label = displayName;
-    if (label.length > 10) label = label.substring(0, 9) + '\u2026';
-    const midDeg = rotationOffset + (i + 0.5) * SEG_DEG;
-    const midRad = midDeg * Math.PI / 180;
-    const labelR = (INNER_R + OUTER_R) / 2;
-    const lx = CX + labelR * Math.cos(midRad);
-    const ly = CY + labelR * Math.sin(midRad);
-    const displayColor = ((nameColor || '').toLowerCase() === '#000000' && isActive) ? '#ffffff' : (isActive ? nameColor : 'rgba(255,255,255,0.8)');
-    const fontSize = N > 7 ? 15 : (N > 5 ? 16 : (N > 3 ? 17 : 18));
-    const glowFilter = isActive ? ' filter="url(#' + glowId + ')"' : '';
-    // Split name into words for multi-line
-    const words = label.split(' ');
-    if (words.length > 1) {
-      const lineH = fontSize + 2;
-      const startY = ly - ((words.length - 1) * lineH) / 2;
-      svgContent += '<text x="' + lx.toFixed(2) + '" text-anchor="middle" fill="' + displayColor + '" font-family="Inter,sans-serif" font-size="' + fontSize + '" font-weight="700"' + glowFilter + '>';
-      words.forEach(function(w, wi) {
-        svgContent += '<tspan x="' + lx.toFixed(2) + '" y="' + (startY + wi * lineH).toFixed(2) + '">' + esc(w) + '</tspan>';
-      });
-      svgContent += '</text>';
-    } else {
-      svgContent += '<text x="' + lx.toFixed(2) + '" y="' + ly.toFixed(2) + '" text-anchor="middle" dominant-baseline="central" fill="' + displayColor + '" font-family="Inter,sans-serif" font-size="' + fontSize + '" font-weight="700"' + glowFilter + '>' + esc(label) + '</text>';
-    }
-  });
-
-  // Draw active player's colored border on top of everything
-  if (activeBorderPath) {
-    svgContent += '<path d="' + activeBorderPath + '" fill="none" stroke="' + activeBorderColor + '" stroke-width="3"/>';
-  }
-
-  svg.innerHTML = svgContent;
-
-  const activeColor = activePlayer.color || '#aaa';
-  const centerBorderColor = (activeColor.toLowerCase() === '#000000') ? '#ffffff' : activeColor;
-  if (centerCircle) centerCircle.style.borderColor = centerBorderColor;
-  if (centerAvatar) {
-    centerAvatar.textContent = activePlayer.avatar || '👤';
-  }
-
-  if (dirArea) {
-    if (ctx === 'active' && isMyTurn) {
-      const nextCW  = players[(players.indexOf(activePlayer) + 1) % N];
-      const nextCCW = players[(players.indexOf(activePlayer) - 1 + N) % N];
-      if (passDir === 'both' || !passDir) {
-        const leftName  = nextCW  ? (nextCW.id === myIdParam ? 'You' : (nextCW.name || '')) : '';
-        const rightName = nextCCW ? (nextCCW.id === myIdParam ? 'You' : (nextCCW.name || '')) : '';
-        dirArea.innerHTML = '<div class="wheel-both-area" id="wheel-tap-both-' + ctx + '">'
-          + '<div class="wheel-both-half wheel-both-left"><div class="wheel-both-label">Pass Left</div><div class="wheel-both-arrow">&#8592;</div><div class="wheel-both-player">to ' + esc(leftName) + '</div></div>'
-          + '<div class="wheel-both-half wheel-both-right"><div class="wheel-both-label">Pass Right</div><div class="wheel-both-arrow">&#8594;</div><div class="wheel-both-player">to ' + esc(rightName) + '</div></div>'
-          + '</div>';
-        const tapBoth = document.getElementById('wheel-tap-both-' + ctx);
-        if (tapBoth) {
-          const ovId = ctx === 'active' ? 'wheel-overlay-active' : 'wheel-overlay-wait';
-          const ov = document.getElementById(ovId);
-          if (ov) {
-            const zL = document.createElement('div');
-            zL.className = 'wheel-full-tap-left';
-            zL.addEventListener('pointerup', function() { passTurn('left'); });
-            ov.appendChild(zL);
-            const zR = document.createElement('div');
-            zR.className = 'wheel-full-tap-right';
-            zR.addEventListener('pointerup', function() { passTurn('right'); });
-            ov.appendChild(zR);
-          }
-        }
-      } else {
-        const arrow = passDir === 'cw' ? '&#8635;' : '&#8634;';
-        const nextP = passDir === 'cw' ? nextCW : nextCCW;
-        const nextName = nextP ? (nextP.id === myIdParam ? 'You' : (nextP.name || '')) : '';
-        dirArea.innerHTML = '<div class="wheel-tap-label">It\'s Your Turn</div>'
-          + '<div class="wheel-pass-arrow">' + arrow + '</div>'
-          + '<div class="wheel-pass-to">Pass to ' + esc(nextName) + '</div>';
-        var tapZone = document.createElement('div');
-        tapZone.className = 'wheel-tap-zone';
-        tapZone.addEventListener('pointerup', function() { passTurnSingle(); });
-        dirArea.parentElement.appendChild(tapZone);
-      }
-    } else {
-      dirArea.innerHTML = '';
-    }
-  }
-  } catch(e) { console.error('[SideKick] renderWheel error:', e); }
-}
-
-// Clean up old tap zones from wheel overlays
-function clearWheelTapZones(ctx) {
-  const ovId = ctx === 'active' ? 'wheel-overlay-active' : 'wheel-overlay-wait';
-  const ov = document.getElementById(ovId);
-  if (!ov) return;
-  ov.querySelectorAll('.wheel-tap-zone, .wheel-tap-zone-left, .wheel-tap-zone-right, .wheel-full-tap-left, .wheel-full-tap-right').forEach(el => el.remove());
-  // Also clear direction area content
-  const dirId = ctx === 'active' ? 'wheel-dir-active' : 'wheel-dir-wait';
-  const dir = document.getElementById(dirId);
-  if (dir) dir.innerHTML = '';
 }
 
 
@@ -10206,37 +8954,39 @@ window.openManagePanel = function() {
 window.closeManagePanel = function() {
   document.getElementById('manage-overlay').classList.remove('show');
   if (manageUnsub) { manageUnsub(); manageUnsub = null; }
-  if (isHost) openHostCrownMenu();
 };
 
 function renderManageList(players, rawPlayers) {
   const el = document.getElementById('manage-player-list');
   el.innerHTML = '';
   players.forEach((p, i) => {
-    const dotColor = p.color || 'var(--accent)';
-    const dotText  = p.color && isLightColor(p.color) ? '#000' : '#fff';
-    const avatarDotStyle = p.color ? `style="border-color:${p.color};"` : '';
+    const isOut = rawPlayers[p.id] && rawPlayers[p.id].knockedOut === true;
+    const dotColor = (!isOut && p.color) ? p.color : null;
+    const dotText  = dotColor && isLightColor(dotColor) ? '#000' : '#fff';
+    const dotStyle = dotColor ? `style="background:${dotColor};color:${dotText};"` : '';
+    const avatarDotStyle = dotColor ? `style="border-color:${dotColor};"` : '';
     const div = document.createElement('div');
-    div.className = 'player-item';
+    div.className = 'manage-player-item' + (isOut ? ' knocked-out' : '');
     div.setAttribute('draggable', 'false');
     div.dataset.dragId = p.id;
     div.innerHTML = `
-      <div class="player-tile-top">
-        <div class="player-num" style="background:${dotColor};color:${dotText};">${i+1}</div>
-        <div class="player-avatar-wrap">
-          <div class="player-avatar" ${avatarDotStyle}>${avatarHTML(p.avatar || '👤', 24)}</div>
-          ${p.id === myId ? '<span class="player-badge host">Host</span>' : ''}
+      <div class="manage-player-row">
+        <div class="manage-player-avatar" ${avatarDotStyle}>${avatarHTML(p.avatar || '👤', 28)}</div>
+        <div class="manage-num ${isOut ? 'out' : ''}" ${dotStyle}>${i+1}</div>
+        <div class="manage-name">${esc(p.name)}${p.id === myId ? ' (you)' : ''}</div>
+        <div class="manage-actions">
+          <button class="manage-btn ${isOut ? 'active-btn' : 'ko-btn'}" onclick="toggleKnockOut('${p.id}', ${isOut})" title="${isOut ? 'Bring back' : 'Skip turn'}">
+            ${isOut ? '✓' : '✕'}
+          </button>
+          <div class="manage-drag-handle" title="Hold to drag">☰</div>
         </div>
       </div>
-      <div class="player-name">${esc(p.name)}</div>`;
-    if (p.id !== myId) {
-      const kickBtn = document.createElement('button');
-      kickBtn.className = 'lobby-kick-btn';
-      kickBtn.textContent = '×';
-      kickBtn.title = 'Remove ' + p.name;
-      kickBtn.addEventListener('click', (e) => { e.stopPropagation(); kickPlayer(p.id, p.name); });
-      div.appendChild(kickBtn);
-    }
+      ${p.id === myId ? '' : `
+      <div class="manage-kick-row">
+        <button class="manage-kick-btn" data-kick-id="${p.id}">🚫 Remove from room</button>
+      </div>`}`;
+    const kickBtn = div.querySelector('.manage-kick-btn');
+    if (kickBtn) kickBtn.addEventListener('click', () => kickPlayer(p.id, p.name));
     el.appendChild(div);
   });
   makeDraggable(el, async (srcId, destId) => {
@@ -10247,8 +8997,11 @@ function renderManageList(players, rawPlayers) {
     const destIdx = ps.findIndex(p => p.id === destId);
     if (srcIdx < 0 || destIdx < 0) return;
     const updates = {};
+    const step = srcIdx < destIdx ? 1 : -1;
+    for (let i = srcIdx; i !== destIdx; i += step) {
+      updates[`rooms/${roomCode}/players/${ps[i + step].id}/order`] = i;
+    }
     updates[`rooms/${roomCode}/players/${ps[srcIdx].id}/order`] = destIdx;
-    updates[`rooms/${roomCode}/players/${ps[destIdx].id}/order`] = srcIdx;
     await update(ref(db), updates);
   });
 }
@@ -10314,28 +9067,6 @@ window.kickPlayer = async function(playerId, playerName) {
   const newActiveIdx = newActivePlayerId ? allPlayersAfter.findIndex(p => p.id === newActivePlayerId) : 0;
   updates[`rooms/${roomCode}/activePlayerIndex`] = newActiveIdx === -1 ? 0 : newActiveIdx;
 
-  await update(ref(db), updates);
-};
-
-// Kick a player from the lobby (no active turn to handle)
-window.kickPlayerLobby = async function(playerId, playerName) {
-  if (!db || !roomCode) return;
-  if (!await showConfirm(`Remove ${playerName} from the room? They can rejoin later with the room code, but as a new player.`)) return;
-
-  const snap = await get(ref(db, `rooms/${roomCode}`));
-  if (!snap.exists()) return;
-  const room = snap.val();
-  const allPlayers = buildOrderedPlayers(room.players || {});
-  if (allPlayers.length <= 1) {
-    showAlert("Can't remove the last player in the room.");
-    return;
-  }
-
-  const updates = {};
-  updates[`rooms/${roomCode}/players/${playerId}`] = null;
-  // Recompute order for remaining players
-  const remaining = allPlayers.filter(p => p.id !== playerId);
-  remaining.forEach((p, i) => { updates[`rooms/${roomCode}/players/${p.id}/order`] = i; });
   await update(ref(db), updates);
 };
 
@@ -10468,17 +9199,11 @@ async function joinAsNewPlayer(code, room, name) {
   haptic(15);
   saveSession();
 
-    if (room.status === 'playing') {
-      cleanupListeners();
-      listenGameState();
-      return;
-    }
-
-    // Non-host players: show reconfiguring screen while host sets up new game
-    if (room.status === 'reconfiguring' && !isHost) {
-      showScreen('reconfiguring');
-      return;
-    }
+  if (room.status === 'playing') {
+    document.getElementById('wl-code').textContent = code;
+    listenGameState();
+    return;
+  }
 
   document.getElementById('wl-code').textContent = code;
   showScreen('waiting-lobby');
@@ -10626,156 +9351,6 @@ window.startGame = async function() {
   haptic(20);
 };
 
-// ── START NEW GAME ──────────────────────────
-window.startNewGameSetup = async function() {
-  if (!db || !roomCode) return;
-  const confirmed = await showConfirm('Start a new game? All players will return to the lobby and settings can be reconfigured.');
-  if (!confirmed) return;
-  // Set room status to reconfiguring so non-host players see the wait screen
-  await update(ref(db), {
-    [`rooms/${roomCode}/status`]: 'reconfiguring'
-  });
-  // Clean up listeners and take host to the wizard (starting from step 1)
-  cleanupListeners();
-  startingNewGame = true;
-  editingRoom = false;
-  // Pre-fill wizard with current settings (like goBackToCreate)
-  const nameEl = document.getElementById('host-name');
-  if (nameEl && myName) nameEl.value = myName;
-  if (myColor) {
-    const colorBtn = document.getElementById('host-color-btn');
-    const colorLabel = document.getElementById('host-color-label');
-    if (colorBtn) { colorBtn.style.background = myColor; colorBtn.style.borderColor = myColor; }
-    const colorName = PLAYER_COLORS.find(c => c.hex === myColor)?.name || myColor;
-    if (colorLabel) colorLabel.textContent = colorName;
-  }
-  const savedAv = roomAvatarSelection || getSavedAvatar();
-  if (savedAv) {
-    const avLabel = document.getElementById('host-avatar-label');
-    if (avLabel) avLabel.textContent = savedAv + ' Select Avatar';
-  }
-  if (turnMode) {
-    const tmClassic = document.getElementById('tm-btn-classic');
-    const tmSpeed = document.getElementById('tm-btn-speed');
-    if (turnMode === 'classic') {
-      if (tmClassic) tmClassic.classList.add('selected');
-      if (tmSpeed) tmSpeed.classList.remove('selected');
-    } else {
-      if (tmSpeed) tmSpeed.classList.add('selected');
-      if (tmClassic) tmClassic.classList.remove('selected');
-    }
-    const selTxt = document.getElementById('tm-summary');
-    const dirLabels = { cw: '↻ Left', both: '↔ Both', ccw: '↺ Right' };
-    if (selTxt) {
-      if (turnMode === 'classic') {
-        selTxt.innerHTML = `♟️ Classic Turns — <span>${dirLabels[passDirection] || passDirection}</span>`;
-      } else {
-        selTxt.innerHTML = `⚡ Speed Round — <span>${speedMode === 'firstToTap' ? 'First to Tap' : 'Down the Line'}</span>`;
-      }
-    }
-    document.getElementById('tm-required-note').style.display = 'none';
-  }
-  const toggleMap = {
-    'feature-nudge-toggle': featureNudgeEnabled,
-    'feature-awards-toggle': featureAwardsEnabled,
-    'feature-vp-toggle': featureVPEnabled,
-    'feature-status-toggle': featureStatusEffectsEnabled,
-    'feature-dnd-toggle': featureDndEnabled,
-    'feature-rounds-toggle': featureRoundsEnabled,
-    'feature-timers-toggle': featureTimersEnabled
-  };
-  Object.entries(toggleMap).forEach(([id, val]) => {
-    const el = document.getElementById(id);
-    if (el) el.checked = val;
-  });
-  const nudgeEditBtn = document.getElementById('nudge-edit-btn');
-  if (nudgeEditBtn) nudgeEditBtn.classList.toggle('visible', featureNudgeEnabled);
-  const timersEditBtn = document.getElementById('timers-edit-btn');
-  if (timersEditBtn) timersEditBtn.classList.toggle('visible', featureTimersEnabled);
-  const roundsEditBtn = document.getElementById('rounds-edit-btn');
-  if (roundsEditBtn) roundsEditBtn.classList.toggle('visible', featureRoundsEnabled);
-  updateFeaturesSummary();
-  // Start from step 1 so host can redo all steps
-  createStep = 1;
-  renderCreateStep();
-  renderEditRoomButtons();
-  showScreen('create');
-};
-
-window.startNewGame = async function() {
-  if (!db || !roomCode) return;
-  const name = document.getElementById('host-name').value.trim();
-  if (!name) { status('create-status', 'Enter your name.', 'error'); return; }
-  if (!turnMode || (turnMode === 'classic' && !passDirection)) {
-    document.getElementById('tm-required-note').style.display = 'block';
-    status('create-status', 'Choose a turn mode to continue.', 'error');
-    return;
-  }
-  document.getElementById('tm-required-note').style.display = 'none';
-  myName = name;
-  const av = roomAvatarSelection || '👤';
-  const updates = {};
-  // Update host player info
-  updates[`rooms/${roomCode}/players/${myId}/name`] = name;
-  updates[`rooms/${roomCode}/players/${myId}/color`] = myColor;
-  updates[`rooms/${roomCode}/players/${myId}/avatar`] = av;
-  // Update all features
-  updates[`rooms/${roomCode}/features/passDirection`] = passDirection;
-  updates[`rooms/${roomCode}/features/turnMode`] = turnMode;
-  updates[`rooms/${roomCode}/features/speedMode`] = turnMode === 'speedRound' ? speedMode : '';
-  updates[`rooms/${roomCode}/features/speedRoundsTotal`] = turnMode === 'speedRound' ? speedRoundsTotal : 0;
-  updates[`rooms/${roomCode}/features/nudge`] = featureNudgeEnabled;
-  updates[`rooms/${roomCode}/features/nudgeDelay`] = featureNudgeEnabled ? (parseInt(document.getElementById('nudge-delay').value) || 30) : 0;
-  updates[`rooms/${roomCode}/features/nudgeMode`] = featureNudgeEnabled ? (document.querySelector('input[name="nudge-mode"]:checked')?.value || 'multi') : 'multi';
-  updates[`rooms/${roomCode}/features/awards`] = featureAwardsEnabled;
-  updates[`rooms/${roomCode}/features/victoryPoints`] = featureVPEnabled;
-  updates[`rooms/${roomCode}/features/vpHighestWins`] = vpHighestWins;
-  updates[`rooms/${roomCode}/features/statusEffects`] = featureStatusEffectsEnabled;
-  updates[`rooms/${roomCode}/features/dndTurnComponents`] = featureDndEnabled;
-  updates[`rooms/${roomCode}/features/timers`] = featureTimersEnabled;
-  updates[`rooms/${roomCode}/features/timerTurnOn`] = featureTimersEnabled && document.getElementById('timer-turn-on').checked;
-  updates[`rooms/${roomCode}/features/timerTurnVisible`] = document.getElementById('timer-turn-visible').checked;
-  updates[`rooms/${roomCode}/features/timerRoundOn`] = featureTimersEnabled && document.getElementById('timer-round-on').checked;
-  updates[`rooms/${roomCode}/features/timerRoundVisible`] = document.getElementById('timer-round-visible').checked;
-  updates[`rooms/${roomCode}/features/timerGameOn`] = featureTimersEnabled && document.getElementById('timer-game-on').checked;
-  updates[`rooms/${roomCode}/features/timerGameVisible`] = document.getElementById('timer-game-visible').checked;
-  updates[`rooms/${roomCode}/features/timerCountdownOn`] = featureTimersEnabled && document.getElementById('timer-countdown-on').checked;
-  updates[`rooms/${roomCode}/features/timerCountdownVisible`] = document.getElementById('timer-countdown-visible').checked;
-  updates[`rooms/${roomCode}/features/timerCountdownSecs`] = (parseInt(document.getElementById('timer-countdown-min').value)||0)*60 + (parseInt(document.getElementById('timer-countdown-sec').value)||30);
-  updates[`rooms/${roomCode}/features/rounds`] = featureRoundsEnabled;
-  updates[`rooms/${roomCode}/features/roundsTotal`] = featureRoundsEnabled ? (parseInt(document.getElementById('rounds-total').value) || 3) : 0;
-  updates[`rooms/${roomCode}/features/undo`] = featureUndoEnabled;
-  // Reset game state — keep players and room code
-  updates[`rooms/${roomCode}/status`] = 'lobby';
-  updates[`rooms/${roomCode}/activePlayerIndex`] = 0;
-  updates[`rooms/${roomCode}/previousPlayerId`] = null;
-  updates[`rooms/${roomCode}/previousPlayerIndex`] = null;
-  updates[`rooms/${roomCode}/currentRound`] = featureRoundsEnabled ? 1 : 0;
-  updates[`rooms/${roomCode}/timerRound`] = 0;
-  updates[`rooms/${roomCode}/timerGame`] = 0;
-  updates[`rooms/${roomCode}/timerCountdown`] = featureTimersEnabled && document.getElementById('timer-countdown-on').checked ? (parseInt(document.getElementById('timer-countdown-min').value)||0)*60 + (parseInt(document.getElementById('timer-countdown-sec').value)||30) : 0;
-  // Reset buzz state if speed round
-  if (turnMode === 'speedRound') {
-    updates[`rooms/${roomCode}/buzz`] = {
-      phase: 'waiting',
-      currentRound: 1,
-      totalRounds: speedRoundsTotal || 10,
-      scores: {},
-      tapOrder: {},
-      winner: null,
-      dtlIndex: 0,
-      roundStartTime: serverNow()
-    };
-  }
-  await update(ref(db), updates);
-  haptic(20);
-  startingNewGame = false;
-  document.getElementById('display-code').textContent = roomCode;
-  showScreen('lobby');
-  generateLobbyQR();
-  listenLobby();
-};
-
 // ── GAME STATE LISTENER ──────────────────────────
 let lastActivePlayerId = null;
 function listenGameState() {
@@ -10803,12 +9378,6 @@ function listenGameState() {
     const room = snap.val();
     // Room closed by host — send everyone home immediately
     if (room.status === 'closed') { hideAllAwardOverlays(); showScreen('home'); return; }
-    // Host starting new game — show reconfiguring screen
-    if (room.status === 'reconfiguring') {
-      hideAllAwardOverlays();
-      showScreen('reconfiguring');
-      return;
-    }
     // Host saved the game — pause everyone on the Game Saved screen
     if (room.status === 'saved') {
       hideAllAwardOverlays();
@@ -10822,12 +9391,7 @@ function listenGameState() {
       hideAllAwardOverlays();
       // fall through to normal game rendering below
     }
-    // Non-host players: stay on reconfiguring screen while host is in lobby setting up new game
-    if (room.status === 'lobby' && !isHost) {
-      showScreen('reconfiguring');
-      return;
-    }
-    if (room.status !== 'playing' && room.status !== 'ceremony' && room.status !== 'vp-entry' && room.status !== 'vp-ceremony' && room.status !== 'round-vp-entry') { showScreen('home'); return; }
+    if (room.status !== 'playing' && room.status !== 'ceremony' && room.status !== 'vp-entry') { showScreen('home'); return; }
 
     localPlayers = buildOrderedPlayers(room.players || {});
     const activeIdx = room.activePlayerIndex || 0;
@@ -10841,7 +9405,6 @@ function listenGameState() {
     nudgeMode = roomFeatures.nudgeMode || 'multi';
     featureAwardsEnabled = !!roomFeatures.awards;
     featureVPEnabled              = !!roomFeatures.victoryPoints;
-    vpHighestWins                 = roomFeatures.vpHighestWins !== false;
     featureStatusEffectsEnabled   = !!roomFeatures.statusEffects;
     featureDndEnabled             = !!roomFeatures.dndTurnComponents;
     featureTimersEnabled          = !!roomFeatures.timers;
@@ -10883,22 +9446,9 @@ function listenGameState() {
       return;
     }
 
-    // Per-round VP entry (Rounds + VP combined)
-    if (room.status === 'round-vp-entry') {
-      stopTimerTick();
-      showRoundVPEntryOverlay(room);
-      return;
-    }
-
     // Handle ceremony state pushed by host
     if (room.status === 'ceremony') {
       handleCeremonyState(room);
-      return;
-    }
-
-    // Handle VP-only ceremony state
-    if (room.status === 'vp-ceremony') {
-      handleVPCeremonyState(room);
       return;
     }
 
@@ -10955,15 +9505,14 @@ function listenGameState() {
 
       // Apply pass direction UI mode
       const isBoth = passDirection === 'both' || !passDirection;
-      const hideClassicForWheel = wheelUIMode;
-      document.getElementById('btn-left').style.display        = hideClassicForWheel ? 'none' : (isBoth ? '' : 'none');
-      document.getElementById('btn-right').style.display       = hideClassicForWheel ? 'none' : (isBoth ? '' : 'none');
-      document.getElementById('active-divider').style.display  = hideClassicForWheel ? 'none' : (isBoth ? '' : 'none');
-      document.getElementById('active-center').style.display   = hideClassicForWheel ? 'none' : (isBoth ? '' : 'none');
+      document.getElementById('btn-left').style.display        = isBoth ? '' : 'none';
+      document.getElementById('btn-right').style.display       = isBoth ? '' : 'none';
+      document.getElementById('active-divider').style.display  = isBoth ? '' : 'none';
+      document.getElementById('active-center').style.display   = isBoth ? '' : 'none';
       const tapBtn    = document.getElementById('pass-tap-btn');
       const tapArrow  = document.getElementById('pass-tap-arrow');
       const tapPlayer = document.getElementById('pass-tap-player');
-      if (hideClassicForWheel || isBoth) {
+      if (isBoth) {
         tapBtn.style.display = 'none';
       } else {
         tapBtn.style.display = '';
@@ -10979,13 +9528,6 @@ function listenGameState() {
       else syncTimersFromRoom(room);
       clearNudgeTimer();
       showScreen('active');
-      const activeRC = document.getElementById('active-room-code-val');
-      if (activeRC && roomCode) activeRC.textContent = roomCode;
-      const activeSB = document.getElementById('active-sound-btn');
-      if (activeSB) { activeSB.textContent = soundEnabled ? '🔊' : '🔇'; }
-      // Wheel UI: apply mode if needed
-      window._currentActivePlayerId = activePlayer.id;
-      if (wheelUIMode) { clearWheelTapZones('active'); applyUIMode(); renderWheel('active', localPlayers, activePlayer.id, myId, passDirection, true); }
       requestWakeLock();
       if (soundEnabled && !suppressNextTurnSound && (turnChanged || firstTurn)) playTurnSound();
       suppressNextTurnSound = false;
@@ -11054,13 +9596,6 @@ function listenGameState() {
       if (turnChanged || firstTurn) initTimersForTurn(room, false);
       else syncTimersFromRoom(room);
       showScreen('waiting');
-      const waitRC = document.getElementById('active-room-code-wait-val');
-      if (waitRC && roomCode) waitRC.textContent = roomCode;
-      const waitSB = document.getElementById('active-sound-btn-wait');
-      if (waitSB) waitSB.textContent = soundEnabled ? '🔊' : '🔇';
-      // Wheel UI: apply mode if needed
-      window._currentActivePlayerId = activePlayer.id;
-      if (wheelUIMode) { clearWheelTapZones('wait'); applyUIMode(); renderWheel('wait', localPlayers, activePlayer.id, myId, passDirection, false); }
       // Reset the active screen background so it doesn't persist for next turn
       document.getElementById('screen-active').style.background = '';
       requestWakeLock();
@@ -11456,15 +9991,6 @@ function renderLobbyList(players) {
         </div>
       </div>
       <div class="player-name">${esc(p.name)}</div>`;
-    // Add kick button for host (can't kick self)
-    if (isHost && p.id !== myId) {
-      const kickBtn = document.createElement('button');
-      kickBtn.className = 'lobby-kick-btn';
-      kickBtn.textContent = '×';
-      kickBtn.title = 'Remove ' + p.name;
-      kickBtn.addEventListener('click', (e) => { e.stopPropagation(); kickPlayerLobby(p.id, p.name); });
-      div.appendChild(kickBtn);
-    }
     el.appendChild(div);
   });
   makeDraggable(el, async (srcId, destId) => {
@@ -11615,20 +10141,11 @@ function cleanupListeners() {
 // ── VICTORY POINTS ENTRY ──────────────────────
 let vpSubmitted = false;
 
-let vpDialReady = false;
-
 function showVPEntryOverlay(room) {
   const overlay = document.getElementById('vp-overlay');
   if (!overlay) return;
   overlay.classList.add('show');
   vpSubmitted = false;
-
-  // Reset submit button to end-game VP function
-  const submitBtn = overlay.querySelector('.vp-submit-btn');
-  if (submitBtn) submitBtn.setAttribute('onclick', 'submitVP()');
-  // Reset title
-  const titleEl = overlay.querySelector('.vp-overlay-title');
-  if (titleEl) titleEl.textContent = 'Enter Your Points';
 
   const vpReady  = room.vpReady  || {};
   const vpScores = room.vpScores || {};
@@ -11640,15 +10157,9 @@ function showVPEntryOverlay(room) {
   if (myReady) {
     inputSection.style.display   = 'none';
     waitingSection.style.display = 'flex';
-    vpDialReady = false;
   } else {
-    inputSection.style.display   = '';
+    inputSection.style.display   = 'block';
     waitingSection.style.display = 'none';
-    if (!vpDialReady) {
-      vpDialReset();
-      vpDialInit();
-      vpDialReady = true;
-    }
   }
 
   // Render waiting list
@@ -11673,163 +10184,15 @@ function showVPEntryOverlay(room) {
   // Host sees Begin button once all ready
   const beginBtn = document.getElementById('vp-begin-btn');
   if (beginBtn && isHost) {
-    // Reset onclick to end-game VP ceremony
-    beginBtn.setAttribute('onclick', 'beginAfterVP()');
     const allReady = localPlayers.length > 0 && localPlayers.every(p => vpReady[p.id]);
     beginBtn.classList.toggle('show', allReady);
-    // Update button text based on what's enabled
-    if (featureAwardsEnabled) {
-      beginBtn.textContent = '🏆 Begin Achievement Awards';
-    } else {
-      beginBtn.textContent = '🏆 Begin Victory Ceremony';
-    }
-  } else if (beginBtn && !isHost) {
-    beginBtn.classList.remove('show');
   }
-}
-
-// ── VP ROTARY DIAL ──────────────────────────────
-let vpDialValue = 0;
-let vpDialDragging = false;
-let vpDialLastAngle = 0;
-let vpDialAccumulator = 0;
-
-function vpDialInit() {
-  const outer = document.getElementById('vp-dial-outer');
-  const knob  = document.getElementById('vp-dial-knob');
-  const valueEl = document.getElementById('vp-dial-value');
-  const center = document.getElementById('vp-dial-center');
-  if (!outer || !knob || !valueEl) return;
-
-  vpDialValue = 0;
-  vpDialUpdateDisplay();
-
-  function getAngle(e) {
-    const rect = outer.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
-  }
-
-  function onStart(e) {
-    e.preventDefault();
-    vpDialDragging = true;
-    vpDialLastAngle = getAngle(e);
-    vpDialAccumulator = 0;
-  }
-
-  function onMove(e) {
-    if (!vpDialDragging) return;
-    e.preventDefault();
-    const angle = getAngle(e);
-    let delta = angle - vpDialLastAngle;
-
-    // Handle wrap-around at ±180°
-    if (delta > 180)  delta -= 360;
-    if (delta < -180) delta += 360;
-
-    vpDialLastAngle = angle;
-
-    // Accumulate sub-degree movement — every 7.2 degrees = 1 point (50 per rotation)
-    vpDialAccumulator += delta;
-    const step = 7.2;
-    if (vpDialAccumulator >= step) {
-      const pts = Math.floor(vpDialAccumulator / step);
-      vpDialValue += pts;
-      vpDialAccumulator -= pts * step;
-      vpDialUpdateDisplay();
-      vpDialFeedback();
-    } else if (vpDialAccumulator <= -step) {
-      const pts = Math.ceil(vpDialAccumulator / step);
-      vpDialValue += pts;
-      vpDialAccumulator -= pts * step;
-      vpDialUpdateDisplay();
-      vpDialFeedback();
-    }
-  }
-
-  function onEnd() {
-    vpDialDragging = false;
-    vpDialAccumulator = 0;
-  }
-
-  outer.addEventListener('mousedown', onStart);
-  outer.addEventListener('touchstart', onStart, { passive: false });
-  window.addEventListener('mousemove', onMove);
-  window.addEventListener('touchmove', onMove, { passive: false });
-  window.addEventListener('mouseup', onEnd);
-  window.addEventListener('touchend', onEnd);
-
-  // OK button submits
-  if (center) {
-    center.addEventListener('click', () => {
-      if (vpDialValue !== 0 || document.getElementById('vp-input-section').style.display !== 'none') {
-        window.submitVP();
-      }
-    });
-  }
-}
-
-function vpDialUpdateDisplay() {
-  const valueEl = document.getElementById('vp-dial-value');
-  const knob = document.getElementById('vp-dial-knob');
-  if (!valueEl) return;
-
-  // Update value text
-  valueEl.textContent = (vpDialValue >= 0 ? '+' : '') + vpDialValue;
-  valueEl.style.color = vpDialValue > 0 ? '#4ade80' : vpDialValue < 0 ? '#e74c3c' : '#fff';
-
-  // Rotate knob around the track
-  // Knob is 38px, top:-19px → knob center at outer circle top edge (y=0)
-  // Outer circle center at y=110 → transform-origin Y = 110 - (-19) = 129px
-  const angle = vpDialValue * 7.2; // 7.2 degrees per point (50 per rotation)
-  knob.style.transform = `translateX(-50%) rotate(${angle}deg)`;
-  knob.style.transformOrigin = '50% 129px';
-}
-
-function vpDialFeedback() {
-  // Mobile: short vibrate. Desktop: short click sound.
-  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-    haptic(5);
-  } else {
-    vpDialClick();
-  }
-}
-
-let _vpDialAudioCtx = null;
-function vpDialClick() {
-  try {
-    if (!_vpDialAudioCtx) _vpDialAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const ctx = _vpDialAudioCtx;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(800, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.04);
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.05);
-  } catch {}
-}
-
-// Reset dial when VP overlay opens
-function vpDialReset() {
-  vpDialValue = 0;
-  vpDialUpdateDisplay();
-  const inputSection = document.getElementById('vp-input-section');
-  const waitSection  = document.getElementById('vp-waiting-section');
-  if (inputSection) inputSection.style.display = '';
-  if (waitSection)  waitSection.style.display  = 'none';
 }
 
 window.submitVP = async function() {
   if (!db || !roomCode) return;
-  const val = vpDialValue;
+  const val = parseInt(document.getElementById('vp-score-input').value);
+  if (isNaN(val) || val < 0) { showAlert('Please enter a valid score.'); return; }
   const updates = {};
   updates[`rooms/${roomCode}/vpScores/${myId}`]  = val;
   updates[`rooms/${roomCode}/vpReady/${myId}`]   = true;
@@ -11839,14 +10202,9 @@ window.submitVP = async function() {
   vpSubmitted = true;
 };
 
-window.beginAfterVP = async function() {
+window.beginAwardsAfterVP = async function() {
   if (!db || !roomCode || !isHost) return;
-  if (featureVPEnabled) {
-    // Always run VP ceremony first when VP is enabled
-    await update(ref(db, `rooms/${roomCode}`), { status: 'vp-ceremony', vpCeremonyStep: 'standby' });
-    document.getElementById('vp-overlay').classList.remove('show');
-    runVPCeremonyAsHost();
-  } else if (featureAwardsEnabled) {
+  if (featureAwardsEnabled) {
     await update(ref(db, `rooms/${roomCode}`), { status: 'ceremony', ceremonyStep: 'standby' });
     document.getElementById('vp-overlay').classList.remove('show');
     runCeremonyAsHost();
@@ -11854,361 +10212,6 @@ window.beginAfterVP = async function() {
     await update(ref(db, `rooms/${roomCode}`), { status: 'gameover' });
     document.getElementById('vp-overlay').classList.remove('show');
     showGameOver();
-  }
-};
-
-// Keep old name for backwards compatibility
-window.beginAwardsAfterVP = window.beginAfterVP;
-
-// ── PER-ROUND VP ENTRY (Rounds + VP combined) ─────
-let roundVPSubmitted = false;
-
-function showRoundVPEntryOverlay(room) {
-  const overlay = document.getElementById('vp-overlay');
-  if (!overlay) return;
-  overlay.classList.add('show');
-  roundVPSubmitted = false;
-
-  // Update title to show round number
-  const titleEl = overlay.querySelector('.vp-overlay-title');
-  if (titleEl) titleEl.textContent = `Round ${currentRound} — Enter Your Points`;
-
-  // Swap submit button to round VP function
-  const submitBtn = overlay.querySelector('.vp-submit-btn');
-  if (submitBtn) submitBtn.setAttribute('onclick', 'submitRoundVP()');
-
-  const vpRoundReady  = room.vpRoundReady  || {};
-  const myReady  = vpRoundReady[myId];
-
-  const inputSection   = document.getElementById('vp-input-section');
-  const waitingSection = document.getElementById('vp-waiting-section');
-
-  if (myReady) {
-    inputSection.style.display   = 'none';
-    waitingSection.style.display = 'flex';
-    vpDialReady = false;
-  } else {
-    inputSection.style.display   = '';
-    waitingSection.style.display = 'none';
-    if (!vpDialReady) {
-      vpDialReset();
-      vpDialInit();
-      vpDialReady = true;
-    }
-  }
-
-  // Render waiting list
-  const waitList = document.getElementById('vp-waiting-list');
-  if (waitList) {
-    waitList.innerHTML = '';
-    localPlayers.forEach(p => {
-      const ready = vpRoundReady[p.id];
-      const dotColor = p.color || 'var(--accent)';
-      const div = document.createElement('div');
-      div.className = 'vp-waiting-item';
-      div.innerHTML = `
-        <div class="vp-waiting-dot" style="background:${ready ? '#4ade80' : 'rgba(255,255,255,0.2)'}"></div>
-        <span style="color:${ready ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.4)'}">
-          ${esc(p.name)}${ready ? ' ✓' : ' (waiting…)'}
-        </span>`;
-      waitList.appendChild(div);
-    });
-  }
-
-  // Host sees "Next Round" or "Final Results" button once all ready
-  const beginBtn = document.getElementById('vp-begin-btn');
-  if (beginBtn && isHost) {
-    const allReady = localPlayers.length > 0 && localPlayers.every(p => vpRoundReady[p.id]);
-    beginBtn.classList.toggle('show', allReady);
-    const isFinalRound = currentRound >= roundsTotal;
-    beginBtn.textContent = isFinalRound ? '🏆 Final Results' : '➡️ Next Round';
-    beginBtn.onclick = isFinalRound ? () => nextRoundAfterVP(true) : () => nextRoundAfterVP(false);
-  } else if (beginBtn && !isHost) {
-    beginBtn.classList.remove('show');
-  }
-}
-
-window.submitRoundVP = async function() {
-  if (!db || !roomCode) return;
-  const val = vpDialValue;
-  const updates = {};
-  updates[`rooms/${roomCode}/vpRoundDraft/${myId}`] = val;
-  updates[`rooms/${roomCode}/vpRoundReady/${myId}`]  = true;
-  await update(ref(db), updates);
-  document.getElementById('vp-input-section').style.display   = 'none';
-  document.getElementById('vp-waiting-section').style.display = 'flex';
-  roundVPSubmitted = true;
-};
-
-window.nextRoundAfterVP = async function(isFinalRound) {
-  if (!db || !roomCode || !isHost) return;
-
-  // Collect all round scores from Firebase
-  const snap = await get(ref(db, `rooms/${roomCode}`));
-  if (!snap.exists()) return;
-  const room = snap.val();
-  const vpRoundDraft = room.vpRoundDraft || {};
-
-  // Save this round's scores into vpRoundScores/{roundNumber}
-  const updates = {};
-  updates[`rooms/${roomCode}/vpRoundScores/${currentRound}`] = vpRoundDraft;
-  updates[`rooms/${roomCode}/vpRoundReady`] = null;
-  updates[`rooms/${roomCode}/vpRoundDraft`] = null;
-
-  if (isFinalRound) {
-    // Compute final VP totals from all rounds
-    const roundScores = room.vpRoundScores || {};
-    // Include the round we just saved
-    roundScores[currentRound] = vpRoundDraft;
-
-    const finalScores = {};
-    localPlayers.forEach(p => { finalScores[p.id] = 0; });
-    Object.values(roundScores).forEach(roundData => {
-      Object.entries(roundData).forEach(([pid, score]) => {
-        if (finalScores[pid] == null) finalScores[pid] = 0;
-        finalScores[pid] += (parseInt(score) || 0);
-      });
-    });
-
-    // Write final totals to vpScores and transition to ceremony
-    updates[`rooms/${roomCode}/vpScores`] = finalScores;
-    updates[`rooms/${roomCode}/vpReady`] = null;
-    updates[`rooms/${roomCode}/status`] = featureAwardsEnabled ? 'ceremony' : 'vp-ceremony';
-    if (!featureAwardsEnabled) {
-      updates[`rooms/${roomCode}/vpCeremonyStep`] = 'standby';
-    } else {
-      updates[`rooms/${roomCode}/ceremonyStep`] = 'standby';
-    }
-
-    await update(ref(db), updates);
-    document.getElementById('vp-overlay').classList.remove('show');
-
-    if (featureAwardsEnabled) {
-      runCeremonyAsHost();
-    } else {
-      runVPCeremonyAsHost();
-    }
-  } else {
-    // Advance to next round
-    const nextRound = currentRound + 1;
-    updates[`rooms/${roomCode}/currentRound`] = nextRound;
-    updates[`rooms/${roomCode}/status`] = 'playing';
-
-    // Reset round timer if Timers feature is on
-    if (featureTimersEnabled && timerCfg.round) {
-      timerRound = 0;
-      updates[`rooms/${roomCode}/timerRound`] = 0;
-      renderTimers();
-    }
-
-    await update(ref(db), updates);
-    document.getElementById('vp-overlay').classList.remove('show');
-  }
-};
-
-// ── VP-ONLY CEREMONY ──────────────────────────────
-async function runVPCeremonyAsHost() {
-  if (!db || !roomCode) return;
-  ceremonyAborted = false;
-  const snap = await get(ref(db, `rooms/${roomCode}`));
-  if (!snap.exists()) return;
-  const room = snap.val();
-  const players = buildOrderedPlayers(room.players || {});
-  const vpScores = room.vpScores || {};
-
-  // Sort players by VP (highest or lowest wins)
-  const sorted = players
-    .map(p => ({ ...p, vp: vpScores[p.id] ?? 0 }))
-    .sort((a, b) => vpHighestWins ? (b.vp - a.vp) : (a.vp - b.vp));
-
-  if (sorted.length === 0) {
-    await update(ref(db, `rooms/${roomCode}`), { status: 'gameover', vpCeremonyStep: 'gameover' });
-    return;
-  }
-
-  const winner = sorted[0];
-
-  // Phase 1: Standby — "And the winner is..."
-  await update(ref(db, `rooms/${roomCode}`), {
-    vpCeremonyStep: 'announce',
-    vpCeremonyWinner: {
-      name: winner.name, color: winner.color || '#7c3aed', id: winner.id
-    }
-  });
-  speakText('And the winner is...');
-  await sleepAbortable(4500);
-  if (ceremonyAborted) return;
-
-  // Phase 2: Reveal — show winner name + fireworks
-  await update(ref(db, `rooms/${roomCode}`), { vpCeremonyStep: 'reveal' });
-  speakText('Player ' + (players.findIndex(p => p.id === winner.id) + 1) + '! ' + winner.name);
-  await sleepAbortable(5000);
-  if (ceremonyAborted) return;
-
-  // Phase 3: Rankings board — stays until host closes
-  await update(ref(db, `rooms/${roomCode}`), {
-    vpCeremonyStep: 'rankings',
-    vpCeremonyRankings: sorted.map((p, i) => ({
-      place: i + 1, name: p.name, color: p.color || 'var(--accent)',
-      avatar: p.avatar || '👤', vp: p.vp
-    }))
-  });
-  // No auto-transition — host clicks Done to end game
-}
-
-// Handle VP ceremony state on non-host devices
-function handleVPCeremonyState(room) {
-  const step = room.vpCeremonyStep || 'standby';
-  const winner = room.vpCeremonyWinner || null;
-  const rankings = room.vpCeremonyRankings || [];
-
-  if (step === 'gameover') {
-    hideAllAwardOverlays();
-    showGameOver();
-    return;
-  }
-
-  if (step === 'standby' || step === 'announce') {
-    hideAllAwardOverlays();
-    showVPStandby(step === 'announce');
-    return;
-  }
-
-  if (step === 'reveal' && winner) {
-    hideAllAwardOverlays();
-    if (winner.id === myId) {
-      showVPWinnerReveal(winner);
-    } else {
-      // Non-winners: black out whatever screen is currently active
-      const sa = document.querySelector('.screen.active');
-      if (sa) {
-        sa.classList.add('vp-ceremony-blackout');
-        sa.style.zIndex = '8000';
-        sa.style.background = '#000';
-        sa.querySelectorAll(':scope > *').forEach(ch => {
-          ch.style.setProperty('display', 'none', 'important');
-          ch.style.setProperty('visibility', 'hidden', 'important');
-          ch.style.setProperty('opacity', '0', 'important');
-        });
-      }
-      // Full-screen black cover on <html> to avoid body stacking issues
-      let cover = document.getElementById('vp-blackout-cover');
-      if (!cover) {
-        cover = document.createElement('div');
-        cover.id = 'vp-blackout-cover';
-        cover.className = 'vp-blackout-cover';
-        document.documentElement.appendChild(cover);
-      }
-    }
-    return;
-  }
-
-  if (step === 'rankings' && rankings.length > 0) {
-    hideAllAwardOverlays();
-    showVPRankings(rankings);
-    return;
-  }
-}
-
-function showVPStandby(announcing) {
-  const el = document.getElementById('vp-standby');
-  const txt = document.getElementById('vp-standby-text');
-  const skipBtn = document.getElementById('vp-skip-btn');
-  if (txt) {
-    txt.textContent = announcing ? 'And the winner is...' : 'Victory Ceremony';
-    if (announcing) {
-      txt.style.animation = 'vpPulse 1.2s ease-in-out infinite alternate';
-    } else {
-      txt.style.animation = '';
-    }
-  }
-  if (skipBtn) skipBtn.style.display = isHost ? 'block' : 'none';
-  el.classList.add('show');
-}
-
-function showVPWinnerReveal(winner) {
-  const reveal = document.getElementById('vp-reveal-winner');
-  const nameEl = document.getElementById('vp-win-name');
-  const numEl = document.getElementById('vp-win-num');
-  const idx = localPlayers.findIndex(p => p.id === winner.id);
-  if (nameEl) {
-    nameEl.textContent = winner.name;
-    nameEl.style.color = winner.color;
-  }
-  if (numEl) numEl.textContent = 'Player ' + (idx >= 0 ? idx + 1 : '?');
-  // Light up the entire background with winner's color
-  reveal.style.background = `radial-gradient(ellipse at center, ${winner.color}cc 0%, ${winner.color}55 35%, ${winner.color}18 60%, #050510 100%)`;
-  // Hide game UI behind the overlay
-  const sa = document.querySelector('.screen.active');
-  if (sa) {
-    sa.classList.add('vp-ceremony-blackout');
-    sa.style.zIndex = '0';
-    sa.style.background = '#000';
-    sa.querySelectorAll(':scope > *').forEach(ch => {
-      ch.style.setProperty('display', 'none', 'important');
-      ch.style.setProperty('visibility', 'hidden', 'important');
-      ch.style.setProperty('opacity', '0', 'important');
-    });
-  }
-  reveal.classList.add('show');
-  startFireworksForCanvas('vp-canvas-winner', winner.color, true);
-}
-
-function showVPSpectatorReveal(winner) {
-  const reveal = document.getElementById('vp-reveal-spectator');
-  const nameEl = document.getElementById('vp-spec-name');
-  const numEl = document.getElementById('vp-spec-num');
-  const idx = localPlayers.findIndex(p => p.id === winner.id);
-  if (nameEl) {
-    nameEl.textContent = winner.name;
-    nameEl.style.color = winner.color;
-  }
-  if (numEl) numEl.textContent = 'Player ' + (idx >= 0 ? idx + 1 : '?');
-  reveal.classList.add('show');
-}
-
-function showVPRankings(rankings) {
-  const el = document.getElementById('vp-rankings');
-  const list = document.getElementById('vp-rankings-list');
-  if (!list) return;
-  list.innerHTML = '';
-  const medals = ['🥇', '🥈', '🥉'];
-  const placeLabels = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
-  rankings.forEach((p, i) => {
-    const div = document.createElement('div');
-    div.className = 'vp-rankings-item';
-    div.style.animationDelay = (i * 0.12) + 's';
-    div.innerHTML = `
-      <div class="vp-rankings-place">${medals[i] || placeLabels[i] || (i+1)+'th'}</div>
-      <div class="vp-rankings-avatar" style="border-color:${p.color};">${avatarHTML(p.avatar, 28)}</div>
-      <div class="vp-rankings-name" style="color:${p.color};">${esc(p.name)}</div>
-      <div class="vp-rankings-score">${p.vp} pt${p.vp !== 1 ? 's' : ''}</div>`;
-    list.appendChild(div);
-  });
-  const closeBtn = document.getElementById('vp-rankings-close');
-  const waitMsg = document.getElementById('vp-rankings-wait');
-  if (closeBtn) closeBtn.style.display = isHost ? 'block' : 'none';
-  if (waitMsg) waitMsg.style.display = isHost ? 'none' : 'block';
-  el.classList.add('show');
-}
-
-window.skipVPCeremony = async function() {
-  if (!db || !roomCode || !isHost) return;
-  ceremonyAborted = true;
-  window.speechSynthesis && window.speechSynthesis.cancel();
-  stopFireworks();
-  await update(ref(db, `rooms/${roomCode}`), { status: 'gameover', vpCeremonyStep: 'gameover' });
-};
-
-window.closeVPRankings = async function() {
-  if (!db || !roomCode || !isHost) return;
-  hideAllAwardOverlays();
-  if (featureAwardsEnabled) {
-    // After VP ceremony, run Awards ceremony
-    await update(ref(db, `rooms/${roomCode}`), { status: 'ceremony', ceremonyStep: 'standby' });
-    runCeremonyAsHost();
-  } else {
-    await update(ref(db, `rooms/${roomCode}`), { status: 'gameover', vpCeremonyStep: 'gameover' });
   }
 };
 
@@ -12359,12 +10362,6 @@ window.toggleTheme = function() {
   localStorage.setItem('sk_theme', isLight ? 'light' : 'dark');
   const namedTheme = localStorage.getItem('sk_named_theme') || 'default';
   if (namedTheme === 'default') applyFullTheme('default', isLight);
-  // Sync to Firebase
-  const uid = currentUser?.uid;
-  if (uid && db) {
-    set(ref(db, `users/${uid}/theme`), isLight ? 'light' : 'dark').catch(() => {});
-    set(ref(db, `users/${uid}/namedTheme`), namedTheme).catch(() => {});
-  }
 };
 
 window.openThemesOverlay = function() {
@@ -12422,9 +10419,6 @@ window.selectTheme = function(themeName) {
     const radio = activeOpt.querySelector('input[type="radio"]');
     if (radio) radio.checked = true;
   }
-  // Sync to Firebase
-  const uid = currentUser?.uid;
-  if (uid && db) set(ref(db, `users/${uid}/namedTheme`), themeName).catch(() => {});
 };
 
 // Apply saved theme on load
@@ -12537,28 +10531,6 @@ window.showPrompt = function(msg, def) { return showDialog('prompt', msg, def); 
 </script>
 
 <script>
-// Password gate
-(function() {
-  const gate = document.getElementById('password-gate');
-  if (!gate) return;
-  if (localStorage.getItem('sk_password_verified') === '1') {
-    gate.classList.add('hidden');
-    return;
-  }
-  const input = document.getElementById('pw-input');
-  const error = document.getElementById('pw-error');
-  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkPassword(); });
-  window.checkPassword = function() {
-    if (input.value === 'yar') {
-      localStorage.setItem('sk_password_verified', '1');
-      gate.classList.add('hidden');
-    } else {
-      error.textContent = 'Incorrect code. Try again.';
-      input.value = '';
-      input.focus();
-    }
-  };
-})();
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(() => {});
@@ -12607,6 +10579,17 @@ window.dismissInstall = function() {
     </div>
     <div style="height:1px; background:var(--border); margin-bottom:0.75rem;"></div>
 
+    <!-- Orientation -->
+    <div style="margin-bottom:0.75rem;">
+      <div style="font-size:0.9rem; font-weight:600; color:var(--text); margin-bottom:0.5rem;">Screen Orientation</div>
+      <div style="display:flex; gap:0.5rem;">
+        <button class="ctrl-btn" id="orient-portrait" onclick="setOrientation('portrait')" title="Portrait" style="flex:1; width:auto; height:48px; font-size:1.1rem; border-radius:10px;">📱<br><span style="font-size:0.62rem;">Portrait</span></button>
+        <button class="ctrl-btn" id="orient-landscape" onclick="setOrientation('landscape')" title="Landscape" style="flex:1; width:auto; height:48px; font-size:1.1rem; border-radius:10px;">🔲<br><span style="font-size:0.62rem;">Landscape</span></button>
+        <button class="ctrl-btn active-ctrl" id="orient-auto" onclick="setOrientation('auto')" title="Auto" style="flex:1; width:auto; height:48px; font-size:1.1rem; border-radius:10px;">🔄<br><span style="font-size:0.62rem;">Auto</span></button>
+      </div>
+    </div>
+    <div style="height:1px; background:var(--border); margin-bottom:0.75rem;"></div>
+
     <!-- Room Code -->
     <div style="text-align:center; margin-bottom:1.1rem;">
       <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.25rem;">Room Code</div>
@@ -12618,13 +10601,11 @@ window.dismissInstall = function() {
 </div>
 
 <div class="manage-overlay" id="manage-overlay">
-  <div class="manage-card" style="max-width:480px; padding:1.25rem;">
-    <div style="text-align:center; margin-bottom:0.75rem;">
-      <div style="font-size:1.05rem; font-weight:800; color:var(--text);">👥 Manage Players</div>
-    </div>
-    <div id="manage-player-list" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(115px, 1fr)); gap:0.5rem;"></div>
-    <div style="margin-top:1rem;">
-      <button class="btn-secondary btn-sm" onclick="closeManagePanel()" style="width:100%;">Done</button>
+  <div class="manage-card">
+    <h3>👥 Manage Players</h3>
+    <div id="manage-player-list"></div>
+    <div style="margin-top:1rem; display:flex; gap:0.5rem;">
+      <button class="btn-secondary btn-sm" onclick="closeManagePanel()" style="flex:1;">Done</button>
     </div>
   </div>
 </div>
@@ -12636,12 +10617,10 @@ window.dismissInstall = function() {
       <div style="font-size:0.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em;">Room Code</div>
       <div style="font-family:'Courier New',monospace; font-size:1.5rem; font-weight:800; color:var(--accent-light); letter-spacing:0.15em;" id="host-crown-room-code">----</div>
     </div>
-    <button class="host-menu-item" style="width:100%; border-radius:10px; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); openManagePanel()">👥 Manage Players</button>
     <button class="host-menu-item" style="width:100%; border-radius:10px; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); openMidGameSettings()">⚙️ Room Settings</button>
     <button class="host-menu-item" style="width:100%; border-radius:10px; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); openToolsOverlay()">🧰 Tools</button>
-    <button class="host-menu-item" id="host-crown-endround-btn" style="width:100%; border-radius:10px; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); hostMenuAction('end-round')">🔁 End Round</button>
+    <button class="host-menu-item" style="width:100%; border-radius:10px; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); hostMenuAction('end-round')">🔁 End Round</button>
     <button class="host-menu-item" style="width:100%; border-radius:10px; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); hostMenuAction('save-game')">💾 Save Game</button>
-    <button class="host-menu-item" style="width:100%; border-radius:10px; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); startNewGameSetup()">🔄 Start New Game</button>
     <button class="host-menu-item danger" style="width:100%; border-radius:10px; margin-bottom:0.75rem;" onclick="closeHostCrownMenu(); hostMenuAction('end-game')">🏆 End Game</button>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeHostCrownMenu()">✕ Close</button>
   </div>
