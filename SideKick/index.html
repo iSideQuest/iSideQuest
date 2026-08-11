@@ -2169,6 +2169,8 @@
     text-align: center;
     pointer-events: none;
     min-height: 100px;
+    width: 100%;
+    align-self: stretch;
   }
   .wheel-tap-label {
     font-size: 1.5rem;
@@ -2199,6 +2201,8 @@
     pointer-events: none;
     min-height: 100px;
     position: relative;
+    display: flex;
+    justify-content: space-around;
   }
   .wheel-both-area::before {
     content: '';
@@ -2207,19 +2211,19 @@
     width: 1px;
     background: rgba(255,255,255,0.15);
     transform: translateX(-50%);
+    pointer-events: none;
   }
   .wheel-both-half {
-    position: absolute;
-    top: 0; bottom: 0;
-    width: 50%;
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.3rem;
+    pointer-events: none;
   }
-  .wheel-both-left { left: 0; }
-  .wheel-both-right { right: 0; }
+  .wheel-both-left { }
+  .wheel-both-right { }
   .wheel-both-label {
     font-size: 1.1rem;
     font-weight: 700;
@@ -10057,12 +10061,12 @@ function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
   players.forEach((p, i) => {
     const isActive = p.id === activePlayerId;
     const isSelf   = p.id === myIdParam;
-    // For active player, extend arc to fill the gaps on both sides for a continuous border
+    // For active player, extend arc into the gap zones on both sides for a continuous border
     const startDeg = isActive
-      ? rotationOffset + i * SEG_DEG
+      ? rotationOffset + i * SEG_DEG - GAP_DEG / 2
       : rotationOffset + i * SEG_DEG + GAP_DEG / 2;
     const endDeg = isActive
-      ? rotationOffset + (i + 1) * SEG_DEG
+      ? rotationOffset + (i + 1) * SEG_DEG + GAP_DEG / 2
       : rotationOffset + (i + 1) * SEG_DEG - GAP_DEG / 2;
     const nameColor = p.color || '#aaa';
     const displayName = isSelf ? 'You' : (p.name || 'Player');
