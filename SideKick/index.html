@@ -5221,36 +5221,16 @@
       <span class="feature-name" style="font-size:0.9rem;">Direction</span>
     </div>
     <div id="mg-direction-buttons" style="display:flex;gap:0.4rem;margin-bottom:0.75rem;">
-      <button class="mg-dir-btn" data-dir="ccw" onclick="mgSetDirection('ccw')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">↺ Counterclockwise</button>
-      <button class="mg-dir-btn" data-dir="both" onclick="mgSetDirection('both')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">⇅ Both Directions</button>
       <button class="mg-dir-btn" data-dir="cw" onclick="mgSetDirection('cw')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">↻ Clockwise</button>
+      <button class="mg-dir-btn" data-dir="both" onclick="mgSetDirection('both')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">⇅ Both Directions</button>
+      <button class="mg-dir-btn" data-dir="ccw" onclick="mgSetDirection('ccw')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">↺ Counterclockwise</button>
     </div>
 
     <!-- Nudge -->
-    <div class="feature-row" style="margin-bottom:0.5rem;">
+    <div class="feature-row" style="margin-bottom:0.75rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-nudge-toggle" type="checkbox" onchange="onMidGameToggle('nudge',this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">👉 Nudge</span>
-    </div>
-    <div id="mg-nudge-settings" style="display:none;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:0.75rem;margin-bottom:0.75rem;flex-direction:column;gap:0.5rem;">
-      <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Unlock After</div>
-      <div style="display:flex;gap:0.5rem;align-items:center;">
-        <input type="number" id="mg-nudge-delay" value="30" min="0" max="3600" step="5" style="width:60px;text-align:center;padding:0.3rem;font-size:0.85rem;margin:0;">
-        <span style="font-size:0.8rem;color:var(--muted);">sec</span>
-        <span style="color:var(--muted);font-size:0.8rem;">or</span>
-        <input type="number" id="mg-nudge-delay-min" value="" min="0" max="60" step="1" placeholder="—" style="width:52px;text-align:center;padding:0.3rem;font-size:0.85rem;margin:0;" oninput="mgSyncNudgeMin(this.value)">
-        <span style="font-size:0.8rem;color:var(--muted);">min</span>
-      </div>
-      <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;margin-top:0.2rem;">Nudge Mode</div>
-      <div style="display:flex;flex-direction:column;gap:0.4rem;">
-        <label style="display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;margin:0;font-size:0.82rem;color:var(--text);line-height:1.4;">
-          <input type="radio" name="mg-nudge-mode" value="multi" checked style="width:auto;margin:0;margin-top:2px;flex-shrink:0;accent-color:var(--accent);">
-          <span><strong>Multi Nudge</strong> — tap as many times as you want</span>
-        </label>
-        <label style="display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;margin:0;font-size:0.82rem;color:var(--text);line-height:1.4;">
-          <input type="radio" name="mg-nudge-mode" value="single" style="width:auto;margin:0;margin-top:2px;flex-shrink:0;accent-color:var(--accent);">
-          <span><strong>Single Nudge</strong> — one nudge per turn per player</span>
-        </label>
-      </div>
+      <button id="mg-nudge-edit-btn" onclick="openNudgeOverlay()" style="display:none;margin-left:auto;padding:0.25rem 0.6rem;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid var(--border);color:var(--text);font-size:0.72rem;font-weight:700;cursor:pointer;">Edit</button>
     </div>
 
     <!-- Achievement Awards -->
@@ -5309,17 +5289,10 @@
 
     <!-- Rounds -->
     <div>
-    <div class="feature-row" style="margin-bottom:0.5rem;">
+    <div class="feature-row" style="margin-bottom:0.75rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-rounds-toggle" type="checkbox" onchange="onMidGameToggle('rounds',this.checked)"><span class="toggle-slider"></span></label>
       <span class="feature-name">🔢 Rounds</span>
-    </div>
-    <div id="mg-rounds-settings" style="display:none;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:0.75rem;margin-bottom:0.75rem;flex-direction:column;gap:0.5rem;">
-      <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Total Rounds</div>
-      <div style="display:flex;gap:0.5rem;align-items:center;">
-        <input type="number" id="mg-rounds-total" value="3" min="1" max="99" style="width:64px;text-align:center;padding:0.3rem;font-size:0.9rem;margin:0;">
-        <span style="font-size:0.8rem;color:var(--muted);">rounds</span>
-      </div>
-      <div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">Current round resets to 1. This will restart the round count.</div>
+      <button id="mg-rounds-edit-btn" onclick="openRoundsOverlay()" style="display:none;margin-left:auto;padding:0.25rem 0.6rem;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid var(--border);color:var(--text);font-size:0.72rem;font-weight:700;cursor:pointer;">Edit</button>
     </div>
     </div>
 
@@ -8540,9 +8513,9 @@ window.openMidGameSettings = function() {
   document.getElementById('mg-rounds-toggle').checked = featureRoundsEnabled;
   document.getElementById('mg-undo-toggle').checked   = featureUndoEnabled;
   document.getElementById('mg-rounds-total').value    = roundsTotal || 3;
-  document.getElementById('mg-nudge-settings').style.display  = featureNudgeEnabled  ? 'flex' : 'none';
+  document.getElementById('mg-nudge-edit-btn').style.display  = featureNudgeEnabled  ? '' : 'none';
   document.getElementById('mg-timers-settings').style.display = featureTimersEnabled ? 'flex' : 'none';
-  document.getElementById('mg-rounds-settings').style.display = featureRoundsEnabled ? 'flex' : 'none';
+  document.getElementById('mg-rounds-edit-btn').style.display = featureRoundsEnabled ? '' : 'none';
   document.getElementById('mg-nudge-delay').value = nudgeDelaySeconds;
   const modeRadio = document.querySelector(`input[name="mg-nudge-mode"][value="${nudgeMode}"]`);
   if (modeRadio) modeRadio.checked = true;
@@ -8592,9 +8565,13 @@ window.mgSetDirection = function(dir) {
 };
 
 window.onMidGameToggle = function(key, checked) {
-  if (key === 'nudge')  document.getElementById('mg-nudge-settings').style.display  = checked ? 'flex' : 'none';
+  if (key === 'nudge') {
+    document.getElementById('mg-nudge-edit-btn').style.display = checked ? '' : 'none';
+  }
   if (key === 'timers') document.getElementById('mg-timers-settings').style.display = checked ? 'flex' : 'none';
-  if (key === 'rounds') document.getElementById('mg-rounds-settings').style.display = checked ? 'flex' : 'none';
+  if (key === 'rounds') {
+    document.getElementById('mg-rounds-edit-btn').style.display = checked ? '' : 'none';
+  }
 };
 
 window.mgSyncNudgeMin = function(val) {
@@ -8604,6 +8581,19 @@ window.mgSyncNudgeMin = function(val) {
 
 window.mgCountdownToggle = function(checked) {
   document.getElementById('mg-countdown-inputs').style.display = checked ? 'flex' : 'none';
+};
+
+window.openNudgeOverlay = function() {
+  document.getElementById('nudge-settings-overlay').classList.add('show');
+};
+window.closeNudgeOverlay = function() {
+  document.getElementById('nudge-settings-overlay').classList.remove('show');
+};
+window.openRoundsOverlay = function() {
+  document.getElementById('rounds-settings-overlay').classList.add('show');
+};
+window.closeRoundsOverlay = function() {
+  document.getElementById('rounds-settings-overlay').classList.remove('show');
 };
 
 window.saveMidGameSettings = async function() {
@@ -12644,6 +12634,45 @@ window.dismissInstall = function() {
     <button class="host-menu-item" style="width:100%; border-radius:10px; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); startNewGameSetup()">🔄 Start New Game</button>
     <button class="host-menu-item danger" style="width:100%; border-radius:10px; margin-bottom:0.75rem;" onclick="closeHostCrownMenu(); hostMenuAction('end-game')">🏆 End Game</button>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeHostCrownMenu()">✕ Close</button>
+  </div>
+</div>
+<!-- Nudge Settings Overlay -->
+<div class="manage-overlay" id="nudge-settings-overlay">
+  <div class="manage-card" style="max-width:320px; padding:1.25rem;">
+    <div style="font-size:1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:1rem;">👉 Nudge Settings</div>
+    <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Unlock After</div>
+    <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.75rem;">
+      <input type="number" id="mg-nudge-delay" value="30" min="0" max="3600" step="5" style="width:60px;text-align:center;padding:0.3rem;font-size:0.85rem;margin:0;">
+      <span style="font-size:0.8rem;color:var(--muted);">sec</span>
+      <span style="color:var(--muted);font-size:0.8rem;">or</span>
+      <input type="number" id="mg-nudge-delay-min" value="" min="0" max="60" step="1" placeholder="—" style="width:52px;text-align:center;padding:0.3rem;font-size:0.85rem;margin:0;" oninput="mgSyncNudgeMin(this.value)">
+      <span style="font-size:0.8rem;color:var(--muted);">min</span>
+    </div>
+    <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Nudge Mode</div>
+    <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;">
+      <label style="display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;margin:0;font-size:0.82rem;color:var(--text);line-height:1.4;">
+        <input type="radio" name="mg-nudge-mode" value="multi" checked style="width:auto;margin:0;margin-top:2px;flex-shrink:0;accent-color:var(--accent);">
+        <span><strong>Multi Nudge</strong> — tap as many times as you want</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;margin:0;font-size:0.82rem;color:var(--text);line-height:1.4;">
+        <input type="radio" name="mg-nudge-mode" value="single" style="width:auto;margin:0;margin-top:2px;flex-shrink:0;accent-color:var(--accent);">
+        <span><strong>Single Nudge</strong> — one nudge per turn per player</span>
+      </label>
+    </div>
+    <button class="info-modal-close" onclick="closeNudgeOverlay()" style="width:100%;">Done</button>
+  </div>
+</div>
+<!-- Rounds Settings Overlay -->
+<div class="manage-overlay" id="rounds-settings-overlay">
+  <div class="manage-card" style="max-width:320px; padding:1.25rem;">
+    <div style="font-size:1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:1rem;">🔢 Rounds Settings</div>
+    <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Total Rounds</div>
+    <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.75rem;">
+      <input type="number" id="mg-rounds-total" value="3" min="1" max="99" style="width:64px;text-align:center;padding:0.3rem;font-size:0.9rem;margin:0;">
+      <span style="font-size:0.8rem;color:var(--muted);">rounds</span>
+    </div>
+    <div style="font-size:0.72rem;color:var(--muted);line-height:1.4;margin-bottom:1rem;">Current round resets to 1. This will restart the round count.</div>
+    <button class="info-modal-close" onclick="closeRoundsOverlay()" style="width:100%;">Done</button>
   </div>
 </div>
 <div id="error-toast"></div>
