@@ -2111,7 +2111,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 3;
+    z-index: 15;
     pointer-events: none;
   }
   .wheel-overlay.visible {
@@ -2199,6 +2199,17 @@
     width: 100%;
     pointer-events: none;
     min-height: 100px;
+    gap: 2rem;
+    padding: 0 1.5rem;
+    position: relative;
+  }
+  .wheel-both-area::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; left: 50%;
+    width: 1px;
+    background: rgba(255,255,255,0.15);
+    transform: translateX(-50%);
   }
   .wheel-both-half {
     flex: 1;
@@ -2213,6 +2224,7 @@
     font-weight: 700;
     color: rgba(255,255,255,0.85);
     text-shadow: 0 0 16px rgba(0,0,0,0.6);
+    white-space: nowrap;
   }
   .wheel-both-arrow {
     font-size: 3rem;
@@ -10029,18 +10041,24 @@ function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
   const GAP_DEG = N <= 2 ? 2 : (N <= 5 ? 3 : 4);
   const SEG_DEG = 360 / N;
 
-  // "You" player is always at the bottom (180 degrees = 6 o'clock)
+  // "You" player is always at the bottom (90 degrees = 6 o'clock in SVG coords)
   const myIdx = players.findIndex(p => p.id === myIdParam);
   const myAngleDeg = (myIdx >= 0 ? myIdx : 0) * SEG_DEG + SEG_DEG / 2;
-  const rotationOffset = 180 - myAngleDeg;
+  const rotationOffset = 90 - myAngleDeg;
 
-  let svgContent = '';
+  const glowId = 'glow-' + ctx;
+  let svgContent = '<defs><filter id="' + glowId + '" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
 
   players.forEach((p, i) => {
-    const startDeg = rotationOffset + i * SEG_DEG + GAP_DEG / 2;
-    const endDeg   = rotationOffset + (i + 1) * SEG_DEG - GAP_DEG / 2;
     const isActive = p.id === activePlayerId;
     const isSelf   = p.id === myIdParam;
+    // For active player, extend arc to fill the gaps on both sides for a continuous border
+    const startDeg = isActive
+      ? rotationOffset + i * SEG_DEG
+      : rotationOffset + i * SEG_DEG + GAP_DEG / 2;
+    const endDeg = isActive
+      ? rotationOffset + (i + 1) * SEG_DEG
+      : rotationOffset + (i + 1) * SEG_DEG - GAP_DEG / 2;
     const nameColor = p.color || '#aaa';
     const displayName = isSelf ? 'You' : (p.name || 'Player');
 
@@ -10056,7 +10074,8 @@ function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
     const ly = CY + labelR * Math.sin(midRad);
     const displayColor = ((nameColor || '').toLowerCase() === '#000000' && isActive) ? '#ffffff' : (isActive ? nameColor : 'rgba(255,255,255,0.75)');
     const fontSize = N > 6 ? 9 : (N > 4 ? 11 : 13);
-    svgContent += '<text x="' + lx.toFixed(2) + '" y="' + ly.toFixed(2) + '" text-anchor="middle" dominant-baseline="central" fill="' + displayColor + '" font-family="Inter,sans-serif" font-size="' + fontSize + '" font-weight="700">' + esc(displayName) + '</text>';
+    const glowFilter = isActive ? ' filter="url(#' + glowId + ')"' : '';
+    svgContent += '<text x="' + lx.toFixed(2) + '" y="' + ly.toFixed(2) + '" text-anchor="middle" dominant-baseline="central" fill="' + displayColor + '" font-family="Inter,sans-serif" font-size="' + fontSize + '" font-weight="700"' + glowFilter + '>' + esc(displayName) + '</text>';
   });
 
   svg.innerHTML = svgContent;
@@ -10889,14 +10908,15 @@ function listenGameState() {
 
       // Apply pass direction UI mode
       const isBoth = passDirection === 'both' || !passDirection;
-      document.getElementById('btn-left').style.display        = isBoth ? '' : 'none';
-      document.getElementById('btn-right').style.display       = isBoth ? '' : 'none';
-      document.getElementById('active-divider').style.display  = isBoth ? '' : 'none';
-      document.getElementById('active-center').style.display   = isBoth ? '' : 'none';
+      const hideClassicForWheel = wheelUIMode;
+      document.getElementById('btn-left').style.display        = hideClassicForWheel ? 'none' : (isBoth ? '' : 'none');
+      document.getElementById('btn-right').style.display       = hideClassicForWheel ? 'none' : (isBoth ? '' : 'none');
+      document.getElementById('active-divider').style.display  = hideClassicForWheel ? 'none' : (isBoth ? '' : 'none');
+      document.getElementById('active-center').style.display   = hideClassicForWheel ? 'none' : (isBoth ? '' : 'none');
       const tapBtn    = document.getElementById('pass-tap-btn');
       const tapArrow  = document.getElementById('pass-tap-arrow');
       const tapPlayer = document.getElementById('pass-tap-player');
-      if (isBoth) {
+      if (hideClassicForWheel || isBoth) {
         tapBtn.style.display = 'none';
       } else {
         tapBtn.style.display = '';
