@@ -2946,6 +2946,17 @@
     pointer-events: none;
     text-shadow: 0 0 8px rgba(74,222,128,0.5);
   }
+  .nd-dial-minus {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #e74c3c;
+    pointer-events: none;
+    text-shadow: 0 0 8px rgba(231,76,60,0.5);
+  }
   .nd-dial-label {
     font-size: 0.7rem;
     color: var(--muted);
@@ -5229,6 +5240,7 @@
       <div class="nd-dial-outer" id="nd-dial-outer">
         <div class="nd-dial-track" id="nd-dial-track">
           <div class="nd-dial-knob" id="nd-dial-knob"></div>
+          <div class="nd-dial-minus">−</div>
           <div class="nd-dial-plus">+</div>
         </div>
         <div class="nd-dial-center" id="nd-dial-center"></div>
@@ -11963,7 +11975,7 @@ function ndDialInit(outerId, knobId, valueId, hiddenId, initialSecs) {
   function updateDisplay() {
     valueEl.textContent = ndDialFormatTime(val);
     valueEl.style.color = val > 0 ? 'var(--accent)' : '#666';
-    const angle = val * 12; // 12 degrees per second — 30 seconds = full rotation
+    const angle = val * 12;
     knob.style.transform = 'translateX(-50%) rotate(' + angle + 'deg)';
     knob.style.transformOrigin = '50% 101px';
   }
@@ -11979,6 +11991,7 @@ function ndDialInit(outerId, knobId, valueId, hiddenId, initialSecs) {
 
   function onStart(e) {
     e.preventDefault();
+    e.stopPropagation();
     dragging = true;
     lastAngle = getAngle(e);
     accumulator = 0;
@@ -11993,7 +12006,7 @@ function ndDialInit(outerId, knobId, valueId, hiddenId, initialSecs) {
     if (delta < -180) delta += 360;
     lastAngle = angle;
     accumulator += delta;
-    const step = 12; // 12 degrees per tick = 1 second
+    const step = 12;
     if (accumulator >= step) {
       const ticks = Math.floor(accumulator / step);
       val = Math.min(3600, val + ticks);
@@ -12016,14 +12029,18 @@ function ndDialInit(outerId, knobId, valueId, hiddenId, initialSecs) {
     accumulator = 0;
   }
 
-  // Remove old listeners by replacing element with clone
-  const newOuter = outer.cloneNode(true);
-  outer.parentNode.replaceChild(newOuter, outer);
-  const newKnob = newOuter.querySelector('.nd-dial-knob');
-  const newCenter = newOuter.querySelector('.nd-dial-center');
+  // Clear any previous listeners by removing and re-adding
+  outer.removeEventListener('mousedown', outer._ndDown);
+  outer.removeEventListener('touchstart', outer._ndDown);
+  knob.removeEventListener('mousedown', knob._ndDown);
+  knob.removeEventListener('touchstart', knob._ndDown);
 
-  newOuter.addEventListener('mousedown', onStart);
-  newOuter.addEventListener('touchstart', onStart, { passive: false });
+  outer._ndDown = onStart;
+  knob._ndDown = onStart;
+  outer.addEventListener('mousedown', onStart);
+  outer.addEventListener('touchstart', onStart, { passive: false });
+  knob.addEventListener('mousedown', onStart);
+  knob.addEventListener('touchstart', onStart, { passive: false });
   window.addEventListener('mousemove', onMove);
   window.addEventListener('touchmove', onMove, { passive: false });
   window.addEventListener('mouseup', onEnd);
@@ -12854,6 +12871,7 @@ window.dismissInstall = function() {
       <div class="nd-dial-outer" id="mg-nd-dial-outer">
         <div class="nd-dial-track" id="mg-nd-dial-track">
           <div class="nd-dial-knob" id="mg-nd-dial-knob"></div>
+          <div class="nd-dial-minus">−</div>
           <div class="nd-dial-plus">+</div>
         </div>
         <div class="nd-dial-center" id="mg-nd-dial-center"></div>
