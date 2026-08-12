@@ -6467,6 +6467,8 @@ window.openNameOverlay = function() {
     var val = document.getElementById('preferred-name-input').value.trim();
     saveName(val);
     updateAccountButtonUI();
+    const profileNameEl = document.getElementById('profile-name');
+    if (profileNameEl) profileNameEl.textContent = val || 'User';
     document.getElementById('name-overlay').classList.remove('show');
     cleanupNameOverlayPosition();
   };
