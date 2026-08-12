@@ -4629,7 +4629,7 @@
       <div class="card">
         <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;">Step 2</div>
         <div style="font-size:0.85rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;">Enter Room Code</div>
-        <input id="join-code" placeholder="Type Room Code" maxlength="4" style="text-transform:uppercase;font-family:monospace;font-size:1.4rem;letter-spacing:0.2em;text-align:center;margin-bottom:0.75rem;">
+        <input id="join-code" placeholder="Room Code" maxlength="4" style="text-transform:uppercase;font-family:monospace;font-size:1.4rem;letter-spacing:0.2em;text-align:center;margin-bottom:0.75rem;">
         <button class="btn-secondary btn-sm" onclick="openQRScanner()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
           <span style="font-size:1.2rem;">📷</span> Scan QR Code
         </button>
@@ -5236,7 +5236,7 @@
 
     <div style="font-size:0.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Unlock After</div>
     <div class="nd-dial-wrapper">
-      <div class="nd-dial-value" id="nd-dial-value">30s</div>
+      <div class="nd-dial-value" id="nd-dial-value">1m</div>
       <div class="nd-dial-outer" id="nd-dial-outer">
         <div class="nd-dial-track" id="nd-dial-track">
           <div class="nd-dial-knob" id="nd-dial-knob"></div>
@@ -5249,7 +5249,7 @@
     </div>
     <input type="radio" name="nudge-mode" value="multi" checked style="display:none;">
     <input type="radio" name="nudge-mode" value="single" style="display:none;">
-    <input type="hidden" id="nudge-delay" value="30">
+    <input type="hidden" id="nudge-delay" value="60">
 
     <div style="font-size:0.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;text-align:center;margin-top:0.5rem;">Nudge Mode</div>
     <div class="turn-mode-btns" style="margin-top:0.5rem;">
@@ -12014,7 +12014,7 @@ function ndDialInit(outerId, knobId, valueId, hiddenId, initialSecs) {
   const hidden = document.getElementById(hiddenId);
   if (!outer || !knob || !valueEl || !hidden) return;
 
-  let val = Math.max(0, Math.min(3600, parseInt(hidden.value) || initialSecs || 30));
+  let val = Math.max(0, Math.min(3600, parseInt(hidden.value) || initialSecs || 60));
   let dragging = false;
   let lastAngle = 0;
   let accumulator = 0;
@@ -12022,7 +12022,7 @@ function ndDialInit(outerId, knobId, valueId, hiddenId, initialSecs) {
   function updateDisplay() {
     valueEl.textContent = ndDialFormatTime(val);
     valueEl.style.color = val > 0 ? 'var(--accent)' : '#666';
-    const angle = val * 6;
+    const angle = (val - 60) * 12;
     knob.style.transform = 'translateX(-50%) rotate(' + angle + 'deg)';
     knob.style.transformOrigin = '50% 101px';
   }
@@ -13014,7 +13014,7 @@ window.dismissInstall = function() {
     <div style="font-size:1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:1rem;">👉 Nudge Settings</div>
     <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Unlock After</div>
     <div class="nd-dial-wrapper">
-      <div class="nd-dial-value" id="mg-nd-dial-value">30s</div>
+      <div class="nd-dial-value" id="mg-nd-dial-value">1m</div>
       <div class="nd-dial-outer" id="mg-nd-dial-outer">
         <div class="nd-dial-track" id="mg-nd-dial-track">
           <div class="nd-dial-knob" id="mg-nd-dial-knob"></div>
@@ -13025,7 +13025,7 @@ window.dismissInstall = function() {
       </div>
       <div class="nd-dial-label">rotate to adjust</div>
     </div>
-    <input type="hidden" id="mg-nudge-delay" value="30">
+    <input type="hidden" id="mg-nudge-delay" value="60">
     <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;text-align:center;">Nudge Mode</div>
     <div class="turn-mode-btns" style="margin-top:0.5rem;">
       <button class="turn-mode-btn selected" id="mg-nd-mode-multi" onclick="selectNdMode('multi', true)">
