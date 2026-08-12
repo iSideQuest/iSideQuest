@@ -5534,6 +5534,14 @@
 
     <!-- Menu Items -->
     <div class="profile-menu" style="width:min(380px,92vw); margin-bottom:0.75rem;">
+      <div class="profile-menu-item" onclick="openEditProfileOverlay()">
+        <div class="profile-menu-icon icon-saves">✏️</div>
+        <div class="profile-menu-text">
+          <div class="profile-menu-title">Edit Profile</div>
+          <div class="profile-menu-desc">Change your avatar and preferred name</div>
+        </div>
+        <div class="profile-menu-chevron">›</div>
+      </div>
       <div class="profile-menu-item" onclick="openMySavedGames()">
         <div class="profile-menu-icon icon-saves">💾</div>
         <div class="profile-menu-text">
@@ -5695,6 +5703,21 @@
     <div class="avatar-modal-title">✏️ Preferred Name</div>
     <input type="text" id="preferred-name-input" placeholder="Your name" maxlength="20" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);margin-bottom:0.5rem;box-sizing:border-box;">
     <button class="btn-primary btn-sm" style="width:100%;" id="save-name-btn">Save Name</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  EDIT PROFILE OVERLAY (Combined)            -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="avatar-overlay" id="edit-profile-overlay">
+  <div class="avatar-modal" style="gap:0.8rem;">
+    <div class="avatar-modal-title">✏️ Edit Profile</div>
+    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:-0.2rem;">Avatar</div>
+    <div class="avatar-grid" id="edit-profile-avatar-grid"></div>
+    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-top:0.1rem;">Preferred Name</div>
+    <input type="text" id="edit-profile-name-input" placeholder="Your name" maxlength="20" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;">
+    <button class="btn-primary" style="width:100%;margin-top:0.2rem;" onclick="saveEditProfile()">Save Profile</button>
+    <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeEditProfileOverlay()">Cancel</button>
   </div>
 </div>
 
@@ -6293,7 +6316,7 @@ window.confirmSignOut = async function() {
 // Saved Games or Account was left open) before switching screens, so the
 // button always visibly takes you home.
 window.backToHomeFromProfile = function() {
-  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay'].forEach(id => {
+  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','edit-profile-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('show');
   });
@@ -6505,6 +6528,54 @@ window.openNameOverlay = function() {
 window.closeNameOverlay = function() {
   document.getElementById('name-overlay').classList.remove('show');
   cleanupNameOverlayPosition();
+};
+
+window.openEditProfileOverlay = function() {
+  const grid = document.getElementById('edit-profile-avatar-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const current = getSavedAvatar();
+  AVATARS.forEach(emoji => {
+    const btn = document.createElement('button');
+    btn.className = 'avatar-option' + (emoji === current ? ' selected' : '');
+    if (isImageAvatar(emoji)) {
+      var img = document.createElement('img');
+      img.src = emoji; img.alt = 'avatar';
+      img.style.cssText = 'width:70%;height:70%;border-radius:50%;object-fit:cover;';
+      btn.appendChild(img);
+    } else {
+      btn.textContent = emoji;
+    }
+    btn.setAttribute('data-avatar', emoji);
+    btn.onclick = () => {
+      document.querySelectorAll('#edit-profile-avatar-grid .avatar-option').forEach(el => el.classList.remove('selected'));
+      btn.classList.add('selected');
+    };
+    grid.appendChild(btn);
+  });
+  document.getElementById('edit-profile-name-input').value = getSavedName();
+  document.getElementById('edit-profile-overlay').classList.add('show');
+  setTimeout(function() { document.getElementById('edit-profile-name-input').focus(); }, 100);
+};
+
+window.closeEditProfileOverlay = function() {
+  document.getElementById('edit-profile-overlay').classList.remove('show');
+};
+
+window.saveEditProfile = function() {
+  const grid = document.getElementById('edit-profile-avatar-grid');
+  const selectedBtn = grid?.querySelector('.avatar-option.selected');
+  if (selectedBtn) {
+    const emoji = selectedBtn.getAttribute('data-avatar');
+    saveAvatar(emoji);
+    setAvatarEl(document.getElementById('profile-avatar'), emoji, 52);
+  }
+  const name = document.getElementById('edit-profile-name-input').value.trim();
+  saveName(name);
+  updateAccountButtonUI();
+  const profileNameEl = document.getElementById('profile-name');
+  if (profileNameEl) profileNameEl.textContent = name || 'User';
+  document.getElementById('edit-profile-overlay').classList.remove('show');
 };
 
 window.openAccountSettingsOverlay = function() {
