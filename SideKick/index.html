@@ -12135,7 +12135,7 @@ function rdDialInit(outerId, knobId, valueId, hiddenId, initialVal) {
 
   function updateDisplay() {
     valueEl.textContent = val;
-    const angle = (val - defaultVal) * 90;
+    const angle = (val - defaultVal) * 30;
     knob.style.transform = 'translateX(-50%) rotate(' + angle + 'deg)';
     knob.style.transformOrigin = '50% 101px';
   }
