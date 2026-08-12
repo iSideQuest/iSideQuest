@@ -12166,7 +12166,7 @@ function rdDialInit(outerId, knobId, valueId, hiddenId, initialVal) {
     if (delta < -180) delta += 360;
     lastAngle = angle;
     accumulator += delta;
-    const step = 90;
+    const step = 30;
     if (accumulator >= step) {
       val = Math.min(99, val + 1);
       accumulator -= step;
