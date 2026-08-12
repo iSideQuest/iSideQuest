@@ -5551,11 +5551,11 @@
         </div>
         <div class="profile-menu-chevron">›</div>
       </div>
-      <div class="profile-menu-item" onclick="showAlert('Account settings are coming soon!')">
+      <div class="profile-menu-item" onclick="openAccountSettingsOverlay()">
         <div class="profile-menu-icon icon-settings">⚙️</div>
         <div class="profile-menu-text">
           <div class="profile-menu-title">Account Settings</div>
-          <div class="profile-menu-desc" id="profile-email">Manage your account details</div>
+          <div class="profile-menu-desc">Manage your account details</div>
         </div>
         <div class="profile-menu-chevron">›</div>
       </div>
@@ -5696,6 +5696,16 @@
     <div class="avatar-modal-title">✏️ Preferred Name</div>
     <input type="text" id="preferred-name-input" placeholder="Your name" maxlength="20" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);margin-bottom:0.5rem;box-sizing:border-box;">
     <button class="btn-primary btn-sm" style="width:100%;" id="save-name-btn">Save Name</button>
+  </div>
+</div>
+
+<!-- ACCOUNT SETTINGS OVERLAY -->
+<div class="tools-overlay" id="account-settings-overlay">
+  <div class="tools-modal" style="max-width:340px;">
+    <div class="tools-modal-title">⚙️ Account Settings</div>
+    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;">Email</div>
+    <div id="acct-settings-email" style="font-size:0.95rem;color:var(--text);padding:0.6rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;margin-bottom:1rem;word-break:break-all;"></div>
+    <button class="btn-secondary btn-sm" style="width:100%;" onclick="document.getElementById('account-settings-overlay').classList.remove('show')">Close</button>
   </div>
 </div>
 
@@ -6498,6 +6508,12 @@ window.closeNameOverlay = function() {
   cleanupNameOverlayPosition();
 };
 
+window.openAccountSettingsOverlay = function() {
+  const email = currentUser?.email || 'Not signed in';
+  document.getElementById('acct-settings-email').textContent = email;
+  document.getElementById('account-settings-overlay').classList.add('show');
+};
+
 window.selectAvatar = function(emoji) {
   saveAvatar(emoji);
   document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
@@ -6563,7 +6579,6 @@ window.closeRoomAvatarOverlay = function() {
 window.openProfileScreen = function() {
   if (!currentUser) { openAccountOverlay('login'); return; }
   const email = currentUser.email || '';
-  document.getElementById('profile-email').textContent = email ? 'Signed in as ' + email : 'Manage your account details';
 
   const avatar = getSavedAvatar();
   const avatarEl = document.getElementById('profile-avatar');
