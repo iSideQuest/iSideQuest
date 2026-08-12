@@ -12034,7 +12034,7 @@ function ndDialInit(outerId, knobId, valueId, hiddenId, initialSecs) {
       updateDisplay();
       ndDialFeedback();
     } else if (accumulator <= -step) {
-      const ticks = Math.ceil(accumulator / -step);
+      const ticks = Math.floor(accumulator / -step);
       val = Math.max(0, val - ticks * 5);
       accumulator += ticks * step;
       hidden.value = val;
