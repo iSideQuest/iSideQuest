@@ -11975,7 +11975,7 @@ function ndDialInit(outerId, knobId, valueId, hiddenId, initialSecs) {
   function updateDisplay() {
     valueEl.textContent = ndDialFormatTime(val);
     valueEl.style.color = val > 0 ? 'var(--accent)' : '#666';
-    const angle = val * 12;
+    const angle = val * 6;
     knob.style.transform = 'translateX(-50%) rotate(' + angle + 'deg)';
     knob.style.transformOrigin = '50% 101px';
   }
@@ -12006,17 +12006,17 @@ function ndDialInit(outerId, knobId, valueId, hiddenId, initialSecs) {
     if (delta < -180) delta += 360;
     lastAngle = angle;
     accumulator += delta;
-    const step = 12;
+    const step = 30;
     if (accumulator >= step) {
       const ticks = Math.floor(accumulator / step);
-      val = Math.min(3600, val + ticks);
+      val = Math.min(3600, val + ticks * 5);
       accumulator -= ticks * step;
       hidden.value = val;
       updateDisplay();
       ndDialFeedback();
     } else if (accumulator <= -step) {
       const ticks = Math.ceil(accumulator / -step);
-      val = Math.max(0, val - ticks);
+      val = Math.max(0, val - ticks * 5);
       accumulator += ticks * step;
       hidden.value = val;
       updateDisplay();
