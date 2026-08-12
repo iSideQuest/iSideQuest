@@ -4481,9 +4481,9 @@
     </button>
     <div id="tools-body" style="max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s;opacity:0;padding:0 1.2rem;">
       <div style="display:flex;flex-direction:column;gap:0.5rem;padding-bottom:1rem;">
-        <button class="btn-secondary" style="width:100%;font-size:0.95rem;" onclick="openTool('rng')">🎲 Random Number Generator</button>
-        <button class="btn-secondary" style="width:100%;font-size:0.95rem;" onclick="openTool('timers')">⏱️ Timers</button>
-        <button class="btn-secondary" style="width:100%;font-size:0.95rem;" onclick="openTool('picker')">🎯 Random Team Maker</button>
+        <button class="btn-secondary" style="width:100%;font-size:0.95rem;" onclick="openTool('rng', true)">🎲 Random Number Generator</button>
+        <button class="btn-secondary" style="width:100%;font-size:0.95rem;" onclick="openTool('timers', true)">⏱️ Timers</button>
+        <button class="btn-secondary" style="width:100%;font-size:0.95rem;" onclick="openTool('picker', true)">🎯 Random Team Maker</button>
       </div>
     </div>
   </div>
@@ -5310,10 +5310,20 @@
     <div class="feature-settings-modal-title">🔢 Rounds Settings</div>
 
     <div style="font-size:0.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Total Number of Rounds</div>
-    <div style="display:flex;gap:0.6rem;align-items:center;">
-      <input type="number" id="rounds-total" value="3" min="1" max="99" style="width:72px;text-align:center;padding:0.4rem 0.5rem;font-size:1.1rem;margin:0;font-weight:700;">
-      <span style="font-size:0.88rem;color:var(--muted);">rounds total</span>
+    <div class="nd-dial-wrapper">
+      <div class="nd-dial-value" id="rd-dial-value" style="color:var(--accent);">3</div>
+      <div class="nd-dial-outer" id="rd-dial-outer">
+        <div class="nd-dial-track" id="rd-dial-track">
+          <div class="nd-dial-knob" id="rd-dial-knob"></div>
+          <div class="nd-dial-minus">−</div>
+          <div class="nd-dial-plus">+</div>
+        </div>
+        <div class="nd-dial-center" id="rd-dial-center"></div>
+      </div>
+      <div class="nd-dial-label">rotate to adjust</div>
     </div>
+    <input type="hidden" id="rounds-total" value="3">
+
     <div style="font-size:0.75rem;color:var(--muted);line-height:1.5;margin-top:0.25rem;">
       The round counter starts at 1 and advances when the host taps <strong style="color:var(--text);">End Round</strong> in the crown menu. The final round is highlighted in gold.
     </div>
@@ -5819,10 +5829,20 @@
       </div>
     </div>
 
-    <div class="tm-rounds-row">
-      <span class="tm-rounds-label">Total Rounds</span>
-      <input type="number" id="speed-rounds-total" class="tm-rounds-input" value="10" min="1" max="99">
+    <div class="nd-dial-wrapper" style="margin:0.75rem 0;">
+      <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Total Rounds</div>
+      <div class="nd-dial-value" id="speed-rd-dial-value" style="color:var(--accent);">10</div>
+      <div class="nd-dial-outer" id="speed-rd-dial-outer">
+        <div class="nd-dial-track" id="speed-rd-dial-track">
+          <div class="nd-dial-knob" id="speed-rd-dial-knob"></div>
+          <div class="nd-dial-minus">−</div>
+          <div class="nd-dial-plus">+</div>
+        </div>
+        <div class="nd-dial-center" id="speed-rd-dial-center"></div>
+      </div>
+      <div class="nd-dial-label">rotate to adjust</div>
     </div>
+    <input type="hidden" id="speed-rounds-total" value="10">
 
     <div id="speed-mode-required" style="display:none;color:#e05555;font-size:0.75rem;text-align:center;">⚠ Choose a speed mode first.</div>
     <button class="btn-primary" onclick="confirmSpeedMode()" style="margin-top:0.25rem;">Confirm →</button>
@@ -6602,6 +6622,7 @@ window.selectTurnMode = function(mode) {
     document.getElementById('classic-dir-overlay').classList.add('show');
   } else {
     document.getElementById('speed-mode-overlay').classList.add('show');
+    rdDialInit('speed-rd-dial-outer','speed-rd-dial-knob','speed-rd-dial-value','speed-rounds-total', parseInt(document.getElementById('speed-rounds-total').value) || 10);
   }
 };
 
@@ -7547,12 +7568,15 @@ const TOOL_LABELS = {
   status: 'Status Effects'
 };
 
-window.openToolsOverlay = function() {
+let toolsSource = 'host'; // 'host' or 'home'
+
+window.openToolsOverlay = function(fromHome) {
+  toolsSource = fromHome ? 'home' : 'host';
   document.getElementById('tools-overlay').classList.add('show');
 };
 window.closeToolsOverlay = function() {
   document.getElementById('tools-overlay').classList.remove('show');
-  openHostCrownMenu();
+  if (toolsSource === 'host') openHostCrownMenu();
 };
 
 // ── TUTORIAL OVERLAY ──
@@ -7630,8 +7654,8 @@ window.tutorialPrev = function() {
   tutorialGoTo(tutorialSlide - 1);
 };
 
-window.openTool = function(toolId) {
-  // Close the tools list (if open) before opening a specific tool
+window.openTool = function(toolId, fromHome) {
+  toolsSource = fromHome ? 'home' : 'host';
   closeToolsOverlay();
   if (toolId === 'rng') {
     openRngOverlay();
@@ -8264,6 +8288,7 @@ window.goBackToCreate = async function() {
   const roundsEditBtn = document.getElementById('rounds-edit-btn');
   if (roundsEditBtn) roundsEditBtn.classList.toggle('visible', featureRoundsEnabled);
   document.getElementById('nudge-delay').value = nudgeDelaySeconds;
+  document.getElementById('rounds-total').value = roundsTotal || 3;
   updateFeaturesSummary();
   createStep = 3;
   renderCreateStep();
@@ -8705,6 +8730,7 @@ window.closeNudgeOverlay = function() {
 };
 window.openRoundsOverlay = function() {
   document.getElementById('rounds-settings-overlay').classList.add('show');
+  rdDialInit('mg-rd-dial-outer','mg-rd-dial-knob','mg-rd-dial-value','mg-rounds-total', parseInt(document.getElementById('mg-rounds-total').value) || 3);
 };
 window.closeRoundsOverlay = function() {
   document.getElementById('rounds-settings-overlay').classList.remove('show');
@@ -8847,6 +8873,7 @@ window.openFeatureSettings = function(key) {
     const cur = document.querySelector('input[name="nudge-mode"]:checked')?.value || nudgeMode || 'multi';
     selectNdMode(cur);
   }
+  if (key === 'rounds') rdDialInit('rd-dial-outer','rd-dial-knob','rd-dial-value','rounds-total', parseInt(document.getElementById('rounds-total').value) || 3);
 };
 
 window.selectNdMode = function(mode, isMg) {
@@ -10806,6 +10833,7 @@ window.startNewGameSetup = async function() {
   const roundsEditBtn = document.getElementById('rounds-edit-btn');
   if (roundsEditBtn) roundsEditBtn.classList.toggle('visible', featureRoundsEnabled);
   document.getElementById('nudge-delay').value = nudgeDelaySeconds;
+  document.getElementById('rounds-total').value = roundsTotal || 3;
   updateFeaturesSummary();
   // Start from step 1 so host can redo all steps
   createStep = 1;
@@ -12091,6 +12119,92 @@ function ndDialFeedback() {
   }
 }
 
+// ── ROUNDS DIAL ──────────────────────────────
+function rdDialInit(outerId, knobId, valueId, hiddenId, initialVal) {
+  const outer = document.getElementById(outerId);
+  const knob = document.getElementById(knobId);
+  const valueEl = document.getElementById(valueId);
+  const hidden = document.getElementById(hiddenId);
+  if (!outer || !knob || !valueEl || !hidden) return;
+
+  let val = Math.max(1, Math.min(99, parseInt(hidden.value) || initialVal || 3));
+  let dragging = false;
+  let lastAngle = 0;
+  let accumulator = 0;
+
+  function updateDisplay() {
+    valueEl.textContent = val;
+    const angle = (val - 1) * 90;
+    knob.style.transform = 'translateX(-50%) rotate(' + angle + 'deg)';
+    knob.style.transformOrigin = '50% 101px';
+  }
+
+  function getAngle(e) {
+    const rect = outer.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
+  }
+
+  function onStart(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dragging = true;
+    lastAngle = getAngle(e);
+    accumulator = 0;
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const angle = getAngle(e);
+    let delta = angle - lastAngle;
+    if (delta > 180)  delta -= 360;
+    if (delta < -180) delta += 360;
+    lastAngle = angle;
+    accumulator += delta;
+    const step = 90;
+    if (accumulator >= step) {
+      val = Math.min(99, val + 1);
+      accumulator -= step;
+      hidden.value = val;
+      updateDisplay();
+      ndDialFeedback();
+    } else if (accumulator <= -step) {
+      val = Math.max(1, val - 1);
+      accumulator += step;
+      hidden.value = val;
+      updateDisplay();
+      ndDialFeedback();
+    }
+  }
+
+  function onEnd() {
+    dragging = false;
+    accumulator = 0;
+  }
+
+  outer.removeEventListener('mousedown', outer._rdDown);
+  outer.removeEventListener('touchstart', outer._rdDown);
+  knob.removeEventListener('mousedown', knob._rdDown);
+  knob.removeEventListener('touchstart', knob._rdDown);
+
+  outer._rdDown = onStart;
+  knob._rdDown = onStart;
+  outer.addEventListener('mousedown', onStart);
+  outer.addEventListener('touchstart', onStart, { passive: false });
+  knob.addEventListener('mousedown', onStart);
+  knob.addEventListener('touchstart', onStart, { passive: false });
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', onMove, { passive: false });
+  window.addEventListener('mouseup', onEnd);
+  window.addEventListener('touchend', onEnd);
+
+  updateDisplay();
+}
+
 // Keep old name for backwards compatibility
 window.beginAwardsAfterVP = window.beginAfterVP;
 
@@ -12921,10 +13035,19 @@ window.dismissInstall = function() {
   <div class="manage-card" style="max-width:320px; padding:1.25rem;">
     <div style="font-size:1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:1rem;">🔢 Rounds Settings</div>
     <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Total Rounds</div>
-    <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.75rem;">
-      <input type="number" id="mg-rounds-total" value="3" min="1" max="99" style="width:64px;text-align:center;padding:0.3rem;font-size:0.9rem;margin:0;">
-      <span style="font-size:0.8rem;color:var(--muted);">rounds</span>
+    <div class="nd-dial-wrapper">
+      <div class="nd-dial-value" id="mg-rd-dial-value" style="color:var(--accent);">3</div>
+      <div class="nd-dial-outer" id="mg-rd-dial-outer">
+        <div class="nd-dial-track" id="mg-rd-dial-track">
+          <div class="nd-dial-knob" id="mg-rd-dial-knob"></div>
+          <div class="nd-dial-minus">−</div>
+          <div class="nd-dial-plus">+</div>
+        </div>
+        <div class="nd-dial-center" id="mg-rd-dial-center"></div>
+      </div>
+      <div class="nd-dial-label">rotate to adjust</div>
     </div>
+    <input type="hidden" id="mg-rounds-total" value="3">
     <div style="font-size:0.72rem;color:var(--muted);line-height:1.4;margin-bottom:1rem;">Current round resets to 1. This will restart the round count.</div>
     <button class="info-modal-close" onclick="closeRoundsOverlay()" style="width:100%;">Done</button>
   </div>
