@@ -5831,7 +5831,7 @@
 
     <div class="nd-dial-wrapper" style="margin:0.75rem 0;">
       <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Total Rounds</div>
-      <div class="nd-dial-value" id="speed-rd-dial-value" style="color:var(--accent);">10</div>
+      <div class="nd-dial-value" id="speed-rd-dial-value" style="color:var(--accent);">3</div>
       <div class="nd-dial-outer" id="speed-rd-dial-outer">
         <div class="nd-dial-track" id="speed-rd-dial-track">
           <div class="nd-dial-knob" id="speed-rd-dial-knob"></div>
@@ -5842,7 +5842,7 @@
       </div>
       <div class="nd-dial-label">rotate to adjust</div>
     </div>
-    <input type="hidden" id="speed-rounds-total" value="10">
+    <input type="hidden" id="speed-rounds-total" value="3">
 
     <div id="speed-mode-required" style="display:none;color:#e05555;font-size:0.75rem;text-align:center;">⚠ Choose a speed mode first.</div>
     <button class="btn-primary" onclick="confirmSpeedMode()" style="margin-top:0.25rem;">Confirm →</button>
@@ -6622,7 +6622,7 @@ window.selectTurnMode = function(mode) {
     document.getElementById('classic-dir-overlay').classList.add('show');
   } else {
     document.getElementById('speed-mode-overlay').classList.add('show');
-    rdDialInit('speed-rd-dial-outer','speed-rd-dial-knob','speed-rd-dial-value','speed-rounds-total', parseInt(document.getElementById('speed-rounds-total').value) || 10);
+    rdDialInit('speed-rd-dial-outer','speed-rd-dial-knob','speed-rd-dial-value','speed-rounds-total', parseInt(document.getElementById('speed-rounds-total').value) || 3);
   }
 };
 
@@ -6662,7 +6662,7 @@ window.confirmSpeedMode = function() {
     document.getElementById('speed-mode-required').style.display = 'block';
     return;
   }
-  const rounds = parseInt(document.getElementById('speed-rounds-total').value) || 10;
+  const rounds = parseInt(document.getElementById('speed-rounds-total').value) || 3;
   turnMode = 'speedRound';
   speedMode = _selectedSpeedMode;
   speedRoundsTotal = rounds;
@@ -12127,14 +12127,15 @@ function rdDialInit(outerId, knobId, valueId, hiddenId, initialVal) {
   const hidden = document.getElementById(hiddenId);
   if (!outer || !knob || !valueEl || !hidden) return;
 
-  let val = Math.max(1, Math.min(99, parseInt(hidden.value) || initialVal || 3));
+  const defaultVal = 3;
+  let val = Math.max(1, Math.min(99, parseInt(hidden.value) || initialVal || defaultVal));
   let dragging = false;
   let lastAngle = 0;
   let accumulator = 0;
 
   function updateDisplay() {
     valueEl.textContent = val;
-    const angle = (val - 1) * 90;
+    const angle = (val - defaultVal) * 90;
     knob.style.transform = 'translateX(-50%) rotate(' + angle + 'deg)';
     knob.style.transformOrigin = '50% 101px';
   }
