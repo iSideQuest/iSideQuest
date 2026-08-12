@@ -5247,18 +5247,22 @@
       </div>
       <div class="nd-dial-label">rotate to adjust</div>
     </div>
+    <input type="radio" name="nudge-mode" value="multi" checked style="display:none;">
+    <input type="radio" name="nudge-mode" value="single" style="display:none;">
     <input type="hidden" id="nudge-delay" value="30">
 
-    <div style="font-size:0.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;margin-top:0.5rem;">Nudge Mode</div>
-    <div style="display:flex;flex-direction:column;gap:0.5rem;">
-      <label style="display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;margin:0;font-size:0.85rem;color:var(--text);line-height:1.4;">
-        <input type="radio" name="nudge-mode" value="multi" checked style="width:auto;margin:0;margin-top:2px;flex-shrink:0;accent-color:var(--accent);">
-        <span><strong>Multi Nudge</strong><br><span style="font-size:0.75rem;color:var(--muted);">Tap as many times as you want</span></span>
-      </label>
-      <label style="display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;margin:0;font-size:0.85rem;color:var(--text);line-height:1.4;">
-        <input type="radio" name="nudge-mode" value="single" style="width:auto;margin:0;margin-top:2px;flex-shrink:0;accent-color:var(--accent);">
-        <span><strong>Single Nudge</strong><br><span style="font-size:0.75rem;color:var(--muted);">One nudge per turn per player</span></span>
-      </label>
+    <div style="font-size:0.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;text-align:center;margin-top:0.5rem;">Nudge Mode</div>
+    <div class="turn-mode-btns" style="margin-top:0.5rem;">
+      <button class="turn-mode-btn selected" id="nd-mode-multi" onclick="selectNdMode('multi')">
+        <span class="tm-icon">👉</span>
+        Multi Nudge
+        <span style="font-size:0.72rem;color:var(--muted);font-weight:400;margin-top:2px;">Tap as many times as you want</span>
+      </button>
+      <button class="turn-mode-btn" id="nd-mode-single" onclick="selectNdMode('single')">
+        <span class="tm-icon">☝️</span>
+        Single Nudge
+        <span style="font-size:0.72rem;color:var(--muted);font-weight:400;margin-top:2px;">One nudge per turn per player</span>
+      </button>
     </div>
 
     <button class="info-modal-close" onclick="closeFeatureSettings('nudge')" style="margin-top:0.75rem;">Done</button>
@@ -8693,6 +8697,8 @@ window.mgCountdownToggle = function(checked) {
 window.openNudgeOverlay = function() {
   document.getElementById('nudge-settings-overlay').classList.add('show');
   ndDialInit('mg-nd-dial-outer','mg-nd-dial-knob','mg-nd-dial-value','mg-nudge-delay', parseInt(document.getElementById('mg-nudge-delay').value) || 30);
+  const cur = document.querySelector('input[name="mg-nudge-mode"]:checked')?.value || nudgeMode || 'multi';
+  selectNdMode(cur, true);
 };
 window.closeNudgeOverlay = function() {
   document.getElementById('nudge-settings-overlay').classList.remove('show');
@@ -8836,7 +8842,20 @@ function updateFeaturesSummary() {
 
 window.openFeatureSettings = function(key) {
   document.getElementById(key + '-settings-overlay').classList.add('show');
-  if (key === 'nudge') ndDialInit('nd-dial-outer','nd-dial-knob','nd-dial-value','nudge-delay', parseInt(document.getElementById('nudge-delay').value) || 30);
+  if (key === 'nudge') {
+    ndDialInit('nd-dial-outer','nd-dial-knob','nd-dial-value','nudge-delay', parseInt(document.getElementById('nudge-delay').value) || 30);
+    const cur = document.querySelector('input[name="nudge-mode"]:checked')?.value || nudgeMode || 'multi';
+    selectNdMode(cur);
+  }
+};
+
+window.selectNdMode = function(mode, isMg) {
+  const prefix = isMg ? 'mg-nd' : 'nd';
+  document.getElementById(prefix + '-mode-multi').classList.toggle('selected', mode === 'multi');
+  document.getElementById(prefix + '-mode-single').classList.toggle('selected', mode === 'single');
+  // Sync hidden radio state for save logic
+  const radioName = isMg ? 'mg-nudge-mode' : 'nudge-mode';
+  document.querySelectorAll('input[name="' + radioName + '"]').forEach(r => r.checked = (r.value === mode));
 };
 
 window.closeFeatureSettings = function(key) {
@@ -12879,17 +12898,21 @@ window.dismissInstall = function() {
       <div class="nd-dial-label">rotate to adjust</div>
     </div>
     <input type="hidden" id="mg-nudge-delay" value="30">
-    <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Nudge Mode</div>
-    <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;">
-      <label style="display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;margin:0;font-size:0.82rem;color:var(--text);line-height:1.4;">
-        <input type="radio" name="mg-nudge-mode" value="multi" checked style="width:auto;margin:0;margin-top:2px;flex-shrink:0;accent-color:var(--accent);">
-        <span><strong>Multi Nudge</strong> — tap as many times as you want</span>
-      </label>
-      <label style="display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;margin:0;font-size:0.82rem;color:var(--text);line-height:1.4;">
-        <input type="radio" name="mg-nudge-mode" value="single" style="width:auto;margin:0;margin-top:2px;flex-shrink:0;accent-color:var(--accent);">
-        <span><strong>Single Nudge</strong> — one nudge per turn per player</span>
-      </label>
+    <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;text-align:center;">Nudge Mode</div>
+    <div class="turn-mode-btns" style="margin-top:0.5rem;">
+      <button class="turn-mode-btn selected" id="mg-nd-mode-multi" onclick="selectNdMode('multi', true)">
+        <span class="tm-icon">👉</span>
+        Multi Nudge
+        <span style="font-size:0.72rem;color:var(--muted);font-weight:400;margin-top:2px;">Tap as many times as you want</span>
+      </button>
+      <button class="turn-mode-btn" id="mg-nd-mode-single" onclick="selectNdMode('single', true)">
+        <span class="tm-icon">☝️</span>
+        Single Nudge
+        <span style="font-size:0.72rem;color:var(--muted);font-weight:400;margin-top:2px;">One nudge per turn per player</span>
+      </button>
     </div>
+    <input type="radio" name="mg-nudge-mode" value="multi" checked style="display:none;">
+    <input type="radio" name="mg-nudge-mode" value="single" style="display:none;">
     <button class="info-modal-close" onclick="closeNudgeOverlay()" style="width:100%;">Done</button>
   </div>
 </div>
