@@ -7724,7 +7724,8 @@ window.updateCreateCollapseSummary = function() {
   }
   const featLabel = document.getElementById('create-collapse-features');
   if (featLabel) {
-    const enabled = FEATURE_DEFS_GRID.filter(f => isFeatureEnabled(f.key));
+    const visibleDefs = FEATURE_DEFS_GRID.filter(f => !f.creatorOnly || isCreator);
+    const enabled = visibleDefs.filter(f => isFeatureEnabled(f.key));
     featLabel.textContent = enabled.length ? '⚙️ ' + enabled.length + ' feature' + (enabled.length > 1 ? 's' : '') : 'All features off';
   }
 }
@@ -9102,14 +9103,14 @@ window.onUndoToggle = function(checked) {
 
 // ── STEP 3 FEATURE GRID TOGGLE ──
 const FEATURE_DEFS_GRID = [
-  { key: 'nudge',   icon: '👉', name: 'Nudge',         hasSettings: true,  settingKey: 'nudge',   var: 'featureNudgeEnabled' },
-  { key: 'awards',  icon: '🏆', name: 'Awards',        hasSettings: false, var: 'featureAwardsEnabled' },
-  { key: 'timers',  icon: '⏱️', name: 'Timers',        hasSettings: true,  settingKey: 'timers',  var: 'featureTimersEnabled' },
-  { key: 'vp',      icon: '🏅', name: 'Victory Points', hasSettings: false, var: 'featureVPEnabled' },
-  { key: 'status',  icon: '🩹', name: 'Status Effects', hasSettings: false, var: 'featureStatusEffectsEnabled' },
-  { key: 'rounds',  icon: '🔢', name: 'Rounds',        hasSettings: true,  settingKey: 'rounds',  var: 'featureRoundsEnabled' },
-  { key: 'dnd',     icon: '⚔️', name: 'D&D',           hasSettings: false, var: 'featureDndEnabled' },
-  { key: 'undo',    icon: '↩️', name: 'Undo Pass',     hasSettings: false, var: 'featureUndoEnabled' }
+  { key: 'awards',  icon: '🏆', name: 'Awards',         hasSettings: false, var: 'featureAwardsEnabled' },
+  { key: 'nudge',   icon: '👉', name: 'Nudge',          hasSettings: true,  settingKey: 'nudge',   var: 'featureNudgeEnabled' },
+  { key: 'vp',      icon: '🏅', name: 'Victory Points',  hasSettings: false, var: 'featureVPEnabled' },
+  { key: 'rounds',  icon: '🔢', name: 'Rounds',         hasSettings: true,  settingKey: 'rounds',  var: 'featureRoundsEnabled' },
+  { key: 'undo',    icon: '↩️', name: 'Undo Pass',      hasSettings: false, var: 'featureUndoEnabled' },
+  { key: 'timers',  icon: '⏱️', name: 'Timers',         hasSettings: true,  settingKey: 'timers',  var: 'featureTimersEnabled',  creatorOnly: true },
+  { key: 'status',  icon: '🩹', name: 'Status Effects',  hasSettings: false, var: 'featureStatusEffectsEnabled', creatorOnly: true },
+  { key: 'dnd',     icon: '⚔️', name: 'D&D',            hasSettings: false, var: 'featureDndEnabled',           creatorOnly: true }
 ];
 
 function isFeatureEnabled(key) {
@@ -9166,13 +9167,12 @@ window.toggleFeature = function(key) {
 function renderFeatureGrid() {
   const avail = document.getElementById('features-available-grid');
   const added = document.getElementById('features-added-grid');
-  const emptyMsg = document.getElementById('features-empty-msg');
   if (!avail || !added) return;
-  // Clear grids
   avail.innerHTML = '';
   added.innerHTML = '';
+  const visibleDefs = FEATURE_DEFS_GRID.filter(f => !f.creatorOnly || isCreator);
   let addedCount = 0;
-  FEATURE_DEFS_GRID.forEach(def => {
+  visibleDefs.forEach(def => {
     const enabled = isFeatureEnabled(def.key);
     const card = document.createElement('div');
     card.className = 'feature-card' + (enabled ? ' added' : '');
