@@ -9253,6 +9253,7 @@ window.selectNdMode = function(mode, isMg) {
 
 window.closeFeatureSettings = function(key) {
   document.getElementById(key + '-settings-overlay').classList.remove('show');
+  renderFeatureGrid();
 };
 
 // ── ROUND INDICATOR ──────────────────────────
