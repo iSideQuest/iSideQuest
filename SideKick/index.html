@@ -7650,8 +7650,11 @@ window.updateCreateCollapseSummary = function() {
   }
   const featLabel = document.getElementById('create-collapse-features');
   if (featLabel) {
-    const enabled = getEnabledFeatures();
-    featLabel.textContent = enabled.length ? enabled.map(f => FEATURE_DEFS[f]?.icon || '').join(' ') + ' ' + enabled.length + ' feature' + (enabled.length > 1 ? 's' : '') : 'All features off';
+    const enabled = [];
+    if (passDirection) enabled.push('passDirection');
+    if (turnMode === 'speed') enabled.push('speedRound');
+    if (featureNudgeEnabled) enabled.push('nudge');
+    featLabel.textContent = enabled.length ? enabled.length + ' feature' + (enabled.length > 1 ? 's' : '') : 'All features off';
   }
 }
 
