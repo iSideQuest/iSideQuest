@@ -7644,15 +7644,21 @@ window.updateCreateCollapseSummary = function() {
   if (collapseSwatch) collapseSwatch.style.background = myColor || 'var(--border)';
   const modeLabel = document.getElementById('create-collapse-mode');
   if (modeLabel) {
-    if (turnMode === 'speed') modeLabel.textContent = '⚡ Speed Round';
-    else if (turnMode === 'classic') modeLabel.textContent = '♟️ Classic Turns';
-    else modeLabel.textContent = 'No mode';
+    if (turnMode === 'speedRound') {
+      const modeLabels = { firstToTap: '1st To Tap', downTheLine: 'Down The Line' };
+      modeLabel.textContent = '⚡ ' + (modeLabels[speedMode] || speedMode) + ' · ' + speedRoundsTotal + ' rounds';
+    } else if (turnMode === 'classic' && passDirection) {
+      const dirLabels = { cw: 'Left', both: 'Both', ccw: 'Right' };
+      modeLabel.textContent = '♟️ Classic · ' + (dirLabels[passDirection] || passDirection);
+    } else {
+      modeLabel.textContent = 'No mode';
+    }
   }
   const featLabel = document.getElementById('create-collapse-features');
   if (featLabel) {
     const enabled = [];
     if (passDirection) enabled.push('passDirection');
-    if (turnMode === 'speed') enabled.push('speedRound');
+    if (turnMode === 'speedRound') enabled.push('speedRound');
     if (featureNudgeEnabled) enabled.push('nudge');
     featLabel.textContent = enabled.length ? enabled.length + ' feature' + (enabled.length > 1 ? 's' : '') : 'All features off';
   }
@@ -7672,7 +7678,7 @@ function renderCreateStep() {
     if (createStep === 1) {
       el.classList.toggle('revealed', step === 1);
     } else {
-      el.classList.toggle('revealed', step <= 3);
+      el.classList.toggle('revealed', step <= createStep);
       el.classList.toggle('collapsed', step < createStep);
     }
     if (card) void card.offsetWidth;
