@@ -3773,6 +3773,33 @@
   }
   .turn-mode-selection span { color: var(--accent-light); font-weight: 600; }
 
+  /* ── STEP 3 FEATURE GRID ── */
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .feature-section-label { font-size: 0.72rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.4rem; text-align: center; }
+  .feature-section-label.added { margin-top: 0.75rem; }
+  .feature-card {
+    background: rgba(255,255,255,0.04);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 0.65rem 0.4rem;
+    font-size: 0.82rem; font-weight: 700;
+    color: var(--text); cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 3px;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    text-align: center;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .feature-card:active { transform: scale(0.95); }
+  .feature-card .fc-icon { font-size: 1.2rem; }
+  .feature-card .fc-name { line-height: 1.2; }
+  .feature-card.added {
+    border-color: var(--accent);
+    background: rgba(124,92,191,0.15);
+  }
+  .feature-card .fc-settings { font-size: 0.6rem; color: var(--accent-light); margin-top: 1px; }
+
   /* ══════════════════════════════════════════════
      TURN MODE OVERLAYS (direction / speed mode picker)
   ══════════════════════════════════════════════ */
@@ -4610,12 +4637,53 @@
     <!-- Card 3: Game Settings / Features (Step 3) -->
     <div class="create-step" data-step="3">
       <div class="card" style="padding-top: 1rem; padding-bottom: 1rem;">
-        <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;">Step 3</div>
-        <button class="btn-secondary" onclick="openFeaturesOverlay()" style="width:100%; display:flex; align-items:center; justify-content:space-between; padding:0.75rem 1rem; font-size:0.88rem;">
-          <span>⚙️ Configure Features</span>
-          <span style="color:var(--muted); font-size:0.78rem;">›</span>
-        </button>
-        <div id="features-summary" style="margin-top:0.5rem; font-size:0.75rem; color:var(--muted); min-height:1.1em; text-align:center;">All features off</div>
+        <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;">Step 3</div>
+        <div style="font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;">Tap To Add Game Feature</div>
+
+        <div class="feature-section-label">Available Features</div>
+        <div class="feature-grid" id="features-available-grid">
+          <div class="feature-card" data-feature="nudge" onclick="toggleFeature('nudge')">
+            <span class="fc-icon">👉</span>
+            <span class="fc-name">Nudge</span>
+            <span class="fc-settings">⚙ Settings</span>
+          </div>
+          <div class="feature-card" data-feature="awards" onclick="toggleFeature('awards')">
+            <span class="fc-icon">🏆</span>
+            <span class="fc-name">Awards</span>
+          </div>
+          <div class="feature-card" data-feature="timers" onclick="toggleFeature('timers')">
+            <span class="fc-icon">⏱️</span>
+            <span class="fc-name">Timers</span>
+            <span class="fc-settings">⚙ Settings</span>
+          </div>
+          <div class="feature-card" data-feature="vp" onclick="toggleFeature('vp')">
+            <span class="fc-icon">🏅</span>
+            <span class="fc-name">Victory Points</span>
+          </div>
+          <div class="feature-card" data-feature="status" onclick="toggleFeature('status')">
+            <span class="fc-icon">🩹</span>
+            <span class="fc-name">Status Effects</span>
+          </div>
+          <div class="feature-card" data-feature="rounds" onclick="toggleFeature('rounds')">
+            <span class="fc-icon">🔢</span>
+            <span class="fc-name">Rounds</span>
+            <span class="fc-settings">⚙ Settings</span>
+          </div>
+          <div class="feature-card" data-feature="dnd" onclick="toggleFeature('dnd')">
+            <span class="fc-icon">⚔️</span>
+            <span class="fc-name">D&D</span>
+          </div>
+          <div class="feature-card" data-feature="undo" onclick="toggleFeature('undo')">
+            <span class="fc-icon">↩️</span>
+            <span class="fc-name">Undo Pass</span>
+          </div>
+        </div>
+
+        <div class="feature-section-label added">Added Features</div>
+        <div class="feature-grid" id="features-added-grid" style="min-height:2.5rem;">
+          <div id="features-empty-msg" style="grid-column:1/-1;text-align:center;font-size:0.78rem;color:var(--muted);padding:0.5rem 0;">None yet</div>
+        </div>
+
         <button class="btn-primary" id="create-final-btn" onclick="onCreateFinalBtn()" style="width:100%;margin-top:0.75rem;">Create Room</button>
       </div>
       <button class="step-collapse-btn" onclick="expandCreateStep(3)">
@@ -7656,11 +7724,8 @@ window.updateCreateCollapseSummary = function() {
   }
   const featLabel = document.getElementById('create-collapse-features');
   if (featLabel) {
-    const enabled = [];
-    if (passDirection) enabled.push('passDirection');
-    if (turnMode === 'speedRound') enabled.push('speedRound');
-    if (featureNudgeEnabled) enabled.push('nudge');
-    featLabel.textContent = enabled.length ? enabled.length + ' feature' + (enabled.length > 1 ? 's' : '') : 'All features off';
+    const enabled = FEATURE_DEFS_GRID.filter(f => isFeatureEnabled(f.key));
+    featLabel.textContent = enabled.length ? '⚙️ ' + enabled.length + ' feature' + (enabled.length > 1 ? 's' : '') : 'All features off';
   }
 }
 
@@ -7697,6 +7762,7 @@ function renderCreateStep() {
   } else {
     area.className = 'stack-mode';
   }
+  if (createStep === 3) renderFeatureGrid();
   renderEditRoomButtons();
   requestAnimationFrame(rescaleCurrentScreen);
 }
@@ -9034,6 +9100,101 @@ window.onUndoToggle = function(checked) {
   updateFeaturesSummary();
 };
 
+// ── STEP 3 FEATURE GRID TOGGLE ──
+const FEATURE_DEFS_GRID = [
+  { key: 'nudge',   icon: '👉', name: 'Nudge',         hasSettings: true,  settingKey: 'nudge',   var: 'featureNudgeEnabled' },
+  { key: 'awards',  icon: '🏆', name: 'Awards',        hasSettings: false, var: 'featureAwardsEnabled' },
+  { key: 'timers',  icon: '⏱️', name: 'Timers',        hasSettings: true,  settingKey: 'timers',  var: 'featureTimersEnabled' },
+  { key: 'vp',      icon: '🏅', name: 'Victory Points', hasSettings: false, var: 'featureVPEnabled' },
+  { key: 'status',  icon: '🩹', name: 'Status Effects', hasSettings: false, var: 'featureStatusEffectsEnabled' },
+  { key: 'rounds',  icon: '🔢', name: 'Rounds',        hasSettings: true,  settingKey: 'rounds',  var: 'featureRoundsEnabled' },
+  { key: 'dnd',     icon: '⚔️', name: 'D&D',           hasSettings: false, var: 'featureDndEnabled' },
+  { key: 'undo',    icon: '↩️', name: 'Undo Pass',     hasSettings: false, var: 'featureUndoEnabled' }
+];
+
+function isFeatureEnabled(key) {
+  const def = FEATURE_DEFS_GRID.find(f => f.key === key);
+  if (!def) return false;
+  return !!window[def.var];
+}
+
+function setFeatureEnabled(key, enabled) {
+  const def = FEATURE_DEFS_GRID.find(f => f.key === key);
+  if (!def) return;
+  window[def.var] = enabled;
+  // Also sync the old overlay checkboxes so save logic still works
+  const toggleMap = {
+    nudge: 'feature-nudge-toggle', awards: 'feature-awards-toggle',
+    timers: 'feature-timers-toggle', vp: 'feature-vp-toggle',
+    status: 'feature-status-toggle', rounds: 'feature-rounds-toggle',
+    dnd: 'feature-dnd-toggle', undo: 'feature-undo-toggle'
+  };
+  const cb = document.getElementById(toggleMap[key]);
+  if (cb) cb.checked = enabled;
+  // Run existing side-effect handlers
+  if (key === 'nudge')   window.onNudgeToggle(enabled);
+  if (key === 'awards')  window.onAwardsToggle(enabled);
+  if (key === 'timers')  window.onTimersToggle(enabled);
+  if (key === 'vp')      window.onVPToggle(enabled);
+  if (key === 'status')  window.onStatusEffectsToggle(enabled);
+  if (key === 'rounds')  window.onRoundsToggle(enabled);
+  if (key === 'dnd')     window.onDndToggle(enabled);
+  if (key === 'undo')    window.onUndoToggle(enabled);
+}
+
+window.toggleFeature = function(key) {
+  const def = FEATURE_DEFS_GRID.find(f => f.key === key);
+  if (!def) return;
+  const wasEnabled = isFeatureEnabled(key);
+  if (!wasEnabled) {
+    // Enable and move to added
+    setFeatureEnabled(key, true);
+    haptic(5);
+    // Open settings overlay if it has one
+    if (def.hasSettings && def.settingKey) {
+      openFeatureSettings(def.settingKey);
+    }
+  } else {
+    // Disable and move back to available
+    setFeatureEnabled(key, false);
+    haptic(3);
+  }
+  renderFeatureGrid();
+  updateCreateCollapseSummary();
+};
+
+function renderFeatureGrid() {
+  const avail = document.getElementById('features-available-grid');
+  const added = document.getElementById('features-added-grid');
+  const emptyMsg = document.getElementById('features-empty-msg');
+  if (!avail || !added) return;
+  // Clear grids
+  avail.innerHTML = '';
+  added.innerHTML = '';
+  let addedCount = 0;
+  FEATURE_DEFS_GRID.forEach(def => {
+    const enabled = isFeatureEnabled(def.key);
+    const card = document.createElement('div');
+    card.className = 'feature-card' + (enabled ? ' added' : '');
+    card.setAttribute('data-feature', def.key);
+    card.onclick = () => toggleFeature(def.key);
+    let html = '<span class="fc-icon">' + def.icon + '</span><span class="fc-name">' + def.name + '</span>';
+    if (def.hasSettings && enabled) {
+      html += '<span class="fc-settings">⚙ Settings</span>';
+    }
+    card.innerHTML = html;
+    if (enabled) {
+      added.appendChild(card);
+      addedCount++;
+    } else {
+      avail.appendChild(card);
+    }
+  });
+  if (addedCount === 0) {
+    added.innerHTML = '<div id="features-empty-msg" style="grid-column:1/-1;text-align:center;font-size:0.78rem;color:var(--muted);padding:0.5rem 0;">None yet</div>';
+  }
+}
+
 window.openFeaturesOverlay = function() {
   document.getElementById('features-config-overlay').classList.add('show');
 };
@@ -9056,6 +9217,8 @@ function updateFeaturesSummary() {
   if (featureRoundsEnabled)        active.push('🔢 Rounds');
   if (featureUndoEnabled)          active.push('↩️ Undo');
   el.textContent = active.length ? active.join(' · ') : 'All features off';
+  // Also update the Step 3 grid if it exists
+  if (document.getElementById('features-available-grid')) renderFeatureGrid();
 }
 
 window.openFeatureSettings = function(key) {
