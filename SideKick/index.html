@@ -4749,7 +4749,7 @@
           <span style="font-size:1.2rem;">📷</span> Scan Room QR Code
         </button>
         <div style="text-align:center;font-size:0.78rem;color:var(--muted);font-weight:600;margin-bottom:0.6rem;">OR</div>
-        <input id="join-code" placeholder="Enter Room Code" maxlength="4" style="font-family:monospace;font-size:1.15rem;letter-spacing:0.2em;text-align:center;margin-bottom:1.25rem;" oninput="updateJoinCollapseSummary()">
+        <input id="join-code" placeholder="Enter Room Code" maxlength="4" style="font-family:monospace;font-size:1.15rem;letter-spacing:0.2em;text-align:center;text-transform:uppercase;margin-bottom:1.25rem;" oninput="updateJoinCollapseSummary()">
         <button class="btn-primary" id="join-final-btn" onclick="joinRoom()" style="width:100%;">Join Room</button>
       </div>
       <button class="step-collapse-btn" onclick="expandJoinStep(2)">
@@ -9048,6 +9048,9 @@ window.saveMidGameSettings = async function() {
     }
     await update(ref(db), updates);
     suppressNextTurnSound = true;
+    // Update local state immediately
+    nudgeDelaySeconds = newFeatures.nudgeDelay;
+    nudgeMode = newFeatures.nudgeMode;
     statusEl.textContent = '✓ Applied!';
     closeMidGameSettings();
   } catch(e) {
