@@ -5260,6 +5260,7 @@
       </div>
     </div>
     <button class="vp-submit-btn" onclick="submitVP()" style="margin-top:0.75rem;">Submit Points</button>
+    <button id="vp-back-btn" onclick="confirmVPBack()" style="display:none;margin-top:0.5rem;width:100%;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;">← Back to Room</button>
   </div>
   <div id="vp-waiting-section" style="display:none; flex-direction:column; align-items:center; gap:0.75rem; width:100%;">
     <div class="vp-submitted-msg">✓ Score submitted! Waiting for others…</div>
@@ -5461,96 +5462,20 @@
     <div style="font-size:1.05rem;font-weight:800;color:var(--text);text-align:center;margin-bottom:1.1rem;">⚙️ Room Settings</div>
 
     <!-- Turn Direction -->
-    <div class="feature-row" style="margin-bottom:0.5rem;">
-      <span class="feature-name" style="font-size:0.9rem;">Direction</span>
-    </div>
+    <div class="feature-section-label">Turn Direction</div>
     <div id="mg-direction-buttons" style="display:flex;gap:0.4rem;margin-bottom:0.75rem;">
       <button class="mg-dir-btn" data-dir="cw" onclick="mgSetDirection('cw')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">↻ Clockwise</button>
-      <button class="mg-dir-btn" data-dir="both" onclick="mgSetDirection('both')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">⇅ Both Directions</button>
-      <button class="mg-dir-btn" data-dir="ccw" onclick="mgSetDirection('ccw')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">↺ Counterclockwise</button>
+      <button class="mg-dir-btn" data-dir="both" onclick="mgSetDirection('both')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">⇅ Both</button>
+      <button class="mg-dir-btn" data-dir="ccw" onclick="mgSetDirection('ccw')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">↺ Counter</button>
     </div>
 
-    <!-- Nudge -->
-    <div class="feature-row" style="margin-bottom:0.75rem;">
-      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-nudge-toggle" type="checkbox" onchange="onMidGameToggle('nudge',this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">👉 Nudge</span>
-      <button id="mg-nudge-edit-btn" onclick="openNudgeOverlay()" style="display:none;margin-left:auto;padding:0.25rem 0.6rem;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid var(--border);color:var(--text);font-size:0.72rem;font-weight:700;cursor:pointer;">Edit</button>
-    </div>
+    <div class="feature-section-label">Available Features</div>
+    <div class="feature-grid" id="mg-features-available-grid"></div>
 
-    <!-- Achievement Awards -->
-    <div class="feature-row creator-only" style="margin-bottom:0.75rem;">
-      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-awards-toggle" type="checkbox" onchange="onMidGameToggle('awards',this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">🏆 Achievement Awards</span>
-    </div>
+    <div class="feature-section-label added">Added Features</div>
+    <div class="feature-grid" id="mg-features-added-grid" style="min-height:2.5rem;"></div>
 
-    <!-- Victory Points -->
-    <div class="feature-row" style="margin-bottom:0.5rem;">
-      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-vp-toggle" type="checkbox" onchange="onMidGameToggle('vp',this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">🏅 Victory Points</span>
-    </div>
-
-    <!-- Timers -->
-    <div class="creator-only">
-    <div class="feature-row" style="margin-bottom:0.5rem;">
-      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-timers-toggle" type="checkbox" onchange="onMidGameToggle('timers',this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">⏱ Timers</span>
-    </div>
-    <div id="mg-timers-settings" style="display:none;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:0.75rem;margin-bottom:0.75rem;flex-direction:column;gap:0.4rem;">
-      <div style="font-size:0.75rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.07em;">Count-Up Timers</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <label style="font-size:0.82rem;color:var(--text);margin:0;cursor:pointer;display:flex;align-items:center;gap:0.4rem;"><input type="checkbox" id="mg-timer-turn-on" checked style="width:auto;margin:0;accent-color:var(--accent);"> Turn</label>
-        <label style="font-size:0.82rem;color:var(--muted);margin:0;cursor:pointer;display:flex;align-items:center;gap:0.4rem;"><input type="checkbox" id="mg-timer-turn-visible" checked style="width:auto;margin:0;accent-color:var(--accent);"> Visible</label>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <label style="font-size:0.82rem;color:var(--text);margin:0;cursor:pointer;display:flex;align-items:center;gap:0.4rem;"><input type="checkbox" id="mg-timer-round-on" style="width:auto;margin:0;accent-color:var(--accent);"> Round</label>
-        <label style="font-size:0.82rem;color:var(--muted);margin:0;cursor:pointer;display:flex;align-items:center;gap:0.4rem;"><input type="checkbox" id="mg-timer-round-visible" checked style="width:auto;margin:0;accent-color:var(--accent);"> Visible</label>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <label style="font-size:0.82rem;color:var(--text);margin:0;cursor:pointer;display:flex;align-items:center;gap:0.4rem;"><input type="checkbox" id="mg-timer-game-on" style="width:auto;margin:0;accent-color:var(--accent);"> Game</label>
-        <label style="font-size:0.82rem;color:var(--muted);margin:0;cursor:pointer;display:flex;align-items:center;gap:0.4rem;"><input type="checkbox" id="mg-timer-game-visible" checked style="width:auto;margin:0;accent-color:var(--accent);"> Visible</label>
-      </div>
-      <div style="font-size:0.75rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin-top:0.3rem;">Countdown (per turn)</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <label style="font-size:0.82rem;color:var(--text);margin:0;cursor:pointer;display:flex;align-items:center;gap:0.4rem;"><input type="checkbox" id="mg-timer-countdown-on" onchange="mgCountdownToggle(this.checked)" style="width:auto;margin:0;accent-color:var(--accent);"> Enable</label>
-        <label style="font-size:0.82rem;color:var(--muted);margin:0;cursor:pointer;display:flex;align-items:center;gap:0.4rem;"><input type="checkbox" id="mg-timer-countdown-visible" checked style="width:auto;margin:0;accent-color:var(--accent);"> Visible</label>
-      </div>
-      <div id="mg-countdown-inputs" style="display:none;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-top:0.2rem;">
-        <input type="number" id="mg-timer-countdown-min" value="0" min="0" max="60" placeholder="0" style="width:50px;text-align:center;padding:0.3rem;font-size:0.82rem;margin:0;">
-        <span style="font-size:0.8rem;color:var(--muted);">min</span>
-        <input type="number" id="mg-timer-countdown-sec" value="30" min="0" max="59" placeholder="30" style="width:50px;text-align:center;padding:0.3rem;font-size:0.82rem;margin:0;">
-        <span style="font-size:0.8rem;color:var(--muted);">sec</span>
-      </div>
-    </div>
-    </div>
-
-    <p id="mg-status" style="font-size:0.78rem;color:var(--accent-light);text-align:center;min-height:1.1em;margin:0 0 0.5rem;"></p>
-
-    <!-- Status Effects -->
-    <div class="feature-row creator-only" style="margin-bottom:0.75rem;">
-      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-status-toggle" type="checkbox" onchange="onMidGameToggle('statusEffects',this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">🩹 Status Effects</span>
-    </div>
-
-    <!-- Rounds -->
-    <div>
-    <div class="feature-row" style="margin-bottom:0.75rem;">
-      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-rounds-toggle" type="checkbox" onchange="onMidGameToggle('rounds',this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">🔢 Rounds</span>
-      <button id="mg-rounds-edit-btn" onclick="openRoundsOverlay()" style="display:none;margin-left:auto;padding:0.25rem 0.6rem;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid var(--border);color:var(--text);font-size:0.72rem;font-weight:700;cursor:pointer;">Edit</button>
-    </div>
-    </div>
-
-    <!-- D&D Turn Components -->
-    <div class="feature-row creator-only" style="margin-bottom:0.75rem;">
-      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-dnd-toggle" type="checkbox" onchange="onMidGameToggle('dndTurnComponents',this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">⚔️ D&amp;D Turn Components</span>
-    </div>
-
-    <!-- Undo Pass -->
-    <div class="feature-row" style="margin-bottom:0.75rem;">
-      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="mg-undo-toggle" type="checkbox" onchange="onMidGameToggle('undo',this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">↩️ Undo Pass</span>
-    </div>
+    <p id="mg-status" style="font-size:0.78rem;color:var(--accent-light);text-align:center;min-height:1.1em;margin:0.5rem 0;"></p>
 
     <button class="info-modal-close" onclick="saveMidGameSettings()">✓ Apply Changes</button>
     <button class="btn-secondary btn-sm" onclick="closeMidGameSettings()" style="width:100%;margin-top:0.5rem;">Cancel</button>
@@ -8902,24 +8827,11 @@ let mgCountdownWasActive = false;
 window.openMidGameSettings = function() {
   if (!db || !roomCode) return;
 
-  document.getElementById('mg-nudge-toggle').checked  = featureNudgeEnabled;
-  document.getElementById('mg-awards-toggle').checked = featureAwardsEnabled;
-  document.getElementById('mg-vp-toggle').checked     = featureVPEnabled;
-  document.getElementById('mg-timers-toggle').checked = featureTimersEnabled;
-  document.getElementById('mg-status-toggle').checked = featureStatusEffectsEnabled;
-  document.getElementById('mg-dnd-toggle').checked    = featureDndEnabled;
-  document.getElementById('mg-rounds-toggle').checked = featureRoundsEnabled;
-  document.getElementById('mg-undo-toggle').checked   = featureUndoEnabled;
-  document.getElementById('mg-rounds-total').value    = roundsTotal || 3;
-  document.getElementById('mg-nudge-edit-btn').style.display  = featureNudgeEnabled  ? '' : 'none';
-  document.getElementById('mg-timers-settings').style.display = featureTimersEnabled ? 'flex' : 'none';
-  document.getElementById('mg-rounds-edit-btn').style.display = featureRoundsEnabled ? '' : 'none';
+  // Sync hidden inputs for timers
   document.getElementById('mg-nudge-delay').value = nudgeDelaySeconds;
+  document.getElementById('mg-rounds-total').value = roundsTotal || 3;
   const modeRadio = document.querySelector(`input[name="mg-nudge-mode"][value="${nudgeMode}"]`);
   if (modeRadio) modeRadio.checked = true;
-
-  // Highlight current direction
-  mgHighlightDirection(passDirection);
 
   if (featureTimersEnabled) {
     document.getElementById('mg-timer-turn-on').checked          = timerCfg.turn;
@@ -8939,6 +8851,12 @@ window.openMidGameSettings = function() {
     mgCountdownWasActive = false;
   }
 
+  // Highlight current direction
+  mgHighlightDirection(passDirection);
+
+  // Render feature grid
+  renderMGFeatureGrid();
+
   document.getElementById('mg-status').textContent = '';
   document.getElementById('midgame-settings-overlay').classList.add('show');
 };
@@ -8947,6 +8865,78 @@ window.closeMidGameSettings = function() {
   document.getElementById('midgame-settings-overlay').classList.remove('show');
   openHostCrownMenu();
 };
+
+// ── HOST MENU FEATURE GRID ──
+const MG_KEY_MAP = {
+  nudge: 'nudge', awards: 'awards', vp: 'victoryPoints',
+  timers: 'timers', status: 'statusEffects', rounds: 'rounds',
+  dnd: 'dndTurnComponents', undo: 'undo'
+};
+const MG_VAR_MAP = {
+  nudge: 'featureNudgeEnabled', awards: 'featureAwardsEnabled', vp: 'featureVPEnabled',
+  timers: 'featureTimersEnabled', status: 'featureStatusEffectsEnabled', rounds: 'featureRoundsEnabled',
+  dnd: 'featureDndEnabled', undo: 'featureUndoEnabled'
+};
+
+function isMGFeatureEnabled(key) {
+  return !!window[MG_VAR_MAP[key]];
+}
+
+window.toggleMGFeature = function(key) {
+  const def = FEATURE_DEFS_GRID.find(f => f.key === key);
+  if (!def) return;
+  const wasEnabled = isMGFeatureEnabled(key);
+  if (!wasEnabled) {
+    window[MG_VAR_MAP[key]] = true;
+    haptic(5);
+    if (def.hasSettings && def.settingKey) openFeatureSettings(def.settingKey);
+  } else {
+    window[MG_VAR_MAP[key]] = false;
+    haptic(3);
+  }
+  renderMGFeatureGrid();
+};
+
+function renderMGFeatureGrid() {
+  const avail = document.getElementById('mg-features-available-grid');
+  const added = document.getElementById('mg-features-added-grid');
+  if (!avail || !added) return;
+  avail.innerHTML = '';
+  added.innerHTML = '';
+  let addedCount = 0;
+  FEATURE_DEFS_GRID.forEach(def => {
+    const enabled = isMGFeatureEnabled(def.key);
+    const card = document.createElement('div');
+    card.className = 'feature-card' + (enabled ? ' added' : '');
+    card.onclick = () => toggleMGFeature(def.key);
+    let html = '<span class="fc-icon">' + def.icon + '</span><span class="fc-name">' + def.name + '</span>';
+    if (def.hasSettings && enabled) {
+      let detail = '⚙ Settings';
+      if (def.key === 'nudge') {
+        const delay = parseInt(document.getElementById('mg-nudge-delay')?.value) || 60;
+        const mode = document.querySelector('input[name="mg-nudge-mode"]:checked')?.value || 'multi';
+        const mins = Math.floor(delay / 60);
+        const secs = delay % 60;
+        const timeStr = mins > 0 ? mins + 'm' + (secs > 0 ? ' ' + secs + 's' : '') : delay + 's';
+        detail = timeStr + ' · ' + (mode === 'single' ? 'Single' : 'Multi');
+      } else if (def.key === 'rounds') {
+        const total = parseInt(document.getElementById('mg-rounds-total')?.value) || 3;
+        detail = total + ' rounds';
+      }
+      html += '<span class="fc-settings">' + detail + '</span>';
+    }
+    card.innerHTML = html;
+    if (enabled) {
+      added.appendChild(card);
+      addedCount++;
+    } else {
+      avail.appendChild(card);
+    }
+  });
+  if (addedCount === 0) {
+    added.innerHTML = '<div style="grid-column:1/-1;text-align:center;font-size:0.78rem;color:var(--muted);padding:0.5rem 0;">None yet</div>';
+  }
+}
 
 window.mgHighlightDirection = function(dir) {
   document.querySelectorAll('.mg-dir-btn').forEach(btn => {
@@ -9000,14 +8990,14 @@ window.saveMidGameSettings = async function() {
   const statusEl = document.getElementById('mg-status');
   statusEl.textContent = 'Saving…';
 
-  const nudgeOn       = document.getElementById('mg-nudge-toggle').checked;
-  const awardsOn      = document.getElementById('mg-awards-toggle').checked;
-  const vpOn          = document.getElementById('mg-vp-toggle').checked;
-  const timersOn      = document.getElementById('mg-timers-toggle').checked;
-  const statusOn      = document.getElementById('mg-status-toggle').checked;
-  const dndOn         = document.getElementById('mg-dnd-toggle').checked;
-  const roundsOn      = document.getElementById('mg-rounds-toggle').checked;
-  const undoOn        = document.getElementById('mg-undo-toggle').checked;
+  const nudgeOn       = featureNudgeEnabled;
+  const awardsOn      = featureAwardsEnabled;
+  const vpOn          = featureVPEnabled;
+  const timersOn      = featureTimersEnabled;
+  const statusOn      = featureStatusEffectsEnabled;
+  const dndOn         = featureDndEnabled;
+  const roundsOn      = featureRoundsEnabled;
+  const undoOn        = featureUndoEnabled;
   const roundsTotalMg = roundsOn ? (parseInt(document.getElementById('mg-rounds-total').value) || 3) : 0;
   const countdownOn   = timersOn && document.getElementById('mg-timer-countdown-on').checked;
   const countdownNewlyEnabled = countdownOn && !mgCountdownWasActive;
@@ -12137,6 +12127,10 @@ function showVPEntryOverlay(room) {
   overlay.classList.add('show');
   vpSubmitted = false;
 
+  // Show back button for host only
+  const backBtn = document.getElementById('vp-back-btn');
+  if (backBtn) backBtn.style.display = isHost ? 'block' : 'none';
+
   // Reset submit button to end-game VP function
   const submitBtn = overlay.querySelector('.vp-submit-btn');
   if (submitBtn) submitBtn.setAttribute('onclick', 'submitVP()');
@@ -12201,6 +12195,16 @@ function showVPEntryOverlay(room) {
     beginBtn.classList.remove('show');
   }
 }
+
+window.confirmVPBack = async function() {
+  const confirmed = await showConfirm('Go back to room? Players won\'t be able to submit their Victory Points if you leave this screen.');
+  if (confirmed) {
+    document.getElementById('vp-overlay').classList.remove('show');
+    if (db && roomCode) {
+      update(ref(db, `rooms/${roomCode}`), { status: 'playing', vpScores: null, vpReady: null });
+    }
+  }
+};
 
 // ── VP ROTARY DIAL ──────────────────────────────
 let vpDialValue = 0;
@@ -12591,6 +12595,10 @@ function showRoundVPEntryOverlay(room) {
   if (!overlay) return;
   overlay.classList.add('show');
   roundVPSubmitted = false;
+
+  // Show back button for host only
+  const backBtn = document.getElementById('vp-back-btn');
+  if (backBtn) backBtn.style.display = isHost ? 'block' : 'none';
 
   // Update title to show round number
   const titleEl = overlay.querySelector('.vp-overlay-title');
