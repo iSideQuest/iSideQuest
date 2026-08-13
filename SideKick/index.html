@@ -272,22 +272,39 @@
     padding: 1rem 1.25rem;
     margin-bottom: 0;
     transform: scale(1);
+    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease;
   }
   .join-step .card.step-enter {
     transform: scale(0.85);
   }
-  .join-step.completed .card {
-    max-width: 75%;
-    margin: 0 auto;
-    padding: 0.6rem 0.8rem;
-    transform: scale(0.85);
-    transition: none !important;
+  /* Collapsed state: full card hidden, compact button shown */
+  .join-step.collapsed .card { display: none; }
+  .join-step .step-collapse-btn {
+    display: none;
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.65rem 1rem;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.6rem;
+    transition: background 0.2s, border-color 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: inherit;
   }
-  .join-step.completed .card input,
-  .join-step.completed .card .color-picker-btn {
-    font-size: 0.85rem;
-    padding: 0.5rem 0.7rem;
+  .join-step .step-collapse-btn:active {
+    background: rgba(124, 92, 191, 0.1);
+    border-color: var(--accent);
   }
+  .join-step.collapsed .step-collapse-btn { display: flex; }
+  .step-collapse-avatar { font-size: 1.5rem; flex-shrink: 0; }
+  .step-collapse-info { flex: 1; min-width: 0; }
+  .step-collapse-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .step-collapse-value { font-size: 0.9rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .step-collapse-swatch { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.2); }
+  .step-collapse-edit { font-size: 0.72rem; color: var(--accent-light); font-weight: 700; flex-shrink: 0; }
   #join-cards-area { transition: justify-content 0.3s ease; display:flex; flex-direction:column; gap:0.75rem; scrollbar-width:none; overflow:hidden; align-items:center; }
   #join-cards-area::-webkit-scrollbar { display:none; }
   #join-cards-area.step-mode { justify-content: center; }
@@ -4610,7 +4627,7 @@
       <div class="card">
         <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;">Step 1</div>
         <div style="font-size:0.85rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;">Choose Player Name & Color</div>
-        <input id="join-name" placeholder="Type Your Name" maxlength="20" style="margin-bottom:0.75rem;">
+        <input id="join-name" placeholder="Type Your Name" maxlength="20" style="margin-bottom:0.75rem;" oninput="updateJoinCollapseSummary()">
         <div style="display:flex;gap:0.6rem;">
           <button class="color-picker-btn" onclick="openColorPicker('join')" id="join-color-btn" style="flex:1;">
             <span id="join-color-label">Choose Color</span>
@@ -4620,6 +4637,15 @@
           </button>
         </div>
       </div>
+      <button class="step-collapse-btn" onclick="expandJoinStep(1)">
+        <span class="step-collapse-avatar" id="join-collapse-avatar">👤</span>
+        <div class="step-collapse-info">
+          <div class="step-collapse-label">Step 1 — Name & Color</div>
+          <div class="step-collapse-value" id="join-collapse-name">Player</div>
+        </div>
+        <div class="step-collapse-swatch" id="join-collapse-swatch"></div>
+        <span class="step-collapse-edit">Edit</span>
+      </button>
     </div>
 
     <!-- Step 2: Room Code -->
@@ -4627,11 +4653,19 @@
       <div class="card">
         <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;">Step 2</div>
         <div style="font-size:0.85rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;">Enter Room Code</div>
-        <input id="join-code" placeholder="Room Code" maxlength="4" style="text-transform:uppercase;font-family:monospace;font-size:1.4rem;letter-spacing:0.2em;text-align:center;margin-bottom:0.75rem;">
+        <input id="join-code" placeholder="Room Code" maxlength="4" style="text-transform:uppercase;font-family:monospace;font-size:1.4rem;letter-spacing:0.2em;text-align:center;margin-bottom:0.75rem;" oninput="updateJoinCollapseSummary()">
         <button class="btn-secondary btn-sm" onclick="openQRScanner()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
           <span style="font-size:1.2rem;">📷</span> Scan QR Code
         </button>
       </div>
+      <button class="step-collapse-btn" onclick="expandJoinStep(2)">
+        <span class="step-collapse-avatar">🔑</span>
+        <div class="step-collapse-info">
+          <div class="step-collapse-label">Step 2 — Room Code</div>
+          <div class="step-collapse-value" id="join-collapse-code">Enter Code</div>
+        </div>
+        <span class="step-collapse-edit">Edit</span>
+      </button>
     </div>
 
     </div><!-- end cards area -->
@@ -6629,7 +6663,6 @@ window.confirmRoomAvatar = function() {
     if (saved) roomAvatarSelection = saved;
     else return;
   }
-  // Only update the room wizard labels — do NOT touch the profile avatar
   const hostAvLabel = document.getElementById('host-avatar-label');
   const joinAvLabel = document.getElementById('join-avatar-label');
   if (hostAvLabel) hostAvLabel.textContent = roomAvatarSelection + ' Select Avatar';
@@ -6637,6 +6670,7 @@ window.confirmRoomAvatar = function() {
   const avatarNote = document.getElementById('avatar-required-note');
   if (avatarNote) avatarNote.style.display = 'none';
   closeRoomAvatarOverlay();
+  updateJoinCollapseSummary();
   haptic(5);
 };
 
@@ -7494,8 +7528,23 @@ window.showJoinRoom = function() {
 // ── JOIN ROOM WIZARD ──
 let joinStep = 1;
 
+window.updateJoinCollapseSummary = function() {
+  const name = document.getElementById('join-name')?.value.trim() || '';
+  const avatar = roomAvatarSelection || getSavedAvatar() || '👤';
+  const collapseAv = document.getElementById('join-collapse-avatar');
+  const collapseName = document.getElementById('join-collapse-name');
+  const collapseSwatch = document.getElementById('join-collapse-swatch');
+  if (collapseAv) collapseAv.textContent = isImageAvatar(avatar) ? '🖼️' : avatar;
+  if (collapseName) collapseName.textContent = name || 'Player';
+  if (collapseSwatch) collapseSwatch.style.background = myColor || 'var(--border)';
+  const code = document.getElementById('join-code')?.value.toUpperCase().trim() || '';
+  const collapseCode = document.getElementById('join-collapse-code');
+  if (collapseCode) collapseCode.textContent = code || 'Enter Code';
+}
+
 function renderJoinStep() {
   const area = document.getElementById('join-cards-area');
+  updateJoinCollapseSummary();
   document.querySelectorAll('.join-step').forEach(el => {
     const step = parseInt(el.dataset.step);
     const card = el.querySelector('.card');
@@ -7503,12 +7552,12 @@ function renderJoinStep() {
       card.classList.remove('step-enter');
       card.style.transition = 'none';
     }
-    el.classList.remove('completed');
+    el.classList.remove('collapsed', 'revealed');
     if (joinStep === 1) {
       el.classList.toggle('revealed', step === 1);
     } else {
       el.classList.toggle('revealed', step <= 2);
-      el.classList.toggle('completed', step < 2);
+      el.classList.toggle('collapsed', step < joinStep);
     }
     if (card) void card.offsetWidth;
     if (card) card.style.transition = '';
@@ -7532,11 +7581,16 @@ function renderJoinStep() {
   if (finalBtn) finalBtn.style.display = joinStep === 2 ? '' : 'none';
 }
 
+window.expandJoinStep = function(step) {
+  joinStep = step;
+  renderJoinStep();
+  haptic(5);
+};
+
 window.joinNextStep = function() {
   if (joinStep === 1) {
     const name = document.getElementById('join-name').value.trim();
     if (!name) { status('join-status', 'Enter your name.', 'error'); return; }
-    // Guests (not logged in) must select an avatar
     if (!currentUser && !roomAvatarSelection) { document.getElementById('avatar-required-note').style.display = 'block'; return; }
     document.getElementById('avatar-required-note').style.display = 'none';
   }
@@ -10028,6 +10082,7 @@ window.confirmColor = function() {
   const colorNote = document.getElementById('color-required-note');
   if (colorNote) colorNote.style.display = 'none';
   document.getElementById('color-picker-overlay').classList.remove('show');
+  updateJoinCollapseSummary();
 };
 
 // Close overlay on background tap
