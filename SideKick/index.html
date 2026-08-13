@@ -9180,7 +9180,18 @@ function renderFeatureGrid() {
     card.onclick = () => toggleFeature(def.key);
     let html = '<span class="fc-icon">' + def.icon + '</span><span class="fc-name">' + def.name + '</span>';
     if (def.hasSettings && enabled) {
-      html += '<span class="fc-settings">⚙ Settings</span>';
+      let detail = '⚙ Settings';
+      if (def.key === 'nudge') {
+        const delay = parseInt(document.getElementById('nudge-delay')?.value) || 60;
+        const mode = document.querySelector('input[name="nudge-mode"]:checked')?.value || 'multi';
+        detail = delay + 's · ' + (mode === 'single' ? 'Single' : 'Multi');
+      } else if (def.key === 'rounds') {
+        const total = parseInt(document.getElementById('rounds-total')?.value) || 3;
+        detail = total + ' rounds';
+      } else if (def.key === 'timers') {
+        detail = '⚙ Settings';
+      }
+      html += '<span class="fc-settings">' + detail + '</span>';
     }
     card.innerHTML = html;
     if (enabled) {
