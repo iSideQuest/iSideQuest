@@ -9184,7 +9184,10 @@ function renderFeatureGrid() {
       if (def.key === 'nudge') {
         const delay = parseInt(document.getElementById('nudge-delay')?.value) || 60;
         const mode = document.querySelector('input[name="nudge-mode"]:checked')?.value || 'multi';
-        detail = delay + 's · ' + (mode === 'single' ? 'Single' : 'Multi');
+        const mins = Math.floor(delay / 60);
+        const secs = delay % 60;
+        const timeStr = mins > 0 ? mins + 'm' + (secs > 0 ? ' ' + secs + 's' : '') : delay + 's';
+        detail = timeStr + ' · ' + (mode === 'single' ? 'Single' : 'Multi');
       } else if (def.key === 'rounds') {
         const total = parseInt(document.getElementById('rounds-total')?.value) || 3;
         detail = total + ' rounds';
