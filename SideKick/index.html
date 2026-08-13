@@ -4532,8 +4532,7 @@
     <!-- Card 1: Enter Player Name & Color (Step 1) -->
     <div class="create-step revealed" data-step="1">
       <div class="card" style="padding-top: 1rem; padding-bottom: 1rem;">
-        <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;">Step 1</div>
-        <div style="font-size:0.85rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;">Choose Player Name & Color</div>
+        <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;">Step 1</div>
         <input id="host-name" placeholder="Type Player Or Team Name" maxlength="20" style="margin-bottom: 0.75rem;">
         <div style="display:flex;gap:0.6rem;">
           <button class="color-picker-btn" onclick="openColorPicker('host')" id="host-color-btn" style="flex:1;">
@@ -4628,16 +4627,10 @@
       <div class="card">
         <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;">Step 2</div>
         <div style="font-size:0.85rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;">Enter Room Code</div>
-        <div style="display:flex;gap:0.6rem;align-items:stretch;">
-          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:0.8rem 0.5rem;cursor:pointer;" onclick="openQRScanner()">
-            <div style="font-size:1.8rem;margin-bottom:0.3rem;">📷</div>
-            <div style="font-size:0.78rem;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:0.05em;">Scan QR</div>
-          </div>
-          <div style="display:flex;align-items:center;font-size:0.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Or</div>
-          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:0.8rem 0.5rem;">
-            <input id="join-code" placeholder="Code" maxlength="4" style="text-transform:uppercase;font-family:monospace;font-size:1.4rem;letter-spacing:0.2em;text-align:center;width:100%;background:transparent;border:none;color:var(--text);outline:none;font-weight:700;">
-          </div>
-        </div>
+        <input id="join-code" placeholder="Room Code" maxlength="4" style="text-transform:uppercase;font-family:monospace;font-size:1.4rem;letter-spacing:0.2em;text-align:center;margin-bottom:0.75rem;">
+        <button class="btn-secondary btn-sm" onclick="openQRScanner()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
+          <span style="font-size:1.2rem;">📷</span> Scan QR Code
+        </button>
       </div>
     </div>
 
@@ -5161,31 +5154,76 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="info-overlay" id="features-config-overlay">
   <div class="info-modal" style="width:min(380px,95vw); max-height:90vh; overflow-y:auto; padding:1.5rem 1.25rem;">
-    <div style="font-size:1.05rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:1rem;">⚙️ Game Features</div>
+    <div style="font-size:1.05rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:1.25rem;">⚙️ Game Features</div>
 
-    <!-- Hidden checkboxes for save logic compatibility -->
-    <div style="display:none;">
-      <input class="neo-toggle-input" id="feature-nudge-toggle" type="checkbox" onchange="onNudgeToggle(this.checked)">
-      <input class="neo-toggle-input" id="feature-awards-toggle" type="checkbox" onchange="onAwardsToggle(this.checked)">
-      <input class="neo-toggle-input" id="feature-vp-toggle" type="checkbox" onchange="onVPToggle(this.checked)">
-      <input class="neo-toggle-input" id="feature-status-toggle" type="checkbox" onchange="onStatusEffectsToggle(this.checked)">
-      <input class="neo-toggle-input" id="feature-dnd-toggle" type="checkbox" onchange="onDndToggle(this.checked)">
-      <input class="neo-toggle-input" id="feature-rounds-toggle" type="checkbox" onchange="onRoundsToggle(this.checked)">
-      <input class="neo-toggle-input" id="feature-timers-toggle" type="checkbox" onchange="onTimersToggle(this.checked)">
-      <input class="neo-toggle-input" id="feature-undo-toggle" type="checkbox" onchange="onUndoToggle(this.checked)">
+    <!-- NUDGE -->
+    <div class="feature-row">
+      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-nudge-toggle" type="checkbox" onchange="onNudgeToggle(this.checked)"><span class="toggle-slider"></span></label>
+      <span class="feature-name">👉 Nudge</span>
+      <button class="feature-edit-btn" id="nudge-edit-btn" onclick="openFeatureSettings('nudge')" title="Edit settings">EDIT</button>
+      <button class="feature-info-btn" onclick="showFeatureInfo('nudge')" title="What is this?">?</button>
     </div>
 
-    <div id="features-tap-to-add" style="margin-bottom:1rem;">
-      <div style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.5rem;">Tap to add</div>
-      <div id="features-available-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;"></div>
+    <!-- ACHIEVEMENT AWARDS -->
+    <div class="feature-row creator-only">
+      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-awards-toggle" type="checkbox" onchange="onAwardsToggle(this.checked)"><span class="toggle-slider"></span></label>
+      <span class="feature-name">🏆 Achievement Awards</span>
+      <button class="feature-info-btn" onclick="showFeatureInfo('awards')" title="What is this?">?</button>
     </div>
 
-    <div id="features-added-section" style="display:none;">
-      <div style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.5rem;">Added features</div>
-      <div id="features-added-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;"></div>
+    <!-- TIMERS -->
+    <div class="feature-row creator-only">
+      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-timers-toggle" type="checkbox" onchange="onTimersToggle(this.checked)"><span class="toggle-slider"></span></label>
+      <span class="feature-name">⏱ Timers</span>
+      <button class="feature-edit-btn" id="timers-edit-btn" onclick="openFeatureSettings('timers')" title="Edit settings">EDIT</button>
+      <button class="feature-info-btn" onclick="showFeatureInfo('timers')" title="What is this?">?</button>
     </div>
 
-    <button class="info-modal-close" onclick="closeFeaturesOverlay()" style="width:100%; margin-top:1rem;">✓ Done</button>
+    <!-- VICTORY POINTS -->
+    <div class="feature-row" style="margin-bottom:0.75rem;">
+      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-vp-toggle" type="checkbox" onchange="onVPToggle(this.checked)"><span class="toggle-slider"></span></label>
+      <span class="feature-name">🏅 Victory Points</span>
+      <button class="feature-info-btn" onclick="showFeatureInfo('vp')" title="What is this?">?</button>
+    </div>
+    <div id="vp-mode-row" style="display:none; margin:-0.5rem 0 0.75rem 2.8rem; gap:0.5rem; align-items:center;">
+      <span style="font-size:0.78rem; color:var(--muted);">Who wins?</span>
+      <label style="display:flex; align-items:center; gap:0.3rem; cursor:pointer; font-size:0.78rem; color:var(--text);">
+        <input type="radio" name="vp-mode" value="highest" checked onchange="onVPModeChange(this.value)" style="accent-color:var(--accent);"> Highest
+      </label>
+      <label style="display:flex; align-items:center; gap:0.3rem; cursor:pointer; font-size:0.78rem; color:var(--text);">
+        <input type="radio" name="vp-mode" value="lowest" onchange="onVPModeChange(this.value)" style="accent-color:var(--accent);"> Lowest
+      </label>
+    </div>
+
+    <!-- STATUS EFFECTS -->
+    <div class="feature-row creator-only" style="margin-bottom:1.25rem;">
+      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-status-toggle" type="checkbox" onchange="onStatusEffectsToggle(this.checked)"><span class="toggle-slider"></span></label>
+      <span class="feature-name">🩹 Status Effects</span>
+      <button class="feature-info-btn" onclick="showFeatureInfo('status')" title="What is this?">?</button>
+    </div>
+
+    <!-- ROUNDS -->
+    <div class="feature-row" style="margin-bottom:0.75rem;">
+      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-rounds-toggle" type="checkbox" onchange="onRoundsToggle(this.checked)"><span class="toggle-slider"></span></label>
+      <span class="feature-name">🔢 Rounds</span>
+      <button class="feature-edit-btn" id="rounds-edit-btn" onclick="openFeatureSettings('rounds')" title="Edit settings">EDIT</button>
+      <button class="feature-info-btn" onclick="showFeatureInfo('rounds')" title="What is this?">?</button>
+    </div>
+
+    <!-- D&D TURN COMPONENTS -->
+    <div class="feature-row creator-only" style="margin-bottom:1.25rem;">
+      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-dnd-toggle" type="checkbox" onchange="onDndToggle(this.checked)"><span class="toggle-slider"></span></label>
+      <span class="feature-name">⚔️ D&amp;D Turn Components</span>
+    </div>
+
+    <!-- UNDO PASS -->
+    <div class="feature-row" style="margin-bottom:1.25rem;">
+      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-undo-toggle" type="checkbox" onchange="onUndoToggle(this.checked)"><span class="toggle-slider"></span></label>
+      <span class="feature-name">↩️ Undo Pass</span>
+      <button class="feature-info-btn" onclick="showFeatureInfo('undo')" title="What is this?">?</button>
+    </div>
+
+    <button class="info-modal-close" onclick="closeFeaturesOverlay()" style="width:100%;">✓ Done</button>
   </div>
 </div>
 
@@ -5495,14 +5533,6 @@
 
     <!-- Menu Items -->
     <div class="profile-menu" style="width:min(380px,92vw); margin-bottom:0.75rem;">
-      <div class="profile-menu-item" onclick="openEditProfileOverlay()">
-        <div class="profile-menu-icon icon-saves">✏️</div>
-        <div class="profile-menu-text">
-          <div class="profile-menu-title">Edit Profile</div>
-          <div class="profile-menu-desc">Change your avatar and preferred name</div>
-        </div>
-        <div class="profile-menu-chevron">›</div>
-      </div>
       <div class="profile-menu-item" onclick="openMySavedGames()">
         <div class="profile-menu-icon icon-saves">💾</div>
         <div class="profile-menu-text">
@@ -5664,21 +5694,6 @@
     <div class="avatar-modal-title">✏️ Preferred Name</div>
     <input type="text" id="preferred-name-input" placeholder="Your name" maxlength="20" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);margin-bottom:0.5rem;box-sizing:border-box;">
     <button class="btn-primary btn-sm" style="width:100%;" id="save-name-btn">Save Name</button>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════ -->
-<!--  EDIT PROFILE OVERLAY (Combined)            -->
-<!-- ═══════════════════════════════════════════ -->
-<div class="avatar-overlay" id="edit-profile-overlay">
-  <div class="avatar-modal" style="gap:0.8rem;">
-    <div class="avatar-modal-title">✏️ Edit Profile</div>
-    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:-0.2rem;">Avatar</div>
-    <div class="avatar-grid" id="edit-profile-avatar-grid"></div>
-    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-top:0.1rem;">Preferred Name</div>
-    <input type="text" id="edit-profile-name-input" placeholder="Your name" maxlength="20" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;">
-    <button class="btn-primary" style="width:100%;margin-top:0.2rem;" onclick="saveEditProfile()">Save Profile</button>
-    <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeEditProfileOverlay()">Cancel</button>
   </div>
 </div>
 
@@ -6277,7 +6292,7 @@ window.confirmSignOut = async function() {
 // Saved Games or Account was left open) before switching screens, so the
 // button always visibly takes you home.
 window.backToHomeFromProfile = function() {
-  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','edit-profile-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay'].forEach(id => {
+  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('show');
   });
@@ -6489,53 +6504,6 @@ window.openNameOverlay = function() {
 window.closeNameOverlay = function() {
   document.getElementById('name-overlay').classList.remove('show');
   cleanupNameOverlayPosition();
-};
-
-window.openEditProfileOverlay = function() {
-  const grid = document.getElementById('edit-profile-avatar-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
-  const current = getSavedAvatar();
-  AVATARS.forEach(emoji => {
-    const btn = document.createElement('button');
-    btn.className = 'avatar-option' + (emoji === current ? ' selected' : '');
-    if (isImageAvatar(emoji)) {
-      var img = document.createElement('img');
-      img.src = emoji; img.alt = 'avatar';
-      img.style.cssText = 'width:70%;height:70%;border-radius:50%;object-fit:cover;';
-      btn.appendChild(img);
-    } else {
-      btn.textContent = emoji;
-    }
-    btn.setAttribute('data-avatar', emoji);
-    btn.onclick = () => {
-      document.querySelectorAll('#edit-profile-avatar-grid .avatar-option').forEach(el => el.classList.remove('selected'));
-      btn.classList.add('selected');
-    };
-    grid.appendChild(btn);
-  });
-  document.getElementById('edit-profile-name-input').value = getSavedName();
-  document.getElementById('edit-profile-overlay').classList.add('show');
-};
-
-window.closeEditProfileOverlay = function() {
-  document.getElementById('edit-profile-overlay').classList.remove('show');
-};
-
-window.saveEditProfile = function() {
-  const grid = document.getElementById('edit-profile-avatar-grid');
-  const selectedBtn = grid?.querySelector('.avatar-option.selected');
-  if (selectedBtn) {
-    const emoji = selectedBtn.getAttribute('data-avatar');
-    saveAvatar(emoji);
-    setAvatarEl(document.getElementById('profile-avatar'), emoji, 52);
-  }
-  const name = document.getElementById('edit-profile-name-input').value.trim();
-  saveName(name);
-  updateAccountButtonUI();
-  const profileNameEl = document.getElementById('profile-name');
-  if (profileNameEl) profileNameEl.textContent = name || 'User';
-  document.getElementById('edit-profile-overlay').classList.remove('show');
 };
 
 window.openAccountSettingsOverlay = function() {
@@ -8844,6 +8812,9 @@ window.saveMidGameSettings = async function() {
 };
 window.onNudgeToggle = function(checked) {
   featureNudgeEnabled = checked;
+  const editBtn = document.getElementById('nudge-edit-btn');
+  if (editBtn) editBtn.classList.toggle('visible', checked);
+  if (checked) openFeatureSettings('nudge');
   updateFeaturesSummary();
 };
 
@@ -8854,6 +8825,8 @@ window.onAwardsToggle = function(checked) {
 
 window.onVPToggle = function(checked) {
   featureVPEnabled = checked;
+  const modeRow = document.getElementById('vp-mode-row');
+  if (modeRow) modeRow.style.display = checked ? 'flex' : 'none';
   updateFeaturesSummary();
 };
 
@@ -8873,6 +8846,9 @@ window.onDndToggle = function(checked) {
 
 window.onRoundsToggle = function(checked) {
   featureRoundsEnabled = checked;
+  const editBtn = document.getElementById('rounds-edit-btn');
+  if (editBtn) editBtn.classList.toggle('visible', checked);
+  if (checked) openFeatureSettings('rounds');
   updateFeaturesSummary();
 };
 
@@ -8881,59 +8857,7 @@ window.onUndoToggle = function(checked) {
   updateFeaturesSummary();
 };
 
-// ── FEATURES CARD DEFINITIONS ──
-const FEATURE_CARDS = [
-  { key: 'nudge',   icon: '👉', name: 'Nudge',             var: () => featureNudgeEnabled,           toggle: onNudgeToggle,           settings: 'nudge',   creatorOnly: false },
-  { key: 'awards',  icon: '🏆', name: 'Achievement Awards', var: () => featureAwardsEnabled,          toggle: onAwardsToggle,          settings: null,      creatorOnly: true  },
-  { key: 'timers',  icon: '⏱',  name: 'Timers',             var: () => featureTimersEnabled,          toggle: onTimersToggle,          settings: 'timers',  creatorOnly: true  },
-  { key: 'vp',      icon: '🏅', name: 'Victory Points',     var: () => featureVPEnabled,              toggle: onVPToggle,              settings: null,      creatorOnly: false },
-  { key: 'status',  icon: '🩹', name: 'Status Effects',     var: () => featureStatusEffectsEnabled,   toggle: onStatusEffectsToggle,   settings: null,      creatorOnly: true  },
-  { key: 'rounds',  icon: '🔢', name: 'Rounds',             var: () => featureRoundsEnabled,          toggle: onRoundsToggle,          settings: 'rounds',  creatorOnly: false },
-  { key: 'dnd',     icon: '⚔️', name: 'D&D Components',     var: () => featureDndEnabled,             toggle: onDndToggle,             settings: null,      creatorOnly: true  },
-  { key: 'undo',    icon: '↩️', name: 'Undo Pass',          var: () => featureUndoEnabled,            toggle: onUndoToggle,            settings: null,      creatorOnly: false }
-];
-
-function renderFeatureCards() {
-  const availableGrid = document.getElementById('features-available-grid');
-  const addedGrid = document.getElementById('features-added-grid');
-  const addedSection = document.getElementById('features-added-section');
-  if (!availableGrid || !addedGrid) return;
-  availableGrid.innerHTML = '';
-  addedGrid.innerHTML = '';
-  let addedCount = 0;
-  FEATURE_CARDS.forEach(f => {
-    if (f.creatorOnly && !isCreator) return;
-    const isActive = f.var();
-    const card = document.createElement('div');
-    card.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:1px solid ' + (isActive ? 'var(--accent)' : 'var(--border)') + ';border-radius:12px;padding:0.7rem 0.4rem;cursor:pointer;transition:border-color 0.2s,background 0.2s;min-height:70px;';
-    if (isActive) card.style.background = 'rgba(124,92,191,0.1)';
-    card.innerHTML = '<div style="font-size:1.5rem;margin-bottom:0.2rem;">' + f.icon + '</div>' +
-      '<div style="font-size:0.72rem;font-weight:700;color:var(--text);text-align:center;line-height:1.2;">' + f.name + '</div>';
-    card.onclick = () => {
-      if (isActive) {
-        f.toggle(false);
-        renderFeatureCards();
-      } else {
-        f.toggle(true);
-        renderFeatureCards();
-        if (f.settings) {
-          setTimeout(() => openFeatureSettings(f.settings), 150);
-        }
-      }
-      haptic(5);
-    };
-    if (isActive) {
-      addedGrid.appendChild(card);
-      addedCount++;
-    } else {
-      availableGrid.appendChild(card);
-    }
-  });
-  if (addedSection) addedSection.style.display = addedCount > 0 ? '' : 'none';
-}
-
 window.openFeaturesOverlay = function() {
-  renderFeatureCards();
   document.getElementById('features-config-overlay').classList.add('show');
 };
 
@@ -9191,6 +9115,9 @@ function resetNudgesForNewTurn() {
 // Toggle handlers
 window.onTimersToggle = function(checked) {
   featureTimersEnabled = checked;
+  const editBtn = document.getElementById('timers-edit-btn');
+  if (editBtn) editBtn.classList.toggle('visible', checked);
+  if (checked) openFeatureSettings('timers');
   updateFeaturesSummary();
 };
 window.onCountdownToggle = function(checked) {
@@ -11065,12 +10992,8 @@ function listenGameState() {
     // Read feature settings from Firebase
     const roomFeatures = room.features || {};
     featureNudgeEnabled = !!roomFeatures.nudge;
-    const prevNudgeDelay = nudgeDelaySeconds;
     nudgeDelaySeconds = roomFeatures.nudgeDelay || 30;
     nudgeMode = roomFeatures.nudgeMode || 'multi';
-    if (featureNudgeEnabled && nudgeCountdownTimer && nudgeDelaySeconds !== prevNudgeDelay) {
-      startNudgeCountdown(nudgeDelaySeconds);
-    }
     featureAwardsEnabled = !!roomFeatures.awards;
     featureVPEnabled              = !!roomFeatures.victoryPoints;
     vpHighestWins                 = roomFeatures.vpHighestWins !== false;
