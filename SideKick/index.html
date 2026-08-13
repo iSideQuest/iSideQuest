@@ -285,7 +285,7 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 0.65rem 1rem;
+    padding: 0.6rem 0.9rem;
     cursor: pointer;
     align-items: center;
     gap: 0.6rem;
@@ -301,10 +301,11 @@
   .join-step.collapsed .step-collapse-btn { display: flex; }
   .step-collapse-avatar { font-size: 1.5rem; flex-shrink: 0; }
   .step-collapse-info { flex: 1; min-width: 0; }
-  .step-collapse-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
-  .step-collapse-value { font-size: 0.9rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .step-collapse-swatch { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.2); }
-  .step-collapse-edit { font-size: 0.72rem; color: var(--accent-light); font-weight: 700; flex-shrink: 0; }
+  .step-collapse-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-bottom: 0.15rem; }
+  .step-collapse-details { display: flex; align-items: center; gap: 0.4rem; flex-wrap: nowrap; overflow: hidden; }
+  .step-collapse-detail { font-size: 0.85rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .step-collapse-sep { color: var(--muted); font-size: 0.8rem; flex-shrink: 0; }
+  .step-collapse-swatch { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.2); }
   #join-cards-area { transition: justify-content 0.3s ease; display:flex; flex-direction:column; gap:0.75rem; scrollbar-width:none; overflow:hidden; align-items:center; }
   #join-cards-area::-webkit-scrollbar { display:none; }
   #join-cards-area.step-mode { justify-content: center; }
@@ -4636,15 +4637,20 @@
             <span id="join-avatar-label">👤 Select Avatar</span>
           </button>
         </div>
+        <button class="btn-primary" id="join-next-btn" onclick="joinNextStep()" style="width:100%;margin-top:0.75rem;">Confirm →</button>
       </div>
       <button class="step-collapse-btn" onclick="expandJoinStep(1)">
-        <span class="step-collapse-avatar" id="join-collapse-avatar">👤</span>
-        <div class="step-collapse-info">
-          <div class="step-collapse-label">Step 1 — Name & Color</div>
-          <div class="step-collapse-value" id="join-collapse-name">Player</div>
+        <div class="step-collapse-info" style="min-width:0;">
+          <div class="step-collapse-label">Step 1</div>
+          <div class="step-collapse-details">
+            <span class="step-collapse-detail" id="join-collapse-name">Player</span>
+            <span class="step-collapse-sep">|</span>
+            <span class="step-collapse-detail" id="join-collapse-color-text">No color</span>
+            <span class="step-collapse-sep">|</span>
+            <span class="step-collapse-detail" id="join-collapse-avatar-text">👤</span>
+          </div>
         </div>
         <div class="step-collapse-swatch" id="join-collapse-swatch"></div>
-        <span class="step-collapse-edit">Edit</span>
       </button>
     </div>
 
@@ -4657,14 +4663,16 @@
         <button class="btn-secondary btn-sm" onclick="openQRScanner()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
           <span style="font-size:1.2rem;">📷</span> Scan QR Code
         </button>
+        <button class="btn-primary" id="join-final-btn" onclick="joinRoom()" style="width:100%;margin-top:0.75rem;">Join Room</button>
       </div>
       <button class="step-collapse-btn" onclick="expandJoinStep(2)">
-        <span class="step-collapse-avatar">🔑</span>
-        <div class="step-collapse-info">
-          <div class="step-collapse-label">Step 2 — Room Code</div>
-          <div class="step-collapse-value" id="join-collapse-code">Enter Code</div>
+        <div class="step-collapse-info" style="min-width:0;">
+          <div class="step-collapse-label">Step 2</div>
+          <div class="step-collapse-details">
+            <span class="step-collapse-detail" id="join-collapse-code">Enter Code</span>
+          </div>
         </div>
-        <span class="step-collapse-edit">Edit</span>
+        <span class="step-collapse-avatar">🔑</span>
       </button>
     </div>
 
@@ -4672,8 +4680,6 @@
 
     <!-- Wizard buttons (outside cards area, pinned to bottom) -->
     <div id="join-wizard-btns" style="width:100%;max-width:380px;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
-      <button class="btn-primary" id="join-next-btn" onclick="joinNextStep()" style="width:100%;">Next →</button>
-      <button class="btn-primary" id="join-final-btn" onclick="joinRoom()" style="width:100%;display:none;">Join Room</button>
       <p id="join-status" class="status"></p>
       <button class="btn-secondary btn-sm" onclick="goHome()" style="width:100%;margin-top:0;">← Home</button>
     </div>
@@ -7531,11 +7537,15 @@ let joinStep = 1;
 window.updateJoinCollapseSummary = function() {
   const name = document.getElementById('join-name')?.value.trim() || '';
   const avatar = roomAvatarSelection || getSavedAvatar() || '👤';
-  const collapseAv = document.getElementById('join-collapse-avatar');
+  const avatarLabel = isImageAvatar(avatar) ? '🖼️' : avatar;
+  const colorName = myColor ? (PLAYER_COLORS.find(c => c.hex === myColor)?.name || 'Custom') : 'No color';
   const collapseName = document.getElementById('join-collapse-name');
+  const collapseColorText = document.getElementById('join-collapse-color-text');
+  const collapseAvatarText = document.getElementById('join-collapse-avatar-text');
   const collapseSwatch = document.getElementById('join-collapse-swatch');
-  if (collapseAv) collapseAv.textContent = isImageAvatar(avatar) ? '🖼️' : avatar;
   if (collapseName) collapseName.textContent = name || 'Player';
+  if (collapseColorText) collapseColorText.textContent = colorName;
+  if (collapseAvatarText) collapseAvatarText.textContent = avatarLabel;
   if (collapseSwatch) collapseSwatch.style.background = myColor || 'var(--border)';
   const code = document.getElementById('join-code')?.value.toUpperCase().trim() || '';
   const collapseCode = document.getElementById('join-collapse-code');
@@ -7575,10 +7585,6 @@ function renderJoinStep() {
   } else {
     area.className = 'stack-mode';
   }
-  const nextBtn = document.getElementById('join-next-btn');
-  const finalBtn = document.getElementById('join-final-btn');
-  if (nextBtn) nextBtn.style.display = joinStep < 2 ? '' : 'none';
-  if (finalBtn) finalBtn.style.display = joinStep === 2 ? '' : 'none';
 }
 
 window.expandJoinStep = function(step) {
