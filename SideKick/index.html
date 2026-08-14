@@ -719,15 +719,15 @@
     object-fit: cover;
     flex-shrink: 0;
   }
-  .color-picker-btn.avatar-filled { padding: 0; overflow: hidden; min-height: 2.6rem; }
+  .color-picker-btn.avatar-filled { position: relative; overflow: hidden; }
   .color-picker-btn.avatar-filled > span {
-    width: 100%; height: 100%;
+    position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.7rem;
+    font-size: 1.5rem;
   }
   .color-picker-btn.avatar-filled .avatar-btn-preview {
     width: 100%; height: 100%;
-    border-radius: 0; object-fit: cover;
+    object-fit: cover;
     display: block;
   }
   .color-picker-overlay {
