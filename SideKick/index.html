@@ -713,6 +713,12 @@
     flex-shrink: 0;
     transition: background 0.2s;
   }
+  .avatar-btn-preview {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
   .color-picker-overlay {
     display: none;
     position: fixed;
@@ -6554,13 +6560,6 @@ const AVATAR_CATEGORIES = [
       '🙂', '😇', '🤠', '🤑', '🤗', '😺', '🙈', '💩',
       ...AVATAR_IMG_SET
     ]
-  },
-  {
-    key: 'kids', label: 'Kids',
-    avatars: [
-      '🐶', '🐱', '🐼', '🦁', '🐰', '🐸', '🐨', '🐯', '🦖', '🦕', '🐣', '🎈', '🧸', '🍭',
-      ...AVATAR_IMG_SET
-    ]
   }
 ];
 
@@ -6783,7 +6782,7 @@ window.selectAvatar = function(emoji) {
   if (active) active.classList.add('selected');
   setAvatarEl(document.getElementById('profile-avatar'), emoji, 52);
   const hostAvLabel = document.getElementById('host-avatar-label');
-  if (hostAvLabel) hostAvLabel.textContent = (isImageAvatar(emoji) ? '🖼️' : emoji) + ' Choose Avatar';
+  setAvatarLabel(hostAvLabel, emoji);
   updateAccountButtonUI();
 };
 
@@ -6810,8 +6809,8 @@ window.confirmRoomAvatar = function() {
   }
   const hostAvLabel = document.getElementById('host-avatar-label');
   const joinAvLabel = document.getElementById('join-avatar-label');
-  if (hostAvLabel) hostAvLabel.textContent = roomAvatarSelection + ' Choose Avatar';
-  if (joinAvLabel) joinAvLabel.textContent = roomAvatarSelection + ' Choose Avatar';
+  setAvatarLabel(hostAvLabel, roomAvatarSelection);
+  setAvatarLabel(joinAvLabel, roomAvatarSelection);
   const avatarNote = document.getElementById('avatar-required-note');
   if (avatarNote) avatarNote.style.display = 'none';
   closeRoomAvatarOverlay();
@@ -6822,6 +6821,23 @@ window.confirmRoomAvatar = function() {
 window.closeRoomAvatarOverlay = function() {
   document.getElementById('room-avatar-overlay').classList.remove('show');
 };
+
+// Renders the avatar label for the Choose Avatar buttons in Host/Join Room.
+// Shows an image preview for image avatars, emoji for emoji avatars.
+function setAvatarLabel(el, avatar) {
+  if (!el) return;
+  if (!avatar) { el.textContent = 'Choose Avatar'; return; }
+  if (isImageAvatar(avatar)) {
+    el.textContent = '';
+    const img = document.createElement('img');
+    img.src = avatar; img.alt = 'avatar';
+    img.className = 'avatar-btn-preview';
+    el.appendChild(img);
+    el.appendChild(document.createTextNode(' Choose Avatar'));
+  } else {
+    el.textContent = avatar + ' Choose Avatar';
+  }
+}
 
 window.openProfileScreen = function() {
   if (!currentUser) { openAccountOverlay('login'); return; }
@@ -7607,7 +7623,7 @@ window.showCreateRoom = function() {
   const avatarNote = document.getElementById('avatar-required-note');
   if (avatarNote) avatarNote.style.display = 'none';
   const hostAvLabel = document.getElementById('host-avatar-label');
-  if (hostAvLabel) hostAvLabel.textContent = profileAv ? (profileAv + ' Choose Avatar') : 'Choose Avatar';
+  setAvatarLabel(hostAvLabel, profileAv || '');
   featureNudgeEnabled  = false;
   featureAwardsEnabled = false;
   featureVPEnabled     = false;
@@ -7667,7 +7683,7 @@ window.showJoinRoom = function() {
   const profileAv = currentUser ? getSavedAvatar() : '';
   roomAvatarSelection = profileAv || '';
   const joinAvLabel = document.getElementById('join-avatar-label');
-  if (joinAvLabel) joinAvLabel.textContent = profileAv ? (profileAv + ' Choose Avatar') : 'Choose Avatar';
+  setAvatarLabel(joinAvLabel, profileAv || '');
 };
 
 // ── JOIN ROOM WIZARD ──
@@ -8508,9 +8524,9 @@ window.goHome = function() {
   if (joinColorBtn) { joinColorBtn.style.background = ''; joinColorBtn.style.borderColor = ''; }
   // Reset avatar button
   const hostAvLabel = document.getElementById('host-avatar-label');
-  if (hostAvLabel) hostAvLabel.textContent = 'Choose Avatar';
+  setAvatarLabel(hostAvLabel, '');
   const joinAvLabel = document.getElementById('join-avatar-label');
-  if (joinAvLabel) joinAvLabel.textContent = 'Choose Avatar';
+  setAvatarLabel(joinAvLabel, '');
   // Reset required notes
   const colorNote = document.getElementById('color-required-note');
   if (colorNote) colorNote.style.display = 'none';
@@ -8550,7 +8566,7 @@ window.goBackToCreate = async function() {
   const savedAv = roomAvatarSelection || getSavedAvatar();
   if (savedAv) {
     const avLabel = document.getElementById('host-avatar-label');
-    if (avLabel) avLabel.textContent = savedAv + ' Choose Avatar';
+    setAvatarLabel(avLabel, savedAv);
   }
   // Turn mode
   if (turnMode) {
@@ -11264,7 +11280,7 @@ window.startNewGameSetup = async function() {
   const savedAv = roomAvatarSelection || getSavedAvatar();
   if (savedAv) {
     const avLabel = document.getElementById('host-avatar-label');
-    if (avLabel) avLabel.textContent = savedAv + ' Choose Avatar';
+    setAvatarLabel(avLabel, savedAv);
   }
   if (turnMode) {
     const tmClassic = document.getElementById('tm-btn-classic');
