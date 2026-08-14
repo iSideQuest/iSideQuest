@@ -4513,7 +4513,7 @@
   <button class="btn-secondary btn-sm" id="account-btn" style="position:fixed; top:14px; right:14px; width:auto; padding:0.5rem 1rem; font-size:0.85rem; background:transparent; border:1px solid var(--border); z-index:20;" onclick="openAccountOverlay()">🔑 Login</button>
   <div class="screen-content-scaler" id="scaler-home">
   <div class="logo" style="display:flex;flex-direction:column;align-items:center;gap:0.1rem;line-height:1.1;">
-    <span style="font-size:1.2rem;font-weight:600;letter-spacing:0.22em;text-transform;color:var(--muted);opacity:0.7;text-shadow:none;">Game Night</span>
+    <span style="font-size:1.2rem;font-weight:600;letter-spacing:0.22em;text-transform;color:var(--muted);opacity:0.7;text-shadow:none;">iSideQuest's</span>
     <span style="font-size:4rem">SideKick</span>
   </div>
   <div class="tagline">Pass the turn. Keep the vibe.</div>
@@ -4592,7 +4592,7 @@
             <span id="host-color-label">Choose Color</span>
           </button>
           <button class="color-picker-btn" onclick="openRoomAvatarOverlay()" id="host-avatar-btn" style="flex:1;">
-            <span id="host-avatar-label">👤 Choose Avatar</span>
+            <span id="host-avatar-label">Choose Avatar</span>
           </button>
         </div>
         <div id="color-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;">⚠️ Please choose a color.</div>
@@ -4640,7 +4640,6 @@
         <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;">Step 3</div>
         <div style="font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;">Tap To Add Game Feature</div>
 
-        <div class="feature-section-label">Available Features</div>
         <div class="feature-grid" id="features-available-grid">
           <div class="feature-card" data-feature="nudge" onclick="toggleFeature('nudge')">
             <span class="fc-icon">👉</span>
@@ -4719,13 +4718,13 @@
     <div class="join-step revealed" data-step="1">
       <div class="card">
         <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;">Step 1</div>
-        <input id="join-name" placeholder="Type Your Name" maxlength="20" style="margin-bottom:0.75rem;" oninput="updateJoinCollapseSummary()">
+        <input id="join-name" placeholder="Type Player Or Team Name" maxlength="20" style="margin-bottom:0.75rem;" oninput="updateJoinCollapseSummary()">
         <div style="display:flex;gap:0.6rem;">
           <button class="color-picker-btn" onclick="openColorPicker('join')" id="join-color-btn" style="flex:1;">
             <span id="join-color-label">Choose Color</span>
           </button>
           <button class="color-picker-btn" onclick="openRoomAvatarOverlay()" id="join-avatar-btn" style="flex:1;">
-            <span id="join-avatar-label">👤 Choose Avatar</span>
+            <span id="join-avatar-label">Choose Avatar</span>
           </button>
         </div>
         <button class="btn-primary" id="join-next-btn" onclick="joinNextStep()" style="width:100%;margin-top:0.75rem;">Confirm →</button>
@@ -5266,6 +5265,7 @@
     <div class="vp-submitted-msg">✓ Score submitted! Waiting for others…</div>
     <div class="vp-waiting-list" id="vp-waiting-list"></div>
     <button class="vp-begin-btn" id="vp-begin-btn" onclick="beginAfterVP()">🏆 Begin Ceremony</button>
+    <button id="vp-back-btn-waiting" onclick="confirmVPBack()" style="display:none;margin-top:0.25rem;width:100%;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;">← Back to Room</button>
   </div>
 </div>
 
@@ -5860,7 +5860,7 @@
 <div class="turn-mode-overlay" id="classic-dir-overlay">
   <div class="turn-mode-modal">
     <div class="turn-mode-modal-title">♟️ Classic Turns</div>
-    <div class="turn-mode-modal-sub">Choose which direction turns pass around the table.</div>
+    <div class="turn-mode-modal-sub">Choose which direction turns go.</div>
 
     <div class="dir-row">
       <div class="dir-option" id="tmdir-cw" onclick="selectClassicDir('cw')">
@@ -5901,11 +5901,11 @@
         <span class="dir-name">1st To Tap</span>
         <span class="dir-desc">First player to buzz in becomes active. Host awards the point or resets.</span>
       </div>
-      <div class="dir-option" id="tmspeed-line" onclick="selectSpeedMode('downTheLine')">
-        <span class="dir-icon">📋</span>
-        <span class="dir-name">Down The Line</span>
-        <span class="dir-desc">All players tap in order. Host works down the list awarding points.</span>
-      </div>
+      <div class="dir-option" id="tmspeed-line" onclick="selectSpeedMode('downTheLine')" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+    <span class="dir-icon">📋</span>
+    <span class="dir-name">Down The Line</span>
+    <span class="dir-desc">All players tap in order. Host works down the list awarding points.</span>
+</div>
     </div>
 
     <div class="nd-dial-wrapper" style="margin:0.75rem 0;">
@@ -7476,7 +7476,7 @@ window.showCreateRoom = function() {
   const avatarNote = document.getElementById('avatar-required-note');
   if (avatarNote) avatarNote.style.display = 'none';
   const hostAvLabel = document.getElementById('host-avatar-label');
-  if (hostAvLabel) hostAvLabel.textContent = profileAv ? (profileAv + ' Choose Avatar') : '👤 Choose Avatar';
+  if (hostAvLabel) hostAvLabel.textContent = profileAv ? (profileAv + ' Choose Avatar') : 'Choose Avatar';
   featureNudgeEnabled  = false;
   featureAwardsEnabled = false;
   featureVPEnabled     = false;
@@ -7536,7 +7536,7 @@ window.showJoinRoom = function() {
   const profileAv = currentUser ? getSavedAvatar() : '';
   roomAvatarSelection = profileAv || '';
   const joinAvLabel = document.getElementById('join-avatar-label');
-  if (joinAvLabel) joinAvLabel.textContent = profileAv ? (profileAv + ' Choose Avatar') : '👤 Choose Avatar';
+  if (joinAvLabel) joinAvLabel.textContent = profileAv ? (profileAv + ' Choose Avatar') : 'Choose Avatar';
 };
 
 // ── JOIN ROOM WIZARD ──
@@ -8377,9 +8377,9 @@ window.goHome = function() {
   if (joinColorBtn) { joinColorBtn.style.background = ''; joinColorBtn.style.borderColor = ''; }
   // Reset avatar button
   const hostAvLabel = document.getElementById('host-avatar-label');
-  if (hostAvLabel) hostAvLabel.textContent = '👤 Choose Avatar';
+  if (hostAvLabel) hostAvLabel.textContent = 'Choose Avatar';
   const joinAvLabel = document.getElementById('join-avatar-label');
-  if (joinAvLabel) joinAvLabel.textContent = '👤 Choose Avatar';
+  if (joinAvLabel) joinAvLabel.textContent = 'Choose Avatar';
   // Reset required notes
   const colorNote = document.getElementById('color-required-note');
   if (colorNote) colorNote.style.display = 'none';
@@ -8827,29 +8827,14 @@ let mgCountdownWasActive = false;
 window.openMidGameSettings = function() {
   if (!db || !roomCode) return;
 
-  // Sync hidden inputs for timers
+  // Sync hidden inputs for nudge/rounds
   document.getElementById('mg-nudge-delay').value = nudgeDelaySeconds;
   document.getElementById('mg-rounds-total').value = roundsTotal || 3;
   const modeRadio = document.querySelector(`input[name="mg-nudge-mode"][value="${nudgeMode}"]`);
   if (modeRadio) modeRadio.checked = true;
 
-  if (featureTimersEnabled) {
-    document.getElementById('mg-timer-turn-on').checked          = timerCfg.turn;
-    document.getElementById('mg-timer-turn-visible').checked     = timerCfg.turnVisible;
-    document.getElementById('mg-timer-round-on').checked         = timerCfg.round;
-    document.getElementById('mg-timer-round-visible').checked    = timerCfg.roundVisible;
-    document.getElementById('mg-timer-game-on').checked          = timerCfg.game;
-    document.getElementById('mg-timer-game-visible').checked     = timerCfg.gameVisible;
-    document.getElementById('mg-timer-countdown-on').checked     = timerCfg.countdown;
-    document.getElementById('mg-timer-countdown-visible').checked= timerCfg.countdownVisible;
-    mgCountdownWasActive = timerCfg.countdown;
-    document.getElementById('mg-countdown-inputs').style.display = timerCfg.countdown ? 'flex' : 'none';
-    const totalSecs = timerCfg.countdownSecs || 30;
-    document.getElementById('mg-timer-countdown-min').value = Math.floor(totalSecs / 60);
-    document.getElementById('mg-timer-countdown-sec').value = totalSecs % 60;
-  } else {
-    mgCountdownWasActive = false;
-  }
+  // Track countdown state for detecting newly enabled
+  mgCountdownWasActive = timerCfg.countdown;
 
   // Highlight current direction
   mgHighlightDirection(passDirection);
@@ -8953,19 +8938,14 @@ window.mgSetDirection = function(dir) {
 };
 
 window.onMidGameToggle = function(key, checked) {
-  if (key === 'nudge') {
-    document.getElementById('mg-nudge-edit-btn').style.display = checked ? '' : 'none';
-  }
-  if (key === 'timers') document.getElementById('mg-timers-settings').style.display = checked ? 'flex' : 'none';
-  if (key === 'rounds') {
-    document.getElementById('mg-rounds-edit-btn').style.display = checked ? '' : 'none';
-  }
+  // These functions are legacy stubs from when the overlay used checkboxes.
+  // Feature toggling is now handled by toggleMGFeature() via the card grid.
 };
 
 window.mgSyncNudgeMin = function() {};
 
 window.mgCountdownToggle = function(checked) {
-  document.getElementById('mg-countdown-inputs').style.display = checked ? 'flex' : 'none';
+  // Legacy stub — countdown is now managed via timerCfg
 };
 
 window.openNudgeOverlay = function() {
@@ -8999,7 +8979,7 @@ window.saveMidGameSettings = async function() {
   const roundsOn      = featureRoundsEnabled;
   const undoOn        = featureUndoEnabled;
   const roundsTotalMg = roundsOn ? (parseInt(document.getElementById('mg-rounds-total').value) || 3) : 0;
-  const countdownOn   = timersOn && document.getElementById('mg-timer-countdown-on').checked;
+  const countdownOn   = timersOn && timerCfg.countdown;
   const countdownNewlyEnabled = countdownOn && !mgCountdownWasActive;
 
   const newFeatures = {
@@ -9015,16 +8995,15 @@ window.saveMidGameSettings = async function() {
     roundsTotal:           roundsTotalMg,
     timers:                timersOn,
     undo:                  undoOn,
-    timerTurnOn:           timersOn && document.getElementById('mg-timer-turn-on').checked,
-    timerTurnVisible:      document.getElementById('mg-timer-turn-visible').checked,
-    timerRoundOn:          timersOn && document.getElementById('mg-timer-round-on').checked,
-    timerRoundVisible:     document.getElementById('mg-timer-round-visible').checked,
-    timerGameOn:           timersOn && document.getElementById('mg-timer-game-on').checked,
-    timerGameVisible:      document.getElementById('mg-timer-game-visible').checked,
+    timerTurnOn:           timersOn && timerCfg.turn,
+    timerTurnVisible:      timerCfg.turnVisible,
+    timerRoundOn:          timersOn && timerCfg.round,
+    timerRoundVisible:     timerCfg.roundVisible,
+    timerGameOn:           timersOn && timerCfg.game,
+    timerGameVisible:      timerCfg.gameVisible,
     timerCountdownOn:      countdownOn,
-    timerCountdownVisible: document.getElementById('mg-timer-countdown-visible').checked,
-    timerCountdownSecs:    (parseInt(document.getElementById('mg-timer-countdown-min').value) || 0) * 60
-                         + (parseInt(document.getElementById('mg-timer-countdown-sec').value)  || 30)
+    timerCountdownVisible: timerCfg.countdownVisible,
+    timerCountdownSecs:    timerCfg.countdownSecs || 30
   };
 
   try {
@@ -12127,10 +12106,6 @@ function showVPEntryOverlay(room) {
   overlay.classList.add('show');
   vpSubmitted = false;
 
-  // Show back button for host only
-  const backBtn = document.getElementById('vp-back-btn');
-  if (backBtn) backBtn.style.display = isHost ? 'block' : 'none';
-
   // Reset submit button to end-game VP function
   const submitBtn = overlay.querySelector('.vp-submit-btn');
   if (submitBtn) submitBtn.setAttribute('onclick', 'submitVP()');
@@ -12158,6 +12133,12 @@ function showVPEntryOverlay(room) {
       vpDialReady = true;
     }
   }
+
+  // Show back buttons for host only (input section or waiting section depending on state)
+  const backBtnInput   = document.getElementById('vp-back-btn');
+  const backBtnWaiting = document.getElementById('vp-back-btn-waiting');
+  if (backBtnInput)   backBtnInput.style.display   = (isHost && !myReady) ? 'block' : 'none';
+  if (backBtnWaiting) backBtnWaiting.style.display = (isHost && myReady)  ? 'block' : 'none';
 
   // Render waiting list
   const waitList = document.getElementById('vp-waiting-list');
@@ -12596,10 +12577,6 @@ function showRoundVPEntryOverlay(room) {
   overlay.classList.add('show');
   roundVPSubmitted = false;
 
-  // Show back button for host only
-  const backBtn = document.getElementById('vp-back-btn');
-  if (backBtn) backBtn.style.display = isHost ? 'block' : 'none';
-
   // Update title to show round number
   const titleEl = overlay.querySelector('.vp-overlay-title');
   if (titleEl) titleEl.textContent = `Round ${currentRound} — Enter Your Points`;
@@ -12627,6 +12604,12 @@ function showRoundVPEntryOverlay(room) {
       vpDialReady = true;
     }
   }
+
+  // Show back buttons for host only (input section or waiting section depending on state)
+  const backBtnInput   = document.getElementById('vp-back-btn');
+  const backBtnWaiting = document.getElementById('vp-back-btn-waiting');
+  if (backBtnInput)   backBtnInput.style.display   = (isHost && !myReady) ? 'block' : 'none';
+  if (backBtnWaiting) backBtnWaiting.style.display = (isHost && myReady)  ? 'block' : 'none';
 
   // Render waiting list
   const waitList = document.getElementById('vp-waiting-list');
