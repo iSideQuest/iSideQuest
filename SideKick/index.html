@@ -6576,6 +6576,20 @@ const AVATAR_CATEGORIES = [
   AVATAR_CATEGORIES.push({ key: 'all', label: 'All', avatars: all });
 })();
 
+// Preload all avatar images once so tab switching is instant
+(function() {
+  const seen = new Set();
+  AVATAR_CATEGORIES.forEach(cat => {
+    cat.avatars.forEach(a => {
+      if (isImageAvatar(a) && !seen.has(a)) {
+        seen.add(a);
+        const img = new Image();
+        img.src = a;
+      }
+    });
+  });
+})();
+
 function isImageAvatar(val) {
   return val && (val.endsWith('.png') || val.endsWith('.jpg') || val.endsWith('.jpeg') || val.endsWith('.webp') || val.endsWith('.gif') || val.startsWith('img/'));
 }
