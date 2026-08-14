@@ -1,6 +1,7 @@
 // SideKick Service Worker
 
-const CACHE_NAME = 'sidekick-v42';
+// ⚠️ Bump this on every release so the new version takes effect for all users.
+const CACHE_NAME = 'sidekick-v43';
 
 // Files to cache on install — the core app shell (relative paths)
 const PRECACHE = [
@@ -20,11 +21,13 @@ const NEVER_CACHE = [
 ];
 
 // ── INSTALL ──────────────────────────────────
+// No skipWaiting here — the new worker waits so the page can
+// confirm with the user before the update takes over.
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       return cache.addAll(PRECACHE);
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -41,6 +44,14 @@ self.addEventListener('activate', event => {
   );
 });
 
+// ── MESSAGE ──────────────────────────────────
+// Page confirms the update → activate the new worker so the reload picks it up.
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // ── FETCH ─────────────────────────────────────
 self.addEventListener('fetch', event => {
   const url = event.request.url;
@@ -55,9 +66,13 @@ self.addEventListener('fetch', event => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
+  // For page navigations, bypass the HTTP cache (GitHub Pages sends
+  // Cache-Control: max-age=600) so we always get the latest HTML.
+  const fetchOpts = event.request.mode === 'navigate' ? { cache: 'no-cache' } : {};
+
   // Network-first: try network, fall back to cache if offline
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, fetchOpts)
       .then(networkResponse => {
         if (networkResponse && networkResponse.status === 200) {
           const clone = networkResponse.clone();

@@ -13422,18 +13422,40 @@ window.showPrompt = function(msg, def) { return showDialog('prompt', msg, def); 
 })();
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then(reg => {
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+      // Periodically check for updates while the app is open (every 30s)
+      setInterval(() => { reg.update().catch(() => {}); }, 30000);
+
+      let refreshing = false;
+      // When the new worker takes control, reload to apply the update.
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
+
+      const promptUpdate = () => {
+        showConfirm('A new version of SideKick is available. Reload now?').then(ok => {
+          if (ok && reg.waiting) {
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      };
+
+      // If a new worker is already waiting (e.g. page opened before we attached)
+      if (reg.waiting) {
+        promptUpdate();
+        return;
+      }
+
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
-        if (newWorker) {
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
-              if (confirm('A new version is available. Reload now?')) {
-                window.location.reload();
-              }
-            }
-          });
-        }
+        if (!newWorker) return;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            promptUpdate();
+          }
+        });
       });
     }).catch(() => {});
   });
