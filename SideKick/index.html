@@ -719,6 +719,17 @@
     object-fit: cover;
     flex-shrink: 0;
   }
+  .color-picker-btn.avatar-filled { padding: 0; overflow: hidden; min-height: 2.6rem; }
+  .color-picker-btn.avatar-filled > span {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.7rem;
+  }
+  .color-picker-btn.avatar-filled .avatar-btn-preview {
+    width: 100%; height: 100%;
+    border-radius: 0; object-fit: cover;
+    display: block;
+  }
   .color-picker-overlay {
     display: none;
     position: fixed;
@@ -6823,19 +6834,24 @@ window.closeRoomAvatarOverlay = function() {
 };
 
 // Renders the avatar label for the Choose Avatar buttons in Host/Join Room.
-// Shows an image preview for image avatars, emoji for emoji avatars.
+// Shows just the avatar (image preview or emoji) once one is picked, filling the button.
 function setAvatarLabel(el, avatar) {
   if (!el) return;
-  if (!avatar) { el.textContent = 'Choose Avatar'; return; }
+  const btn = el.closest('.color-picker-btn');
+  if (!avatar) {
+    el.textContent = 'Choose Avatar';
+    if (btn) btn.classList.remove('avatar-filled');
+    return;
+  }
+  if (btn) btn.classList.add('avatar-filled');
   if (isImageAvatar(avatar)) {
     el.textContent = '';
     const img = document.createElement('img');
     img.src = avatar; img.alt = 'avatar';
     img.className = 'avatar-btn-preview';
     el.appendChild(img);
-    el.appendChild(document.createTextNode(' Choose Avatar'));
   } else {
-    el.textContent = avatar + ' Choose Avatar';
+    el.textContent = avatar;
   }
 }
 
