@@ -4744,11 +4744,16 @@
     <div class="join-step" data-step="2">
       <div class="card">
         <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;">Step 2</div>
-        <button class="btn-secondary btn-sm" onclick="openQRScanner()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.6rem;">
-          <span style="font-size:1.2rem;">📷</span> Scan Room QR Code
-        </button>
-        <div style="text-align:center;font-size:0.78rem;color:var(--muted);font-weight:600;margin-bottom:0.6rem;">OR</div>
-        <input id="join-code" placeholder="Enter Room Code" maxlength="4" style="font-family:monospace;font-size:1.15rem;letter-spacing:0.2em;text-align:center;text-transform:uppercase;margin-bottom:1.25rem;" oninput="updateJoinCollapseSummary()">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;">
+          <button class="turn-mode-btn" onclick="openQRScanner()" style="flex:1;min-width:0;">
+            <span class="tm-icon">📷</span>
+            Scan Room<br>QR Code
+          </button>
+          <span style="font-size:0.78rem;color:var(--muted);font-weight:700;flex-shrink:0;">Or</span>
+          <div class="turn-mode-btn" style="flex:1;min-width:0;cursor:default;">
+            <input id="join-code" placeholder="Type Room Code" maxlength="4" oninput="updateJoinCollapseSummary()" style="width:100%;background:transparent;border:none;color:var(--text);font-family:monospace;font-size:1.15rem;letter-spacing:0.2em;text-align:center;text-transform:uppercase;outline:none;padding:0.25rem 0;">
+          </div>
+        </div>
         <button class="btn-primary" id="join-final-btn" onclick="joinRoom()" style="width:100%;">Join Room</button>
       </div>
       <button class="step-collapse-btn" onclick="expandJoinStep(2)">
