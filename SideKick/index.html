@@ -314,6 +314,7 @@
   .step-collapse-detail { font-size: 1.05rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; }
   .step-collapse-sep { color: var(--muted); font-size: 0.95rem; flex-shrink: 0; }
   .step-collapse-swatch-inline { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 1.5px solid rgba(255,255,255,0.2); }
+  .step-collapse-avatar-img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
   #join-cards-area { transition: justify-content 0.3s ease; display:flex; flex-direction:column; gap:0.75rem; scrollbar-width:none; overflow:hidden; align-items:center; }
   #join-cards-area::-webkit-scrollbar { display:none; }
   #join-cards-area.step-mode { justify-content: center; }
@@ -4627,7 +4628,7 @@
       <div class="card" style="padding-top: 1rem; padding-bottom: 1rem;">
         <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;">Step 1</div>
         <input id="host-name" placeholder="Type Player Or Team Name" maxlength="20" style="margin-bottom: 0.75rem;">
-        <div style="display:flex;gap:0.6rem;justify-content:center;">
+        <div style="display:flex;gap:2rem;justify-content:center;">
           <button class="color-picker-btn" onclick="openColorPicker('host')" id="host-color-btn">
             <span id="host-color-label">Choose<br>Color</span>
           </button>
@@ -4759,7 +4760,7 @@
       <div class="card">
         <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;">Step 1</div>
         <input id="join-name" placeholder="Type Player Or Team Name" maxlength="20" style="margin-bottom:0.75rem;" oninput="updateJoinCollapseSummary()">
-        <div style="display:flex;gap:0.6rem;justify-content:center;">
+        <div style="display:flex;gap:2rem;justify-content:center;">
           <button class="color-picker-btn" onclick="openColorPicker('join')" id="join-color-btn">
             <span id="join-color-label">Choose<br>Color</span>
           </button>
@@ -7715,7 +7716,6 @@ let joinStep = 1;
 window.updateJoinCollapseSummary = function() {
   const name = document.getElementById('join-name')?.value.trim() || '';
   const avatar = roomAvatarSelection || getSavedAvatar() || '👤';
-  const avatarLabel = isImageAvatar(avatar) ? '🖼️' : avatar;
   const colorName = myColor ? (PLAYER_COLORS.find(c => c.hex === myColor)?.name || 'Custom') : 'No color';
   const collapseName = document.getElementById('join-collapse-name');
   const collapseColorText = document.getElementById('join-collapse-color-text');
@@ -7723,7 +7723,17 @@ window.updateJoinCollapseSummary = function() {
   const collapseSwatch = document.getElementById('join-collapse-swatch-inline');
   if (collapseName) collapseName.textContent = name || 'Player';
   if (collapseColorText) collapseColorText.textContent = colorName;
-  if (collapseAvatarText) collapseAvatarText.textContent = avatarLabel;
+  if (collapseAvatarText) {
+    collapseAvatarText.textContent = '';
+    if (isImageAvatar(avatar)) {
+      const img = document.createElement('img');
+      img.src = avatar; img.alt = 'avatar';
+      img.className = 'step-collapse-avatar-img';
+      collapseAvatarText.appendChild(img);
+    } else {
+      collapseAvatarText.textContent = avatar;
+    }
+  }
   if (collapseSwatch) collapseSwatch.style.background = myColor || 'var(--border)';
   const code = document.getElementById('join-code')?.value.toUpperCase().trim() || '';
   const collapseCode = document.getElementById('join-collapse-code');
@@ -7795,7 +7805,6 @@ let startingNewGame = false;
 window.updateCreateCollapseSummary = function() {
   const name = document.getElementById('host-name')?.value.trim() || '';
   const avatar = roomAvatarSelection || getSavedAvatar() || '👤';
-  const avatarLabel = isImageAvatar(avatar) ? '🖼️' : avatar;
   const colorName = myColor ? (PLAYER_COLORS.find(c => c.hex === myColor)?.name || 'Custom') : 'No color';
   const collapseName = document.getElementById('create-collapse-name');
   const collapseColorText = document.getElementById('create-collapse-color-text');
@@ -7803,7 +7812,17 @@ window.updateCreateCollapseSummary = function() {
   const collapseSwatch = document.getElementById('create-collapse-swatch-inline');
   if (collapseName) collapseName.textContent = name || 'Player';
   if (collapseColorText) collapseColorText.textContent = colorName;
-  if (collapseAvatarText) collapseAvatarText.textContent = avatarLabel;
+  if (collapseAvatarText) {
+    collapseAvatarText.textContent = '';
+    if (isImageAvatar(avatar)) {
+      const img = document.createElement('img');
+      img.src = avatar; img.alt = 'avatar';
+      img.className = 'step-collapse-avatar-img';
+      collapseAvatarText.appendChild(img);
+    } else {
+      collapseAvatarText.textContent = avatar;
+    }
+  }
   if (collapseSwatch) collapseSwatch.style.background = myColor || 'var(--border)';
   const modeLabel = document.getElementById('create-collapse-mode');
   if (modeLabel) {
