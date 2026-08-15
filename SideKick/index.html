@@ -4186,14 +4186,14 @@
   .profile-hero {
     position: relative;
     width: 100%;
-    padding: 2rem 1.5rem 1.5rem;
+    padding: 1.4rem 1.5rem 1.1rem;
     border-radius: 18px;
     background: linear-gradient(145deg, rgba(124,92,191,0.25) 0%, rgba(124,92,191,0.08) 100%);
     border: 1px solid rgba(124,92,191,0.2);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.5rem;
     overflow: hidden;
     margin-bottom: 0.75rem;
   }
@@ -4206,7 +4206,7 @@
   }
   .profile-avatar-ring {
     position: relative;
-    width: 88px; height: 88px;
+    width: 104px; height: 104px;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--accent), var(--accent-light));
     padding: 3px;
@@ -4235,11 +4235,11 @@
     border-radius: 50%;
     background: var(--surface);
     display: flex; align-items: center; justify-content: center;
-    font-size: 2.2rem; font-weight: 800; color: #fff;
+    font-size: 2.6rem; font-weight: 800; color: #fff;
     border: 2px solid var(--surface);
   }
   .profile-display-name {
-    font-size: 1.35rem; font-weight: 800; color: var(--text);
+    font-size: 1.55rem; font-weight: 800; color: var(--text);
     letter-spacing: -0.02em; line-height: 1.2;
     text-align: center;
     transition: color 0.2s;
@@ -4247,10 +4247,10 @@
   .profile-display-name:hover { color: var(--accent-light); }
   .profile-badge {
     display: inline-flex; align-items: center; gap: 0.35rem;
-    padding: 0.25rem 0.7rem;
+    padding: 0.3rem 0.85rem;
     background: rgba(124,92,191,0.18); border: 1px solid rgba(124,92,191,0.3);
     border-radius: 20px;
-    font-size: 0.68rem; font-weight: 700; color: var(--accent-light);
+    font-size: 0.78rem; font-weight: 700; color: var(--accent-light);
     text-transform: uppercase; letter-spacing: 0.1em;
   }
   .profile-badge-dot {
@@ -4269,20 +4269,20 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 0.7rem 0.5rem;
-    display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+    padding: 0.85rem 0.5rem;
+    display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
     text-align: center;
     transition: border-color 0.2s;
   }
   .profile-stat-card:hover { border-color: var(--accent); transform: scale(1.03); }
   .profile-stat-card:active { transform: scale(0.97); }
-  .profile-stat-icon { font-size: 1.2rem; line-height: 1; }
+  .profile-stat-icon { font-size: 1.4rem; line-height: 1; }
   .profile-stat-value {
-    font-size: 1.15rem; font-weight: 800; color: var(--text);
+    font-size: 1.3rem; font-weight: 800; color: var(--text);
     line-height: 1.2;
   }
   .profile-stat-label {
-    font-size: 0.62rem; font-weight: 600; color: var(--muted);
+    font-size: 0.7rem; font-weight: 600; color: var(--muted);
     text-transform: uppercase; letter-spacing: 0.08em;
   }
 
@@ -4294,7 +4294,7 @@
   }
   .profile-menu-item {
     display: flex; align-items: center; gap: 0.85rem;
-    padding: 0.8rem 1rem;
+    padding: 0.9rem 1rem;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -4305,10 +4305,10 @@
   }
   .profile-menu-item:hover { border-color: var(--accent); background: rgba(124,92,191,0.08); }
   .profile-menu-icon {
-    width: 36px; height: 36px;
+    width: 38px; height: 38px;
     border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     flex-shrink: 0;
   }
   .profile-menu-icon.icon-saves { background: rgba(74,222,128,0.12); }
@@ -4317,29 +4317,37 @@
   .profile-menu-icon.icon-settings { background: rgba(167,139,250,0.12); }
   .profile-menu-text { flex: 1; min-width: 0; }
   .profile-menu-title {
-    font-size: 0.92rem; font-weight: 600; color: var(--text);
+    font-size: 1.02rem; font-weight: 600; color: var(--text);
     line-height: 1.3;
   }
   .profile-menu-desc {
-    font-size: 0.72rem; color: var(--muted); line-height: 1.3;
+    font-size: 0.8rem; color: var(--muted); line-height: 1.3;
     margin-top: 0.1rem;
   }
   .profile-menu-chevron {
-    font-size: 1rem; color: var(--muted); flex-shrink: 0;
+    font-size: 1.1rem; color: var(--muted); flex-shrink: 0;
     opacity: 0.5; transition: opacity 0.18s, color 0.18s;
   }
   .profile-menu-item:hover .profile-menu-chevron { opacity: 1; color: var(--accent-light); }
 
   /* Profile Footer */
+  #screen-profile .screen-content-scaler {
+    height: 100%;
+  }
   .profile-footer {
     width: 100%;
     display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
-    margin-top: 0.25rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+  .profile-footer .btn-secondary {
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
   }
   .profile-signout-link {
     background: none; border: none;
-    font-size: 0.82rem; font-weight: 600; color: var(--danger);
-    cursor: pointer; padding: 0.4rem 0.8rem;
+    font-size: 1rem; font-weight: 600; color: var(--danger);
+    cursor: pointer; padding: 0.5rem 1rem;
     border-radius: 8px;
     transition: background 0.18s;
   }
@@ -5760,7 +5768,7 @@
 
     <!-- Footer -->
     <div class="profile-footer" style="width:min(380px,92vw);">
-      <button class="btn-secondary btn-sm" style="width:100%;" onclick="backToHomeFromProfile()">🏠 Back to Home</button>
+      <button class="btn-secondary btn-sm" style="width:100%;" onclick="backToHomeFromProfile()">Back to Home</button>
       <button class="profile-signout-link" onclick="confirmSignOut()">Sign Out</button>
     </div>
 
@@ -5772,7 +5780,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="my-saves-overlay">
   <div class="tools-modal" style="max-height:80vh; overflow-y:auto;">
-    <div class="tools-modal-title">💾 My Saved Games</div>
+    <div class="tools-modal-title">My Saved Games</div>
     <div id="my-saves-list" style="display:flex; flex-direction:column; gap:0.5rem;">
       <div style="color:var(--muted); font-size:0.85rem; text-align:center; padding:0.5rem;">Loading…</div>
     </div>
@@ -5786,7 +5794,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="themes-overlay" id="themes-overlay">
   <div class="themes-modal">
-    <div class="themes-modal-title">🎨 Themes</div>
+    <div class="themes-modal-title">Themes</div>
     <div class="themes-grid">
       <label class="theme-option selected" id="theme-opt-default" onclick="selectTheme('default')">
         <input type="radio" name="sk-theme-choice" value="default" checked style="display:none;">
@@ -5902,7 +5910,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="avatar-overlay" id="edit-profile-overlay">
   <div class="avatar-modal" style="gap:0.8rem;">
-    <div class="avatar-modal-title">✏️ Edit Profile</div>
+    <div class="avatar-modal-title">Edit Profile</div>
     <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:-0.2rem;">Avatar</div>
     <div class="avatar-tabs" id="edit-profile-avatar-tabs"></div>
     <div class="avatar-grid" id="edit-profile-avatar-grid"></div>
@@ -5920,7 +5928,7 @@
 <!-- ACCOUNT SETTINGS OVERLAY -->
 <div class="tools-overlay" id="account-settings-overlay">
   <div class="tools-modal" style="max-width:340px;">
-    <div class="tools-modal-title">⚙️ Account Settings</div>
+    <div class="tools-modal-title">Account Settings</div>
     <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;">Email</div>
     <div id="acct-settings-email" style="font-size:0.95rem;color:var(--text);padding:0.6rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;margin-bottom:1rem;word-break:break-all;"></div>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="document.getElementById('account-settings-overlay').classList.remove('show')">Close</button>
@@ -7827,6 +7835,52 @@ async function tryAutoResume() {
 tryAutoResume();
 
 // ── NAV ──────────────────────────────────────
+// Fully resets all create-wizard state (turn mode, direction/speed overlays, features).
+function resetCreateWizardState() {
+  turnMode = '';
+  passDirection = '';
+  speedMode = 'firstToTap';
+  speedRoundsTotal = 10;
+  _selectedClassicDir = '';
+  _selectedSpeedMode  = '';
+  ['feature-nudge-toggle','feature-awards-toggle','feature-timers-toggle','feature-vp-toggle','feature-status-toggle','feature-dnd-toggle','feature-rounds-toggle'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.checked = false;
+  });
+  featureNudgeEnabled  = false;
+  featureAwardsEnabled = false;
+  featureVPEnabled     = false;
+  vpHighestWins = true;
+  featureStatusEffectsEnabled = false;
+  featureDndEnabled    = false;
+  featureTimersEnabled = false;
+  featureRoundsEnabled = false;
+  featureUndoEnabled   = false;
+  const tmClassic = document.getElementById('tm-btn-classic');
+  const tmSpeed   = document.getElementById('tm-btn-speed');
+  if (tmClassic) tmClassic.classList.remove('selected');
+  if (tmSpeed)   tmSpeed.classList.remove('selected');
+  const tmTxt = document.getElementById('tm-summary');
+  if (tmTxt) tmTxt.innerHTML = 'No mode selected';
+  const tmNote = document.getElementById('tm-required-note');
+  if (tmNote) tmNote.style.display = 'none';
+  document.querySelectorAll('#classic-dir-overlay .dir-option').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('#speed-mode-overlay .dir-option').forEach(el => el.classList.remove('selected'));
+  const cdOv = document.getElementById('classic-dir-overlay');
+  if (cdOv) cdOv.classList.remove('show');
+  const sdOv = document.getElementById('speed-mode-overlay');
+  if (sdOv) sdOv.classList.remove('show');
+  ['nudge-edit-btn','timers-edit-btn'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.classList.remove('visible');
+  });
+  ['nudge-settings-overlay','timers-settings-overlay','rounds-settings-overlay'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.classList.remove('show');
+  });
+  const cdCb = document.getElementById('timer-countdown-on');
+  if (cdCb) cdCb.checked = false;
+  const cdInputs = document.getElementById('countdown-inputs');
+  if (cdInputs) cdInputs.style.display = 'none';
+}
+
 window.showCreateRoom = function() {
   if (!requireHostAccount()) return;
   editingRoom = false;
@@ -7852,40 +7906,7 @@ window.showCreateRoom = function() {
   if (avatarNote) avatarNote.style.display = 'none';
   const hostAvLabel = document.getElementById('host-avatar-label');
   setAvatarLabel(hostAvLabel, profileAv || '');
-  featureNudgeEnabled  = false;
-  featureAwardsEnabled = false;
-  featureVPEnabled     = false;
-  featureStatusEffectsEnabled = false;
-  featureDndEnabled    = false;
-  featureTimersEnabled = false;
-  featureRoundsEnabled = false;
-  featureUndoEnabled   = false;
-  // Reset turn mode
-  turnMode = '';
-  passDirection = '';
-  speedMode = 'firstToTap';
-  speedRoundsTotal = 10;
-  const tmClassic = document.getElementById('tm-btn-classic');
-  const tmSpeed   = document.getElementById('tm-btn-speed');
-  if (tmClassic) tmClassic.classList.remove('selected');
-  if (tmSpeed)   tmSpeed.classList.remove('selected');
-  const tmTxt = document.getElementById('tm-summary');
-  if (tmTxt) tmTxt.innerHTML = 'No mode selected';
-  const tmNote = document.getElementById('tm-required-note');
-  if (tmNote) tmNote.style.display = 'none';
-  ['feature-nudge-toggle','feature-awards-toggle','feature-timers-toggle','feature-vp-toggle','feature-status-toggle','feature-dnd-toggle','feature-rounds-toggle'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.checked = false;
-  });
-  ['nudge-edit-btn','timers-edit-btn'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.classList.remove('visible');
-  });
-  ['nudge-settings-overlay','timers-settings-overlay','rounds-settings-overlay'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.classList.remove('show');
-  });
-  const cdCb = document.getElementById('timer-countdown-on');
-  if (cdCb) cdCb.checked = false;
-  const cdInputs = document.getElementById('countdown-inputs');
-  if (cdInputs) cdInputs.style.display = 'none';
+  resetCreateWizardState();
   showScreen('create');
   const nameEl = document.getElementById('host-name');
   if (nameEl && !nameEl.value) {
@@ -8773,10 +8794,7 @@ window.goHome = function() {
   // Reset all room settings selections
   myColor = '';
   roomAvatarSelection = '';
-  turnMode = '';
-  passDirection = '';
-  speedMode = 'firstToTap';
-  speedRoundsTotal = 10;
+  resetCreateWizardState();
   createStep = 1;
   joinStep = 1;
   // Reset color picker button
@@ -8785,9 +8803,9 @@ window.goHome = function() {
   const joinColorLabel = document.getElementById('join-color-label');
   if (joinColorLabel) joinColorLabel.textContent = 'Choose\nColor';
   const colorBtn = document.getElementById('host-color-btn');
-  if (colorBtn) { colorBtn.style.background = ''; colorBtn.style.borderColor = ''; }
+  if (colorBtn) { colorBtn.style.background = ''; colorBtn.style.borderColor = ''; colorBtn.classList.remove('light-fill'); }
   const joinColorBtn = document.getElementById('join-color-btn');
-  if (joinColorBtn) { joinColorBtn.style.background = ''; joinColorBtn.style.borderColor = ''; }
+  if (joinColorBtn) { joinColorBtn.style.background = ''; joinColorBtn.style.borderColor = ''; joinColorBtn.classList.remove('light-fill'); }
   // Reset avatar button
   const hostAvLabel = document.getElementById('host-avatar-label');
   setAvatarLabel(hostAvLabel, '');
@@ -8798,15 +8816,6 @@ window.goHome = function() {
   if (colorNote) colorNote.style.display = 'none';
   const avatarNote = document.getElementById('avatar-required-note');
   if (avatarNote) avatarNote.style.display = 'none';
-  const tmNote = document.getElementById('tm-required-note');
-  if (tmNote) tmNote.style.display = 'none';
-  // Reset turn mode buttons
-  const tmClassic = document.getElementById('tm-btn-classic');
-  const tmSpeed = document.getElementById('tm-btn-speed');
-  if (tmClassic) tmClassic.classList.remove('selected');
-  if (tmSpeed) tmSpeed.classList.remove('selected');
-  const tmTxt = document.getElementById('tm-summary');
-  if (tmTxt) tmTxt.innerHTML = 'No mode selected';
   // Reset wizard steps
   renderCreateStep();
   renderJoinStep();
