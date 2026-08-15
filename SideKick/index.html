@@ -3918,6 +3918,19 @@
     background: rgba(124,92,191,0.15);
   }
   .feature-card .fc-settings { font-size: 0.6rem; color: var(--accent-light); margin-top: 1px; }
+  .feature-card .fc-edit {
+    margin-top: 2px;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.6rem;
+    font-weight: 700;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(124,92,191,0.2);
+    color: var(--accent-light);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .feature-card .fc-edit:active { transform: scale(0.9); }
 
   .features-help-btn {
     position: absolute;
@@ -8127,7 +8140,7 @@ function resetCreateWizardState() {
   ['nudge-edit-btn','timers-edit-btn'].forEach(id => {
     const el = document.getElementById(id); if (el) el.classList.remove('visible');
   });
-  ['nudge-settings-overlay','timers-settings-overlay','rounds-settings-overlay'].forEach(id => {
+  ['nudge-settings-overlay','timers-settings-overlay','rounds-settings-overlay','mg-nudge-settings-overlay','mg-rounds-settings-overlay'].forEach(id => {
     const el = document.getElementById(id); if (el) el.classList.remove('show');
   });
   const cdCb = document.getElementById('timer-countdown-on');
@@ -9551,7 +9564,7 @@ window.toggleMGFeature = function(key) {
   if (!wasEnabled) {
     window[MG_VAR_MAP[key]] = true;
     haptic(5);
-    if (def.hasSettings && def.settingKey) openFeatureSettings(def.settingKey);
+    if (def.hasSettings && def.settingKey) openMGFeatureSettings(def.settingKey);
   } else {
     window[MG_VAR_MAP[key]] = false;
     haptic(3);
@@ -9586,6 +9599,7 @@ function renderMGFeatureGrid() {
         detail = total + ' rounds';
       }
       html += '<span class="fc-settings">' + detail + '</span>';
+      html += '<button class="fc-edit" onclick="event.stopPropagation(); openMGFeatureSettings(\'' + def.settingKey + '\')" title="Edit settings">⚙ Edit</button>';
     }
     card.innerHTML = html;
     if (enabled) {
@@ -9626,20 +9640,49 @@ window.mgCountdownToggle = function(checked) {
 };
 
 window.openNudgeOverlay = function() {
-  document.getElementById('nudge-settings-overlay').classList.add('show');
+  document.getElementById('mg-nudge-settings-overlay').classList.add('show');
   ndDialInit('mg-nd-dial-outer','mg-nd-dial-knob','mg-nd-dial-value','mg-nudge-delay', parseInt(document.getElementById('mg-nudge-delay').value) || 30);
   const cur = document.querySelector('input[name="mg-nudge-mode"]:checked')?.value || nudgeMode || 'multi';
   selectNdMode(cur, true);
 };
 window.closeNudgeOverlay = function() {
-  document.getElementById('nudge-settings-overlay').classList.remove('show');
+  document.getElementById('mg-nudge-settings-overlay').classList.remove('show');
+  // Live-apply nudge settings to the active game
+  nudgeDelaySeconds = parseInt(document.getElementById('mg-nudge-delay').value) || 0;
+  nudgeMode = document.querySelector('input[name="mg-nudge-mode"]:checked')?.value || 'multi';
+  renderMGFeatureGrid();
+  if (db && roomCode) {
+    const updates = {
+      [`rooms/${roomCode}/features/nudgeDelay`]: nudgeDelaySeconds,
+      [`rooms/${roomCode}/features/nudgeMode`]: nudgeMode
+    };
+    update(ref(db), updates).catch(() => {});
+  }
 };
 window.openRoundsOverlay = function() {
-  document.getElementById('rounds-settings-overlay').classList.add('show');
+  document.getElementById('mg-rounds-settings-overlay').classList.add('show');
   rdDialInit('mg-rd-dial-outer','mg-rd-dial-knob','mg-rd-dial-value','mg-rounds-total', parseInt(document.getElementById('mg-rounds-total').value) || 3);
 };
 window.closeRoundsOverlay = function() {
-  document.getElementById('rounds-settings-overlay').classList.remove('show');
+  document.getElementById('mg-rounds-settings-overlay').classList.remove('show');
+  // Live-apply rounds total to the active game
+  const total = parseInt(document.getElementById('mg-rounds-total').value) || 3;
+  roundsTotal = total;
+  renderMGFeatureGrid();
+  if (typeof renderRoundIndicator === 'function') renderRoundIndicator(currentRound, roundsTotal);
+  if (db && roomCode && featureRoundsEnabled) {
+    const updates = {
+      [`rooms/${roomCode}/features/roundsTotal`]: total,
+      [`rooms/${roomCode}/currentRound`]: 1
+    };
+    update(ref(db), updates).catch(() => {});
+  }
+};
+
+window.openMGFeatureSettings = function(key) {
+  if (key === 'nudge')   { openNudgeOverlay(); return; }
+  if (key === 'rounds')  { openRoundsOverlay(); return; }
+  if (key === 'timers')  { openFeatureSettings('timers'); return; }
 };
 
 window.saveMidGameSettings = async function() {
@@ -11306,7 +11349,7 @@ function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
   const centerBorderColor = (activeColor.toLowerCase() === '#000000') ? '#ffffff' : activeColor;
   if (centerCircle) centerCircle.style.borderColor = centerBorderColor;
   if (centerAvatar) {
-    centerAvatar.textContent = activePlayer.avatar || '👤';
+    setAvatarEl(centerAvatar, activePlayer.avatar || '👤', 40);
   }
 
   if (dirArea) {
@@ -14408,8 +14451,8 @@ window.dismissInstall = function() {
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeHostCrownMenu()">✕ Close</button>
   </div>
 </div>
-<!-- Nudge Settings Overlay -->
-<div class="manage-overlay" id="nudge-settings-overlay">
+<!-- Nudge Settings Overlay (mid-game) -->
+<div class="manage-overlay" id="mg-nudge-settings-overlay">
   <div class="manage-card" style="max-width:320px; padding:1.25rem;">
     <div style="font-size:1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:1rem;">👉 Nudge Settings</div>
     <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Unlock After</div>
@@ -14444,8 +14487,8 @@ window.dismissInstall = function() {
     <button class="info-modal-close" onclick="closeNudgeOverlay()" style="width:100%;">Done</button>
   </div>
 </div>
-<!-- Rounds Settings Overlay -->
-<div class="manage-overlay" id="rounds-settings-overlay">
+<!-- Rounds Settings Overlay (mid-game) -->
+<div class="manage-overlay" id="mg-rounds-settings-overlay">
   <div class="manage-card" style="max-width:320px; padding:1.25rem;">
     <div style="font-size:1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:1rem;">🔢 Rounds Settings</div>
     <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Total Rounds</div>
