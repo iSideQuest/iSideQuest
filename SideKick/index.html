@@ -5703,11 +5703,8 @@
       <button class="mg-dir-btn" data-dir="ccw" onclick="mgSetDirection('ccw')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">↺ Counter</button>
     </div>
 
-    <div class="feature-section-label">Available Features</div>
-    <div class="feature-grid" id="mg-features-available-grid"></div>
-
-    <div class="feature-section-label added">Added Features</div>
-    <div class="feature-grid" id="mg-features-added-grid" style="min-height:2.5rem;"></div>
+    <div class="feature-section-label">Tap To Add Game Feature</div>
+    <div class="feature-grid" id="mg-features-grid"></div>
 
     <p id="mg-status" style="font-size:0.78rem;color:var(--accent-light);text-align:center;min-height:1.1em;margin:0.5rem 0;"></p>
 
@@ -9573,13 +9570,11 @@ window.toggleMGFeature = function(key) {
 };
 
 function renderMGFeatureGrid() {
-  const avail = document.getElementById('mg-features-available-grid');
-  const added = document.getElementById('mg-features-added-grid');
-  if (!avail || !added) return;
-  avail.innerHTML = '';
-  added.innerHTML = '';
-  let addedCount = 0;
-  FEATURE_DEFS_GRID.forEach(def => {
+  const grid = document.getElementById('mg-features-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const visibleDefs = FEATURE_DEFS_GRID.filter(f => !f.creatorOnly || isCreator);
+  visibleDefs.forEach(def => {
     const enabled = isMGFeatureEnabled(def.key);
     const card = document.createElement('div');
     card.className = 'feature-card' + (enabled ? ' added' : '');
@@ -9602,16 +9597,8 @@ function renderMGFeatureGrid() {
       html += '<button class="fc-edit" onclick="event.stopPropagation(); openMGFeatureSettings(\'' + def.settingKey + '\')" title="Edit settings">⚙ Edit</button>';
     }
     card.innerHTML = html;
-    if (enabled) {
-      added.appendChild(card);
-      addedCount++;
-    } else {
-      avail.appendChild(card);
-    }
+    grid.appendChild(card);
   });
-  if (addedCount === 0) {
-    added.innerHTML = '<div style="grid-column:1/-1;text-align:center;font-size:0.78rem;color:var(--muted);padding:0.5rem 0;">None yet</div>';
-  }
 }
 
 window.mgHighlightDirection = function(dir) {
@@ -9884,6 +9871,7 @@ function renderFeatureGrid() {
         detail = '⚙ Settings';
       }
       html += '<span class="fc-settings">' + detail + '</span>';
+      html += '<button class="fc-edit" onclick="event.stopPropagation(); openFeatureSettings(\'' + def.settingKey + '\')" title="Edit settings">⚙ Edit</button>';
     }
     card.innerHTML = html;
     avail.appendChild(card);
@@ -14452,7 +14440,7 @@ window.dismissInstall = function() {
   </div>
 </div>
 <!-- Nudge Settings Overlay (mid-game) -->
-<div class="manage-overlay" id="mg-nudge-settings-overlay">
+<div class="feature-settings-overlay" id="mg-nudge-settings-overlay">
   <div class="manage-card" style="max-width:320px; padding:1.25rem;">
     <div style="font-size:1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:1rem;">👉 Nudge Settings</div>
     <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Unlock After</div>
@@ -14488,7 +14476,7 @@ window.dismissInstall = function() {
   </div>
 </div>
 <!-- Rounds Settings Overlay (mid-game) -->
-<div class="manage-overlay" id="mg-rounds-settings-overlay">
+<div class="feature-settings-overlay" id="mg-rounds-settings-overlay">
   <div class="manage-card" style="max-width:320px; padding:1.25rem;">
     <div style="font-size:1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:1rem;">🔢 Rounds Settings</div>
     <div style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Total Rounds</div>
