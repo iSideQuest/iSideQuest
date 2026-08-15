@@ -4370,6 +4370,36 @@
   }
   .profile-signout-link:hover { background: rgba(192,57,43,0.1); }
 
+  /* ── MY COLLECTION ── */
+  .collection-chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .collection-chip {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    color: var(--muted); border-radius: 999px; padding: 0.3rem 0.7rem;
+    font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+  }
+  .collection-chip:hover { border-color: var(--accent); }
+  .collection-chip.active { border-color: var(--accent); background: rgba(124,92,191,0.18); color: var(--accent-light); }
+  .collection-game {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 0.7rem 0.8rem;
+  }
+  .collection-game-name { font-weight: 800; font-size: 0.95rem; color: var(--text); line-height: 1.3; }
+  .collection-game-meta { font-size: 0.75rem; color: var(--muted); margin-top: 0.15rem; }
+  .collection-game-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.45rem; }
+  .collection-game-tag {
+    font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px;
+    background: rgba(124,92,191,0.15); color: var(--accent-light);
+  }
+  .collection-game-tag.cat { background: rgba(251,191,36,0.15); color: #fcd34d; }
+  .collection-game-actions { display: flex; gap: 0.4rem; margin-top: 0.45rem; }
+  .collection-game-actions button {
+    background: transparent; border: 1px solid var(--border); color: var(--accent-light);
+    font-size: 0.7rem; border-radius: 8px; padding: 0.3rem 0.6rem; cursor: pointer;
+  }
+  .collection-game-actions button:hover { border-color: var(--accent); }
+  .collection-game-actions button.danger { color: #ff5c5c; }
+
   /* ── ACCOUNT OVERLAY REDESIGN ── */
   .auth-modal {
     background: var(--surface); border: 1px solid var(--border);
@@ -5764,6 +5794,14 @@
         </div>
         <div class="profile-menu-chevron">›</div>
       </div>
+      <div class="profile-menu-item" onclick="openMyCollection()">
+        <div class="profile-menu-icon icon-saves">🎲</div>
+        <div class="profile-menu-text">
+          <div class="profile-menu-title">My Collection</div>
+          <div class="profile-menu-desc">Board games you own — filter by players, category &amp; mechanics</div>
+        </div>
+        <div class="profile-menu-chevron">›</div>
+      </div>
       <div class="profile-menu-item" onclick="openMySavedGames()">
         <div class="profile-menu-icon icon-saves">💾</div>
         <div class="profile-menu-text">
@@ -5810,6 +5848,72 @@
     </div>
     <button class="btn-secondary btn-sm" style="margin-top:0.6rem;" onclick="closeMySavedGames(); openResumeOverlay();">Resume by code instead</button>
     <button class="btn-secondary btn-sm" onclick="closeMySavedGames()">Close</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  MY COLLECTION (board games library)        -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tools-overlay" id="collection-overlay">
+  <div class="tools-modal" style="max-height:88vh; overflow-y:auto;">
+    <div class="tools-modal-title">🎲 My Collection</div>
+    <div style="font-size:0.78rem;color:var(--muted);text-align:center;margin-bottom:0.6rem;">Your board games — filter to find the right one for your event.</div>
+
+    <!-- Filters -->
+    <div id="collection-filters" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.6rem;">
+      <input id="collection-search" placeholder="Search by name…" oninput="renderCollection()" style="width:100%;">
+      <div style="display:flex;gap:0.4rem;align-items:center;">
+        <span style="font-size:0.78rem;color:var(--muted);flex-shrink:0;">Players:</span>
+        <button class="btn-secondary btn-sm" style="padding:0.3rem 0.7rem;" onclick="collectionPlayers(-1)">−</button>
+        <span id="collection-players" style="font-weight:800;color:var(--text);min-width:2.2rem;text-align:center;">Any</span>
+        <button class="btn-secondary btn-sm" style="padding:0.3rem 0.7rem;" onclick="collectionPlayers(1)">+</button>
+        <button class="btn-secondary btn-sm" style="margin-left:auto;" onclick="clearCollectionFilters()">Clear</button>
+      </div>
+      <div id="collection-cat-filters" class="collection-chip-row"></div>
+      <div id="collection-mech-filters" class="collection-chip-row"></div>
+    </div>
+
+    <div id="collection-list" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+
+    <button class="btn-primary" style="margin-top:0.75rem;width:100%;" onclick="openCollectionEdit()">+ Add Game</button>
+    <button class="btn-secondary btn-sm" style="margin-top:0.5rem;width:100%;" onclick="closeCollection()">Close</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  COLLECTION — ADD / EDIT GAME               -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tools-overlay" id="collection-edit-overlay">
+  <div class="tools-modal" style="max-height:90vh; overflow-y:auto;">
+    <div class="tools-modal-title" id="collection-edit-title">Add Game</div>
+
+    <input id="ce-name" placeholder="Game name" maxlength="40" style="margin-bottom:0.5rem;">
+    <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">
+      <div style="flex:1;">
+        <div style="font-size:0.7rem;color:var(--muted);text-align:center;margin-bottom:0.2rem;">Min Players</div>
+        <input id="ce-min" type="number" min="1" max="20" value="2" style="text-align:center;">
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:0.7rem;color:var(--muted);text-align:center;margin-bottom:0.2rem;">Max Players</div>
+        <input id="ce-max" type="number" min="1" max="20" value="4" style="text-align:center;">
+      </div>
+      <div style="flex:1.5;">
+        <div style="font-size:0.7rem;color:var(--muted);text-align:center;margin-bottom:0.2rem;">Play Time</div>
+        <input id="ce-time" placeholder="e.g. 45–90 min" style="text-align:center;">
+      </div>
+    </div>
+
+    <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.3rem;">Category</div>
+    <div id="ce-categories" class="collection-chip-row" style="margin-bottom:0.6rem;"></div>
+
+    <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.3rem;">Mechanics</div>
+    <div id="ce-mechanics" class="collection-chip-row" style="margin-bottom:0.6rem;"></div>
+
+    <textarea id="ce-notes" placeholder="Notes (optional)" rows="2" style="margin-bottom:0.6rem;"></textarea>
+    <div id="collection-edit-error" style="display:none;color:#ff5c5c;font-size:0.8rem;text-align:center;margin-bottom:0.4rem;"></div>
+
+    <button class="btn-primary" style="width:100%;" onclick="saveCollectionGame()">Save Game</button>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.5rem;" onclick="closeCollectionEdit()">Cancel</button>
   </div>
 </div>
 
@@ -6545,7 +6649,7 @@ window.confirmSignOut = async function() {
 // Saved Games or Account was left open) before switching screens, so the
 // button always visibly takes you home.
 window.backToHomeFromProfile = function() {
-  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','edit-profile-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay','features-help-overlay'].forEach(id => {
+  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','edit-profile-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay','features-help-overlay','collection-overlay','collection-edit-overlay'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('show');
   });
@@ -12337,6 +12441,226 @@ async function deleteSave(code, row) {
     showAlert('Delete failed: ' + (err && err.message ? err.message : err));
   }
 }
+
+
+// ── MY COLLECTION (board game library) ──
+const COLLECTION_CATEGORIES = [
+  { key: 'coop',        icon: '🤝', label: 'Co-op' },
+  { key: 'competitive', icon: '⚔️', label: 'Competitive' },
+  { key: 'teams',       icon: '👥', label: 'Teams' },
+  { key: 'solo',        icon: '🧍', label: 'Solo' },
+  { key: 'party',       icon: '🎉', label: 'Party' }
+];
+const COLLECTION_MECHANICS = [
+  { key: 'deck-builder',     icon: '🃏', label: 'Deck Builder' },
+  { key: 'worker-placement', icon: '🧱', label: 'Worker Placement' },
+  { key: 'area-control',     icon: '🗺️', label: 'Area Control' },
+  { key: 'drafting',         icon: '🔄', label: 'Drafting' },
+  { key: 'card-game',        icon: '🎴', label: 'Card Game' },
+  { key: 'dice',             icon: '🎲', label: 'Dice' },
+  { key: 'engine-building',  icon: '🏗️', label: 'Engine Building' },
+  { key: 'deduction',        icon: '🕵️', label: 'Deduction' }
+];
+
+let collectionFilter = { search: '', players: 0, cats: new Set(), mechs: new Set() };
+let collectionEditingId = null;
+let collectionEditCats = new Set();
+let collectionEditMechs = new Set();
+
+function getCollectionKey() {
+  return 'sk_collection_' + (currentUser && currentUser.uid ? currentUser.uid : 'guest');
+}
+function loadCollection() {
+  try { return JSON.parse(localStorage.getItem(getCollectionKey()) || '[]'); } catch (e) { return []; }
+}
+function saveCollection(list) {
+  try { localStorage.setItem(getCollectionKey(), JSON.stringify(list)); } catch (e) {}
+}
+
+window.openMyCollection = function() {
+  document.getElementById('collection-overlay').classList.add('show');
+  renderCollectionFilters();
+  renderCollection();
+};
+window.closeCollection = function() {
+  document.getElementById('collection-overlay').classList.remove('show');
+};
+
+function renderCollectionFilters() {
+  const catEl = document.getElementById('collection-cat-filters');
+  if (catEl) {
+    catEl.innerHTML = COLLECTION_CATEGORIES.map(c =>
+      '<button class="collection-chip' + (collectionFilter.cats.has(c.key) ? ' active' : '') + '" onclick="toggleCollectionFilterCat(\'' + c.key + '\')">' + c.icon + ' ' + c.label + '</button>'
+    ).join('');
+  }
+  const mechEl = document.getElementById('collection-mech-filters');
+  if (mechEl) {
+    mechEl.innerHTML = COLLECTION_MECHANICS.map(m =>
+      '<button class="collection-chip' + (collectionFilter.mechs.has(m.key) ? ' active' : '') + '" onclick="toggleCollectionFilterMech(\'' + m.key + '\')">' + m.icon + ' ' + m.label + '</button>'
+    ).join('');
+  }
+  const playersEl = document.getElementById('collection-players');
+  if (playersEl) playersEl.textContent = collectionFilter.players || 'Any';
+}
+
+window.toggleCollectionFilterCat = function(key) {
+  collectionFilter.cats.has(key) ? collectionFilter.cats.delete(key) : collectionFilter.cats.add(key);
+  renderCollectionFilters(); renderCollection();
+};
+window.toggleCollectionFilterMech = function(key) {
+  collectionFilter.mechs.has(key) ? collectionFilter.mechs.delete(key) : collectionFilter.mechs.add(key);
+  renderCollectionFilters(); renderCollection();
+};
+window.collectionPlayers = function(delta) {
+  collectionFilter.players = Math.max(0, Math.min(30, (collectionFilter.players || 0) + delta));
+  renderCollectionFilters(); renderCollection();
+};
+window.clearCollectionFilters = function() {
+  collectionFilter = { search: '', players: 0, cats: new Set(), mechs: new Set() };
+  const searchEl = document.getElementById('collection-search');
+  if (searchEl) searchEl.value = '';
+  renderCollectionFilters(); renderCollection();
+};
+
+window.renderCollection = function() {
+  const listEl = document.getElementById('collection-list');
+  if (!listEl) return;
+  const searchEl = document.getElementById('collection-search');
+  collectionFilter.search = (searchEl && searchEl.value || '').trim().toLowerCase();
+  const all = loadCollection();
+  const matches = all.filter(game => {
+    if (collectionFilter.search && (game.name || '').toLowerCase().indexOf(collectionFilter.search) === -1) return false;
+    if (collectionFilter.players) {
+      const p = collectionFilter.players;
+      if (game.maxPlayers && game.maxPlayers < p) return false;
+      if (game.minPlayers && game.minPlayers > p) return false;
+    }
+    if (collectionFilter.cats.size && ![...collectionFilter.cats].some(k => (game.categories || []).indexOf(k) !== -1)) return false;
+    if (collectionFilter.mechs.size && ![...collectionFilter.mechs].some(k => (game.mechanics || []).indexOf(k) !== -1)) return false;
+    return true;
+  });
+  if (!matches.length) {
+    listEl.innerHTML = '<div style="color:var(--muted);font-size:0.82rem;text-align:center;padding:0.75rem 0;">No games match your filters.</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  matches.forEach(game => listEl.appendChild(buildCollectionGameRow(game)));
+};
+
+function buildCollectionGameRow(game) {
+  const row = document.createElement('div');
+  row.className = 'collection-game';
+  const metaBits = [];
+  if (game.minPlayers && game.maxPlayers) metaBits.push('👥 ' + game.minPlayers + '–' + game.maxPlayers + ' players');
+  if (game.playTime) metaBits.push('⏱ ' + game.playTime);
+  const catLabels = (game.categories || []).map(k => {
+    const def = COLLECTION_CATEGORIES.find(c => c.key === k);
+    return def ? '<span class="collection-game-tag cat">' + def.icon + ' ' + def.label + '</span>' : '';
+  }).join('');
+  const mechLabels = (game.mechanics || []).map(k => {
+    const def = COLLECTION_MECHANICS.find(m => m.key === k);
+    return def ? '<span class="collection-game-tag">' + def.icon + ' ' + def.label + '</span>' : '';
+  }).join('');
+  const tagsHtml = (catLabels || mechLabels) ? '<div class="collection-game-tags">' + catLabels + mechLabels + '</div>' : '';
+  const notesHtml = game.notes ? '<div style="font-size:0.72rem;color:var(--muted);margin-top:0.3rem;">' + escapeHtml(game.notes) + '</div>' : '';
+  row.innerHTML =
+    '<div class="collection-game-name">' + escapeHtml(game.name || 'Untitled') + '</div>' +
+    (metaBits.length ? '<div class="collection-game-meta">' + metaBits.join(' · ') + '</div>' : '') +
+    tagsHtml + notesHtml +
+    '<div class="collection-game-actions">' +
+      '<button onclick="openCollectionEdit(\'' + game.id + '\')">✎ Edit</button>' +
+      '<button class="danger" onclick="deleteCollectionGame(\'' + game.id + '\')">🗑 Delete</button>' +
+    '</div>';
+  return row;
+}
+
+window.openCollectionEdit = function(id) {
+  collectionEditingId = id || null;
+  const game = id ? loadCollection().find(g => g.id === id) : null;
+  document.getElementById('collection-edit-title').textContent = game ? 'Edit Game' : 'Add Game';
+  document.getElementById('ce-name').value = game ? game.name : '';
+  document.getElementById('ce-min').value = game ? (game.minPlayers || 2) : 2;
+  document.getElementById('ce-max').value = game ? (game.maxPlayers || 4) : 4;
+  document.getElementById('ce-time').value = game ? (game.playTime || '') : '';
+  document.getElementById('ce-notes').value = game ? (game.notes || '') : '';
+  document.getElementById('collection-edit-error').style.display = 'none';
+  collectionEditCats = new Set(game ? (game.categories || []) : []);
+  collectionEditMechs = new Set(game ? (game.mechanics || []) : []);
+  renderCollectionEditChips();
+  document.getElementById('collection-edit-overlay').classList.add('show');
+};
+window.closeCollectionEdit = function() {
+  document.getElementById('collection-edit-overlay').classList.remove('show');
+};
+
+function renderCollectionEditChips() {
+  const catEl = document.getElementById('ce-categories');
+  if (catEl) {
+    catEl.innerHTML = COLLECTION_CATEGORIES.map(c =>
+      '<button class="collection-chip' + (collectionEditCats.has(c.key) ? ' active' : '') + '" onclick="toggleEditCat(\'' + c.key + '\')">' + c.icon + ' ' + c.label + '</button>'
+    ).join('');
+  }
+  const mechEl = document.getElementById('ce-mechanics');
+  if (mechEl) {
+    mechEl.innerHTML = COLLECTION_MECHANICS.map(m =>
+      '<button class="collection-chip' + (collectionEditMechs.has(m.key) ? ' active' : '') + '" onclick="toggleEditMech(\'' + m.key + '\')">' + m.icon + ' ' + m.label + '</button>'
+    ).join('');
+  }
+}
+window.toggleEditCat = function(key) {
+  collectionEditCats.has(key) ? collectionEditCats.delete(key) : collectionEditCats.add(key);
+  renderCollectionEditChips();
+};
+window.toggleEditMech = function(key) {
+  collectionEditMechs.has(key) ? collectionEditMechs.delete(key) : collectionEditMechs.add(key);
+  renderCollectionEditChips();
+};
+
+window.saveCollectionGame = function() {
+  const name = (document.getElementById('ce-name').value || '').trim();
+  if (!name) {
+    const errEl = document.getElementById('collection-edit-error');
+    errEl.style.display = 'block';
+    errEl.textContent = 'Please enter a game name.';
+    return;
+  }
+  const minP = parseInt(document.getElementById('ce-min').value, 10) || 2;
+  const maxP = parseInt(document.getElementById('ce-max').value, 10) || minP;
+  const game = {
+    id: collectionEditingId || ('cg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)),
+    name: name,
+    minPlayers: Math.min(minP, maxP),
+    maxPlayers: Math.max(minP, maxP),
+    playTime: (document.getElementById('ce-time').value || '').trim(),
+    notes: (document.getElementById('ce-notes').value || '').trim(),
+    categories: [...collectionEditCats],
+    mechanics: [...collectionEditMechs]
+  };
+  const list = loadCollection();
+  if (collectionEditingId) {
+    const idx = list.findIndex(g => g.id === collectionEditingId);
+    if (idx !== -1) list[idx] = game; else list.push(game);
+  } else {
+    list.push(game);
+  }
+  saveCollection(list);
+  closeCollectionEdit();
+  renderCollection();
+};
+
+window.deleteCollectionGame = async function(id) {
+  if (!await showConfirm('Remove this game from your collection?')) return;
+  const list = loadCollection().filter(g => g.id !== id);
+  saveCollection(list);
+  renderCollection();
+};
+
+document.getElementById('collection-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeCollection();
+});
+document.getElementById('collection-edit-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeCollectionEdit();
+});
 
 
 window.openResumeOverlay = function() {
