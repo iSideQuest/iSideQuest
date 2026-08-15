@@ -4463,6 +4463,23 @@
   }
   .auth-submit-btn:hover { box-shadow: 0 6px 24px rgba(124,92,191,0.45); }
   .auth-submit-btn:active { transform: scale(0.97); }
+  .auth-google-btn {
+    width: 100%; padding: 0.8rem; display: flex; align-items: center; justify-content: center;
+    gap: 0.55rem; background: #fff; border: 1px solid #dadce0; border-radius: 999px;
+    color: #3c4043; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.15s, background 0.2s;
+  }
+  .auth-google-btn:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.25); background: #f8f9fa; }
+  .auth-google-btn:active { transform: scale(0.97); }
+  .auth-google-btn svg { flex-shrink: 0; }
+  .auth-or-divider {
+    display: flex; align-items: center; gap: 0.6rem; width: 100%;
+    margin: 0.85rem 0; color: var(--muted); font-size: 0.75rem;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .auth-or-divider::before, .auth-or-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
   .auth-toggle-row {
     display: none;
   }
@@ -5734,6 +5751,11 @@
     </div>
 
     <div id="account-form-step" style="width:100%;">
+      <button type="button" class="auth-google-btn" id="google-signin-btn" onclick="continueWithGoogle()">
+        <svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+      <div class="auth-or-divider"><span>or</span></div>
       <div class="auth-input-group">
         <span class="auth-input-icon">✉️</span>
         <input type="email" id="account-email" placeholder="Email address" autocomplete="email">
@@ -5750,6 +5772,10 @@
 
     <div id="account-signedin-step" style="display:none; width:100%;" class="auth-signedin-card">
       <div class="auth-signedin-email" id="account-signedin-email">—</div>
+      <button type="button" class="auth-google-btn" id="google-link-btn" onclick="linkGoogleAccount()">
+        <svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Link Google account
+      </button>
       <button class="auth-submit-btn" style="width:100%;" onclick="closeAccountOverlay(); openProfileScreen();">👤 Go to Profile</button>
       <button type="button" class="profile-signout-link" onclick="doSignOut()" style="width:100%; text-align:center;">Sign Out</button>
     </div>
@@ -6501,7 +6527,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, onValue, update, remove, push, serverTimestamp, runTransaction }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail }
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, linkWithCredential, linkWithPopup, fetchSignInMethodsForEmail, EmailAuthProvider }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 // ── STATE ──────────────────────────────────────
@@ -6578,6 +6604,9 @@ window.openAccountOverlay = function(mode) {
     document.getElementById('account-form-step').style.display = 'none';
     document.getElementById('account-signedin-step').style.display = 'block';
     document.getElementById('account-signedin-email').textContent = currentUser.email || '';
+    const hasGoogle = (currentUser.providerData || []).some(p => p.providerId === 'google.com');
+    const linkBtn = document.getElementById('google-link-btn');
+    if (linkBtn) linkBtn.style.display = hasGoogle ? 'none' : '';
   } else {
     document.getElementById('account-form-step').style.display = 'block';
     document.getElementById('account-signedin-step').style.display = 'none';
@@ -6618,9 +6647,87 @@ window.submitAccountForm = async function() {
     } else {
       await signInWithEmailAndPassword(auth, email, password);
     }
+    // If the user started with Google but that email already had a password
+    // account, signInWithPopup returned an error carrying a pending credential.
+    // Now that they've proven ownership via password, link Google so both
+    // sign-in methods point to the same account.
+    if (pendingGoogleCredential && auth.currentUser) {
+      try {
+        await linkWithCredential(auth.currentUser, pendingGoogleCredential);
+      } catch (e) {
+        // Already linked or linking failed — still signed in, don't block.
+      } finally {
+        pendingGoogleCredential = null;
+      }
+    }
     closeAccountOverlay();
   } catch (err) {
+    // If signup failed because the email already belongs to a Google account,
+    // tell the user to use Google instead of a confusing "email already in use."
+    if (accountMode === 'signup' && err && (err.code === 'auth/email-already-in-use')) {
+      try {
+        const methods = await fetchSignInMethodsForEmail(auth, email);
+        if (methods && methods.includes('google.com')) {
+          status('account-status', 'That email is already linked to a Google account — tap "Continue with Google" to sign in.', 'error');
+          return;
+        }
+      } catch (e) {}
+    }
     status('account-status', friendlyAuthError(err), 'error');
+  }
+};
+
+let pendingGoogleCredential = null;
+
+window.continueWithGoogle = async function() {
+  if (!auth) { status('account-status', 'Not connected to Firebase yet.', 'error'); return; }
+  status('account-status', '');
+  const btn = document.getElementById('google-signin-btn');
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+  try {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    closeAccountOverlay();
+  } catch (err) {
+    const code = err && err.code || '';
+    if (code === 'auth/account-exists-with-different-credential') {
+      // A password account already exists for this Google email. Save the
+      // Google credential and ask the user to sign in with their password —
+      // submitAccountForm links the two together on success.
+      pendingGoogleCredential = err.credential || null;
+      const email = err.email || '';
+      if (email) document.getElementById('account-email').value = email;
+      setAccountTab('login');
+      status('account-status', 'An account already exists with ' + email + '. Sign in with your password to link your Google account.', 'error');
+    } else if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+      status('account-status', '');
+    } else {
+      status('account-status', friendlyAuthError(err), 'error');
+    }
+  } finally {
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; }
+  }
+};
+
+window.linkGoogleAccount = async function() {
+  if (!auth || !currentUser) return;
+  status('account-status', '');
+  const btn = document.getElementById('google-link-btn');
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+  try {
+    await linkWithPopup(currentUser, new GoogleAuthProvider());
+    showAlert('Google account linked. You can now sign in with either method.');
+  } catch (err) {
+    const code = err && err.code || '';
+    if (code === 'auth/credential-already-in-use') {
+      showAlert('That Google account is already linked to another SideKick account.');
+    } else if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+      // cancelled — do nothing
+    } else {
+      showAlert('Could not link Google: ' + friendlyAuthError(err));
+    }
+  } finally {
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; }
   }
 };
 
@@ -6631,6 +6738,8 @@ function friendlyAuthError(err) {
   if (code.includes('user-not-found') || code.includes('wrong-password') || code.includes('invalid-credential')) return 'Incorrect email or password.';
   if (code.includes('weak-password')) return 'Password must be at least 6 characters.';
   if (code.includes('network-request-failed')) return 'Network error — check your connection and try again.';
+  if (code.includes('popup-blocked')) return 'Popup was blocked — allow popups for this site, or use email instead.';
+  if (code.includes('unauthorized-domain')) return 'Google sign-in is not enabled for this domain yet. Enable it in Firebase console → Authentication → Sign-in method → Google → Authorized domains.';
   return (err && err.message) ? err.message : 'Something went wrong. Please try again.';
 }
 
