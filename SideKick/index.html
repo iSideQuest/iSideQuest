@@ -39,6 +39,7 @@
     --text: #f0eeff;
     --muted: #7a7a9a;
     --danger: #c0392b;
+    --lobby-list-bg: #1e1e2e;
   }
 
   /* ── DEFAULT THEME 3D TEXT ── */
@@ -101,6 +102,7 @@
     --text: #1a1a2e;
     --muted: #606080;
     --danger: #c0392b;
+    --lobby-list-bg: #ffffff;
   }
   body.light-mode input {
     background: #f8f8ff;
@@ -109,6 +111,9 @@
   body.light-mode .player-item,
   body.light-mode .manage-player-item {
     background: #f0f0fb;
+  }
+  body.light-mode .player-item:hover {
+    background: #e4e4f4;
   }
   body.light-mode .player-avatar,
   body.light-mode .manage-player-avatar {
@@ -793,6 +798,19 @@
   body.light-mode .color-swatch.selected {
     border-color: #333;
     box-shadow: 0 0 0 2px rgba(0,0,0,0.25);
+  }
+  body.light-mode .color-swatch {
+    outline-color: rgba(0,0,0,0.4);
+  }
+  body.light-mode .color-swatch.light-fill {
+    outline-color: rgba(0,0,0,0.55);
+  }
+  body.light-mode .color-picker-btn.light-fill {
+    border-color: #000000 !important;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.2);
+  }
+  body.light-mode .step-collapse-swatch-inline.light-fill {
+    border-color: #000000;
   }
   .color-picker-confirm {
     width: 100%;
@@ -3700,6 +3718,7 @@
   body.theme-gothic .avatar-modal { background:linear-gradient(160deg,#141414,#0a0a0a) !important; border:1px solid rgba(51,51,51,0.4) !important; box-shadow:0 8px 40px rgba(192,192,192,0.15) !important; }
   body.theme-halloween .avatar-modal { background:linear-gradient(160deg,#1a0d08,#0a0505) !important; border:1px solid rgba(255,102,0,0.4) !important; box-shadow:0 8px 40px rgba(255,102,0,0.15) !important; }
   .avatar-modal-title { font-size:1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:0.1rem; }
+  #edit-profile-overlay .avatar-modal { max-height:88vh; overflow-y:auto; -webkit-overflow-scrolling:touch; }
   .avatar-tabs {
     display:grid; grid-template-columns:repeat(4, 1fr); gap:0.35rem;
     padding:0.15rem 0 0.2rem; flex-shrink:0;
@@ -4894,7 +4913,7 @@
         <div class="custom-scroll-thumb" id="scroll-thumb-left"></div>
       </div>
       <!-- Player grid -->
-      <div style="flex:1;min-height:0;overflow:hidden;border-radius:0 0 10px 10px;border:1px solid var(--border);border-top:none;background:#1e1e2e;">
+      <div style="flex:1;min-height:0;overflow:hidden;border-radius:0 0 10px 10px;border:1px solid var(--border);border-top:none;background:var(--lobby-list-bg);">
         <div class="player-list" id="lobby-player-list" style="overflow-y:auto;scrollbar-width:none;"></div>
       </div>
       <!-- Right custom scrollbar -->
@@ -5600,10 +5619,10 @@
 
     <!-- Hero Section -->
     <div class="profile-hero" style="width:min(380px,92vw); margin-bottom:0.75rem;">
-      <div class="profile-avatar-ring" onclick="openAvatarOverlay()" style="cursor:pointer;" title="Tap to change avatar">
+      <div class="profile-avatar-ring" onclick="openEditProfileOverlay()" style="cursor:pointer;" title="Tap to edit profile">
         <div class="profile-avatar-inner" id="profile-avatar">👤</div>
       </div>
-      <div class="profile-display-name" id="profile-name" onclick="openNameOverlay()" style="cursor:pointer;" title="Tap to change name">Guest</div>
+      <div class="profile-display-name" id="profile-name" onclick="openEditProfileOverlay()" style="cursor:pointer;" title="Tap to edit profile">Guest</div>
       <div class="profile-badge" id="profile-role-badge" style="display:none;">
         <span class="profile-badge-dot"></span>
         <span id="profile-role-text">Host Account</span>
@@ -5815,6 +5834,8 @@
     <div class="avatar-grid" id="edit-profile-avatar-grid"></div>
     <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-top:0.1rem;">Preferred Name</div>
     <input type="text" id="edit-profile-name-input" placeholder="Your name" maxlength="20" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;">
+    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;">Preferred Color</div>
+    <div class="color-grid" id="edit-profile-color-grid" style="margin-bottom:0;"></div>
     <button class="btn-primary" style="width:100%;margin-top:0.2rem;" onclick="saveEditProfile()">Save Profile</button>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeEditProfileOverlay()">Cancel</button>
   </div>
@@ -6476,6 +6497,42 @@ function saveName(name) {
   } catch {}
 }
 
+function getSavedColor() {
+  try {
+    const uid = currentUser?.uid || '';
+    if (uid) {
+      const key = 'sk_color_' + uid;
+      const val = localStorage.getItem(key);
+      if (val) return val;
+      return '';
+    }
+    return localStorage.getItem('sk_color') || '';
+  } catch { return ''; }
+}
+
+function saveColor(hex) {
+  try {
+    const uid = currentUser?.uid || '';
+    if (uid) localStorage.setItem('sk_color_' + uid, hex);
+    else localStorage.setItem('sk_color', hex);
+    if (uid && db) set(ref(db, `users/${uid}/color`), hex).catch(() => {});
+  } catch {}
+}
+
+// Applies the preferred color as the ring around the profile avatar
+function applyProfileRingColor() {
+  const ring = document.querySelector('.profile-avatar-ring');
+  if (!ring) return;
+  const color = getSavedColor();
+  if (color) {
+    ring.style.background = color;
+    ring.style.boxShadow = `0 0 24px ${color}66, 0 0 48px ${color}33`;
+  } else {
+    ring.style.background = '';
+    ring.style.boxShadow = '';
+  }
+}
+
 // ── FIREBASE USER PROFILE SYNC ───────────────────
 // Saves per-user data to Firebase so it survives uninstall/reinstall
 function syncProfileToFirebase(uid, data) {
@@ -6758,6 +6815,7 @@ window.closeNameOverlay = function() {
 
 window.openEditProfileOverlay = function() {
   const current = getSavedAvatar();
+  editProfileColorSelection = getSavedColor() || '';
   renderAvatarPicker('edit-profile-avatar', current, avatar => {
     document.querySelectorAll('#edit-profile-avatar-grid .avatar-option').forEach(el => el.classList.remove('selected'));
     const active = document.querySelector(`#edit-profile-avatar-grid .avatar-option[data-avatar="${CSS.escape(avatar)}"]`);
@@ -6765,6 +6823,27 @@ window.openEditProfileOverlay = function() {
     haptic(5);
   });
   document.getElementById('edit-profile-name-input').value = getSavedName();
+  // Preferred color grid
+  const colorGrid = document.getElementById('edit-profile-color-grid');
+  if (colorGrid) {
+    colorGrid.innerHTML = '';
+    const prefColor = getSavedColor();
+    PLAYER_COLORS.forEach(c => {
+      const sw = document.createElement('div');
+      sw.className = 'color-swatch' + (c.hex === prefColor ? ' selected' : '') + (isLightColor(c.hex) ? ' light-fill' : '');
+      sw.style.background = c.hex;
+      sw.title = c.name;
+      sw.setAttribute('role', 'button');
+      sw.setAttribute('tabindex', '0');
+      sw.onclick = () => {
+        colorGrid.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+        sw.classList.add('selected');
+        editProfileColorSelection = c.hex;
+        haptic(5);
+      };
+      colorGrid.appendChild(sw);
+    });
+  }
   document.getElementById('edit-profile-overlay').classList.add('show');
 };
 
@@ -6782,6 +6861,12 @@ window.saveEditProfile = function() {
   }
   const name = document.getElementById('edit-profile-name-input').value.trim();
   saveName(name);
+  // Preferred color
+  if (editProfileColorSelection) {
+    saveColor(editProfileColorSelection);
+    editProfileColorSelection = '';
+  }
+  applyProfileRingColor();
   updateAccountButtonUI();
   const profileNameEl = document.getElementById('profile-name');
   if (profileNameEl) profileNameEl.textContent = name || 'User';
@@ -6807,6 +6892,7 @@ window.selectAvatar = function(emoji) {
 
 // ── ROOM AVATAR PICKER (Standalone, no auth required) ──
 let roomAvatarSelection = '';
+let editProfileColorSelection = '';
 
 window.openRoomAvatarOverlay = function() {
   const current = roomAvatarSelection || getSavedAvatar();
@@ -6874,6 +6960,8 @@ window.openProfileScreen = function() {
   const name = getSavedName();
   const nameEl = document.getElementById('profile-name');
   nameEl.textContent = name || email.split('@')[0] || 'User';
+
+  applyProfileRingColor();
 
   const isHost = CREATOR_UIDS.includes(currentUser.uid);
   const badge = document.getElementById('profile-role-badge');
@@ -7636,12 +7724,21 @@ window.showCreateRoom = function() {
   if (!requireHostAccount()) return;
   editingRoom = false;
   startingNewGame = false;
-  myColor = '';
+  // Auto-fill color from profile (host is always logged in)
+  myColor = getSavedColor() || '';
   // Auto-fill avatar from profile (host is always logged in)
   const profileAv = getSavedAvatar();
   roomAvatarSelection = profileAv || '';
   const colorLabel = document.getElementById('host-color-label');
   if (colorLabel) colorLabel.textContent = 'Choose\nColor';
+  const colorBtn = document.getElementById('host-color-btn');
+  if (myColor && colorBtn) {
+    colorBtn.style.background = myColor;
+    colorBtn.style.borderColor = myColor;
+    colorBtn.classList.toggle('light-fill', isLightColor(myColor));
+    const colorName = PLAYER_COLORS.find(c => c.hex === myColor)?.name || 'Custom';
+    if (colorLabel) { colorLabel.textContent = colorName; colorLabel.style.color = isLightColor(myColor) ? '#000' : '#fff'; }
+  }
   const colorNote = document.getElementById('color-required-note');
   if (colorNote) colorNote.style.display = 'none';
   const avatarNote = document.getElementById('avatar-required-note');
@@ -7708,6 +7805,20 @@ window.showJoinRoom = function() {
   roomAvatarSelection = profileAv || '';
   const joinAvLabel = document.getElementById('join-avatar-label');
   setAvatarLabel(joinAvLabel, profileAv || '');
+  // Auto-fill color from profile only if logged in
+  const prefColor = currentUser ? getSavedColor() : '';
+  myColor = prefColor || '';
+  if (prefColor) {
+    myColor = prefColor;
+    const joinColorBtn = document.getElementById('join-color-btn');
+    const joinColorLabel = document.getElementById('join-color-label');
+    if (joinColorBtn) { joinColorBtn.style.background = prefColor; joinColorBtn.style.borderColor = prefColor; joinColorBtn.classList.toggle('light-fill', isLightColor(prefColor)); }
+    if (joinColorLabel) {
+      const colorName = PLAYER_COLORS.find(c => c.hex === prefColor)?.name || 'Custom';
+      joinColorLabel.textContent = colorName;
+      joinColorLabel.style.color = isLightColor(prefColor) ? '#000' : '#fff';
+    }
+  }
 };
 
 // ── JOIN ROOM WIZARD ──
@@ -7734,7 +7845,10 @@ window.updateJoinCollapseSummary = function() {
       collapseAvatarText.textContent = avatar;
     }
   }
-  if (collapseSwatch) collapseSwatch.style.background = myColor || 'var(--border)';
+  if (collapseSwatch) {
+    collapseSwatch.style.background = myColor || 'var(--border)';
+    collapseSwatch.classList.toggle('light-fill', !!(myColor && isLightColor(myColor)));
+  }
   const code = document.getElementById('join-code')?.value.toUpperCase().trim() || '';
   const collapseCode = document.getElementById('join-collapse-code');
   if (collapseCode) collapseCode.textContent = code || 'Enter Code';
@@ -7823,7 +7937,10 @@ window.updateCreateCollapseSummary = function() {
       collapseAvatarText.textContent = avatar;
     }
   }
-  if (collapseSwatch) collapseSwatch.style.background = myColor || 'var(--border)';
+  if (collapseSwatch) {
+    collapseSwatch.style.background = myColor || 'var(--border)';
+    collapseSwatch.classList.toggle('light-fill', !!(myColor && isLightColor(myColor)));
+  }
   const modeLabel = document.getElementById('create-collapse-mode');
   if (modeLabel) {
     if (turnMode === 'speedRound') {
@@ -8600,9 +8717,9 @@ window.goBackToCreate = async function() {
   if (myColor) {
     const colorBtn = document.getElementById('host-color-btn');
     const colorLabel = document.getElementById('host-color-label');
-    if (colorBtn) { colorBtn.style.background = myColor; colorBtn.style.borderColor = myColor; }
+    if (colorBtn) { colorBtn.style.background = myColor; colorBtn.style.borderColor = myColor; colorBtn.classList.toggle('light-fill', isLightColor(myColor)); }
     const colorName = PLAYER_COLORS.find(c => c.hex === myColor)?.name || myColor;
-    if (colorLabel) colorLabel.textContent = colorName;
+    if (colorLabel) { colorLabel.textContent = colorName; colorLabel.style.color = isLightColor(myColor) ? '#000' : '#fff'; }
   }
   // Avatar button
   const savedAv = roomAvatarSelection || getSavedAvatar();
@@ -10446,7 +10563,7 @@ window.openColorPicker = function(context) {
   grid.innerHTML = '';
   PLAYER_COLORS.forEach(c => {
     const sw = document.createElement('div');
-    sw.className = 'color-swatch' + (c.hex === tempSelectedColor ? ' selected' : '');
+    sw.className = 'color-swatch' + (c.hex === tempSelectedColor ? ' selected' : '') + (isLightColor(c.hex) ? ' light-fill' : '');
     sw.style.background = c.hex;
     sw.title = c.name;
     sw.setAttribute('role', 'button');
@@ -10468,7 +10585,10 @@ window.confirmColor = function() {
   ['host','join'].forEach(ctx => {
     const btn = document.getElementById(ctx + '-color-btn');
     const label  = document.getElementById(ctx + '-color-label');
-    if (btn) { btn.style.background = myColor; btn.style.borderColor = myColor; }
+    if (btn) {
+      btn.style.background = myColor; btn.style.borderColor = myColor;
+      btn.classList.toggle('light-fill', isLightColor(myColor));
+    }
     if (label)  { label.textContent = colorName; label.style.color = isLight ? '#000' : '#fff'; }
   });
   const colorNote = document.getElementById('color-required-note');
@@ -11315,9 +11435,9 @@ window.startNewGameSetup = async function() {
   if (myColor) {
     const colorBtn = document.getElementById('host-color-btn');
     const colorLabel = document.getElementById('host-color-label');
-    if (colorBtn) { colorBtn.style.background = myColor; colorBtn.style.borderColor = myColor; }
+    if (colorBtn) { colorBtn.style.background = myColor; colorBtn.style.borderColor = myColor; colorBtn.classList.toggle('light-fill', isLightColor(myColor)); }
     const colorName = PLAYER_COLORS.find(c => c.hex === myColor)?.name || myColor;
-    if (colorLabel) colorLabel.textContent = colorName;
+    if (colorLabel) { colorLabel.textContent = colorName; colorLabel.style.color = isLightColor(myColor) ? '#000' : '#fff'; }
   }
   const savedAv = roomAvatarSelection || getSavedAvatar();
   if (savedAv) {
