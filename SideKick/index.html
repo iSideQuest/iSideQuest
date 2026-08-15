@@ -320,6 +320,35 @@
   .step-collapse-sep { color: var(--muted); font-size: 0.95rem; flex-shrink: 0; }
   .step-collapse-swatch-inline { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 1.5px solid rgba(255,255,255,0.2); }
   .step-collapse-avatar-img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+
+  /* Step 1 collapse: stacked rows (Name / Color / Avatar) so long names fit without ellipsis */
+  .create-step[data-step="1"] .step-collapse-btn,
+  .join-step[data-step="1"] .step-collapse-btn {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    white-space: normal;
+    overflow: visible;
+    padding: 1rem;
+  }
+  .create-step[data-step="1"] .step-collapse-btn .step-collapse-row,
+  .join-step[data-step="1"] .step-collapse-btn .step-collapse-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+  }
+  .create-step[data-step="1"] .step-collapse-btn .step-collapse-name,
+  .join-step[data-step="1"] .step-collapse-btn .step-collapse-name {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    word-break: break-word;
+    min-width: 0;
+  }
   #join-cards-area { transition: justify-content 0.3s ease; display:flex; flex-direction:column; gap:0.75rem; scrollbar-width:none; overflow:hidden; align-items:center; }
   #join-cards-area::-webkit-scrollbar { display:none; }
   #join-cards-area.step-mode { justify-content: center; }
@@ -751,6 +780,9 @@
     z-index: 9000;
     align-items: center;
     justify-content: center;
+  }
+  #edit-profile-color-overlay {
+    z-index: 9800;
   }
   .color-picker-overlay.show { display: flex; }
   .color-picker-modal {
@@ -4660,13 +4692,17 @@
         <button class="btn-primary" id="create-next-btn" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;">Confirm →</button>
       </div>
       <button class="step-collapse-btn" onclick="expandCreateStep(1)">
-        <span class="step-collapse-label">Step 1:</span>
-        <span class="step-collapse-detail" id="create-collapse-name">Player</span>
-        <span class="step-collapse-sep">|</span>
-        <span class="step-collapse-swatch-inline" id="create-collapse-swatch-inline"></span>
-        <span class="step-collapse-detail" id="create-collapse-color-text">No color</span>
-        <span class="step-collapse-sep">|</span>
-        <span class="step-collapse-detail" id="create-collapse-avatar-text">👤</span>
+        <div class="step-collapse-row">
+          <span class="step-collapse-label">Step 1:</span>
+          <span class="step-collapse-detail step-collapse-name" id="create-collapse-name">Player</span>
+        </div>
+        <div class="step-collapse-row">
+          <span class="step-collapse-swatch-inline" id="create-collapse-swatch-inline"></span>
+          <span class="step-collapse-detail" id="create-collapse-color-text">No color</span>
+        </div>
+        <div class="step-collapse-row">
+          <span class="step-collapse-detail" id="create-collapse-avatar-text">👤</span>
+        </div>
       </button>
     </div>
 
@@ -4790,13 +4826,17 @@
         <button class="btn-primary" id="join-next-btn" onclick="joinNextStep()" style="width:100%;margin-top:0.75rem;">Confirm →</button>
       </div>
       <button class="step-collapse-btn" onclick="expandJoinStep(1)">
-        <span class="step-collapse-label">Step 1:</span>
-        <span class="step-collapse-detail" id="join-collapse-name">Player</span>
-        <span class="step-collapse-sep">|</span>
-        <span class="step-collapse-swatch-inline" id="join-collapse-swatch-inline"></span>
-        <span class="step-collapse-detail" id="join-collapse-color-text">No color</span>
-        <span class="step-collapse-sep">|</span>
-        <span class="step-collapse-detail" id="join-collapse-avatar-text">👤</span>
+        <div class="step-collapse-row">
+          <span class="step-collapse-label">Step 1:</span>
+          <span class="step-collapse-detail step-collapse-name" id="join-collapse-name">Player</span>
+        </div>
+        <div class="step-collapse-row">
+          <span class="step-collapse-swatch-inline" id="join-collapse-swatch-inline"></span>
+          <span class="step-collapse-detail" id="join-collapse-color-text">No color</span>
+        </div>
+        <div class="step-collapse-row">
+          <span class="step-collapse-detail" id="join-collapse-avatar-text">👤</span>
+        </div>
       </button>
     </div>
 
@@ -5574,6 +5614,15 @@
   </div>
 </div>
 
+<!-- Preferred Color overlay (opened from Edit Profile) -->
+<div class="color-picker-overlay" id="edit-profile-color-overlay">
+  <div class="color-picker-modal">
+    <div class="color-picker-title">Choose Preferred Color</div>
+    <div class="color-grid" id="edit-profile-color-grid"></div>
+    <button class="btn-primary" onclick="confirmEditProfileColor()">Confirm</button>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════════════ -->
 <!--  ACCOUNT (login / signup)                   -->
 <!-- ═══════════════════════════════════════════ -->
@@ -5835,7 +5884,9 @@
     <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-top:0.1rem;">Preferred Name</div>
     <input type="text" id="edit-profile-name-input" placeholder="Your name" maxlength="20" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;">
     <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;">Preferred Color</div>
-    <div class="color-grid" id="edit-profile-color-grid" style="margin-bottom:0;"></div>
+    <button class="color-picker-btn" id="edit-profile-color-btn" onclick="openEditProfileColorOverlay()" style="width:64px;height:64px;flex:0 0 64px;margin:0;padding:0.25rem;border-radius:50%;">
+      <span id="edit-profile-color-label" style="font-size:0.66rem;line-height:1.2;">Choose<br>Color</span>
+    </button>
     <button class="btn-primary" style="width:100%;margin-top:0.2rem;" onclick="saveEditProfile()">Save Profile</button>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeEditProfileOverlay()">Cancel</button>
   </div>
@@ -6823,28 +6874,59 @@ window.openEditProfileOverlay = function() {
     haptic(5);
   });
   document.getElementById('edit-profile-name-input').value = getSavedName();
-  // Preferred color grid
-  const colorGrid = document.getElementById('edit-profile-color-grid');
-  if (colorGrid) {
-    colorGrid.innerHTML = '';
-    const prefColor = getSavedColor();
-    PLAYER_COLORS.forEach(c => {
-      const sw = document.createElement('div');
-      sw.className = 'color-swatch' + (c.hex === prefColor ? ' selected' : '') + (isLightColor(c.hex) ? ' light-fill' : '');
-      sw.style.background = c.hex;
-      sw.title = c.name;
-      sw.setAttribute('role', 'button');
-      sw.setAttribute('tabindex', '0');
-      sw.onclick = () => {
-        colorGrid.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-        sw.classList.add('selected');
-        editProfileColorSelection = c.hex;
-        haptic(5);
-      };
-      colorGrid.appendChild(sw);
-    });
-  }
+  updateEditProfileColorButton();
   document.getElementById('edit-profile-overlay').classList.add('show');
+};
+
+function updateEditProfileColorButton() {
+  const btn = document.getElementById('edit-profile-color-btn');
+  const label = document.getElementById('edit-profile-color-label');
+  if (!btn || !label) return;
+  const color = editProfileColorSelection;
+  if (color) {
+    btn.style.background = color;
+    btn.style.borderColor = color;
+    btn.classList.toggle('light-fill', isLightColor(color));
+    const colorName = PLAYER_COLORS.find(c => c.hex === color)?.name || 'Custom';
+    label.textContent = colorName;
+    label.style.color = isLightColor(color) ? '#000' : '#fff';
+    label.style.fontSize = '0.66rem';
+  } else {
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.classList.remove('light-fill');
+    label.textContent = 'Choose\nColor';
+    label.style.color = '';
+    label.style.fontSize = '0.66rem';
+  }
+}
+
+window.openEditProfileColorOverlay = function() {
+  const grid = document.getElementById('edit-profile-color-grid');
+  grid.innerHTML = '';
+  const cur = editProfileColorSelection;
+  PLAYER_COLORS.forEach(c => {
+    const sw = document.createElement('div');
+    sw.className = 'color-swatch' + (c.hex === cur ? ' selected' : '') + (isLightColor(c.hex) ? ' light-fill' : '');
+    sw.style.background = c.hex;
+    sw.title = c.name;
+    sw.setAttribute('role', 'button');
+    sw.setAttribute('tabindex', '0');
+    sw.onclick = () => {
+      grid.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+      sw.classList.add('selected');
+      editProfileColorSelection = c.hex;
+      haptic(5);
+    };
+    grid.appendChild(sw);
+  });
+  document.getElementById('edit-profile-color-overlay').classList.add('show');
+};
+
+window.confirmEditProfileColor = function() {
+  document.getElementById('edit-profile-color-overlay').classList.remove('show');
+  updateEditProfileColorButton();
+  haptic(5);
 };
 
 window.closeEditProfileOverlay = function() {
@@ -10599,6 +10681,9 @@ window.confirmColor = function() {
 
 // Close overlay on background tap
 document.getElementById('color-picker-overlay').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('show');
+});
+document.getElementById('edit-profile-color-overlay').addEventListener('click', function(e) {
   if (e.target === this) this.classList.remove('show');
 });
 window.openSettingsOverlay = function() {
