@@ -4380,6 +4380,15 @@
   }
   .collection-chip:hover { border-color: var(--accent); }
   .collection-chip.active { border-color: var(--accent); background: rgba(124,92,191,0.18); color: var(--accent-light); }
+  .collection-filter-subtitle {
+    font-size: 0.68rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.2rem;
+  }
+  .collection-pick {
+    border-color: var(--accent);
+    background: rgba(124,92,191,0.12);
+    box-shadow: 0 0 0 1px var(--accent), 0 0 14px rgba(124,92,191,0.35);
+  }
   .collection-game {
     background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
     padding: 0.7rem 0.8rem;
@@ -5856,27 +5865,37 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="collection-overlay">
   <div class="tools-modal" style="max-height:88vh; overflow-y:auto;">
-    <div class="tools-modal-title">🎲 My Collection</div>
-    <div style="font-size:0.78rem;color:var(--muted);text-align:center;margin-bottom:0.6rem;">Your board games — filter to find the right one for your event.</div>
+    <!-- Main menu -->
+    <div id="collection-main-menu">
+      <div class="tools-modal-title">🎲 My Collection</div>
+      <div style="font-size:0.78rem;color:var(--muted);text-align:center;margin-bottom:0.9rem;">Your board games — build your library, then filter to find the right one for your event.</div>
 
-    <!-- Filters -->
-    <div id="collection-filters" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.6rem;">
-      <input id="collection-search" placeholder="Search by name…" oninput="renderCollection()" style="width:100%;">
-      <div style="display:flex;gap:0.4rem;align-items:center;">
-        <span style="font-size:0.78rem;color:var(--muted);flex-shrink:0;">Players:</span>
-        <button class="btn-secondary btn-sm" style="padding:0.3rem 0.7rem;" onclick="collectionPlayers(-1)">−</button>
-        <span id="collection-players" style="font-weight:800;color:var(--text);min-width:2.2rem;text-align:center;">Any</span>
-        <button class="btn-secondary btn-sm" style="padding:0.3rem 0.7rem;" onclick="collectionPlayers(1)">+</button>
-        <button class="btn-secondary btn-sm" style="margin-left:auto;" onclick="clearCollectionFilters()">Clear</button>
-      </div>
-      <div id="collection-cat-filters" class="collection-chip-row"></div>
-      <div id="collection-mech-filters" class="collection-chip-row"></div>
+      <button class="btn-primary" style="width:100%;" onclick="openCollectionLibrary()">📚 Library</button>
+      <button class="btn-secondary" style="width:100%;margin-top:0.5rem;" onclick="openCollectionEdit()">+ Add Game</button>
+      <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.5rem;" onclick="closeCollection()">Close</button>
     </div>
 
-    <div id="collection-list" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+    <!-- Library: search + filter -->
+    <div id="collection-library" style="display:none;">
+      <button class="btn-secondary btn-sm" style="margin-bottom:0.5rem;" onclick="showCollectionMenu()">← Back</button>
+      <div class="tools-modal-title" style="font-size:1.05rem;">📚 Library</div>
 
-    <button class="btn-primary" style="margin-top:0.75rem;width:100%;" onclick="openCollectionEdit()">+ Add Game</button>
-    <button class="btn-secondary btn-sm" style="margin-top:0.5rem;width:100%;" onclick="closeCollection()">Close</button>
+      <div id="collection-filters" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.6rem;">
+        <input id="collection-search" placeholder="Search by name…" oninput="renderCollection()" style="width:100%;">
+        <div style="display:flex;gap:0.4rem;align-items:center;">
+          <span style="font-size:0.78rem;color:var(--muted);flex-shrink:0;">Players:</span>
+          <button class="btn-secondary btn-sm" style="padding:0.3rem 0.7rem;" onclick="collectionPlayers(-1)">−</button>
+          <span id="collection-players" style="font-weight:800;color:var(--text);min-width:2.2rem;text-align:center;">Any</span>
+          <button class="btn-secondary btn-sm" style="padding:0.3rem 0.7rem;" onclick="collectionPlayers(1)">+</button>
+          <button class="btn-secondary btn-sm" style="margin-left:auto;" onclick="clearCollectionFilters()">Clear</button>
+        </div>
+        <div id="collection-filter-groups"></div>
+      </div>
+
+      <button class="btn-secondary" style="width:100%;margin-bottom:0.6rem;" onclick="pickRandomGame()">🎲 Pick at Random</button>
+
+      <div id="collection-list" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+    </div>
   </div>
 </div>
 
@@ -12461,54 +12480,100 @@ const COLLECTION_MECHANICS = [
   { key: 'engine-building',  icon: '🏗️', label: 'Engine Building' },
   { key: 'deduction',        icon: '🕵️', label: 'Deduction' }
 ];
+const COLLECTION_DEFS = {};
+COLLECTION_CATEGORIES.forEach(c => COLLECTION_DEFS[c.key] = c);
+COLLECTION_MECHANICS.forEach(m => COLLECTION_DEFS[m.key] = m);
+const COLLECTION_FILTER_GROUPS = [
+  { label: 'Play Style',      type: 'cat',  keys: ['coop','competitive','teams','solo','party'] },
+  { label: 'Deck & Draft',    type: 'mech', keys: ['deck-builder','engine-building','drafting'] },
+  { label: 'Board Strategy',  type: 'mech', keys: ['worker-placement','area-control'] },
+  { label: 'Cards & Dice',    type: 'mech', keys: ['card-game','dice'] },
+  { label: 'Deduction',       type: 'mech', keys: ['deduction'] }
+];
 
 let collectionFilter = { search: '', players: 0, cats: new Set(), mechs: new Set() };
+let collectionPickId = null;
 let collectionEditingId = null;
 let collectionEditCats = new Set();
 let collectionEditMechs = new Set();
+let collectionGames = []; // in-memory cache of the user's games
 
 function getCollectionKey() {
   return 'sk_collection_' + (currentUser && currentUser.uid ? currentUser.uid : 'guest');
 }
-function loadCollection() {
+function collectionPath() {
+  return 'users/' + (currentUser && currentUser.uid ? currentUser.uid : 'guest') + '/collection';
+}
+function loadCollectionLocal() {
   try { return JSON.parse(localStorage.getItem(getCollectionKey()) || '[]'); } catch (e) { return []; }
 }
-function saveCollection(list) {
+function saveCollectionLocal(list) {
   try { localStorage.setItem(getCollectionKey(), JSON.stringify(list)); } catch (e) {}
+}
+// Loads the collection into the in-memory cache. Signed in hosts read from
+// Firebase; guests fall back to localStorage. Always mirrors to localStorage
+// so the list still works offline / while signed out.
+async function loadCollection() {
+  const uid = currentUser && currentUser.uid ? currentUser.uid : 'guest';
+  if (db && currentUser) {
+    try {
+      const snap = await get(ref(db, collectionPath()));
+      if (snap.exists()) {
+        const obj = snap.val();
+        collectionGames = Object.keys(obj).map(k => Object.assign({ id: k }, obj[k]));
+        saveCollectionLocal(collectionGames);
+        return collectionGames;
+      }
+      // Firebase has no collection yet — keep any local cache instead of wiping it
+    } catch (e) {
+      // fall through to local cache
+    }
+  }
+  collectionGames = loadCollectionLocal();
+  return collectionGames;
 }
 
 window.openMyCollection = function() {
+  document.getElementById('collection-main-menu').style.display = '';
+  document.getElementById('collection-library').style.display = 'none';
   document.getElementById('collection-overlay').classList.add('show');
+};
+window.openCollectionLibrary = async function() {
+  document.getElementById('collection-main-menu').style.display = 'none';
+  document.getElementById('collection-library').style.display = '';
   renderCollectionFilters();
+  await loadCollection();
   renderCollection();
+};
+window.showCollectionMenu = function() {
+  document.getElementById('collection-library').style.display = 'none';
+  document.getElementById('collection-main-menu').style.display = '';
 };
 window.closeCollection = function() {
   document.getElementById('collection-overlay').classList.remove('show');
 };
 
 function renderCollectionFilters() {
-  const catEl = document.getElementById('collection-cat-filters');
-  if (catEl) {
-    catEl.innerHTML = COLLECTION_CATEGORIES.map(c =>
-      '<button class="collection-chip' + (collectionFilter.cats.has(c.key) ? ' active' : '') + '" onclick="toggleCollectionFilterCat(\'' + c.key + '\')">' + c.icon + ' ' + c.label + '</button>'
-    ).join('');
-  }
-  const mechEl = document.getElementById('collection-mech-filters');
-  if (mechEl) {
-    mechEl.innerHTML = COLLECTION_MECHANICS.map(m =>
-      '<button class="collection-chip' + (collectionFilter.mechs.has(m.key) ? ' active' : '') + '" onclick="toggleCollectionFilterMech(\'' + m.key + '\')">' + m.icon + ' ' + m.label + '</button>'
-    ).join('');
+  const groupsEl = document.getElementById('collection-filter-groups');
+  if (groupsEl) {
+    groupsEl.innerHTML = COLLECTION_FILTER_GROUPS.map(group => {
+      const set = group.type === 'cat' ? collectionFilter.cats : collectionFilter.mechs;
+      const chips = group.keys.map(key => {
+        const def = COLLECTION_DEFS[key];
+        if (!def) return '';
+        return '<button class="collection-chip' + (set.has(key) ? ' active' : '') + '" onclick="toggleCollectionFilter(\'' + group.type + '\',\'' + key + '\')">' + def.icon + ' ' + def.label + '</button>';
+      }).join('');
+      return '<div class="collection-filter-subtitle">' + group.label + '</div>' +
+             '<div class="collection-chip-row">' + chips + '</div>';
+    }).join('');
   }
   const playersEl = document.getElementById('collection-players');
   if (playersEl) playersEl.textContent = collectionFilter.players || 'Any';
 }
 
-window.toggleCollectionFilterCat = function(key) {
-  collectionFilter.cats.has(key) ? collectionFilter.cats.delete(key) : collectionFilter.cats.add(key);
-  renderCollectionFilters(); renderCollection();
-};
-window.toggleCollectionFilterMech = function(key) {
-  collectionFilter.mechs.has(key) ? collectionFilter.mechs.delete(key) : collectionFilter.mechs.add(key);
+window.toggleCollectionFilter = function(type, key) {
+  const set = type === 'cat' ? collectionFilter.cats : collectionFilter.mechs;
+  set.has(key) ? set.delete(key) : set.add(key);
   renderCollectionFilters(); renderCollection();
 };
 window.collectionPlayers = function(delta) {
@@ -12517,9 +12582,32 @@ window.collectionPlayers = function(delta) {
 };
 window.clearCollectionFilters = function() {
   collectionFilter = { search: '', players: 0, cats: new Set(), mechs: new Set() };
+  collectionPickId = null;
   const searchEl = document.getElementById('collection-search');
   if (searchEl) searchEl.value = '';
   renderCollectionFilters(); renderCollection();
+};
+
+window.pickRandomGame = function() {
+  const searchEl = document.getElementById('collection-search');
+  collectionFilter.search = (searchEl && searchEl.value || '').trim().toLowerCase();
+  const matches = collectionGames.filter(game => {
+    if (collectionFilter.search && (game.name || '').toLowerCase().indexOf(collectionFilter.search) === -1) return false;
+    if (collectionFilter.players) {
+      const p = collectionFilter.players;
+      if (game.maxPlayers && game.maxPlayers < p) return false;
+      if (game.minPlayers && game.minPlayers > p) return false;
+    }
+    if (collectionFilter.cats.size && ![...collectionFilter.cats].some(k => (game.categories || []).indexOf(k) !== -1)) return false;
+    if (collectionFilter.mechs.size && ![...collectionFilter.mechs].some(k => (game.mechanics || []).indexOf(k) !== -1)) return false;
+    return true;
+  });
+  if (!matches.length) {
+    showAlert('No games match your current filters.');
+    return;
+  }
+  collectionPickId = matches[Math.floor(Math.random() * matches.length)].id;
+  renderCollection();
 };
 
 window.renderCollection = function() {
@@ -12527,7 +12615,7 @@ window.renderCollection = function() {
   if (!listEl) return;
   const searchEl = document.getElementById('collection-search');
   collectionFilter.search = (searchEl && searchEl.value || '').trim().toLowerCase();
-  const all = loadCollection();
+  const all = collectionGames;
   const matches = all.filter(game => {
     if (collectionFilter.search && (game.name || '').toLowerCase().indexOf(collectionFilter.search) === -1) return false;
     if (collectionFilter.players) {
@@ -12543,8 +12631,20 @@ window.renderCollection = function() {
     listEl.innerHTML = '<div style="color:var(--muted);font-size:0.82rem;text-align:center;padding:0.75rem 0;">No games match your filters.</div>';
     return;
   }
+  const ordered = [...matches];
+  if (collectionPickId) {
+    const idx = ordered.findIndex(g => g.id === collectionPickId);
+    if (idx !== -1) {
+      const picked = ordered.splice(idx, 1)[0];
+      ordered.unshift(picked);
+    }
+  }
   listEl.innerHTML = '';
-  matches.forEach(game => listEl.appendChild(buildCollectionGameRow(game)));
+  ordered.forEach(game => {
+    const row = buildCollectionGameRow(game);
+    if (game.id === collectionPickId) row.classList.add('collection-pick');
+    listEl.appendChild(row);
+  });
 };
 
 function buildCollectionGameRow(game) {
@@ -12576,7 +12676,7 @@ function buildCollectionGameRow(game) {
 
 window.openCollectionEdit = function(id) {
   collectionEditingId = id || null;
-  const game = id ? loadCollection().find(g => g.id === id) : null;
+  const game = id ? collectionGames.find(g => g.id === id) : null;
   document.getElementById('collection-edit-title').textContent = game ? 'Edit Game' : 'Add Game';
   document.getElementById('ce-name').value = game ? game.name : '';
   document.getElementById('ce-min').value = game ? (game.minPlayers || 2) : 2;
@@ -12616,7 +12716,7 @@ window.toggleEditMech = function(key) {
   renderCollectionEditChips();
 };
 
-window.saveCollectionGame = function() {
+window.saveCollectionGame = async function() {
   const name = (document.getElementById('ce-name').value || '').trim();
   if (!name) {
     const errEl = document.getElementById('collection-edit-error');
@@ -12636,22 +12736,37 @@ window.saveCollectionGame = function() {
     categories: [...collectionEditCats],
     mechanics: [...collectionEditMechs]
   };
-  const list = loadCollection();
   if (collectionEditingId) {
-    const idx = list.findIndex(g => g.id === collectionEditingId);
-    if (idx !== -1) list[idx] = game; else list.push(game);
+    const idx = collectionGames.findIndex(g => g.id === collectionEditingId);
+    if (idx !== -1) collectionGames[idx] = game; else collectionGames.push(game);
   } else {
-    list.push(game);
+    collectionGames.push(game);
   }
-  saveCollection(list);
+  saveCollectionLocal(collectionGames);
+  const uid = currentUser && currentUser.uid ? currentUser.uid : null;
+  if (db && uid) {
+    try {
+      await set(ref(db, collectionPath() + '/' + game.id), game);
+    } catch (e) {
+      showAlert('Could not sync this game to your account. It is saved on this device only.');
+    }
+  }
   closeCollectionEdit();
   renderCollection();
 };
 
 window.deleteCollectionGame = async function(id) {
   if (!await showConfirm('Remove this game from your collection?')) return;
-  const list = loadCollection().filter(g => g.id !== id);
-  saveCollection(list);
+  collectionGames = collectionGames.filter(g => g.id !== id);
+  saveCollectionLocal(collectionGames);
+  const uid = currentUser && currentUser.uid ? currentUser.uid : null;
+  if (db && uid) {
+    try {
+      await remove(ref(db, collectionPath() + '/' + id));
+    } catch (e) {
+      showAlert('Could not remove this game from your account. It was removed on this device only.');
+    }
+  }
   renderCollection();
 };
 
