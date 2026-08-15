@@ -3919,6 +3919,23 @@
   }
   .feature-card .fc-settings { font-size: 0.6rem; color: var(--accent-light); margin-top: 1px; }
 
+  .features-help-btn {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.7rem;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    color: var(--muted);
+    font-size: 1rem; font-weight: 800;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    padding: 0;
+  }
+  .features-help-btn:hover { border-color: var(--accent-light); color: var(--accent-light); background: rgba(124,58,237,0.1); }
+
   /* ══════════════════════════════════════════════
      TURN MODE OVERLAYS (direction / speed mode picker)
   ══════════════════════════════════════════════ */
@@ -3971,7 +3988,7 @@
   .dir-option-wide { flex:1; }
   .dir-option:hover { border-color:var(--accent); }
   .dir-option.selected { border-color:var(--accent); background:rgba(124,92,191,0.12); }
-  .dir-icon { font-size:2.6rem; }
+  .dir-icon { font-size:2.6rem; line-height:1; }
   .dir-name { font-size:1.15rem; font-weight:700; color:var(--text); margin-top:0.15rem; }
   .dir-desc { font-size:0.9rem; color:var(--muted); margin-top:0.15rem; line-height:1.3; text-align:center; }
   .tm-rounds-row {
@@ -4767,6 +4784,7 @@
     <!-- Card 3: Game Settings / Features (Step 3) -->
     <div class="create-step" data-step="3">
       <div class="card" style="padding-top: 1rem; padding-bottom: 1rem;">
+        <button class="features-help-btn" onclick="openFeaturesHelpOverlay()" title="What are the game features?">?</button>
         <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;">Step 3</div>
         <div style="font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;">Tap To Add Game Feature</div>
 
@@ -4806,11 +4824,6 @@
             <span class="fc-icon">↩️</span>
             <span class="fc-name">Undo Pass</span>
           </div>
-        </div>
-
-        <div class="feature-section-label added">Added Features</div>
-        <div class="feature-grid" id="features-added-grid" style="min-height:2.5rem;">
-          <div id="features-empty-msg" style="grid-column:1/-1;text-align:center;font-size:0.78rem;color:var(--muted);padding:0.5rem 0;">None yet</div>
         </div>
 
         <button class="btn-primary" id="create-final-btn" onclick="onCreateFinalBtn()" style="width:100%;margin-top:0.75rem;">Create Room</button>
@@ -5490,6 +5503,17 @@
     </div>
 
     <button class="info-modal-close" onclick="closeFeaturesOverlay()" style="width:100%;">✓ Done</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  FEATURES HELP OVERLAY (Step 3 "?")         -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="info-overlay" id="features-help-overlay">
+  <div class="info-modal" style="width:min(380px,95vw);max-height:90vh;overflow-y:auto;padding:1.5rem 1.25rem;">
+    <div style="font-size:1.05rem;font-weight:800;color:var(--text);text-align:center;margin-bottom:1.25rem;">Game Features</div>
+    <div id="features-help-list" style="display:flex;flex-direction:column;gap:1rem;"></div>
+    <button class="info-modal-close" onclick="closeFeaturesHelpOverlay()" style="width:100%;margin-top:1.25rem;">Got it</button>
   </div>
 </div>
 
@@ -6521,7 +6545,7 @@ window.confirmSignOut = async function() {
 // Saved Games or Account was left open) before switching screens, so the
 // button always visibly takes you home.
 window.backToHomeFromProfile = function() {
-  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','edit-profile-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay'].forEach(id => {
+  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','edit-profile-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay','features-help-overlay'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('show');
   });
@@ -9560,12 +9584,9 @@ window.toggleFeature = function(key) {
 
 function renderFeatureGrid() {
   const avail = document.getElementById('features-available-grid');
-  const added = document.getElementById('features-added-grid');
-  if (!avail || !added) return;
+  if (!avail) return;
   avail.innerHTML = '';
-  added.innerHTML = '';
   const visibleDefs = FEATURE_DEFS_GRID.filter(f => !f.creatorOnly || isCreator);
-  let addedCount = 0;
   visibleDefs.forEach(def => {
     const enabled = isFeatureEnabled(def.key);
     const card = document.createElement('div');
@@ -9591,16 +9612,8 @@ function renderFeatureGrid() {
       html += '<span class="fc-settings">' + detail + '</span>';
     }
     card.innerHTML = html;
-    if (enabled) {
-      added.appendChild(card);
-      addedCount++;
-    } else {
-      avail.appendChild(card);
-    }
+    avail.appendChild(card);
   });
-  if (addedCount === 0) {
-    added.innerHTML = '<div id="features-empty-msg" style="grid-column:1/-1;text-align:center;font-size:0.78rem;color:var(--muted);padding:0.5rem 0;">None yet</div>';
-  }
 }
 
 window.openFeaturesOverlay = function() {
@@ -9722,6 +9735,31 @@ window.showFeatureInfo = function(key) {
 window.closeFeatureInfo = function() {
   document.getElementById('info-overlay').classList.remove('show');
 };
+
+// ── STEP 3 FEATURES HELP OVERLAY ──
+function buildFeatureHelpList() {
+  const container = document.getElementById('features-help-list');
+  if (!container) return;
+  const visibleDefs = FEATURE_DEFS_GRID.filter(f => !f.creatorOnly || isCreator);
+  container.innerHTML = visibleDefs.map(def => {
+    const info = FEATURE_INFO[def.key];
+    if (!info) return '';
+    return '<div style="border-bottom:1px solid var(--border);padding-bottom:0.85rem;">'
+      + '<div style="font-size:0.95rem;font-weight:800;color:var(--text);margin-bottom:0.3rem;">' + (info.icon ? info.icon + ' ' : '') + info.title + '</div>'
+      + '<div style="font-size:0.8rem;color:var(--muted);line-height:1.55;">' + info.body.replace(/\n/g, '<br>') + '</div>'
+      + '</div>';
+  }).join('');
+}
+window.openFeaturesHelpOverlay = function() {
+  buildFeatureHelpList();
+  document.getElementById('features-help-overlay').classList.add('show');
+};
+window.closeFeaturesHelpOverlay = function() {
+  document.getElementById('features-help-overlay').classList.remove('show');
+};
+document.getElementById('features-help-overlay').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('show');
+});
 document.getElementById('info-overlay').addEventListener('click', function(e) {
   if (e.target === this) this.classList.remove('show');
 });
