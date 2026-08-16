@@ -1165,8 +1165,12 @@
     font-size: 3.5rem;
     font-weight: 900;
     color: #fff;
+    text-align: center;
     text-shadow: 0 0 40px currentColor, 0 0 80px currentColor, 0 0 120px currentColor, 0 0 160px currentColor;
     line-height: 1.1;
+    max-width: 90vw;
+    padding: 0 1rem;
+    word-break: break-word;
     animation: vpNameGlow 1.2s ease-in-out infinite alternate;
   }
   .vp-win-player-num {
@@ -1219,7 +1223,11 @@
   .vp-spec-name {
     font-size: 2.8rem;
     font-weight: 900;
+    text-align: center;
     line-height: 1.1;
+    max-width: 90vw;
+    padding: 0 1rem;
+    word-break: break-word;
     animation: vpNameGlow 1.5s ease-in-out infinite alternate;
   }
   .vp-spec-player-num {
@@ -3875,7 +3883,7 @@
     border: 2px solid var(--border);
     border-radius: 12px;
     padding: 0.85rem 0.5rem;
-    font-size: 0.9rem; font-weight: 700;
+    font-size: 1.05rem; font-weight: 700;
     color: var(--text); cursor: pointer;
     display: flex; flex-direction: column;
     align-items: center; gap: 4px;
@@ -4211,6 +4219,72 @@
     -webkit-tap-highlight-color: transparent;
     background: transparent;
   }
+
+  /* ── DUEL FOR 1ST PLAYER ── */
+  .duel-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.92); z-index: 9660;
+    align-items: center; justify-content: center;
+    padding: 1rem;
+  }
+  .duel-overlay.show { display: flex; }
+  .duel-modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 1.5rem 1.25rem;
+    width: min(340px, 92vw); max-height: 88vh;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0.8rem; overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+  }
+  .duel-modal-title {
+    font-size: 1.15rem; font-weight: 800; color: var(--text); text-align: center;
+  }
+  .duel-timer-value {
+    font-size: 2.8rem; font-weight: 900; color: var(--accent-light);
+    text-shadow: 0 0 20px rgba(124,92,191,0.4);
+    min-height: 3.2rem; line-height: 1; user-select: none;
+  }
+  .duel-countdown-big {
+    font-size: 6rem; font-weight: 900; color: #fff;
+    text-shadow: 0 0 40px rgba(255,255,255,0.5);
+    line-height: 1; user-select: none;
+    animation: duelPulse 0.5s ease-in-out infinite alternate;
+  }
+  @keyframes duelPulse { from { transform: scale(1); } to { transform: scale(1.08); } }
+  .duel-go-text {
+    font-size: 3.5rem; font-weight: 900; color: #fbbf24;
+    text-shadow: 0 0 30px rgba(251,191,36,0.6);
+    line-height: 1; user-select: none;
+    animation: duelFlash 0.3s ease-in-out infinite alternate;
+  }
+  @keyframes duelFlash { from { opacity: 1; } to { opacity: 0.7; } }
+  .duel-tap-zone {
+    position: fixed; inset: 0; z-index: 9665; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .duel-tap-counter {
+    font-size: 4rem; font-weight: 900; color: #4ade80;
+    text-shadow: 0 0 20px rgba(74,222,128,0.5);
+    line-height: 1; user-select: none;
+  }
+  .duel-tap-label {
+    font-size: 0.9rem; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .duel-scoreboard-row {
+    display: flex; align-items: center; gap: 0.6rem; width: 100%;
+    padding: 0.5rem 0.6rem; border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+  }
+  .duel-scoreboard-row.winner {
+    background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.3);
+  }
+  .duel-rank { font-size: 1rem; font-weight: 800; min-width: 28px; text-align: center; }
+  .duel-rank.gold { color: #fbbf24; }
+  .duel-rank.silver { color: #c0c0c0; }
+  .duel-rank.bronze { color: #cd7f32; }
+  .duel-score-name { flex: 1; font-size: 0.9rem; font-weight: 600; color: var(--text); }
+  .duel-score-taps { font-size: 1rem; font-weight: 800; color: var(--accent-light); }
 
   /* ── PROFILE SCREEN ── */
   .profile-hero {
@@ -5078,14 +5152,15 @@
 
     <!-- Fixed bottom bar -->
     <div style="width:100%;max-width:480px;margin:0 auto;padding:0.3rem 0.5rem env(safe-area-inset-bottom, 0.3rem);flex-shrink:0;">
-      <div style="display:flex;align-items:center;justify-content:center;gap:0.6rem;margin-bottom:0.75rem;">
+      <div style="display:flex;align-items:center;justify-content:center;gap:0.6rem;margin-bottom:0.5rem;">
         <label class="feature-toggle" style="flex-shrink:0;">
           <input type="checkbox" id="random-first-player" onchange="onRandomFirstToggle(this.checked)">
           <span class="toggle-slider"></span>
         </label>
-        <span style="font-size:0.85rem;font-weight:600;color:var(--text);">&#127922; Pick a Random first player</span>
+        <span style="font-size:0.85rem;font-weight:600;color:var(--text);margin-top:0.3rem;">&#127922; Pick A Random First Player</span>
       </div>
-      <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;margin-bottom:0.3rem;">&#9654; Start Game</button>
+      <button class="btn-secondary btn-sm" onclick="openDuelSetup()" style="width:100%;margin-bottom:0.75rem;font-size:0.85rem;">⚔️ Duel For 1st Player</button>
+      <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;margin-bottom:0.3rem;">Start Game &#9654;</button>
       <button class="btn-secondary btn-sm" onclick="goBackToCreate()" style="width:100%;">&#8592; Back To Room Settings</button>
     </div>
 
@@ -6096,12 +6171,19 @@
     <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:-0.2rem;">Avatar</div>
     <div class="avatar-tabs" id="edit-profile-avatar-tabs"></div>
     <div class="avatar-grid" id="edit-profile-avatar-grid"></div>
-    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-top:0.1rem;">Preferred Name</div>
-    <input type="text" id="edit-profile-name-input" placeholder="Your name" maxlength="20" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;">
-    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;">Preferred Color</div>
-    <button class="color-picker-btn" id="edit-profile-color-btn" onclick="openEditProfileColorOverlay()" style="width:64px;height:64px;flex:0 0 64px;margin:0;padding:0.25rem;border-radius:50%;">
-      <span id="edit-profile-color-label" style="font-size:0.66rem;line-height:1.2;">Choose<br>Color</span>
-    </button>
+    <div style="display:flex;gap:0.8rem;align-items:flex-start;margin-top:0.1rem;">
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
+        <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.35rem;">Preferred Name</div>
+        <input type="text" id="edit-profile-name-input" placeholder="Your name" maxlength="20" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;">
+      </div>
+      <div style="width:1px;background:var(--border);align-self:stretch;margin-top:0.1rem;"></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:0;">
+        <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.35rem;">Preferred Color</div>
+        <button class="color-picker-btn" id="edit-profile-color-btn" onclick="openEditProfileColorOverlay()" style="width:56px;height:56px;flex:0 0 56px;margin:0;padding:0.25rem;border-radius:50%;">
+          <span id="edit-profile-color-label" style="font-size:0.66rem;line-height:1.2;">Choose<br>Color</span>
+        </button>
+      </div>
+    </div>
     <button class="btn-primary" style="width:100%;margin-top:0.2rem;" onclick="saveEditProfile()">Save Profile</button>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeEditProfileOverlay()">Cancel</button>
   </div>
@@ -6113,7 +6195,8 @@
     <div class="tools-modal-title">Account Settings</div>
     <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;">Email</div>
     <div id="acct-settings-email" style="font-size:0.95rem;color:var(--text);padding:0.6rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;margin-bottom:1rem;word-break:break-all;"></div>
-    <button class="btn-secondary btn-sm" style="width:100%;" onclick="document.getElementById('account-settings-overlay').classList.remove('show')">Close</button>
+    <button class="btn-primary btn-sm" style="width:100%;" onclick="resetPassword(); showToast('Password reset email sent!');">🔑 Change Password</button>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="document.getElementById('account-settings-overlay').classList.remove('show')">Close</button>
   </div>
 </div>
 
@@ -6305,11 +6388,19 @@
     <div class="saved-screen-sub" id="saved-screen-name" style="font-weight:700; color:var(--text);">—</div>
     <div class="saved-screen-sub">This save is in your "My Saved Games" list on the home screen. The room code below stays the same — anyone can rejoin with it once you resume.</div>
     <div class="saved-screen-code" id="saved-screen-code">----</div>
-    <button class="btn-secondary btn-sm" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem;" onclick="leaveSavedScreen()">🏠 Back to Home</button>
+    <button class="btn-primary btn-sm" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem;" onclick="continueSavedGame()">Continue ▶</button>
+    <button class="btn-secondary btn-sm" style="margin-top:0.5rem; width:auto; padding:0.6rem 1.5rem;" onclick="hostLeaveGame()">🏠 Back to Home</button>
   </div>
   <div id="saved-screen-player-view" style="display:none;">
-    <div class="saved-screen-sub">The host saved the game. Wait for them to resume it — your seat and score will be right where you left them.</div>
-    <button class="btn-secondary btn-sm" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem;" onclick="leaveSavedScreen()">🏠 Back to Home</button>
+    <div id="saved-screen-player-waiting">
+      <div class="saved-screen-sub">The host saved the game. Waiting for them to decide...</div>
+      <div style="margin-top:1rem; color:var(--muted); font-size:0.85rem;">Your seat and score will be right where you left them.</div>
+    </div>
+    <div id="saved-screen-player-action" style="display:none;">
+      <div class="saved-screen-sub" id="saved-screen-player-action-text"></div>
+      <button class="btn-primary btn-sm" id="saved-screen-player-continue-btn" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem; display:none;" onclick="playerContinueGame()">Continue ▶</button>
+      <button class="btn-secondary btn-sm" style="margin-top:0.5rem; width:auto; padding:0.6rem 1.5rem;" onclick="leaveSavedScreen()">🏠 Back to Home</button>
+    </div>
   </div>
 </div>
 
@@ -6390,7 +6481,7 @@
         <button class="timer-preset-btn" onclick="setCountdownPreset(10)">10 min</button>
       </div>
       <div class="timer-btn-row">
-        <button class="btn-primary btn-sm" id="cd-start-btn" onclick="startCountdown()">▶ Start</button>
+        <button class="btn-primary btn-sm" id="cd-start-btn" onclick="startCountdown()">Start ▶</button>
         <button class="btn-secondary btn-sm" onclick="resetCountdown()">↺ Reset</button>
       </div>
     </div>
@@ -6399,7 +6490,7 @@
     <div class="timer-pane" id="timer-pane-stopwatch">
       <div class="timer-display" id="sw-display">00:00.00</div>
       <div class="timer-btn-row">
-        <button class="btn-primary btn-sm" id="sw-start-btn" onclick="toggleStopwatch()">▶ Start</button>
+        <button class="btn-primary btn-sm" id="sw-start-btn" onclick="toggleStopwatch()">Start ▶</button>
         <button class="btn-secondary btn-sm" onclick="resetStopwatch()">↺ Reset</button>
       </div>
     </div>
@@ -6408,7 +6499,7 @@
     <div class="timer-pane" id="timer-pane-lap">
       <div class="timer-display" id="lap-display">00:00.00</div>
       <div class="timer-btn-row">
-        <button class="btn-primary btn-sm" id="lap-start-btn" onclick="toggleLapTimer()">▶ Start</button>
+        <button class="btn-primary btn-sm" id="lap-start-btn" onclick="toggleLapTimer()">Start ▶</button>
         <button class="btn-secondary btn-sm" onclick="recordLap()">🚩 Lap</button>
         <button class="btn-secondary btn-sm" onclick="resetLapTimer()">↺ Reset</button>
       </div>
@@ -6422,6 +6513,57 @@
 <!-- ═══════════════════════════════════════════ -->
 <!--  PLAYER PICKER TOOL OVERLAY                 -->
 <!-- ═══════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════ -->
+<!--  DUEL FOR 1ST PLAYER — HOST SETUP          -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="duel-overlay" id="duel-setup-overlay">
+  <div class="duel-modal">
+    <div class="duel-modal-title">⚔️ Duel For 1st Player</div>
+    <div style="font-size:0.8rem;color:var(--muted);text-align:center;">Set the duel duration</div>
+    <div class="duel-timer-value" id="duel-timer-display">10s</div>
+    <div style="position:relative;width:180px;height:180px;">
+      <div id="duel-dial-outer" style="position:relative;width:180px;height:180px;border-radius:50%;background:#111;border:4px solid #000;display:flex;align-items:center;justify-content:center;touch-action:none;user-select:none;">
+        <div style="position:absolute;inset:0;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;">
+          <div id="duel-dial-center" style="position:relative;width:90px;height:90px;border-radius:50%;background:#000;display:flex;align-items:center;justify-content:center;z-index:2;border:3px solid #222;">
+            <span style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;">Seconds</span>
+          </div>
+        </div>
+        <div id="duel-dial-knob" style="position:absolute;width:36px;height:36px;border-radius:50%;background:#888;border:2px solid #aaa;top:-18px;left:50%;transform:translateX(-50%);z-index:3;box-shadow:0 2px 8px rgba(0,0,0,0.5);pointer-events:none;"></div>
+        <div style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:1.5rem;font-weight:900;color:#4ade80;pointer-events:none;text-shadow:0 0 8px rgba(74,222,128,0.5);">+</div>
+        <div style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:1.5rem;font-weight:900;color:#e74c3c;pointer-events:none;text-shadow:0 0 8px rgba(231,76,60,0.5);">−</div>
+      </div>
+    </div>
+    <input type="hidden" id="duel-duration-input" value="10">
+    <button class="btn-primary" style="width:100%;" onclick="startDuelFromSetup()">⚔️ Duel!</button>
+    <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeDuelSetup()">Cancel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  DUEL FOR 1ST PLAYER — ALL PLAYERS         -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="duel-overlay" id="duel-live-overlay" style="z-index:9665;">
+  <div id="duel-live-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;text-align:center;">
+    <div id="duel-live-title" style="font-size:1.2rem;font-weight:800;color:var(--text);margin-bottom:1rem;">⚔️ DUEL!</div>
+    <div id="duel-live-main" style="font-size:5rem;font-weight:900;color:#fff;line-height:1;">3</div>
+    <div id="duel-live-sub" style="font-size:0.9rem;color:var(--muted);margin-top:1rem;">Get Ready!</div>
+  </div>
+  <div class="duel-tap-zone" id="duel-tap-zone" style="display:none;" onclick="onDuelTap(event)" ontouchstart="onDuelTap(event)"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  DUEL FOR 1ST PLAYER — SCOREBOARD          -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="duel-overlay" id="duel-score-overlay">
+  <div class="duel-modal">
+    <div class="duel-modal-title">🏆 Duel Results</div>
+    <div id="duel-score-winner" style="font-size:1.1rem;font-weight:800;color:#fbbf24;text-align:center;"></div>
+    <div id="duel-score-list" style="display:flex;flex-direction:column;gap:0.4rem;width:100%;"></div>
+    <button class="btn-primary" style="width:100%;margin-top:0.4rem;" id="duel-continue-btn" onclick="duelContinue()">Continue ▶</button>
+    <div id="duel-waiting-text" style="display:none;font-size:0.8rem;color:var(--muted);text-align:center;margin-top:0.3rem;">Waiting for host to continue...</div>
+  </div>
+</div>
+
 <div class="picker-overlay" id="picker-overlay">
   <div class="picker-modal">
     <div class="picker-modal-title">🎯 Player Picker</div>
@@ -6786,7 +6928,7 @@ window.confirmSignOut = async function() {
 // Saved Games or Account was left open) before switching screens, so the
 // button always visibly takes you home.
 window.backToHomeFromProfile = function() {
-  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','edit-profile-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay','features-help-overlay','collection-overlay','collection-edit-overlay'].forEach(id => {
+  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','edit-profile-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay','features-help-overlay','collection-overlay','collection-edit-overlay','duel-setup-overlay','duel-live-overlay','duel-score-overlay'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('show');
   });
@@ -8086,9 +8228,13 @@ async function tryAutoResume() {
     } else if (room.status === 'saved') {
       document.getElementById('saved-screen-code').textContent = roomCode;
       document.getElementById('saved-screen-name').textContent = '';
-      document.getElementById('saved-screen-host-view').style.display = isHost ? 'block' : 'none';
-      document.getElementById('saved-screen-player-view').style.display = isHost ? 'none' : 'block';
-      document.getElementById('saved-screen').classList.add('show');
+      if (isHost) {
+        document.getElementById('saved-screen-host-view').style.display = 'block';
+        document.getElementById('saved-screen-player-view').style.display = 'none';
+        document.getElementById('saved-screen').classList.add('show');
+      } else {
+        showSavedScreenForPlayer(room.savedAction || null);
+      }
     } else {
       // 'closed' or unrecognized — nothing to resume into
       clearSession();
@@ -8644,7 +8790,7 @@ window.startCountdown = function() {
     clearInterval(toolCdInterval);
     toolCdInterval = null;
     cdRunning = false;
-    document.getElementById('cd-start-btn').textContent = '▶ Resume';
+    document.getElementById('cd-start-btn').textContent = 'Resume ▶';
     return;
   }
   let secondsLeft = cdRemainingAtPause;
@@ -8667,7 +8813,7 @@ window.startCountdown = function() {
       toolCdInterval = null;
       cdRunning = false;
       cdRemainingAtPause = 0;
-      document.getElementById('cd-start-btn').textContent = '▶ Start';
+      document.getElementById('cd-start-btn').textContent = 'Start ▶';
       document.getElementById('cd-display').classList.add('alarm');
       playBuzzerSound();
       return;
@@ -8684,7 +8830,7 @@ window.resetCountdown = function() {
   cdTargetTime = 0;
   document.getElementById('cd-display').textContent = '00:00.00';
   document.getElementById('cd-display').classList.remove('alarm');
-  document.getElementById('cd-start-btn').textContent = '▶ Start';
+  document.getElementById('cd-start-btn').textContent = 'Start ▶';
   document.getElementById('cd-input-row').style.display = 'flex';
 };
 
@@ -8700,7 +8846,7 @@ window.toggleStopwatch = function() {
     clearInterval(toolSwInterval);
     toolSwInterval = null;
     swRunning = false;
-    document.getElementById('sw-start-btn').textContent = '▶ Resume';
+    document.getElementById('sw-start-btn').textContent = 'Resume ▶';
     return;
   }
   swStartTime = Date.now();
@@ -8719,7 +8865,7 @@ window.resetStopwatch = function() {
   swAccumulated = 0;
   swStartTime = 0;
   document.getElementById('sw-display').textContent = '00:00.00';
-  document.getElementById('sw-start-btn').textContent = '▶ Start';
+  document.getElementById('sw-start-btn').textContent = 'Start ▶';
 };
 
 // ── Lap Timer ──
@@ -8740,7 +8886,7 @@ window.toggleLapTimer = function() {
     clearInterval(toolLapInterval);
     toolLapInterval = null;
     lapRunning = false;
-    document.getElementById('lap-start-btn').textContent = '▶ Resume';
+    document.getElementById('lap-start-btn').textContent = 'Resume ▶';
     return;
   }
   lapStartTime = Date.now();
@@ -8772,7 +8918,7 @@ window.resetLapTimer = function() {
   lapLastMark = 0;
   lapCount = 0;
   document.getElementById('lap-display').textContent = '00:00.00';
-  document.getElementById('lap-start-btn').textContent = '▶ Start';
+  document.getElementById('lap-start-btn').textContent = 'Start ▶';
   document.getElementById('lap-list').innerHTML = '';
 };
 
@@ -8783,6 +8929,10 @@ const TEAM_COLORS = ['#cc0000', '#005ee7', '#0a5d00', '#FF7900', '#4c00a4', '#ff
 
 window.openPickerOverlay = function() {
   document.getElementById('picker-results').innerHTML = '';
+  if (toolsSource === 'host' && localPlayers.length > 0) {
+    const names = localPlayers.map(p => p.name).join('\n');
+    document.getElementById('picker-names').value = names;
+  }
   document.getElementById('picker-overlay').classList.add('show');
 };
 window.closePickerOverlay = function() {
@@ -9025,14 +9175,29 @@ window.closeStatusAlert = function() {
   currentStatusAlertKey = null;
 };
 
+window.continueSavedGame = async function() {
+  if (!db || !roomCode) return;
+  try {
+    await update(ref(db, `rooms/${roomCode}`), { status: 'playing', savedAction: 'continue' });
+    document.getElementById('saved-screen').classList.remove('show');
+  } catch(e) {
+    showAlert('Could not resume: ' + (e.message || e));
+  }
+};
+
 window.leaveSavedScreen = function() {
   cleanupListeners();
   stopTimerTick();
   clearNudgeTimer();
   document.getElementById('saved-screen').classList.remove('show');
-  // Keep the session intact — the room is parked in 'saved' status, and
-  // this device's session is still valid for whoever resumes it next.
   goHome();
+};
+
+window.hostLeaveGame = function() {
+  if (db && roomCode) {
+    update(ref(db, `rooms/${roomCode}`), { savedAction: 'leave' }).catch(() => {});
+  }
+  leaveSavedScreen();
 };
 
 window.goHome = function() {
@@ -9551,7 +9716,31 @@ const MG_VAR_MAP = {
 };
 
 function isMGFeatureEnabled(key) {
+  switch (key) {
+    case 'nudge':  return featureNudgeEnabled;
+    case 'awards': return featureAwardsEnabled;
+    case 'vp':     return featureVPEnabled;
+    case 'timers': return featureTimersEnabled;
+    case 'status': return featureStatusEffectsEnabled;
+    case 'rounds': return featureRoundsEnabled;
+    case 'dnd':    return featureDndEnabled;
+    case 'undo':   return featureUndoEnabled;
+  }
   return !!window[MG_VAR_MAP[key]];
+}
+
+function setMGFeatureState(key, enabled) {
+  switch (key) {
+    case 'nudge':  featureNudgeEnabled = enabled; break;
+    case 'awards': featureAwardsEnabled = enabled; break;
+    case 'vp':     featureVPEnabled = enabled; break;
+    case 'timers': featureTimersEnabled = enabled; break;
+    case 'status': featureStatusEffectsEnabled = enabled; break;
+    case 'rounds': featureRoundsEnabled = enabled; break;
+    case 'dnd':    featureDndEnabled = enabled; break;
+    case 'undo':   featureUndoEnabled = enabled; break;
+  }
+  window[MG_VAR_MAP[key]] = enabled;
 }
 
 window.toggleMGFeature = function(key) {
@@ -9559,11 +9748,11 @@ window.toggleMGFeature = function(key) {
   if (!def) return;
   const wasEnabled = isMGFeatureEnabled(key);
   if (!wasEnabled) {
-    window[MG_VAR_MAP[key]] = true;
+    setMGFeatureState(key, true);
     haptic(5);
     if (def.hasSettings && def.settingKey) openMGFeatureSettings(def.settingKey);
   } else {
-    window[MG_VAR_MAP[key]] = false;
+    setMGFeatureState(key, false);
     haptic(3);
   }
   renderMGFeatureGrid();
@@ -11784,6 +11973,23 @@ function listenWaitingLobby() {
     }
 
     renderWaitingLobbyList(localPlayers);
+
+    // Listen for duel in lobby
+    if (room.duel && room.duel.status && room.duel.status !== 'finished') {
+      handleDuelState(room.duel);
+    } else if (room.duel && room.duel.winnerId) {
+      // Duel finished — remember winner for lobby crown + startGame
+      duelWinnerId = room.duel.winnerId;
+    } else if (!room.duel || !room.duel.status) {
+      // Duel was removed (host clicked Continue) — close scoreboard if open
+      const scoreOverlay = document.getElementById('duel-score-overlay');
+      if (scoreOverlay && scoreOverlay.classList.contains('show')) {
+        scoreOverlay.classList.remove('show');
+        if (duelListenUnsub) { duelListenUnsub(); duelListenUnsub = null; }
+        if (duelResultsUnsub) { duelResultsUnsub(); duelResultsUnsub = null; }
+        duelStateVersion = 0;
+      }
+    }
   });
   unsubscribers.push(() => unsub());
 }
@@ -11806,6 +12012,13 @@ window.startGame = async function() {
     ? Math.floor(Math.random() * localPlayers.length)
     : 0;
 
+  // If there was a duel winner, use their index instead
+  let actualFirstIdx = firstIdx;
+  if (duelWinnerId) {
+    const winnerIdx = localPlayers.findIndex(p => p.id === duelWinnerId);
+    if (winnerIdx >= 0) actualFirstIdx = winnerIdx;
+  }
+
   const roomFeatures = roomData.features || {};
   const isBuzz = (roomFeatures.turnMode || 'classic') === 'speedRound';
 
@@ -11813,7 +12026,7 @@ window.startGame = async function() {
   const updates = {};
   localPlayers.forEach((p, i) => { updates[`rooms/${roomCode}/players/${p.id}/order`] = i; });
   updates[`rooms/${roomCode}/status`] = 'playing';
-  updates[`rooms/${roomCode}/activePlayerIndex`] = firstIdx;
+  updates[`rooms/${roomCode}/activePlayerIndex`] = actualFirstIdx;
   updates[`rooms/${roomCode}/previousPlayerId`] = null;
   updates[`rooms/${roomCode}/previousPlayerIndex`] = null;
 
@@ -11833,6 +12046,375 @@ window.startGame = async function() {
 
   await update(ref(db), updates);
   haptic(20);
+};
+
+// ── DUEL FOR 1ST PLAYER ──────────────────────────
+let duelWinnerId = null;
+let duelTapCount = 0;
+let duelTapActive = false;
+let duelCountdownInterval = null;
+let duelEndTimer = null;
+let duelListenUnsub = null;
+let duelStateVersion = 0; // track which state we've already reacted to
+
+// ── DUEL TIMER DIAL (reuses nd-dial pattern) ──
+let duelDialVal = 10;
+let duelDialDragging = false;
+let duelDialLastAngle = 0;
+let duelDialAccum = 0;
+
+function initDuelDial() {
+  const outer = document.getElementById('duel-dial-outer');
+  const knob = document.getElementById('duel-dial-knob');
+  const display = document.getElementById('duel-timer-display');
+  const hidden = document.getElementById('duel-duration-input');
+  if (!outer || !knob) return;
+
+  duelDialVal = Math.max(5, Math.min(60, parseInt(hidden.value) || 10));
+
+  function updateDisplay() {
+    display.textContent = duelDialVal + 's';
+    display.style.color = 'var(--accent-light)';
+    const angle = (duelDialVal - 5) * 6;
+    knob.style.transform = 'translateX(-50%) rotate(' + angle + 'deg)';
+    knob.style.transformOrigin = '50% 109px';
+  }
+
+  function getAngle(e) {
+    const rect = outer.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
+  }
+
+  function onStart(e) { e.preventDefault(); e.stopPropagation(); duelDialDragging = true; duelDialLastAngle = getAngle(e); duelDialAccum = 0; }
+  function onMove(e) {
+    if (!duelDialDragging) return;
+    e.preventDefault();
+    const angle = getAngle(e);
+    let delta = angle - duelDialLastAngle;
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+    duelDialLastAngle = angle;
+    duelDialAccum += delta;
+    const step = 60;
+    if (duelDialAccum >= step) {
+      const ticks = Math.floor(duelDialAccum / step);
+      duelDialVal = Math.min(60, duelDialVal + ticks);
+      duelDialAccum -= ticks * step;
+      hidden.value = duelDialVal;
+      updateDisplay();
+    } else if (duelDialAccum <= -step) {
+      const ticks = Math.floor(duelDialAccum / -step);
+      duelDialVal = Math.max(5, duelDialVal - ticks);
+      duelDialAccum += ticks * step;
+      hidden.value = duelDialVal;
+      updateDisplay();
+    }
+  }
+  function onEnd() { duelDialDragging = false; duelDialAccum = 0; }
+
+  outer.addEventListener('mousedown', onStart);
+  outer.addEventListener('touchstart', onStart, { passive: false });
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('touchmove', onMove, { passive: false });
+  document.addEventListener('mouseup', onEnd);
+  document.addEventListener('touchend', onEnd);
+
+  updateDisplay();
+}
+
+window.openDuelSetup = function() {
+  if (!isHost) return;
+  if (localPlayers.length < 2) { showDuelAlert('Need at least 2 players to start a duel.'); return; }
+  duelDialVal = 10;
+  document.getElementById('duel-duration-input').value = 10;
+  document.getElementById('duel-timer-display').textContent = '10s';
+  initDuelDial();
+  document.getElementById('duel-setup-overlay').classList.add('show');
+};
+
+function showDuelAlert(msg) {
+  const el = document.getElementById('duel-live-main');
+  const overlay = document.getElementById('duel-live-overlay');
+  const titleEl = document.getElementById('duel-live-title');
+  const subEl = document.getElementById('duel-live-sub');
+  const tapZone = document.getElementById('duel-tap-zone');
+  tapZone.style.display = 'none';
+  titleEl.textContent = '⚔️ Duel';
+  titleEl.style.fontSize = '1.2rem';
+  mainEl = document.getElementById('duel-live-main');
+  mainEl.textContent = msg;
+  mainEl.style.fontSize = '1.2rem';
+  mainEl.style.color = '#e74c3c';
+  subEl.textContent = '';
+  overlay.classList.add('show');
+  setTimeout(() => overlay.classList.remove('show'), 2000);
+}
+
+window.closeDuelSetup = function() {
+  document.getElementById('duel-setup-overlay').classList.remove('show');
+};
+
+window.startDuelFromSetup = async function() {
+  if (!db || !roomCode) return;
+  if (localPlayers.length < 2) { closeDuelSetup(); showDuelAlert('Need at least 2 players.'); return; }
+  const duration = Math.max(5, Math.min(60, parseInt(document.getElementById('duel-duration-input').value) || 10));
+  closeDuelSetup();
+  duelWinnerId = null;
+  duelStateVersion = 0;
+
+  // Write duel state to Firebase — all devices will react via listener
+  const now = Date.now();
+  await update(ref(db), {
+    [`rooms/${roomCode}/duel`]: {
+      status: 'countdown',
+      duration: duration,
+      countdownEnd: now + 3000,
+      createdAt: now
+    },
+    [`rooms/${roomCode}/lastActivity`]: now
+  });
+
+  // Host also starts listening
+  listenDuel();
+};
+
+function listenDuel() {
+  if (!db || !roomCode) return;
+  if (duelListenUnsub) duelListenUnsub();
+  const duelRef = ref(db, `rooms/${roomCode}/duel`);
+  duelListenUnsub = onValue(duelRef, snap => {
+    if (!snap.exists()) return;
+    const d = snap.val();
+    handleDuelState(d);
+  });
+}
+
+function handleDuelState(d) {
+  const overlay = document.getElementById('duel-live-overlay');
+  const mainEl = document.getElementById('duel-live-main');
+  const subEl = document.getElementById('duel-live-sub');
+  const titleEl = document.getElementById('duel-live-title');
+  const tapZone = document.getElementById('duel-tap-zone');
+
+  // Create a simple version key so we don't re-trigger the same phase
+  const stateKey = d.status + '_' + (d.createdAt || 0);
+
+  if (d.status === 'countdown') {
+    if (duelStateVersion === stateKey) return;
+    duelStateVersion = stateKey;
+    overlay.classList.add('show');
+    tapZone.style.display = 'none';
+    duelTapActive = false;
+    titleEl.textContent = '⚔️ DUEL!';
+    titleEl.style.fontSize = '1.2rem';
+    mainEl.style.fontSize = '6rem';
+    mainEl.style.color = '#fff';
+    subEl.textContent = 'Get Ready!';
+
+    // Clear any prior timers
+    if (duelCountdownInterval) clearInterval(duelCountdownInterval);
+
+    // Simple 1-second interval countdown
+    const endTime = d.countdownEnd;
+    function tick() {
+      const remaining = Math.ceil((endTime - Date.now()) / 1000);
+      if (remaining > 0) {
+        mainEl.textContent = remaining;
+        haptic(10);
+      } else {
+        clearInterval(duelCountdownInterval);
+        duelCountdownInterval = null;
+        // Show DUEL!! flash
+        mainEl.textContent = 'DUEL!!';
+        mainEl.style.color = '#fbbf24';
+        mainEl.style.fontSize = '3.5rem';
+        titleEl.style.fontSize = '0';
+        subEl.textContent = '';
+        haptic(50);
+        // Host transitions to active phase after brief flash
+        if (isHost) {
+          setTimeout(async () => {
+            if (!db || !roomCode) return;
+            const activeStart = Date.now();
+            await update(ref(db), {
+              [`rooms/${roomCode}/duel/status`]: 'active',
+              [`rooms/${roomCode}/duel/startTime`]: activeStart
+            });
+          }, 800);
+        }
+      }
+    }
+    tick(); // run immediately
+    duelCountdownInterval = setInterval(tick, 1000);
+
+  } else if (d.status === 'active') {
+    if (duelStateVersion === stateKey) return;
+    duelStateVersion = stateKey;
+    // Clear countdown timer if still running
+    if (duelCountdownInterval) { clearInterval(duelCountdownInterval); duelCountdownInterval = null; }
+    // Start tapping
+    duelTapCount = 0;
+    duelTapActive = true;
+    mainEl.textContent = '0';
+    mainEl.style.color = '#4ade80';
+    mainEl.style.fontSize = '5rem';
+    titleEl.textContent = '⚔️ TAP AS FAST AS YOU CAN!';
+    titleEl.style.fontSize = '1rem';
+    subEl.textContent = '';
+    tapZone.style.display = 'block';
+    tapZone.style.pointerEvents = 'all';
+    haptic(20);
+
+    // Schedule end based on startTime + duration
+    const endTime = d.startTime + d.duration * 1000;
+    if (duelEndTimer) clearTimeout(duelEndTimer);
+    duelEndTimer = setTimeout(() => {
+      duelTapActive = false;
+      tapZone.style.display = 'none';
+      mainEl.textContent = 'TIME!';
+      mainEl.style.color = '#e74c3c';
+      mainEl.style.fontSize = '3rem';
+      titleEl.textContent = '';
+      subEl.textContent = 'Submitting score...';
+      haptic(50);
+      // Submit this player's count to Firebase
+      submitDuelScore(duelTapCount);
+    }, Math.max(100, endTime - Date.now()));
+
+  } else if (d.status === 'finished') {
+    if (duelStateVersion === stateKey) return;
+    duelStateVersion = stateKey;
+    // Show scoreboard from Firebase data
+    if (duelCountdownInterval) { clearInterval(duelCountdownInterval); duelCountdownInterval = null; }
+    if (duelEndTimer) { clearTimeout(duelEndTimer); duelEndTimer = null; }
+    duelTapActive = false;
+    tapZone.style.display = 'none';
+    overlay.classList.remove('show');
+    const results = d.results || {};
+    const names = d.resultNames || {};
+    const sorted = Object.entries(results)
+      .map(([id, taps]) => ({ id, name: names[id] || 'Player', taps }))
+      .sort((a, b) => b.taps - a.taps);
+    if (sorted.length > 0) {
+      renderDuelScoreboard(sorted);
+      document.getElementById('duel-continue-btn').style.display = isHost ? '' : 'none';
+      document.getElementById('duel-waiting-text').style.display = isHost ? 'none' : '';
+      document.getElementById('duel-score-overlay').classList.add('show');
+    }
+  }
+}
+
+window.onDuelTap = function(e) {
+  if (!duelTapActive) return;
+  e.preventDefault();
+  e.stopPropagation();
+  duelTapCount++;
+  const mainEl = document.getElementById('duel-live-main');
+  if (mainEl) mainEl.textContent = duelTapCount;
+  haptic(5);
+};
+
+let duelResultsUnsub = null; // live listener on duel/results for scoreboard
+
+function submitDuelScore(count) {
+  // Show scoreboard immediately with own score — no waiting
+  const liveOverlay = document.getElementById('duel-live-overlay');
+  liveOverlay.classList.remove('show');
+
+  // Show own score right away
+  renderDuelScoreboard([{ id: myId, name: myName, taps: count }]);
+  document.getElementById('duel-continue-btn').style.display = isHost ? '' : 'none';
+  document.getElementById('duel-waiting-text').style.display = isHost ? 'none' : '';
+  document.getElementById('duel-score-overlay').classList.add('show');
+
+  // Fire-and-forget: write score to Firebase
+  if (db && roomCode && myId) {
+    update(ref(db), {
+      [`rooms/${roomCode}/duel/results/${myId}`]: count,
+      [`rooms/${roomCode}/duel/resultNames/${myId}`]: myName
+    }).catch(() => {});
+
+    // Set up live listener on results to update scoreboard as others submit
+    if (duelResultsUnsub) duelResultsUnsub();
+    const resultsRef = ref(db, `rooms/${roomCode}/duel/results`);
+    const namesRef = ref(db, `rooms/${roomCode}/duel/resultNames`);
+    let resultsData = {};
+    let namesData = {};
+
+    function updateScoreboard() {
+      const sorted = Object.entries(resultsData)
+        .map(([id, taps]) => ({ id, name: namesData[id] || 'Player', taps }))
+        .sort((a, b) => b.taps - a.taps);
+      if (sorted.length > 0) renderDuelScoreboard(sorted);
+
+      // If host and all submitted, write finished + set winner
+      if (isHost) {
+        const activeCount = localPlayers.length;
+        if (Object.keys(resultsData).length >= activeCount) {
+          const winner = sorted[0];
+          duelWinnerId = winner.id;
+          update(ref(db), {
+            [`rooms/${roomCode}/duel/status`]: 'finished',
+            [`rooms/${roomCode}/duel/winnerId`]: winner.id,
+            [`rooms/${roomCode}/duel/winnerName`]: winner.name
+          }).catch(() => {});
+        }
+      }
+    }
+
+    const unsubR = onValue(resultsRef, snap => {
+      resultsData = snap.exists() ? snap.val() : {};
+      // Ensure own score is always included
+      resultsData[myId] = count;
+      updateScoreboard();
+    });
+    const unsubN = onValue(namesRef, snap => {
+      namesData = snap.exists() ? snap.val() : {};
+      namesData[myId] = myName;
+      updateScoreboard();
+    });
+    duelResultsUnsub = () => { unsubR(); unsubN(); };
+  }
+}
+
+function renderDuelScoreboard(sorted) {
+  if (sorted.length === 0) return;
+  const winner = sorted[0];
+  document.getElementById('duel-score-winner').textContent =
+    '🏆 ' + winner.name + ' wins with ' + winner.taps + ' taps!';
+  const listEl = document.getElementById('duel-score-list');
+  listEl.innerHTML = '';
+  sorted.forEach((p, i) => {
+    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const row = document.createElement('div');
+    row.className = 'duel-scoreboard-row' + (i === 0 ? ' winner' : '');
+    row.innerHTML = '<span class="duel-rank ' + rankClass + '">' + (i + 1) + '</span>'
+      + '<span class="duel-score-name">' + esc(p.name) + '</span>'
+      + '<span class="duel-score-taps">' + p.taps + '</span>';
+    listEl.appendChild(row);
+  });
+}
+
+// showDuelScoreboard removed — replaced by renderDuelScoreboard in submitDuelScore
+
+window.duelContinue = function() {
+  closeDuelScore();
+  // Clean up duel node in Firebase — non-host players listen for removal
+  if (db && roomCode) {
+    remove(ref(db, `rooms/${roomCode}/duel`)).catch(() => {});
+  }
+  if (duelListenUnsub) { duelListenUnsub(); duelListenUnsub = null; }
+  if (duelResultsUnsub) { duelResultsUnsub(); duelResultsUnsub = null; }
+  duelStateVersion = 0;
+};
+
+window.closeDuelScore = function() {
+  document.getElementById('duel-score-overlay').classList.remove('show');
+  if (duelResultsUnsub) { duelResultsUnsub(); duelResultsUnsub = null; }
 };
 
 // ── START NEW GAME ──────────────────────────
@@ -12023,14 +12605,15 @@ function listenGameState() {
     // Host saved the game — pause everyone on the Game Saved screen
     if (room.status === 'saved') {
       hideAllAwardOverlays();
-      if (!isHost) showSavedScreenForPlayer();
+      if (!isHost) showSavedScreenForPlayer(room.savedAction || null);
       return;
     }
     // Gameover — show the end screen
     if (room.status === 'gameover') { showGameOver(); return; }
-    // Playing — if we were on any award overlay, clear it and resume game
+    // Playing — if we were on the saved screen, hide it and resume
     if (room.status === 'playing') {
       hideAllAwardOverlays();
+      document.getElementById('saved-screen').classList.remove('show');
       // fall through to normal game rendering below
     }
     // Non-host players: stay on reconfiguring screen while host is in lobby setting up new game
@@ -12383,7 +12966,8 @@ window.saveCurrentGame = async function() {
     await update(ref(db), {
       [`savedGames/${hostUserId}/${saveCode}`]: snapshot,
       [`saveCodeIndex/${saveCode}`]: hostUserId,   // lets a different device resolve a shared code
-      [`rooms/${roomCode}/status`]: 'saved'
+      [`rooms/${roomCode}/status`]: 'saved',
+      [`rooms/${roomCode}/savedAction`]: null
     });
 
     stopTimerTick();
@@ -12400,12 +12984,34 @@ window.saveCurrentGame = async function() {
 };
 
 // Called by the non-host listener when room.status becomes 'saved'
-function showSavedScreenForPlayer() {
+function showSavedScreenForPlayer(savedAction) {
   stopTimerTick();
   clearNudgeTimer();
   document.getElementById('saved-screen-host-view').style.display = 'none';
   document.getElementById('saved-screen-player-view').style.display = 'block';
+  const waitingEl = document.getElementById('saved-screen-player-waiting');
+  const actionEl = document.getElementById('saved-screen-player-action');
+  const actionText = document.getElementById('saved-screen-player-action-text');
+  const continueBtn = document.getElementById('saved-screen-player-continue-btn');
+  if (savedAction === 'continue') {
+    if (waitingEl) waitingEl.style.display = 'none';
+    if (actionEl) actionEl.style.display = 'block';
+    if (actionText) actionText.textContent = 'The host resumed the game!';
+    if (continueBtn) continueBtn.style.display = 'inline-block';
+  } else if (savedAction === 'leave') {
+    if (waitingEl) waitingEl.style.display = 'none';
+    if (actionEl) actionEl.style.display = 'block';
+    if (actionText) actionText.textContent = 'The host left the game.';
+    if (continueBtn) continueBtn.style.display = 'none';
+  } else {
+    if (waitingEl) waitingEl.style.display = 'block';
+    if (actionEl) actionEl.style.display = 'none';
+  }
   document.getElementById('saved-screen').classList.add('show');
+};
+
+window.playerContinueGame = function() {
+  document.getElementById('saved-screen').classList.remove('show');
 };
 
 let pendingResumeCode = null;
@@ -12531,7 +13137,7 @@ function renderSaveRow(listEl, code, save) {
     <div class="save-row-name">${escapeHtml(save.name || 'Untitled Save')}</div>
     <div class="save-row-date">${escapeHtml(dateStr)} · code ${escapeHtml(code)}</div>
     <div class="save-row-actions">
-      <button data-act="resume">▶ Resume</button>
+      <button data-act="resume">Resume ▶</button>
       <button data-act="rename">✎ Rename</button>
       <button data-act="delete" class="danger">🗑 Delete</button>
     </div>
@@ -13122,12 +13728,13 @@ function renderWaitingLobbyList(players) {
     const dotColor = p.color || 'var(--accent)';
     const dotText  = p.color && isLightColor(p.color) ? '#000' : '#fff';
     const avatarDotStyle = p.color ? `style="border-color:${p.color};"` : '';
+    const isDuelWinner = duelWinnerId && p.id === duelWinnerId;
     const div = document.createElement('div');
     div.className = 'player-item';
     div.innerHTML = `
       <div class="player-avatar" ${avatarDotStyle}>${avatarHTML(p.avatar || '👤', 28)}</div>
       <div class="player-num" style="background:${dotColor};color:${dotText};">${i+1}</div>
-      <div class="player-name">${esc(p.name)}</div>
+      <div class="player-name">${esc(p.name)}${isDuelWinner ? ' <span style="font-size:0.9em;">👑</span>' : ''}</div>
       ${p.id === myId ? '<span class="player-badge host">You</span>' : ''}`;
     el.appendChild(div);
   });
@@ -14260,15 +14867,25 @@ window.addEventListener('unhandledrejection', function(e) {
 
 // ── REUSABLE DIALOG SYSTEM ───────────────────────
 let appDialogResolve = null;
+let appDialogType = 'alert';
 window.appDialogResolve = function(val) {
   const overlay = document.getElementById('app-dialog-overlay');
   if (overlay) overlay.classList.remove('show');
-  if (appDialogResolve) { appDialogResolve(val); appDialogResolve = null; }
+  if (appDialogResolve) {
+    let out = val;
+    if (appDialogType === 'prompt') {
+      const input = document.getElementById('app-dialog-input');
+      out = val ? (input ? input.value : '') : null;
+    }
+    appDialogResolve(out);
+    appDialogResolve = null;
+  }
 };
 
 function showDialog(type, message, defaultVal) {
   return new Promise(resolve => {
     appDialogResolve = resolve;
+    appDialogType = type;
     const overlay = document.getElementById('app-dialog-overlay');
     const msgEl = document.getElementById('app-dialog-msg');
     const input = document.getElementById('app-dialog-input');
