@@ -12206,6 +12206,8 @@ function handleDuelState(d) {
   if (d.status === 'countdown') {
     if (duelStateVersion === stateKey) return;
     duelStateVersion = stateKey;
+    // Close setup overlay if it was open
+    document.getElementById('duel-setup-overlay').classList.remove('show');
     overlay.classList.add('show');
     tapZone.style.display = 'none';
     duelTapActive = false;
@@ -12218,7 +12220,7 @@ function handleDuelState(d) {
     // Clear any prior timers
     if (duelCountdownInterval) clearInterval(duelCountdownInterval);
 
-    // Simple 1-second interval countdown
+    // Simple 1-second interval countdown synced to countdownEnd timestamp
     const endTime = d.countdownEnd;
     function tick() {
       const remaining = Math.ceil((endTime - Date.now()) / 1000);
@@ -12313,6 +12315,8 @@ window.onDuelTap = function(e) {
   e.preventDefault();
   e.stopPropagation();
   duelTapCount++;
+  duelTapActive = false; // lock — one tap per event, re-enabled on next frame
+  requestAnimationFrame(() => { if (duelTapCount >= 0) duelTapActive = true; });
   const mainEl = document.getElementById('duel-live-main');
   if (mainEl) mainEl.textContent = duelTapCount;
   haptic(5);
@@ -12386,6 +12390,8 @@ function renderDuelScoreboard(sorted) {
   const winner = sorted[0];
   document.getElementById('duel-score-winner').textContent =
     '🏆 ' + winner.name + ' wins with ' + winner.taps + ' taps!';
+  // Set winner immediately (host needs this for crown in lobby)
+  duelWinnerId = winner.id;
   const listEl = document.getElementById('duel-score-list');
   listEl.innerHTML = '';
   sorted.forEach((p, i) => {
@@ -12397,6 +12403,12 @@ function renderDuelScoreboard(sorted) {
       + '<span class="duel-score-taps">' + p.taps + '</span>';
     listEl.appendChild(row);
   });
+  // 3-second delay before Continue button is clickable
+  const continueBtn = document.getElementById('duel-continue-btn');
+  continueBtn.style.display = isHost ? '' : 'none';
+  continueBtn.disabled = true;
+  continueBtn.style.opacity = '0.4';
+  setTimeout(() => { continueBtn.disabled = false; continueBtn.style.opacity = '1'; }, 3000);
 }
 
 // showDuelScoreboard removed — replaced by renderDuelScoreboard in submitDuelScore
