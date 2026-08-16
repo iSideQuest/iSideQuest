@@ -4258,6 +4258,9 @@
     animation: duelFlash 0.3s ease-in-out infinite alternate;
   }
   @keyframes duelFlash { from { opacity: 1; } to { opacity: 0.7; } }
+  #duel-tap-btn.nudge-btn { position: relative; top: auto; left: auto; transform: none !important; }
+  #duel-tap-btn.nudge-btn:hover:not(:disabled) { transform: none !important; }
+  #duel-tap-btn.nudge-btn:active:not(:disabled) { transform: none !important; }
   .duel-tap-counter {
     font-size: 4rem; font-weight: 900; color: #4ade80;
     text-shadow: 0 0 20px rgba(74,222,128,0.5);
@@ -12215,7 +12218,9 @@ function handleDuelState(d) {
     // Close setup overlay if it was open
     document.getElementById('duel-setup-overlay').classList.remove('show');
     overlay.classList.add('show');
-    tapBtn.style.display = 'none';
+    tapBtn.style.display = '';
+    tapBtn.disabled = true;
+    tapBtn.style.opacity = '0.4';
     duelTapActive = false;
     titleEl.textContent = '⚔️ DUEL!';
     titleEl.style.fontSize = '1.2rem';
@@ -12249,7 +12254,7 @@ function handleDuelState(d) {
         if (isHost) {
           setTimeout(async () => {
             if (!db || !roomCode) return;
-            const activeStart = Date.now();
+            const activeStart = Date.now() + 1500;
             await update(ref(db), {
               [`rooms/${roomCode}/duel/status`]: 'active',
               [`rooms/${roomCode}/duel/startTime`]: activeStart
@@ -12275,6 +12280,7 @@ function handleDuelState(d) {
     subEl.textContent = '';
     tapBtn.style.display = '';
     tapBtn.disabled = false;
+    tapBtn.style.opacity = '1';
     haptic(20);
 
     // Poll-based end timer — all devices fire at the same absolute time
