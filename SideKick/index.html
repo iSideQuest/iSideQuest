@@ -4262,6 +4262,58 @@
     position: fixed; inset: 0; z-index: 9665; cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
+  .duel-tap-btn {
+    --primary: 74, 222, 128;
+    --secondary: 22, 101, 52;
+    width: 120px;
+    height: 80px;
+    border: none;
+    outline: 5px solid rgba(74, 222, 128, 0.4);
+    border-radius: 100%;
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9670;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+    background: transparent;
+    -webkit-tap-highlight-color: transparent;
+    display: none;
+  }
+  .duel-tap-btn .back {
+    background: rgb(var(--secondary));
+    border-radius: 100%;
+    position: absolute;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+  }
+  .duel-tap-btn .front {
+    background: linear-gradient(0deg, rgba(var(--primary), .6) 20%, rgba(var(--primary)) 50%);
+    box-shadow: 0 .5em 1em -0.2em rgba(var(--secondary), .5);
+    border-radius: 100%;
+    position: absolute;
+    border: 1px solid rgb(var(--secondary));
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    font-family: inherit;
+    transform: translateY(-15%);
+    transition: .05s;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    pointer-events: none;
+  }
+  .duel-tap-btn:active .front {
+    transform: translateY(0%);
+    box-shadow: 0 0;
+  }
+  .duel-tap-btn:disabled { opacity: 0.3; cursor: not-allowed; }
   .duel-tap-counter {
     font-size: 4rem; font-weight: 900; color: #4ade80;
     text-shadow: 0 0 20px rgba(74,222,128,0.5);
@@ -6549,6 +6601,10 @@
     <div id="duel-live-sub" style="font-size:0.9rem;color:var(--muted);margin-top:1rem;">Get Ready!</div>
   </div>
   <div class="duel-tap-zone" id="duel-tap-zone" style="display:none;" onclick="onDuelTap(event)" ontouchstart="onDuelTap(event)"></div>
+  <button class="duel-tap-btn" id="duel-tap-btn" onclick="onDuelTap(event)" ontouchstart="onDuelTap(event)">
+    <div class="back"></div>
+    <div class="front">TAP</div>
+  </button>
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
@@ -11942,6 +11998,13 @@ function listenLobby() {
       set(ref(db, `rooms/${roomCode}/players/${myId}/avatar`), myAvatar).catch(() => {});
     }
 
+    // Track duel winner for crown display in lobby
+    if (room.duel && room.duel.winnerId) {
+      duelWinnerId = room.duel.winnerId;
+    } else if (!room.duel || !room.duel.status) {
+      // Duel was removed (host clicked Continue) — keep duelWinnerId for crown
+    }
+
     renderLobbyList(localPlayers);
     const count = localPlayers.length;
     document.getElementById('start-btn').disabled = count < 2;
@@ -12142,7 +12205,9 @@ function showDuelAlert(msg) {
   const titleEl = document.getElementById('duel-live-title');
   const subEl = document.getElementById('duel-live-sub');
   const tapZone = document.getElementById('duel-tap-zone');
+  const tapBtn = document.getElementById('duel-tap-btn');
   tapZone.style.display = 'none';
+  tapBtn.style.display = 'none';
   titleEl.textContent = '⚔️ Duel';
   titleEl.style.fontSize = '1.2rem';
   mainEl = document.getElementById('duel-live-main');
@@ -12199,6 +12264,7 @@ function handleDuelState(d) {
   const subEl = document.getElementById('duel-live-sub');
   const titleEl = document.getElementById('duel-live-title');
   const tapZone = document.getElementById('duel-tap-zone');
+  const tapBtn = document.getElementById('duel-tap-btn');
 
   // Create a simple version key so we don't re-trigger the same phase
   const stateKey = d.status + '_' + (d.createdAt || 0);
@@ -12210,6 +12276,7 @@ function handleDuelState(d) {
     document.getElementById('duel-setup-overlay').classList.remove('show');
     overlay.classList.add('show');
     tapZone.style.display = 'none';
+    tapBtn.style.display = 'none';
     duelTapActive = false;
     titleEl.textContent = '⚔️ DUEL!';
     titleEl.style.fontSize = '1.2rem';
@@ -12220,12 +12287,14 @@ function handleDuelState(d) {
     // Clear any prior timers
     if (duelCountdownInterval) clearInterval(duelCountdownInterval);
 
-    // Simple 1-second interval countdown synced to countdownEnd timestamp
-    const endTime = d.countdownEnd;
-    function tick() {
-      const remaining = Math.ceil((endTime - Date.now()) / 1000);
-      if (remaining > 0) {
-        mainEl.textContent = remaining;
+    // Always start countdown display from 3, synced via local timing
+    let countdownLocalLeft = 3;
+    mainEl.textContent = countdownLocalLeft;
+    haptic(10);
+    duelCountdownInterval = setInterval(() => {
+      countdownLocalLeft--;
+      if (countdownLocalLeft > 0) {
+        mainEl.textContent = countdownLocalLeft;
         haptic(10);
       } else {
         clearInterval(duelCountdownInterval);
@@ -12249,9 +12318,7 @@ function handleDuelState(d) {
           }, 800);
         }
       }
-    }
-    tick(); // run immediately
-    duelCountdownInterval = setInterval(tick, 1000);
+    }, 1000);
 
   } else if (d.status === 'active') {
     if (duelStateVersion === stateKey) return;
@@ -12267,8 +12334,9 @@ function handleDuelState(d) {
     titleEl.textContent = '⚔️ TAP AS FAST AS YOU CAN!';
     titleEl.style.fontSize = '1rem';
     subEl.textContent = '';
-    tapZone.style.display = 'block';
-    tapZone.style.pointerEvents = 'all';
+    tapZone.style.display = 'none';
+    tapBtn.style.display = '';
+    tapBtn.disabled = false;
     haptic(20);
 
     // Schedule end based on startTime + duration
@@ -12277,6 +12345,7 @@ function handleDuelState(d) {
     duelEndTimer = setTimeout(() => {
       duelTapActive = false;
       tapZone.style.display = 'none';
+      tapBtn.style.display = 'none';
       mainEl.textContent = 'TIME!';
       mainEl.style.color = '#e74c3c';
       mainEl.style.fontSize = '3rem';
@@ -12295,6 +12364,7 @@ function handleDuelState(d) {
     if (duelEndTimer) { clearTimeout(duelEndTimer); duelEndTimer = null; }
     duelTapActive = false;
     tapZone.style.display = 'none';
+    tapBtn.style.display = 'none';
     overlay.classList.remove('show');
     const results = d.results || {};
     const names = d.resultNames || {};
@@ -12340,6 +12410,20 @@ function submitDuelScore(count) {
     update(ref(db), {
       [`rooms/${roomCode}/duel/results/${myId}`]: count,
       [`rooms/${roomCode}/duel/resultNames/${myId}`]: myName
+    }).catch(() => {});
+
+    // Immediately fetch all current results so non-host doesn't wait for listener
+    const resultsRef2 = ref(db, `rooms/${roomCode}/duel/results`);
+    const namesRef2 = ref(db, `rooms/${roomCode}/duel/resultNames`);
+    Promise.all([get(resultsRef2), get(namesRef2)]).then(([rSnap, nSnap]) => {
+      const rData = rSnap.exists() ? rSnap.val() : {};
+      const nData = nSnap.exists() ? nSnap.val() : {};
+      rData[myId] = count;
+      nData[myId] = myName;
+      const sorted = Object.entries(rData)
+        .map(([id, taps]) => ({ id, name: nData[id] || 'Player', taps }))
+        .sort((a, b) => b.taps - a.taps);
+      if (sorted.length > 0) renderDuelScoreboard(sorted);
     }).catch(() => {});
 
     // Set up live listener on results to update scoreboard as others submit
@@ -13588,6 +13672,7 @@ function renderLobbyList(players) {
     const dotColor = p.color || 'var(--accent)';
     const dotText  = p.color && isLightColor(p.color) ? '#000' : '#fff';
     const avatarDotStyle = p.color ? `style="border-color:${p.color};"` : '';
+    const isDuelWinner = duelWinnerId && p.id === duelWinnerId;
     const div = document.createElement('div');
     div.className = 'player-item';
     div.setAttribute('draggable', 'false');
@@ -13600,7 +13685,7 @@ function renderLobbyList(players) {
           ${p.id === myId ? '<span class="player-badge host">Host</span>' : ''}
         </div>
       </div>
-      <div class="player-name">${esc(p.name)}</div>`;
+      <div class="player-name">${esc(p.name)}${isDuelWinner ? ' <span style="font-size:0.85em;">👑</span>' : ''}</div>`;
     // Add kick button for host (can't kick self)
     if (isHost && p.id !== myId) {
       const kickBtn = document.createElement('button');
@@ -13744,10 +13829,14 @@ function renderWaitingLobbyList(players) {
     const div = document.createElement('div');
     div.className = 'player-item';
     div.innerHTML = `
-      <div class="player-avatar" ${avatarDotStyle}>${avatarHTML(p.avatar || '👤', 28)}</div>
-      <div class="player-num" style="background:${dotColor};color:${dotText};">${i+1}</div>
-      <div class="player-name">${esc(p.name)}${isDuelWinner ? ' <span style="font-size:0.9em;">👑</span>' : ''}</div>
-      ${p.id === myId ? '<span class="player-badge host">You</span>' : ''}`;
+      <div class="player-tile-top">
+        <div class="player-num" style="background:${dotColor};color:${dotText};">${i+1}</div>
+        <div class="player-avatar-wrap">
+          <div class="player-avatar" ${avatarDotStyle}>${avatarHTML(p.avatar || '👤', 24)}</div>
+          ${p.id === myId ? '<span class="player-badge host">You</span>' : ''}
+        </div>
+      </div>
+      <div class="player-name">${esc(p.name)}${isDuelWinner ? ' <span style="font-size:0.85em;">👑</span>' : ''}</div>`;
     el.appendChild(div);
   });
   requestAnimationFrame(rescaleCurrentScreen);
