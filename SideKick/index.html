@@ -318,7 +318,7 @@
   .step-collapse-label { font-size: 0.95rem; color: var(--muted); font-weight: 700; flex-shrink: 0; }
   .step-collapse-detail { font-size: 1.05rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; }
   .step-collapse-sep { color: var(--muted); font-size: 0.95rem; flex-shrink: 0; }
-  .step-collapse-swatch-inline { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 1.5px solid rgba(255,255,255,0.2); }
+  .step-collapse-swatch-inline { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; border: 1.5px solid rgba(255,255,255,0.2); }
   .step-collapse-avatar-img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 
   /* Step 1 collapse: tall "Step 1:" on the left spanning both lines, with
@@ -396,8 +396,8 @@
   button:active { transform: scale(0.97); }
   button:disabled { opacity: 0.45; cursor: not-allowed; }
 
-  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; box-shadow: 0 2px 8px rgba(124,92,191,0.3); }
-  .btn-primary:hover:not(:disabled) { box-shadow: 0 4px 16px rgba(124,92,191,0.4); }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; box-shadow: 0 4px 14px rgba(124,92,191,0.5), 0 2px 4px rgba(0,0,0,0.2); }
+  .btn-primary:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(124,92,191,0.6), 0 3px 6px rgba(0,0,0,0.25); }
   .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
   .btn-danger { background: linear-gradient(135deg, var(--danger), #e74c3c); color: #fff; box-shadow: 0 2px 8px rgba(192,57,43,0.3); }
   .btn-sm { width: auto; padding: 0.7rem 1.2rem; font-size: 0.92rem; border-radius: 999px; }
@@ -4959,7 +4959,6 @@
           </div>
         </div>
         <div id="tm-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;">⚠️ Please choose a turn mode.</div>
-        <div id="tm-summary" style="margin-top:0.5rem;font-size:0.8rem;color:var(--muted);text-align:center;min-height:1.1em;">No direction selected</div>
         <button class="btn-primary" id="create-next-btn-2" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;">Confirm →</button>
       </div>
       <button class="step-collapse-btn" onclick="expandCreateStep(2)">
