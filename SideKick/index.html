@@ -228,7 +228,7 @@
     border-radius: 16px;
     background: linear-gradient(140deg, transparent 0%, transparent 40%, rgba(124,92,191,0.4) 100%);
     filter: blur(8px);
-    z-index: -1;
+    z-index: 1;
     pointer-events: none;
   }
 
@@ -4041,6 +4041,7 @@
   .dir-option:hover { border-color:var(--accent); }
   .dir-option.selected { border-color:var(--accent); background:rgba(124,92,191,0.12); }
   .dir-icon { font-size:2.6rem; line-height:1; }
+  .dir-icon img { width:2.6rem; height:2.6rem; object-fit:contain; }
   .dir-name { font-size:1.15rem; font-weight:700; color:var(--text); margin-top:0.15rem; }
   .dir-desc { font-size:0.9rem; color:var(--muted); margin-top:0.15rem; line-height:1.3; text-align:center; }
   .tm-rounds-row {
@@ -4828,7 +4829,7 @@
 <!--  SCREEN: HOME                               -->
 <!-- ═══════════════════════════════════════════ -->
 <div id="screen-home" class="screen active" style="position:relative;">
-  <button class="btn-secondary btn-sm" id="account-btn" style="position:fixed; top:14px; right:14px; width:auto; padding:0.5rem 1rem; font-size:0.85rem; background:transparent; border:1px solid var(--border); z-index:20;" onclick="openAccountOverlay()">🔑 Login</button>
+  <button class="btn-secondary btn-sm" id="account-btn" style="position:fixed; top:14px; right:14px; width:auto; padding:0.5rem 1rem; font-size:0.85rem; background:transparent; border:1px solid var(--border); z-index:20;" onclick="openAccountOverlay()">Login</button>
   <div class="screen-content-scaler" id="scaler-home">
   <div class="logo" style="display:flex;flex-direction:column;align-items:center;gap:0.1rem;line-height:1.1;">
     <span style="font-size:1.2rem;font-weight:600;letter-spacing:0.22em;text-transform;color:var(--muted);opacity:0.7;text-shadow:none;">iSideQuest's</span>
@@ -4940,19 +4941,19 @@
         <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:stretch;">
           <div class="dir-row" style="justify-content:center;">
             <div class="dir-option" id="tm-inline-cw" onclick="selectInlineDir('cw')">
-              <span class="dir-icon">↻</span>
+              <span class="dir-icon"><img src="img/svg/PassLeft.svg" alt="Left"></span>
               <span class="dir-name">Left</span>
               <span class="dir-desc">Clockwise</span>
             </div>
             <div class="dir-option" id="tm-inline-ccw" onclick="selectInlineDir('ccw')">
-              <span class="dir-icon">↺</span>
+              <span class="dir-icon"><img src="img/svg/PassRight.svg" alt="Right"></span>
               <span class="dir-name">Right</span>
               <span class="dir-desc">Counterclockwise</span>
             </div>
           </div>
           <div class="dir-row" style="justify-content:center;">
             <div class="dir-option dir-option-wide" id="tm-inline-both" onclick="selectInlineDir('both')">
-              <span class="dir-icon">↔</span>
+              <span class="dir-icon" style="display:flex;align-items:center;gap:0.3rem;"><img src="img/svg/LArrow.svg" alt="Left"><img src="img/svg/RArrow.svg" alt="Right"></span>
               <span class="dir-name">Left & Right</span>
               <span class="dir-desc">If game changes turn direction, use this option (games like UNO)</span>
             </div>
@@ -5087,7 +5088,7 @@
       <button class="step-collapse-btn" onclick="expandJoinStep(2)">
         <span class="step-collapse-label">Step 2:</span>
         <span class="step-collapse-detail" id="join-collapse-code">Enter Code</span>
-        <span class="step-collapse-sep" style="margin-left:auto;">🔑</span>
+        <span class="step-collapse-sep" style="margin-left:auto;"></span>
       </button>
     </div>
 
@@ -5195,7 +5196,7 @@
         </label>
         <span style="font-size:0.85rem;font-weight:600;color:var(--text);margin-top:0.3rem;">&#127922; Pick A Random First Player</span>
       </div>
-      <button class="btn-secondary btn-sm" onclick="openDuelSetup()" style="width:100%;margin-bottom:0.75rem;font-size:0.85rem;">⚔️ Duel For 1st Player</button>
+      <button class="btn-secondary btn-sm" onclick="openDuelSetup()" style="width:100%;margin-bottom:0.75rem;font-size:0.85rem;">Duel For 1st Player</button>
       <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;margin-bottom:0.3rem;">Start Game &#9654;</button>
       <button class="btn-secondary btn-sm" onclick="goBackToCreate()" style="width:100%;">&#8592; Back To Room Settings</button>
     </div>
@@ -5617,7 +5618,7 @@
     <!-- NUDGE -->
     <div class="feature-row">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-nudge-toggle" type="checkbox" onchange="onNudgeToggle(this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">👉 Nudge</span>
+      <span class="feature-name">Nudge</span>
       <button class="feature-edit-btn" id="nudge-edit-btn" onclick="openFeatureSettings('nudge')" title="Edit settings">EDIT</button>
       <button class="feature-info-btn" onclick="showFeatureInfo('nudge')" title="What is this?">?</button>
     </div>
@@ -5625,14 +5626,14 @@
     <!-- ACHIEVEMENT AWARDS -->
     <div class="feature-row creator-only">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-awards-toggle" type="checkbox" onchange="onAwardsToggle(this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">🏆 Achievement Awards</span>
+      <span class="feature-name">Achievement Awards</span>
       <button class="feature-info-btn" onclick="showFeatureInfo('awards')" title="What is this?">?</button>
     </div>
 
     <!-- TIMERS -->
     <div class="feature-row creator-only">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-timers-toggle" type="checkbox" onchange="onTimersToggle(this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">⏱ Timers</span>
+      <span class="feature-name">Timers</span>
       <button class="feature-edit-btn" id="timers-edit-btn" onclick="openFeatureSettings('timers')" title="Edit settings">EDIT</button>
       <button class="feature-info-btn" onclick="showFeatureInfo('timers')" title="What is this?">?</button>
     </div>
@@ -5640,7 +5641,7 @@
     <!-- VICTORY POINTS -->
     <div class="feature-row" style="margin-bottom:0.75rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-vp-toggle" type="checkbox" onchange="onVPToggle(this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">🏅 Victory Points</span>
+      <span class="feature-name">Victory Points</span>
       <button class="feature-info-btn" onclick="showFeatureInfo('vp')" title="What is this?">?</button>
     </div>
     <div id="vp-mode-row" style="display:none; margin:-0.5rem 0 0.75rem 2.8rem; gap:0.5rem; align-items:center;">
@@ -5656,14 +5657,14 @@
     <!-- STATUS EFFECTS -->
     <div class="feature-row creator-only" style="margin-bottom:1.25rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-status-toggle" type="checkbox" onchange="onStatusEffectsToggle(this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">🩹 Status Effects</span>
+      <span class="feature-name">Status Effects</span>
       <button class="feature-info-btn" onclick="showFeatureInfo('status')" title="What is this?">?</button>
     </div>
 
     <!-- ROUNDS -->
     <div class="feature-row" style="margin-bottom:0.75rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-rounds-toggle" type="checkbox" onchange="onRoundsToggle(this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">🔢 Rounds</span>
+      <span class="feature-name">Rounds</span>
       <button class="feature-edit-btn" id="rounds-edit-btn" onclick="openFeatureSettings('rounds')" title="Edit settings">EDIT</button>
       <button class="feature-info-btn" onclick="showFeatureInfo('rounds')" title="What is this?">?</button>
     </div>
@@ -5671,13 +5672,13 @@
     <!-- D&D TURN COMPONENTS -->
     <div class="feature-row creator-only" style="margin-bottom:1.25rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-dnd-toggle" type="checkbox" onchange="onDndToggle(this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">⚔️ D&amp;D Turn Components</span>
+      <span class="feature-name">D&amp;D Turn Components</span>
     </div>
 
     <!-- UNDO PASS -->
     <div class="feature-row" style="margin-bottom:1.25rem;">
       <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-undo-toggle" type="checkbox" onchange="onUndoToggle(this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">↩️ Undo Pass</span>
+      <span class="feature-name">Undo Pass</span>
       <button class="feature-info-btn" onclick="showFeatureInfo('undo')" title="What is this?">?</button>
     </div>
 
@@ -5830,7 +5831,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="info-overlay" id="info-overlay">
   <div class="info-modal">
-    <div class="info-modal-icon" id="info-icon">👉</div>
+    <div class="info-modal-icon" id="info-icon" style="display:none;"></div>
     <div class="info-modal-title" id="info-title">Feature</div>
     <div class="info-modal-body" id="info-body"></div>
     <button class="info-modal-close" onclick="closeFeatureInfo()">Back</button>
@@ -6232,7 +6233,7 @@
     <div class="tools-modal-title">Account Settings</div>
     <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;">Email</div>
     <div id="acct-settings-email" style="font-size:0.95rem;color:var(--text);padding:0.6rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;margin-bottom:1rem;word-break:break-all;"></div>
-    <button class="btn-primary btn-sm" style="width:100%;" onclick="resetPassword(); showToast('Password reset email sent!');">🔑 Change Password</button>
+    <button class="btn-primary btn-sm" style="width:100%;" onclick="resetPassword(); showToast('Password reset email sent!');">Change Password</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="document.getElementById('account-settings-overlay').classList.remove('show')">Close</button>
   </div>
 </div>
@@ -6324,19 +6325,19 @@
 
     <div class="dir-row">
       <div class="dir-option" id="tmdir-cw" onclick="selectClassicDir('cw')">
-        <span class="dir-icon">↻</span>
+        <span class="dir-icon"><img src="img/svg/PassLeft.svg" alt="Left"></span>
         <span class="dir-name">Left</span>
         <span class="dir-desc">Clockwise Only</span>
       </div>
       <div class="dir-option" id="tmdir-ccw" onclick="selectClassicDir('ccw')">
-        <span class="dir-icon">↺</span>
+        <span class="dir-icon"><img src="img/svg/PassRight.svg" alt="Right"></span>
         <span class="dir-name">Right</span>
         <span class="dir-desc">Counterclockwise Only</span>
       </div>
     </div>
     <div class="dir-row">
       <div class="dir-option dir-option-wide" id="tmdir-both" onclick="selectClassicDir('both')">
-        <span class="dir-icon">↔</span>
+        <span class="dir-icon" style="display:flex;align-items:center;gap:0.3rem;"><img src="img/svg/LArrow.svg" alt="Left"><img src="img/svg/RArrow.svg" alt="Right"></span>
         <span class="dir-name">Left & Right</span>
         <span class="dir-desc">Players pass their turn clockwise or counterclockwise</span>
       </div>
@@ -7556,8 +7557,6 @@ window.openProfileScreen = function() {
     roleText.textContent = isHost ? 'Host Account' : 'Player Account';
   }
 
-  const themeKey = 'sk_theme';
-
   const hostedEl = document.getElementById('profile-games-hosted');
   const awardsEl = document.getElementById('profile-awards-count');
   const roomsEl = document.getElementById('profile-rooms-created');
@@ -7581,7 +7580,7 @@ function updateAccountButtonUI() {
     btn.textContent = 'Hey ' + (name || initial) + '!';
     btn.onclick = () => openProfileScreen();
   } else {
-    btn.textContent = '🔑 Login';
+    btn.textContent = 'Login';
     btn.onclick = () => openAccountOverlay('login');
   }
 }
@@ -8249,10 +8248,6 @@ function status(id, msg, type='') {
 }
 
 // ── PERSIST CONFIG ──────────────────────────────
-function getConfig() {
-  try { return JSON.parse(localStorage.getItem('gr_config') || 'null'); } catch { return null; }
-}
-
 window.saveConfig = function() {
   const cfg = {
     apiKey: document.getElementById('cfg-apiKey').value.trim(),
@@ -8411,6 +8406,8 @@ function resetCreateWizardState() {
   featureTimersEnabled = false;
   featureRoundsEnabled = false;
   featureUndoEnabled   = false;
+  // isFeatureEnabled() reads these from window — clear the window mirrors too
+  FEATURE_DEFS_GRID.forEach(def => { window[def.var] = false; });
   const tmTxt = document.getElementById('tm-summary');
   if (tmTxt) tmTxt.innerHTML = 'No direction selected';
   const tmNote = document.getElementById('tm-required-note');
@@ -8431,6 +8428,8 @@ function resetCreateWizardState() {
   if (cdCb) cdCb.checked = false;
   const cdInputs = document.getElementById('countdown-inputs');
   if (cdInputs) cdInputs.style.display = 'none';
+  const featGrid = document.getElementById('features-available-grid');
+  if (featGrid) { featGrid.innerHTML = ''; renderFeatureGrid(); }
 }
 
 window.showCreateRoom = function() {
@@ -8459,6 +8458,8 @@ window.showCreateRoom = function() {
   const hostAvLabel = document.getElementById('host-avatar-label');
   setAvatarLabel(hostAvLabel, profileAv || '');
   resetCreateWizardState();
+  createStep = 1;
+  renderCreateStep();
   showScreen('create');
   const nameEl = document.getElementById('host-name');
   if (nameEl && !nameEl.value) {
@@ -9547,16 +9548,7 @@ window.confirmLeave = async function() {
 };
 
 // ── QR CODE ──────────────────────────────────
-let qrGenerated = false;
 let qrVisible = false;
-window.toggleQR = function() {
-  const overlay = document.getElementById('qr-overlay');
-  const codeLabel = document.getElementById('qr-overlay-code');
-  if (codeLabel) codeLabel.textContent = 'Room: ' + (roomCode || '----');
-  generateQR();
-  overlay.style.display = 'flex';
-  qrVisible = true;
-};
 
 window.closeQROverlay = function() {
   document.getElementById('qr-overlay').style.display = 'none';
@@ -9662,12 +9654,6 @@ window.closeQRScanner = function() {
   document.getElementById('scanner-overlay').style.display = 'none';
 };
 
-window.confirmCloseRoom = async function() {
-  if (await showConfirm('Close the room? All players will be disconnected and the room will be deleted.')) {
-    closeRoom();
-  }
-};
-
 function generateQR() {
   const box = document.getElementById('qr-code-overlay');
   if (!box) return;
@@ -9733,7 +9719,6 @@ function adjustBrightness(hex, factor) {
 }
 
 // ── HOST GAME MENU ──────────────────────────────
-let hostMenuOpen = { active: false, wait: false };
 window.openHostCrownMenu = function() {
   const codeEl = document.getElementById('host-crown-room-code');
   if (codeEl) codeEl.textContent = roomCode || '----';
@@ -10205,10 +10190,6 @@ function renderFeatureGrid() {
   });
 }
 
-window.openFeaturesOverlay = function() {
-  document.getElementById('features-config-overlay').classList.add('show');
-};
-
 window.closeFeaturesOverlay = function() {
   document.getElementById('features-config-overlay').classList.remove('show');
   updateFeaturesSummary();
@@ -10218,14 +10199,14 @@ function updateFeaturesSummary() {
   const el = document.getElementById('features-summary');
   if (!el) return;
   const active = [];
-  if (featureNudgeEnabled)         active.push('👉 Nudge');
-  if (featureAwardsEnabled)        active.push('🏆 Awards');
-  if (featureTimersEnabled)        active.push('⏱ Timers');
-  if (featureVPEnabled)            active.push('🏅 VP');
-  if (featureStatusEffectsEnabled) active.push('🩹 Status');
-  if (featureDndEnabled)           active.push('⚔️ D&D');
-  if (featureRoundsEnabled)        active.push('🔢 Rounds');
-  if (featureUndoEnabled)          active.push('↩️ Undo');
+  if (featureNudgeEnabled)         active.push('Nudge');
+  if (featureAwardsEnabled)        active.push('Awards');
+  if (featureTimersEnabled)        active.push('Timers');
+  if (featureVPEnabled)            active.push('VP');
+  if (featureStatusEffectsEnabled) active.push('Status');
+  if (featureDndEnabled)           active.push('D&D');
+  if (featureRoundsEnabled)        active.push('Rounds');
+  if (featureUndoEnabled)          active.push('Undo');
   el.textContent = active.length ? active.join(' · ') : 'All features off';
   // Also update the Step 3 grid if it exists
   if (document.getElementById('features-available-grid')) renderFeatureGrid();
@@ -10278,42 +10259,34 @@ function renderRoundIndicator(round, total) {
 // ── FEATURE INFO OVERLAY ──────────────────────
 const FEATURE_INFO = {
   nudge: {
-    icon: '👉',
     title: 'Nudge',
-    body: `When it's not your turn, you can tap the 👉 button to nudge the active player and let them know you're waiting.\n\nThe nudge button unlocks after a set number of seconds (you choose before the game). Once unlocked, tap as many times as you like — every tap adds to the nudge count shown on the active player's screen.\n\nNudge counts reset each time the turn passes. At the end of the game, the player who received the most nudges gets a special award! 🏆`
+    body: `When it's not your turn, you can tap the Nudge button to nudge the active player and let them know you're waiting.\n\nThe nudge button unlocks after a set number of seconds (you choose before the game). Once unlocked, tap as many times as you like — every tap adds to the nudge count shown on the active player's screen.\n\nNudge counts reset each time the turn passes. At the end of the game, the player who received the most nudges gets a special award!`
   },
   timers: {
-    icon: '⏱',
     title: 'Timers',
     body: `Track how long players take during the game.\n\n• Turn Timer — counts up while it's your turn. Resets each turn. Used for Achievement Awards.\n• Round Timer — counts up across the whole round. Reset by the host using End Round.\n• Game Timer — counts up for the entire session.\n• Countdown Timer — counts down per turn from a set time. A buzzer sounds when it hits zero.\n\nEach timer can be shown or hidden from everyone using the Visible toggle.`
   },
   awards: {
-    icon: '🏆',
     title: 'Achievement Awards',
     body: `After the host ends the game, an awards ceremony plays out on everyone's phones.\n\nA voice announces each award category, then pauses for drama... and reveals the winner. Only the winner's phone lights up with a celebration while everyone else sees a dark standby screen.\n\nAwards are based on stats collected during the game — like who got nudged the most. More awards will be added as new features are introduced!`
   },
   vp: {
-    icon: '🏅',
     title: 'Victory Points',
     body: `When the host ends the game, every player is prompted to enter their final Victory Point total.\n\nOnce all players have submitted their scores, the host starts the Achievement Awards. The player with the most Victory Points receives a special announcement during the ceremony!\n\nPerfect for any game that tracks points — like Wingspan, Ticket to Ride, or Catan.`
   },
   status: {
-    icon: '🩹',
     title: 'Status Effects',
-    body: `Players can apply status effects to themselves at any time using the 🩹 Status button in the bottom-left corner of the game screen.\n\nWhen a player with an active status becomes the active player, an alert appears describing the effect. They can choose to Keep or Remove the status, then tap OK to begin their turn normally.\n\nAvailable statuses:\n• 😵 Paralyzed — Your turn must be skipped.\n• ☠️ Poisoned — Lose a set number of HP this turn.\n\nMore status effects can be added in future updates!`
+    body: `Players can apply status effects to themselves at any time using the Status button in the bottom-left corner of the game screen.\n\nWhen a player with an active status becomes the active player, an alert appears describing the effect. They can choose to Keep or Remove the status, then tap OK to begin their turn normally.\n\nAvailable statuses:\n• Paralyzed — Your turn must be skipped.\n• Poisoned — Lose a set number of HP this turn.\n\nMore status effects can be added in future updates!`
   },
   rounds: {
-    icon: '🔢',
     title: 'Rounds',
-    body: `Track the current round of your game.\n\nSet how many total rounds you'll play before the game starts. The current round is shown at the top-center of the screen for all players.\n\nThe host advances the round by opening the 👑 crown menu and tapping End Round. The final round is highlighted in gold so everyone knows it's the last one.`
+    body: `Track the current round of your game.\n\nSet how many total rounds you'll play before the game starts. The current round is shown at the top-center of the screen for all players.\n\nThe host advances the round by opening the crown menu and tapping End Round. The final round is highlighted in gold so everyone knows it's the last one.`
   },
   undo: {
-    icon: '↩️',
     title: 'Undo Pass',
     body: `Allow players to undo their last turn pass.\n\nAfter a player passes their turn, an "Undo Pass" button appears on their screen. They can tap it to take their turn back and become the active player again.\n\nThe button disappears once the next player ends their turn. Great for accidental taps!`
   },
   dnd: {
-    icon: '⚔️',
     title: 'D&D',
     body: `Add D&D-style turn components to your game.\n\nWhen enabled, each player's turn includes structured phases like Actions, Bonus Actions, Movement, and Reactions — just like in Dungeons & Dragons.\n\nPerfect for tabletop RPG sessions where you want to track turn structure alongside your board game night.`
   }
@@ -10322,7 +10295,6 @@ const FEATURE_INFO = {
 window.showFeatureInfo = function(key) {
   const info = FEATURE_INFO[key];
   if (!info) return;
-  document.getElementById('info-icon').textContent = info.icon;
   document.getElementById('info-title').textContent = info.title;
   document.getElementById('info-body').innerHTML = info.body.replace(/\n/g, '<br>');
   document.getElementById('info-overlay').classList.add('show');
@@ -10344,7 +10316,6 @@ function buildFeatureHelpList() {
       + 'padding:0.75rem 0.5rem;cursor:pointer;text-align:center;'
       + 'display:flex;flex-direction:column;align-items:center;gap:4px;'
       + 'transition:border-color 0.15s,background 0.15s;min-height:70px;justify-content:center;">'
-      + '<div style="font-size:1.3rem;">' + (info.icon || '') + '</div>'
       + '<div style="font-size:0.82rem;font-weight:700;color:var(--text);line-height:1.2;">' + info.title + '</div>'
       + '</div>';
   }).join('');
@@ -10811,8 +10782,6 @@ async function runCeremonyAsHost() {
   // All done — push gameover
   await update(ref(db, `rooms/${roomCode}`), { status: 'gameover', ceremonyStep: 'gameover' });
 }
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // Sleep that resolves early if ceremonyAborted is set (polls every 200ms)
 function sleepAbortable(ms) {
@@ -11366,9 +11335,6 @@ window.openSettingsOverlay = function() {
 window.closeSettingsOverlay = function() {
   document.getElementById('settings-overlay').classList.remove('show');
 };
-// No-ops for any lingering references
-window.toggleSettings = function() { openSettingsOverlay(); };
-window.toggleSettingsWait = function() { openSettingsOverlay(); };
 
 // ── SOUND TOGGLE ──────────────────────────────
 let soundEnabled = true;
@@ -11798,11 +11764,6 @@ function renderManageList(players, rawPlayers) {
     await update(ref(db), updates);
   });
 }
-
-window.toggleKnockOut = async function(playerId, currentlyOut) {
-  if (!db || !roomCode) return;
-  await update(ref(db, `rooms/${roomCode}/players/${playerId}`), { knockedOut: !currentlyOut });
-};
 
 // Permanently removes a player from the room. Unlike the temporary
 // skip-turn toggle above, this deletes their record entirely — they'd
@@ -12317,24 +12278,6 @@ window.selectDuelMode = function(mode) {
   initDuelDial();
   document.getElementById('duel-setup-overlay').classList.add('show');
 };
-
-function showDuelAlert(msg) {
-  const el = document.getElementById('duel-live-main');
-  const overlay = document.getElementById('duel-live-overlay');
-  const titleEl = document.getElementById('duel-live-title');
-  const subEl = document.getElementById('duel-live-sub');
-  const tapBtn = document.getElementById('duel-tap-btn');
-  tapBtn.style.display = 'none';
-  titleEl.textContent = '⚔️ Duel';
-  titleEl.style.fontSize = '1.2rem';
-  mainEl = document.getElementById('duel-live-main');
-  mainEl.textContent = msg;
-  mainEl.style.fontSize = '1.2rem';
-  mainEl.style.color = '#e74c3c';
-  subEl.textContent = '';
-  overlay.classList.add('show');
-  setTimeout(() => overlay.classList.remove('show'), 2000);
-}
 
 window.closeDuelSetup = function() {
   document.getElementById('duel-setup-overlay').classList.remove('show');
@@ -14625,9 +14568,6 @@ function rdDialInit(outerId, knobId, valueId, hiddenId, initialVal) {
 
   updateDisplay();
 }
-
-// Keep old name for backwards compatibility
-window.beginAwardsAfterVP = window.beginAfterVP;
 
 // ── PER-ROUND VP ENTRY (Rounds + VP combined) ─────
 let roundVPSubmitted = false;
