@@ -1658,6 +1658,8 @@
     justify-content: center;
   }
   .info-overlay.show { display: flex; }
+  #features-help-overlay { z-index: 9500; }
+  #info-overlay { z-index: 9600; }
 
   /* ── TOOLS OVERLAY (list of tools) ── */
   .tools-overlay {
@@ -3803,9 +3805,10 @@
   .avatar-grid::-webkit-scrollbar { width:5px; }
   .avatar-grid::-webkit-scrollbar-track { background:transparent; }
   .avatar-grid::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
-  .avatar-option { display:flex; align-items:center; justify-content:center; width:100%; aspect-ratio:1/1; border-radius:50%; border:3px solid transparent; font-size:1.6rem; cursor:pointer; transition:transform 0.15s,border-color 0.15s,background 0.15s; background:#1e1e2e; overflow:hidden; contain:paint; }
+  .avatar-option { display:flex; align-items:center; justify-content:center; width:100%; aspect-ratio:1/1; border-radius:12px; border:3px solid transparent; font-size:1.6rem; cursor:pointer; transition:transform 0.15s,border-color 0.15s,background 0.15s; background:#1e1e2e; overflow:hidden; contain:paint; position:relative; }
   .avatar-option:hover { transform:scale(1.1); }
   .avatar-option.selected { border-color:var(--accent-light); background:rgba(124,92,191,0.2); transform:scale(1.1); box-shadow:0 0 0 2px rgba(124,92,191,0.3); }
+  .avatar-option img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:9px; }
   body.light-mode .avatar-option { background:#f0f0fb; }
   body.light-mode .avatar-option.selected { background:rgba(124,92,191,0.15); border-color:var(--accent); }
 
@@ -4367,7 +4370,9 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 2.6rem; font-weight: 800; color: #fff;
     border: 2px solid var(--surface);
+    overflow: hidden;
   }
+  .profile-avatar-inner img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
   .profile-display-name {
     font-size: 1.55rem; font-weight: 800; color: var(--text);
     letter-spacing: -0.02em; line-height: 1.2;
@@ -4845,11 +4850,11 @@
       <span id="tools-arrow" style="font-size:0.9rem;color:var(--muted);transition:transform 0.3s;">▸</span>
     </button>
     <div id="tools-body" style="max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s;opacity:0;padding:0 1.2rem;">
-      <div style="display:flex;flex-direction:column;gap:0.5rem;padding-bottom:1rem;">
-        <button class="btn-secondary" style="width:100%;font-size:0.95rem;" onclick="openTool('rng', true)">🎲 Random Number Generator</button>
-        <button class="btn-secondary" style="width:100%;font-size:0.95rem;" onclick="openTool('timers', true)">⏱️ Timers</button>
-        <button class="btn-secondary" style="width:100%;font-size:0.95rem;" onclick="openTool('picker', true)">🎯 Random Team Maker</button>
-        <button class="btn-secondary" style="width:100%;font-size:0.95rem;" onclick="openSpeedRoundFromTool()">⚡ Speed Round</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;padding-bottom:1rem;">
+        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openTool('rng', true)">🎲 RNG</button>
+        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openTool('picker', true)">🎯 Teams</button>
+        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openSpeedRoundFromTool()">⚡ Speed Round</button>
+        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openTool('timers', true)">⏱️ Timers</button>
       </div>
     </div>
   </div>
@@ -5829,7 +5834,7 @@
     <div class="info-modal-icon" id="info-icon">👉</div>
     <div class="info-modal-title" id="info-title">Feature</div>
     <div class="info-modal-body" id="info-body"></div>
-    <button class="info-modal-close" onclick="closeFeatureInfo()">Got it</button>
+    <button class="info-modal-close" onclick="closeFeatureInfo()">Back</button>
   </div>
 </div>
 
@@ -7237,7 +7242,7 @@ function setAvatarEl(el, val, size) {
     el.innerHTML = '';
     var img = document.createElement('img');
     img.src = val; img.alt = 'avatar';
-    img.style.cssText = 'width:' + size + 'px;height:' + size + 'px;border-radius:50%;object-fit:cover;display:inline-block;';
+    img.style.cssText = 'width:' + size + 'px;height:' + size + 'px;border-radius:12px;object-fit:cover;display:inline-block;';
     el.appendChild(img);
   } else {
     el.textContent = val;
@@ -7259,7 +7264,6 @@ function makeAvatarOption(avatar, isSelected, onClick) {
   if (isImageAvatar(avatar)) {
     var img = document.createElement('img');
     img.src = avatar; img.alt = 'avatar';
-    img.style.cssText = 'width:70%;height:70%;border-radius:50%;object-fit:cover;';
     btn.appendChild(img);
   } else {
     btn.textContent = avatar;
@@ -7439,7 +7443,7 @@ window.saveEditProfile = function() {
   if (selectedBtn) {
     const emoji = selectedBtn.getAttribute('data-avatar');
     saveAvatar(emoji);
-    setAvatarEl(document.getElementById('profile-avatar'), emoji, 52);
+    setAvatarEl(document.getElementById('profile-avatar'), emoji, 90);
   }
   const name = document.getElementById('edit-profile-name-input').value.trim();
   saveName(name);
@@ -7466,7 +7470,7 @@ window.selectAvatar = function(emoji) {
   document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
   const active = document.querySelector(`.avatar-option[data-avatar="${emoji}"]`);
   if (active) active.classList.add('selected');
-  setAvatarEl(document.getElementById('profile-avatar'), emoji, 52);
+  setAvatarEl(document.getElementById('profile-avatar'), emoji, 90);
   const hostAvLabel = document.getElementById('host-avatar-label');
   setAvatarLabel(hostAvLabel, emoji);
   updateAccountButtonUI();
@@ -7537,7 +7541,7 @@ window.openProfileScreen = function() {
 
   const avatar = getSavedAvatar();
   const avatarEl = document.getElementById('profile-avatar');
-  setAvatarEl(avatarEl, avatar || email.charAt(0).toUpperCase(), 52);
+  setAvatarEl(avatarEl, avatar || email.charAt(0).toUpperCase(), 90);
 
   const name = getSavedName();
   const nameEl = document.getElementById('profile-name');
@@ -7575,7 +7579,7 @@ function updateAccountButtonUI() {
   if (currentUser) {
     const name = getSavedName();
     const initial = (currentUser.email || '?').charAt(0).toUpperCase();
-    btn.textContent = 'Welcome ' + (name || initial) + '!';
+    btn.textContent = 'Hey ' + (name || initial) + '!';
     btn.onclick = () => openProfileScreen();
   } else {
     btn.textContent = '🔑 Login';
@@ -10316,24 +10320,12 @@ const FEATURE_INFO = {
   }
 };
 
-let _featuresHelpReturn = false;
-window.showFeatureInfo = function(key, fromHelp) {
+window.showFeatureInfo = function(key) {
   const info = FEATURE_INFO[key];
   if (!info) return;
   document.getElementById('info-icon').textContent = info.icon;
   document.getElementById('info-title').textContent = info.title;
   document.getElementById('info-body').innerHTML = info.body.replace(/\n/g, '<br>');
-  const gotBtn = document.querySelector('#info-overlay .info-modal-close');
-  if (fromHelp) {
-    gotBtn.textContent = 'Back';
-    gotBtn.onclick = function() {
-      document.getElementById('info-overlay').classList.remove('show');
-      setTimeout(function() { openFeaturesHelpOverlay(); }, 100);
-    };
-  } else {
-    gotBtn.textContent = 'Got it';
-    gotBtn.onclick = function() { closeFeatureInfo(); };
-  }
   document.getElementById('info-overlay').classList.add('show');
 };
 window.closeFeatureInfo = function() {
@@ -10348,7 +10340,7 @@ function buildFeatureHelpList() {
   container.innerHTML = visibleDefs.map(def => {
     const info = FEATURE_INFO[def.key];
     if (!info) return '';
-    return '<div class="feature-help-card" onclick="closeFeaturesHelpOverlay();setTimeout(function(){showFeatureInfo(\'' + def.key + '\',true)},200)" style="'
+    return '<div class="feature-help-card" onclick="showFeatureInfo(\'' + def.key + '\')" style="'
       + 'background:rgba(255,255,255,0.04);border:2px solid var(--border);border-radius:12px;'
       + 'padding:0.75rem 0.5rem;cursor:pointer;text-align:center;'
       + 'display:flex;flex-direction:column;align-items:center;gap:4px;'
@@ -10360,8 +10352,6 @@ function buildFeatureHelpList() {
 }
 window.openFeaturesHelpOverlay = function() {
   buildFeatureHelpList();
-  const gotBtn = document.querySelector('#info-overlay .info-modal-close');
-  if (gotBtn) { gotBtn.textContent = 'Got it'; gotBtn.onclick = function() { closeFeatureInfo(); }; }
   document.getElementById('features-help-overlay').classList.add('show');
 };
 window.closeFeaturesHelpOverlay = function() {
@@ -12297,7 +12287,7 @@ function initDuelDial() {
 
 window.openDuelSetup = function() {
   if (!isHost) return;
-  if (localPlayers.length < 2) { showDuelAlert('Need at least 2 players to start a duel.'); return; }
+  if (localPlayers.length < 2) { showErrorToast('There needs to be 2 or more players in order to duel.'); return; }
   document.getElementById('duel-mode-overlay').classList.add('show');
 };
 
@@ -12353,7 +12343,7 @@ window.closeDuelSetup = function() {
 
 window.startDuelFromSetup = async function() {
   if (!db || !roomCode) return;
-  if (localPlayers.length < 2) { closeDuelSetup(); showDuelAlert('Need at least 2 players.'); return; }
+  if (localPlayers.length < 2) { closeDuelSetup(); showErrorToast('There needs to be 2 or more players in order to duel.'); return; }
   const duration = Math.max(5, Math.min(60, parseInt(document.getElementById('duel-duration-input').value) || 10));
   closeDuelSetup();
   duelWinnerId = null;
