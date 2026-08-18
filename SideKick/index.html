@@ -755,7 +755,7 @@
     width: 96px; height: 96px;
     flex: 0 0 96px;
     padding: 0.5rem;
-    border-radius: 50%;
+    border-radius: 16px;
     border: 2px solid var(--border);
     background: var(--surface);
     color: var(--text);
@@ -777,14 +777,14 @@
   .color-picker-btn:hover { border-color: var(--accent-light); }
   .color-preview-swatch {
     width: 24px; height: 24px;
-    border-radius: 50%;
+    border-radius: 6px;
     border: 2px solid rgba(255,255,255,0.3);
     flex-shrink: 0;
     transition: background 0.2s;
   }
   .avatar-btn-preview {
     width: 26px; height: 26px;
-    border-radius: 50%;
+    border-radius: 6px;
     object-fit: cover;
     flex-shrink: 0;
   }
@@ -3901,61 +3901,89 @@
   .turn-mode-selection span { color: var(--accent-light); font-weight: 600; }
 
   /* ── STEP 3 FEATURE GRID ── */
-  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; grid-auto-rows: 52px; }
   .feature-section-label { font-size: 0.72rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.4rem; text-align: center; }
   .feature-section-label.added { margin-top: 0.75rem; }
   .feature-card {
     background: rgba(255,255,255,0.04);
     border: 2px solid var(--border);
     border-radius: 12px;
-    padding: 0.65rem 0.4rem;
-    font-size: 0.82rem; font-weight: 700;
+    padding: 0;
+    font-size: 0.9rem; font-weight: 700;
     color: var(--text); cursor: pointer;
     display: flex; flex-direction: column;
-    align-items: center; gap: 3px;
-    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    align-items: center; justify-content: center;
+    height: 52px;
+    transition: border-color 0.15s, background 0.15s;
     text-align: center;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    overflow: hidden;
   }
-  .feature-card:active { transform: scale(0.95); }
-  .feature-card .fc-icon { font-size: 1.2rem; }
-  .feature-card .fc-name { line-height: 1.2; }
+  .feature-card:active { transform: none; }
+  .feature-card .fc-icon { display: none; }
+  .feature-card .fc-name { line-height: 1.2; font-size: 0.9rem; }
   .feature-card.added {
     border-color: var(--accent);
     background: rgba(124,92,191,0.15);
+    flex-direction: row;
+    gap: 0;
   }
-  .feature-card .fc-settings { font-size: 0.6rem; color: var(--accent-light); margin-top: 1px; }
-  .feature-card .fc-edit {
-    margin-top: 2px;
-    padding: 0.15rem 0.5rem;
-    font-size: 0.6rem;
-    font-weight: 700;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: rgba(124,92,191,0.2);
-    color: var(--accent-light);
+  .feature-card .fc-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
     cursor: pointer;
-    font-family: inherit;
+    min-width: 0;
   }
-  .feature-card .fc-edit:active { transform: scale(0.9); }
+  .feature-card .fc-left:active { background: rgba(255,255,255,0.05); }
+  .feature-card .fc-divider {
+    width: 1px;
+    height: 60%;
+    background: var(--border);
+    flex-shrink: 0;
+    align-self: center;
+  }
+  .feature-card .fc-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    cursor: pointer;
+    min-width: 0;
+    gap: 0;
+  }
+  .feature-card .fc-right:active { background: rgba(255,255,255,0.05); }
+  .feature-card .fc-edit-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent-light);
+  }
+  .feature-card .fc-settings { font-size: 0.6rem; color: var(--muted); line-height: 1.1; }
 
   .features-help-btn {
     position: absolute;
-    top: 0.7rem;
-    right: 0.7rem;
-    width: 32px; height: 32px;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 28px; height: 28px;
     border-radius: 50%;
     border: 1.5px solid var(--border);
     background: rgba(255,255,255,0.04);
     color: var(--muted);
-    font-size: 1rem; font-weight: 800;
+    font-size: 0.9rem; font-weight: 800;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     transition: border-color 0.2s, color 0.2s, background 0.2s;
     padding: 0;
   }
   .features-help-btn:hover { border-color: var(--accent-light); color: var(--accent-light); background: rgba(124,58,237,0.1); }
+  .feature-help-card:hover { border-color: var(--accent); background: rgba(124,92,191,0.1); }
+  .feature-help-card:active { transform: scale(0.96); }
 
   /* ══════════════════════════════════════════════
      TURN MODE OVERLAYS (direction / speed mode picker)
@@ -4258,9 +4286,9 @@
     animation: duelFlash 0.3s ease-in-out infinite alternate;
   }
   @keyframes duelFlash { from { opacity: 1; } to { opacity: 0.7; } }
-  #duel-tap-btn.nudge-btn { position: relative; top: auto; left: auto; transform: none !important; }
-  #duel-tap-btn.nudge-btn:hover:not(:disabled) { transform: none !important; }
-  #duel-tap-btn.nudge-btn:active:not(:disabled) { transform: none !important; }
+  #duel-tap-btn.nudge-btn { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%) !important; }
+  #duel-tap-btn.nudge-btn:hover:not(:disabled) { transform: translateX(-50%) !important; }
+  #duel-tap-btn.nudge-btn:active:not(:disabled) { transform: translateX(-50%) scale(0.95) !important; }
   .duel-tap-counter {
     font-size: 4rem; font-weight: 900; color: #4ade80;
     text-shadow: 0 0 20px rgba(74,222,128,0.5);
@@ -4309,7 +4337,7 @@
   .profile-avatar-ring {
     position: relative;
     width: 104px; height: 104px;
-    border-radius: 50%;
+    border-radius: 16px;
     background: linear-gradient(135deg, var(--accent), var(--accent-light));
     padding: 3px;
     box-shadow: 0 0 24px rgba(124,92,191,0.35), 0 0 48px rgba(124,92,191,0.12);
@@ -4324,7 +4352,7 @@
   .profile-avatar-ring::after {
     content: '';
     position: absolute; inset: -4px;
-    border-radius: 50%;
+    border-radius: 18px;
     border: 2px solid rgba(124,92,191,0.2);
     animation: profileRingPulse 3s ease-in-out infinite;
   }
@@ -4334,7 +4362,7 @@
   }
   .profile-avatar-inner {
     width: 100%; height: 100%;
-    border-radius: 50%;
+    border-radius: 14px;
     background: var(--surface);
     display: flex; align-items: center; justify-content: center;
     font-size: 2.6rem; font-weight: 800; color: #fff;
@@ -4821,6 +4849,7 @@
         <button class="btn-secondary" style="width:100%;font-size:0.95rem;" onclick="openTool('rng', true)">🎲 Random Number Generator</button>
         <button class="btn-secondary" style="width:100%;font-size:0.95rem;" onclick="openTool('timers', true)">⏱️ Timers</button>
         <button class="btn-secondary" style="width:100%;font-size:0.95rem;" onclick="openTool('picker', true)">🎯 Random Team Maker</button>
+        <button class="btn-secondary" style="width:100%;font-size:0.95rem;" onclick="openSpeedRoundFromTool()">⚡ Speed Round</button>
       </div>
     </div>
   </div>
@@ -4901,19 +4930,31 @@
     <!-- Card 2: Turn Mode (Step 2) -->
     <div class="create-step" data-step="2">
       <div class="card" style="padding-top:1rem; padding-bottom:1rem;">
-        <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;">Step 2</div>
-        <div class="turn-mode-btns">
-          <button class="turn-mode-btn" id="tm-btn-classic" onclick="selectTurnMode('classic')">
-            <span class="tm-icon">♟️</span>
-            Classic Turns
-          </button>
-          <button class="turn-mode-btn" id="tm-btn-speed" onclick="selectTurnMode('speed')">
-            <span class="tm-icon">⚡</span>
-            Speed Round
-          </button>
+        <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;">Step 2</div>
+        <div style="font-size:0.85rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;">Choose the turn direction for your game</div>
+        <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:stretch;">
+          <div class="dir-row" style="justify-content:center;">
+            <div class="dir-option" id="tm-inline-cw" onclick="selectInlineDir('cw')">
+              <span class="dir-icon">↻</span>
+              <span class="dir-name">Left</span>
+              <span class="dir-desc">Clockwise</span>
+            </div>
+            <div class="dir-option" id="tm-inline-ccw" onclick="selectInlineDir('ccw')">
+              <span class="dir-icon">↺</span>
+              <span class="dir-name">Right</span>
+              <span class="dir-desc">Counterclockwise</span>
+            </div>
+          </div>
+          <div class="dir-row" style="justify-content:center;">
+            <div class="dir-option dir-option-wide" id="tm-inline-both" onclick="selectInlineDir('both')">
+              <span class="dir-icon">↔</span>
+              <span class="dir-name">Left & Right</span>
+              <span class="dir-desc">If game switches turn direction, use this option (games like UNO)</span>
+            </div>
+          </div>
         </div>
         <div id="tm-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;">⚠️ Please choose a turn mode.</div>
-        <div id="tm-summary" style="margin-top:0.5rem;font-size:0.8rem;color:var(--muted);text-align:center;min-height:1.1em;">No mode selected</div>
+        <div id="tm-summary" style="margin-top:0.5rem;font-size:0.8rem;color:var(--muted);text-align:center;min-height:1.1em;">No direction selected</div>
         <button class="btn-primary" id="create-next-btn-2" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;">Confirm →</button>
       </div>
       <button class="step-collapse-btn" onclick="expandCreateStep(2)">
@@ -4924,45 +4965,37 @@
 
     <!-- Card 3: Game Settings / Features (Step 3) -->
     <div class="create-step" data-step="3">
-      <div class="card" style="padding-top: 1rem; padding-bottom: 1rem;">
+      <div class="card" style="padding-top: 1rem; padding-bottom: 1rem; position:relative;">
         <button class="features-help-btn" onclick="openFeaturesHelpOverlay()" title="What are the game features?">?</button>
         <div style="font-size:1.4rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;">Step 3</div>
-        <div style="font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;">Tap To Add Game Feature</div>
+        <div style="font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;">Tap To Add Game Feature(s)</div>
 
         <div class="feature-grid" id="features-available-grid">
           <div class="feature-card" data-feature="nudge" onclick="toggleFeature('nudge')">
-            <span class="fc-icon">👉</span>
             <span class="fc-name">Nudge</span>
             <span class="fc-settings">⚙ Settings</span>
           </div>
           <div class="feature-card" data-feature="awards" onclick="toggleFeature('awards')">
-            <span class="fc-icon">🏆</span>
             <span class="fc-name">Awards</span>
           </div>
           <div class="feature-card" data-feature="timers" onclick="toggleFeature('timers')">
-            <span class="fc-icon">⏱️</span>
             <span class="fc-name">Timers</span>
             <span class="fc-settings">⚙ Settings</span>
           </div>
           <div class="feature-card" data-feature="vp" onclick="toggleFeature('vp')">
-            <span class="fc-icon">🏅</span>
             <span class="fc-name">Victory Points</span>
           </div>
           <div class="feature-card" data-feature="status" onclick="toggleFeature('status')">
-            <span class="fc-icon">🩹</span>
             <span class="fc-name">Status Effects</span>
           </div>
           <div class="feature-card" data-feature="rounds" onclick="toggleFeature('rounds')">
-            <span class="fc-icon">🔢</span>
             <span class="fc-name">Rounds</span>
             <span class="fc-settings">⚙ Settings</span>
           </div>
           <div class="feature-card" data-feature="dnd" onclick="toggleFeature('dnd')">
-            <span class="fc-icon">⚔️</span>
             <span class="fc-name">D&D</span>
           </div>
           <div class="feature-card" data-feature="undo" onclick="toggleFeature('undo')">
-            <span class="fc-icon">↩️</span>
             <span class="fc-name">Undo Pass</span>
           </div>
         </div>
@@ -5653,9 +5686,10 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="info-overlay" id="features-help-overlay">
   <div class="info-modal" style="width:min(380px,95vw);max-height:90vh;overflow-y:auto;padding:1.5rem 1.25rem;">
-    <div style="font-size:1.05rem;font-weight:800;color:var(--text);text-align:center;margin-bottom:1.25rem;">Game Features</div>
-    <div id="features-help-list" style="display:flex;flex-direction:column;gap:1rem;"></div>
-    <button class="info-modal-close" onclick="closeFeaturesHelpOverlay()" style="width:100%;margin-top:1.25rem;">Got it</button>
+    <div style="font-size:1.1rem;font-weight:800;color:var(--text);text-align:center;margin-bottom:0.25rem;">Game Features</div>
+    <div style="font-size:0.75rem;color:var(--muted);text-align:center;margin-bottom:1rem;">Tap on a game feature to learn more</div>
+    <div id="features-help-list" style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;"></div>
+    <button class="info-modal-close" onclick="closeFeaturesHelpOverlay()" style="width:100%;margin-top:1.25rem;">Close</button>
   </div>
 </div>
 
@@ -5773,7 +5807,7 @@
     <div class="feature-section-label">Turn Direction</div>
     <div id="mg-direction-buttons" style="display:flex;gap:0.4rem;margin-bottom:0.75rem;">
       <button class="mg-dir-btn" data-dir="cw" onclick="mgSetDirection('cw')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">↻ Clockwise</button>
-      <button class="mg-dir-btn" data-dir="both" onclick="mgSetDirection('both')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">⇅ Both</button>
+      <button class="mg-dir-btn" data-dir="both" onclick="mgSetDirection('both')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">⇅ Left & Right</button>
       <button class="mg-dir-btn" data-dir="ccw" onclick="mgSetDirection('ccw')" style="flex:1;padding:0.55rem 0;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-size:0.82rem;font-weight:700;cursor:pointer;">↺ Counter</button>
     </div>
 
@@ -6178,7 +6212,7 @@
       <div style="width:1px;background:var(--border);align-self:stretch;margin-top:0.1rem;"></div>
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:0;">
         <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.35rem;">Preferred Color</div>
-        <button class="color-picker-btn" id="edit-profile-color-btn" onclick="openEditProfileColorOverlay()" style="width:56px;height:56px;flex:0 0 56px;margin:0;padding:0.25rem;border-radius:50%;">
+        <button class="color-picker-btn" id="edit-profile-color-btn" onclick="openEditProfileColorOverlay()" style="width:56px;height:56px;flex:0 0 56px;margin:0;padding:0.25rem;border-radius:12px;">
           <span id="edit-profile-color-label" style="font-size:0.66rem;line-height:1.2;">Choose<br>Color</span>
         </button>
       </div>
@@ -6228,7 +6262,7 @@
       <div class="tutorial-slide">
         <div class="tutorial-icon">🏠</div>
         <div class="tutorial-title">Create a Room</div>
-        <div class="tutorial-desc">Tap <strong>Create a Room</strong> and set up your name, color, and avatar. Pick a turn mode — <em>Classic Turns</em> passes left, right, or both ways. <em>Speed Round</em> lets players race to tap in.</div>
+        <div class="tutorial-desc">Tap <strong>Create a Room</strong> and set up your name, color, and avatar. Pick a turn mode — <em>Turn Direction</em> passes left, right, or both ways. <em>Speed Round</em> lets players race to tap in.</div>
         <div class="tutorial-visual">Step 1 → Step 2 → Step 3</div>
       </div>
       <!-- Slide 3 -->
@@ -6281,26 +6315,26 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="turn-mode-overlay" id="classic-dir-overlay">
   <div class="turn-mode-modal">
-    <div class="turn-mode-modal-title">♟️ Classic Turns</div>
-    <div class="turn-mode-modal-sub">Choose which direction turns go.</div>
+    <div class="turn-mode-modal-title">Turn Direction</div>
+    <div class="turn-mode-modal-sub">Choose which direction turns go for your specific game.</div>
 
     <div class="dir-row">
       <div class="dir-option" id="tmdir-cw" onclick="selectClassicDir('cw')">
         <span class="dir-icon">↻</span>
         <span class="dir-name">Left</span>
-        <span class="dir-desc">Turns go clockwise</span>
+        <span class="dir-desc">Clockwise Only</span>
       </div>
       <div class="dir-option" id="tmdir-ccw" onclick="selectClassicDir('ccw')">
         <span class="dir-icon">↺</span>
         <span class="dir-name">Right</span>
-        <span class="dir-desc">Turns go counterclockwise</span>
+        <span class="dir-desc">Counterclockwise Only</span>
       </div>
     </div>
     <div class="dir-row">
       <div class="dir-option dir-option-wide" id="tmdir-both" onclick="selectClassicDir('both')">
         <span class="dir-icon">↔</span>
-        <span class="dir-name">Both</span>
-        <span class="dir-desc">Players can pass their turn either clockwise or counterclockwise</span>
+        <span class="dir-name">Left & Right</span>
+        <span class="dir-desc">Players pass their turn clockwise or counterclockwise</span>
       </div>
     </div>
 
@@ -6314,7 +6348,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="turn-mode-overlay" id="speed-mode-overlay">
   <div class="turn-mode-modal">
-    <div class="turn-mode-modal-title">⚡ Speed Round</div>
+    <div class="turn-mode-modal-title">Speed Round</div>
     <div class="turn-mode-modal-sub">Choose how players compete each round.</div>
 
     <div class="dir-row">
@@ -6413,6 +6447,7 @@
     <button class="tool-list-btn" onclick="openTool('rng')">🎲 Random Number</button>
     <button class="tool-list-btn" onclick="openTool('picker')">🎯 Player Picker</button>
     <button class="tool-list-btn" onclick="openTool('status')">🩹 Status Effects</button>
+    <button class="tool-list-btn" onclick="openSpeedRoundFromTool()">⚡ Speed Round</button>
 
     <button class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="closeToolsOverlay()">Close</button>
   </div>
@@ -6513,18 +6548,41 @@
 <!--  PLAYER PICKER TOOL OVERLAY                 -->
 <!-- ═══════════════════════════════════════════ -->
 <!-- ═══════════════════════════════════════════ -->
+<!--  DUEL MODE SELECTION                       -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="duel-overlay" id="duel-mode-overlay">
+  <div class="duel-modal">
+    <div class="duel-modal-title">⚔️ Duel For 1st Player</div>
+    <div style="font-size:0.8rem;color:var(--muted);text-align:center;margin-bottom:0.5rem;">Choose a duel mode</div>
+    <div class="turn-mode-btns">
+      <button class="turn-mode-btn" onclick="selectDuelMode('fastest')">
+        <span class="tm-icon">⚡</span>
+        <span>Fastest</span>
+        <span>Tapper</span>
+      </button>
+      <button class="turn-mode-btn" onclick="selectDuelMode('timetap')">
+        <span class="tm-icon">⏱️</span>
+        <span>Time</span>
+        <span>Tap</span>
+      </button>
+    </div>
+    <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeDuelModeSelect()">Cancel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
 <!--  DUEL FOR 1ST PLAYER — HOST SETUP          -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="duel-overlay" id="duel-setup-overlay">
   <div class="duel-modal">
-    <div class="duel-modal-title">⚔️ Duel For 1st Player</div>
-    <div style="font-size:0.8rem;color:var(--muted);text-align:center;">Set the duel duration</div>
+    <div class="duel-modal-title" id="duel-setup-title">⚔️ Duel For 1st Player</div>
+    <div style="font-size:0.8rem;color:var(--muted);text-align:center;" id="duel-setup-subtitle">Set the duel duration</div>
     <div class="duel-timer-value" id="duel-timer-display">10s</div>
     <div style="position:relative;width:180px;height:180px;">
       <div id="duel-dial-outer" style="position:relative;width:180px;height:180px;border-radius:50%;background:#111;border:4px solid #000;display:flex;align-items:center;justify-content:center;touch-action:none;user-select:none;">
         <div style="position:absolute;inset:0;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;">
           <div id="duel-dial-center" style="position:relative;width:90px;height:90px;border-radius:50%;background:#000;display:flex;align-items:center;justify-content:center;z-index:2;border:3px solid #222;">
-            <span style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;">Seconds</span>
+            <span style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;" id="duel-dial-label">Seconds</span>
           </div>
         </div>
         <div id="duel-dial-knob" style="position:absolute;width:36px;height:36px;border-radius:50%;background:#888;border:2px solid #aaa;top:-18px;left:50%;transform:translateX(-50%);z-index:3;box-shadow:0 2px 8px rgba(0,0,0,0.5);pointer-events:none;"></div>
@@ -6542,15 +6600,15 @@
 <!--  DUEL FOR 1ST PLAYER — ALL PLAYERS         -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="duel-overlay" id="duel-live-overlay" style="z-index:9665;">
-  <div id="duel-live-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;text-align:center;gap:0.5rem;">
+  <div id="duel-live-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;text-align:center;padding-bottom:100px;">
     <div id="duel-live-title" style="font-size:1.2rem;font-weight:800;color:var(--text);margin-bottom:0.5rem;">⚔️ DUEL!</div>
-    <div id="duel-live-main" style="font-size:5rem;font-weight:900;color:#fff;line-height:1;">3</div>
-    <div id="duel-live-sub" style="font-size:0.9rem;color:var(--muted);margin-top:0.5rem;">Get Ready!</div>
-    <button class="nudge-btn" id="duel-tap-btn" style="display:none;position:relative;top:auto;left:auto;transform:none;outline-color:rgba(74,222,128,0.5);--primary:74,222,128;--secondary:22,101,52;margin-top:1.5rem;" onclick="onDuelTap(event)" ontouchstart="onDuelTap(event)">
-      <div class="back"></div>
-      <div class="front">TAP</div>
-    </button>
+    <div id="duel-live-main" style="font-size:5rem;font-weight:900;color:#fff;line-height:1;min-height:5rem;">3</div>
+    <div id="duel-live-sub" style="font-size:0.9rem;color:var(--muted);margin-top:0.5rem;min-height:1.2em;">Get Ready!</div>
   </div>
+  <button class="nudge-btn" id="duel-tap-btn" style="display:none;position:absolute;bottom:50px;left:50%;transform:translateX(-50%);outline-color:rgba(74,222,128,0.5);--primary:74,222,128;--secondary:22,101,52;" onpointerdown="onDuelTap(event)">
+    <div class="back"></div>
+    <div class="front">TAP</div>
+  </button>
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
@@ -6930,7 +6988,7 @@ window.confirmSignOut = async function() {
 // Saved Games or Account was left open) before switching screens, so the
 // button always visibly takes you home.
 window.backToHomeFromProfile = function() {
-  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','edit-profile-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay','features-help-overlay','collection-overlay','collection-edit-overlay','duel-setup-overlay','duel-live-overlay','duel-score-overlay'].forEach(id => {
+  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','edit-profile-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay','features-help-overlay','collection-overlay','collection-edit-overlay','duel-mode-overlay','duel-setup-overlay','duel-live-overlay','duel-score-overlay'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('show');
   });
@@ -7529,17 +7587,20 @@ function updateAccountButtonUI() {
 
 let _selectedClassicDir = '';
 let _selectedSpeedMode  = '';
+let _speedRoundFromTool = false;
 
-window.selectTurnMode = function(mode) {
-  document.getElementById('tm-btn-classic').classList.toggle('selected', mode === 'classic');
-  document.getElementById('tm-btn-speed').classList.toggle('selected', mode === 'speed');
+// ── Inline direction picker on Step 2
+window.selectInlineDir = function(dir) {
+  _selectedClassicDir = dir;
+  document.querySelectorAll('#tm-inline-cw, #tm-inline-ccw, #tm-inline-both').forEach(el => el.classList.remove('selected'));
+  const opt = document.getElementById('tm-inline-' + dir);
+  if (opt) opt.classList.add('selected');
   document.getElementById('tm-required-note').style.display = 'none';
-  if (mode === 'classic') {
-    document.getElementById('classic-dir-overlay').classList.add('show');
-  } else {
-    document.getElementById('speed-mode-overlay').classList.add('show');
-    rdDialInit('speed-rd-dial-outer','speed-rd-dial-knob','speed-rd-dial-value','speed-rounds-total', parseInt(document.getElementById('speed-rounds-total').value) || 3);
-  }
+  turnMode = 'classic';
+  passDirection = dir;
+  const labels = { cw: '↻ Left', both: '↔ Left & Right', ccw: '↺ Right' };
+  const selTxt = document.getElementById('tm-summary');
+  if (selTxt) selTxt.innerHTML = 'Turn Direction — <span>' + (labels[dir] || dir) + '</span>';
 };
 
 // ── Classic Direction picker
@@ -7555,9 +7616,9 @@ window.confirmClassicDir = function() {
   turnMode = 'classic';
   passDirection = _selectedClassicDir;
   document.getElementById('classic-dir-overlay').classList.remove('show');
-  const labels = { cw: '↻ Left', both: '↔ Both', ccw: '↺ Right' };
+  const labels = { cw: '↻ Left', both: '↔ Left & Right', ccw: '↺ Right' };
   const selTxt = document.getElementById('tm-summary');
-  if (selTxt) selTxt.innerHTML = `♟️ Classic Turns — <span>${labels[passDirection] || passDirection}</span>`;
+  if (selTxt) selTxt.innerHTML = `Turn Direction — <span>${labels[passDirection] || passDirection}</span>`;
 };
 
 window.closeClassicDirOverlay = function() {
@@ -7583,14 +7644,93 @@ window.confirmSpeedMode = function() {
   speedMode = _selectedSpeedMode;
   speedRoundsTotal = rounds;
   document.getElementById('speed-mode-overlay').classList.remove('show');
+
+  if (_speedRoundFromTool) {
+    _speedRoundFromTool = false;
+    const tov = document.getElementById('tools-overlay');
+    if (tov) tov.classList.remove('show');
+    createSpeedRoundRoom();
+    return;
+  }
+
   const modeLabels = { firstToTap: '🥇 1st To Tap', downTheLine: '📋 Down The Line' };
   const selTxt2 = document.getElementById('tm-summary');
-  if (selTxt2) selTxt2.innerHTML = `⚡ Speed Round — <span>${modeLabels[speedMode]}</span> · ${rounds} rounds`;
+  if (selTxt2) selTxt2.innerHTML = '⚡ Speed Round — <span>' + modeLabels[speedMode] + '</span> · ' + rounds + ' rounds';
 };
 
 window.closeSpeedModeOverlay = function() {
   document.getElementById('speed-mode-overlay').classList.remove('show');
+  _speedRoundFromTool = false;
 };
+
+// ── Speed Round from Tools: create room immediately
+window.openSpeedRoundFromTool = function() {
+  _speedRoundFromTool = true;
+  document.getElementById('speed-mode-overlay').classList.add('show');
+  rdDialInit('speed-rd-dial-outer','speed-rd-dial-knob','speed-rd-dial-value','speed-rounds-total', parseInt(document.getElementById('speed-rounds-total').value) || 3);
+};
+
+async function createSpeedRoundRoom() {
+  if (!requireDb()) return;
+  const name = document.getElementById('host-name')?.value?.trim() || myName || '';
+  if (!name) { status('create-status','Enter your name first.','error'); return; }
+
+  isHost = true;
+  if (!myId) myId = uid();
+  myName = name;
+  roomCode = genCode();
+
+  let roomRef = ref(db, 'rooms/' + roomCode);
+  const existing = await get(roomRef);
+  if (existing.exists()) { roomCode = genCode(); roomRef = ref(db, 'rooms/' + roomCode); }
+
+  await set(roomRef, {
+    host: myId,
+    status: 'lobby',
+    activePlayerIndex: 0,
+    lastActivity: Date.now(),
+    features: {
+      passDirection: '',
+      nudge: featureNudgeEnabled,
+      nudgeDelay: 0,
+      nudgeMode: 'multi',
+      awards: featureAwardsEnabled,
+      victoryPoints: featureVPEnabled,
+      statusEffects: featureStatusEffectsEnabled,
+      dndTurnComponents: featureDndEnabled,
+      timers: featureTimersEnabled,
+      timerTurnOn: false,
+      timerTurnVisible: false,
+      timerRoundOn: false,
+      timerRoundVisible: false,
+      timerGameOn: false,
+      timerGameVisible: false,
+      timerCountdownOn: false,
+      timerCountdownVisible: false,
+      timerCountdownSecs: 30,
+      rounds: featureRoundsEnabled,
+      roundsTotal: featureRoundsEnabled ? 3 : 0,
+      turnMode: 'speedRound',
+      speedMode: speedMode,
+      speedRoundsTotal: speedRoundsTotal,
+      undo: featureUndoEnabled
+    },
+    currentRound: featureRoundsEnabled ? 1 : 0,
+    buzzCurrentRound: 1,
+    buzzPhase: 'waiting',
+    buzzScores: {},
+    buzzTapOrder: {},
+    players: {
+      [myId]: { name, order: 0, joinedAt: Date.now(), color: myColor, avatar: roomAvatarSelection || '👤' }
+    }
+  });
+  haptic(20);
+  document.getElementById('display-code').textContent = roomCode;
+  saveSession();
+  showScreen('lobby');
+  generateLobbyQR();
+  listenLobby();
+}
 
 // ══════════════════════════════════════════════
 // SPEED ROUND GAME ENGINE
@@ -8268,15 +8408,11 @@ function resetCreateWizardState() {
   featureTimersEnabled = false;
   featureRoundsEnabled = false;
   featureUndoEnabled   = false;
-  const tmClassic = document.getElementById('tm-btn-classic');
-  const tmSpeed   = document.getElementById('tm-btn-speed');
-  if (tmClassic) tmClassic.classList.remove('selected');
-  if (tmSpeed)   tmSpeed.classList.remove('selected');
   const tmTxt = document.getElementById('tm-summary');
-  if (tmTxt) tmTxt.innerHTML = 'No mode selected';
+  if (tmTxt) tmTxt.innerHTML = 'No direction selected';
   const tmNote = document.getElementById('tm-required-note');
   if (tmNote) tmNote.style.display = 'none';
-  document.querySelectorAll('#classic-dir-overlay .dir-option').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('#tm-inline-cw, #tm-inline-ccw, #tm-inline-both').forEach(el => el.classList.remove('selected'));
   document.querySelectorAll('#speed-mode-overlay .dir-option').forEach(el => el.classList.remove('selected'));
   const cdOv = document.getElementById('classic-dir-overlay');
   if (cdOv) cdOv.classList.remove('show');
@@ -8488,8 +8624,8 @@ window.updateCreateCollapseSummary = function() {
       const modeLabels = { firstToTap: '1st To Tap', downTheLine: 'Down The Line' };
       modeLabel.textContent = '⚡ ' + (modeLabels[speedMode] || speedMode) + ' · ' + speedRoundsTotal + ' rounds';
     } else if (turnMode === 'classic' && passDirection) {
-      const dirLabels = { cw: 'Left', both: 'Both', ccw: 'Right' };
-      modeLabel.textContent = '♟️ Classic · ' + (dirLabels[passDirection] || passDirection);
+      const dirLabels = { cw: 'Left', both: 'Left & Right', ccw: 'Right' };
+      modeLabel.textContent = 'Turn Direction · ' + (dirLabels[passDirection] || passDirection);
     } else {
       modeLabel.textContent = 'No mode';
     }
@@ -9277,22 +9413,17 @@ window.goBackToCreate = async function() {
   }
   // Turn mode
   if (turnMode) {
-    const tmClassic = document.getElementById('tm-btn-classic');
-    const tmSpeed = document.getElementById('tm-btn-speed');
-    if (turnMode === 'classic') {
-      if (tmClassic) tmClassic.classList.add('selected');
-      if (tmSpeed) tmSpeed.classList.remove('selected');
-    } else {
-      if (tmSpeed) tmSpeed.classList.add('selected');
-      if (tmClassic) tmClassic.classList.remove('selected');
+    if (turnMode === 'classic' && passDirection) {
+      const dirEl = document.getElementById('tm-inline-' + passDirection);
+      if (dirEl) dirEl.classList.add('selected');
     }
     const selTxt = document.getElementById('tm-summary');
-    const dirLabels = { cw: '↻ Left', both: '↔ Both', ccw: '↺ Right' };
+    const dirLabels = { cw: '↻ Left', both: '↔ Left & Right', ccw: '↺ Right' };
     if (selTxt) {
       if (turnMode === 'classic') {
-        selTxt.innerHTML = `♟️ Classic Turns — <span>${dirLabels[passDirection] || passDirection}</span>`;
+        selTxt.innerHTML = 'Turn Direction — <span>' + (dirLabels[passDirection] || passDirection) + '</span>';
       } else {
-        selTxt.innerHTML = `⚡ Speed Round — <span>${speedMode === 'firstToTap' ? 'First to Tap' : 'Down the Line'}</span>`;
+        selTxt.innerHTML = '⚡ Speed Round — <span>' + (speedMode === 'firstToTap' ? '1st To Tap' : 'Down The Line') + '</span> · ' + speedRoundsTotal + ' rounds';
       }
     }
     document.getElementById('tm-required-note').style.display = 'none';
@@ -9770,8 +9901,7 @@ function renderMGFeatureGrid() {
     const card = document.createElement('div');
     card.className = 'feature-card' + (enabled ? ' added' : '');
     card.onclick = () => toggleMGFeature(def.key);
-    let html = '<span class="fc-icon">' + def.icon + '</span><span class="fc-name">' + def.name + '</span>';
-    if (def.hasSettings && enabled) {
+    if (enabled && def.hasSettings) {
       let detail = '⚙ Settings';
       if (def.key === 'nudge') {
         const delay = parseInt(document.getElementById('mg-nudge-delay')?.value) || 60;
@@ -9784,10 +9914,12 @@ function renderMGFeatureGrid() {
         const total = parseInt(document.getElementById('mg-rounds-total')?.value) || 3;
         detail = total + ' rounds';
       }
-      html += '<span class="fc-settings">' + detail + '</span>';
-      html += '<button class="fc-edit" onclick="event.stopPropagation(); openMGFeatureSettings(\'' + def.settingKey + '\')" title="Edit settings">⚙ Edit</button>';
+      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleMGFeature(\'' + def.key + '\')"><span class="fc-name">' + def.name + '</span></div><div class="fc-divider"></div><div class="fc-right" onclick="event.stopPropagation(); openMGFeatureSettings(\'' + def.settingKey + '\')"><span class="fc-edit-label">Edit</span><span class="fc-settings">' + detail + '</span></div>';
+    } else if (enabled) {
+      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleMGFeature(\'' + def.key + '\')"><span class="fc-name">' + def.name + '</span></div>';
+    } else {
+      card.innerHTML = '<span class="fc-name">' + def.name + '</span>';
     }
-    card.innerHTML = html;
     grid.appendChild(card);
   });
 }
@@ -10045,8 +10177,7 @@ function renderFeatureGrid() {
     card.className = 'feature-card' + (enabled ? ' added' : '');
     card.setAttribute('data-feature', def.key);
     card.onclick = () => toggleFeature(def.key);
-    let html = '<span class="fc-icon">' + def.icon + '</span><span class="fc-name">' + def.name + '</span>';
-    if (def.hasSettings && enabled) {
+    if (enabled && def.hasSettings) {
       let detail = '⚙ Settings';
       if (def.key === 'nudge') {
         const delay = parseInt(document.getElementById('nudge-delay')?.value) || 60;
@@ -10061,10 +10192,12 @@ function renderFeatureGrid() {
       } else if (def.key === 'timers') {
         detail = '⚙ Settings';
       }
-      html += '<span class="fc-settings">' + detail + '</span>';
-      html += '<button class="fc-edit" onclick="event.stopPropagation(); openFeatureSettings(\'' + def.settingKey + '\')" title="Edit settings">⚙ Edit</button>';
+      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + def.name + '</span></div><div class="fc-divider"></div><div class="fc-right" onclick="event.stopPropagation(); openFeatureSettings(\'' + def.settingKey + '\')"><span class="fc-edit-label">Edit</span><span class="fc-settings">' + detail + '</span></div>';
+    } else if (enabled) {
+      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + def.name + '</span></div>';
+    } else {
+      card.innerHTML = '<span class="fc-name">' + def.name + '</span>';
     }
-    card.innerHTML = html;
     avail.appendChild(card);
   });
 }
@@ -10152,6 +10285,7 @@ const FEATURE_INFO = {
     body: `Track how long players take during the game.\n\n• Turn Timer — counts up while it's your turn. Resets each turn. Used for Achievement Awards.\n• Round Timer — counts up across the whole round. Reset by the host using End Round.\n• Game Timer — counts up for the entire session.\n• Countdown Timer — counts down per turn from a set time. A buzzer sounds when it hits zero.\n\nEach timer can be shown or hidden from everyone using the Visible toggle.`
   },
   awards: {
+    icon: '🏆',
     title: 'Achievement Awards',
     body: `After the host ends the game, an awards ceremony plays out on everyone's phones.\n\nA voice announces each award category, then pauses for drama... and reveals the winner. Only the winner's phone lights up with a celebration while everyone else sees a dark standby screen.\n\nAwards are based on stats collected during the game — like who got nudged the most. More awards will be added as new features are introduced!`
   },
@@ -10174,15 +10308,32 @@ const FEATURE_INFO = {
     icon: '↩️',
     title: 'Undo Pass',
     body: `Allow players to undo their last turn pass.\n\nAfter a player passes their turn, an "Undo Pass" button appears on their screen. They can tap it to take their turn back and become the active player again.\n\nThe button disappears once the next player ends their turn. Great for accidental taps!`
+  },
+  dnd: {
+    icon: '⚔️',
+    title: 'D&D',
+    body: `Add D&D-style turn components to your game.\n\nWhen enabled, each player's turn includes structured phases like Actions, Bonus Actions, Movement, and Reactions — just like in Dungeons & Dragons.\n\nPerfect for tabletop RPG sessions where you want to track turn structure alongside your board game night.`
   }
 };
 
-window.showFeatureInfo = function(key) {
+let _featuresHelpReturn = false;
+window.showFeatureInfo = function(key, fromHelp) {
   const info = FEATURE_INFO[key];
   if (!info) return;
   document.getElementById('info-icon').textContent = info.icon;
   document.getElementById('info-title').textContent = info.title;
   document.getElementById('info-body').innerHTML = info.body.replace(/\n/g, '<br>');
+  const gotBtn = document.querySelector('#info-overlay .info-modal-close');
+  if (fromHelp) {
+    gotBtn.textContent = 'Back';
+    gotBtn.onclick = function() {
+      document.getElementById('info-overlay').classList.remove('show');
+      setTimeout(function() { openFeaturesHelpOverlay(); }, 100);
+    };
+  } else {
+    gotBtn.textContent = 'Got it';
+    gotBtn.onclick = function() { closeFeatureInfo(); };
+  }
   document.getElementById('info-overlay').classList.add('show');
 };
 window.closeFeatureInfo = function() {
@@ -10197,14 +10348,20 @@ function buildFeatureHelpList() {
   container.innerHTML = visibleDefs.map(def => {
     const info = FEATURE_INFO[def.key];
     if (!info) return '';
-    return '<div style="border-bottom:1px solid var(--border);padding-bottom:0.85rem;">'
-      + '<div style="font-size:0.95rem;font-weight:800;color:var(--text);margin-bottom:0.3rem;">' + (info.icon ? info.icon + ' ' : '') + info.title + '</div>'
-      + '<div style="font-size:0.8rem;color:var(--muted);line-height:1.55;">' + info.body.replace(/\n/g, '<br>') + '</div>'
+    return '<div class="feature-help-card" onclick="closeFeaturesHelpOverlay();setTimeout(function(){showFeatureInfo(\'' + def.key + '\',true)},200)" style="'
+      + 'background:rgba(255,255,255,0.04);border:2px solid var(--border);border-radius:12px;'
+      + 'padding:0.75rem 0.5rem;cursor:pointer;text-align:center;'
+      + 'display:flex;flex-direction:column;align-items:center;gap:4px;'
+      + 'transition:border-color 0.15s,background 0.15s;min-height:70px;justify-content:center;">'
+      + '<div style="font-size:1.3rem;">' + (info.icon || '') + '</div>'
+      + '<div style="font-size:0.82rem;font-weight:700;color:var(--text);line-height:1.2;">' + info.title + '</div>'
       + '</div>';
   }).join('');
 }
 window.openFeaturesHelpOverlay = function() {
   buildFeatureHelpList();
+  const gotBtn = document.querySelector('#info-overlay .info-modal-close');
+  if (gotBtn) { gotBtn.textContent = 'Got it'; gotBtn.onclick = function() { closeFeatureInfo(); }; }
   document.getElementById('features-help-overlay').classList.add('show');
 };
 window.closeFeaturesHelpOverlay = function() {
@@ -11947,9 +12104,10 @@ function listenLobby() {
     // Track duel winner for crown display in lobby
     if (room.duel && room.duel.winnerId) {
       duelWinnerId = room.duel.winnerId;
-    } else if (!room.duel || !room.duel.status) {
-      // Duel was removed (host clicked Continue) — keep duelWinnerId for crown
+    } else if (room.duel && room.duel.status === 'countdown') {
+      duelWinnerId = null;
     }
+    // If duel was removed (Continue clicked), keep duelWinnerId for crown
 
     renderLobbyList(localPlayers);
     const count = localPlayers.length;
@@ -11985,12 +12143,11 @@ function listenWaitingLobby() {
 
     // Listen for duel in lobby
     if (room.duel && room.duel.status && room.duel.status !== 'finished') {
+      if (room.duel.status === 'countdown') duelWinnerId = null;
       handleDuelState(room.duel);
     } else if (room.duel && room.duel.winnerId) {
-      // Duel finished — remember winner for lobby crown + startGame
       duelWinnerId = room.duel.winnerId;
     } else if (!room.duel || !room.duel.status) {
-      // Duel was removed (host clicked Continue) — close scoreboard if open
       const scoreOverlay = document.getElementById('duel-score-overlay');
       if (scoreOverlay && scoreOverlay.classList.contains('show')) {
         scoreOverlay.classList.remove('show');
@@ -11999,6 +12156,9 @@ function listenWaitingLobby() {
         duelStateVersion = 0;
       }
     }
+    // Keep duelWinnerId for crown even after duel removed
+
+    renderWaitingLobbyList(localPlayers);
   });
   unsubscribers.push(() => unsub());
 }
@@ -12086,7 +12246,7 @@ function initDuelDial() {
     display.style.color = 'var(--accent-light)';
     const angle = (duelDialVal - 5) * 6;
     knob.style.transform = 'translateX(-50%) rotate(' + angle + 'deg)';
-    knob.style.transformOrigin = '50% 109px';
+    knob.style.transformOrigin = '50% 100%';
   }
 
   function getAngle(e) {
@@ -12108,7 +12268,7 @@ function initDuelDial() {
     if (delta < -180) delta += 360;
     duelDialLastAngle = angle;
     duelDialAccum += delta;
-    const step = 60;
+    const step = 15;
     if (duelDialAccum >= step) {
       const ticks = Math.floor(duelDialAccum / step);
       duelDialVal = Math.min(60, duelDialVal + ticks);
@@ -12138,6 +12298,30 @@ function initDuelDial() {
 window.openDuelSetup = function() {
   if (!isHost) return;
   if (localPlayers.length < 2) { showDuelAlert('Need at least 2 players to start a duel.'); return; }
+  document.getElementById('duel-mode-overlay').classList.add('show');
+};
+
+window.closeDuelModeSelect = function() {
+  document.getElementById('duel-mode-overlay').classList.remove('show');
+};
+
+let duelMode = 'fastest';
+let duelTargetTime = 10;
+let duelTapStartTime = 0;
+let duelTapTime = 0;
+
+window.selectDuelMode = function(mode) {
+  duelMode = mode;
+  document.getElementById('duel-mode-overlay').classList.remove('show');
+  if (mode === 'fastest') {
+    document.getElementById('duel-setup-title').textContent = '⚔️ Fastest Tapper';
+    document.getElementById('duel-setup-subtitle').textContent = 'Set the tap duration';
+    document.getElementById('duel-dial-label').textContent = 'Seconds';
+  } else {
+    document.getElementById('duel-setup-title').textContent = '⏱️ Time Tap';
+    document.getElementById('duel-setup-subtitle').textContent = 'Set the target time';
+    document.getElementById('duel-dial-label').textContent = 'Seconds';
+  }
   duelDialVal = 10;
   document.getElementById('duel-duration-input').value = 10;
   document.getElementById('duel-timer-display').textContent = '10s';
@@ -12175,19 +12359,23 @@ window.startDuelFromSetup = async function() {
   duelWinnerId = null;
   duelStateVersion = 0;
 
-  // Write duel state to Firebase — all devices will react via listener
   const now = Date.now();
+  const duelData = {
+    status: 'countdown',
+    mode: duelMode,
+    duration: duration,
+    countdownEnd: now + 3000,
+    createdAt: now
+  };
+  if (duelMode === 'timetap') {
+    duelData.targetTime = duration;
+  }
+
   await update(ref(db), {
-    [`rooms/${roomCode}/duel`]: {
-      status: 'countdown',
-      duration: duration,
-      countdownEnd: now + 3000,
-      createdAt: now
-    },
+    [`rooms/${roomCode}/duel`]: duelData,
     [`rooms/${roomCode}/lastActivity`]: now
   });
 
-  // Host also starts listening
   listenDuel();
 };
 
@@ -12218,7 +12406,7 @@ function handleDuelState(d) {
     // Close setup overlay if it was open
     document.getElementById('duel-setup-overlay').classList.remove('show');
     overlay.classList.add('show');
-    tapBtn.style.display = '';
+    tapBtn.style.display = 'block';
     tapBtn.disabled = true;
     tapBtn.style.opacity = '0.4';
     duelTapActive = false;
@@ -12267,45 +12455,80 @@ function handleDuelState(d) {
   } else if (d.status === 'active') {
     if (duelStateVersion === stateKey) return;
     duelStateVersion = stateKey;
-    // Clear countdown timer if still running
     if (duelCountdownInterval) { clearInterval(duelCountdownInterval); duelCountdownInterval = null; }
-    // Start tapping
+    const activeMode = d.mode || 'fastest';
     duelTapCount = 0;
     duelTapActive = true;
-    mainEl.textContent = '0';
-    mainEl.style.color = '#4ade80';
-    mainEl.style.fontSize = '5rem';
-    titleEl.textContent = '⚔️ TAP AS FAST AS YOU CAN!';
-    titleEl.style.fontSize = '1rem';
-    subEl.textContent = '';
-    tapBtn.style.display = '';
+    tapBtn.style.display = 'block';
     tapBtn.disabled = false;
     tapBtn.style.opacity = '1';
     haptic(20);
 
-    // Poll-based end timer — all devices fire at the same absolute time
-    const endTime = d.startTime + d.duration * 1000;
-    if (duelEndTimer) { clearInterval(duelEndTimer); duelEndTimer = null; }
-    duelEndTimer = setInterval(() => {
-      if (Date.now() >= endTime) {
-        clearInterval(duelEndTimer);
-        duelEndTimer = null;
-        duelTapActive = false;
-        tapBtn.style.display = 'none';
-        mainEl.textContent = 'TIME!';
-        mainEl.style.color = '#e74c3c';
-        mainEl.style.fontSize = '3rem';
-        titleEl.textContent = '';
-        subEl.textContent = 'Submitting score...';
-        haptic(50);
-        submitDuelScore(duelTapCount);
-      }
-    }, 50);
+    if (activeMode === 'timetap') {
+      duelTargetTime = d.targetTime || d.duration || 10;
+      duelTapStartTime = d.startTime;
+      duelTapTime = 0;
+      mainEl.textContent = '';
+      mainEl.style.color = '#4ade80';
+      mainEl.style.fontSize = '4rem';
+      titleEl.textContent = '⏱️ TAP WHEN TIME IS UP!';
+      titleEl.style.fontSize = '1rem';
+      subEl.textContent = '';
+      tapBtn.querySelector('.front').textContent = 'TAP';
+
+      // Auto-end after targetTime + 5s, DQ anyone who didn't tap
+      const autoEnd = d.startTime + (duelTargetTime + 5) * 1000;
+      if (duelEndTimer) { clearInterval(duelEndTimer); duelEndTimer = null; }
+      duelEndTimer = setInterval(() => {
+        if (Date.now() >= autoEnd) {
+          clearInterval(duelEndTimer);
+          duelEndTimer = null;
+          clearInterval(duelCountdownInterval);
+          duelCountdownInterval = null;
+          duelTapActive = false;
+          tapBtn.style.display = 'none';
+          if (duelTapTime === 0) duelTapTime = (autoEnd - d.startTime);
+          mainEl.textContent = 'TIME!';
+          mainEl.style.color = '#e74c3c';
+          mainEl.style.fontSize = '3rem';
+          titleEl.textContent = '';
+          subEl.textContent = 'Submitting score...';
+          haptic(50);
+          submitTimeTapScore(duelTapTime);
+        }
+      }, 50);
+    } else {
+      // Fastest Tapper mode
+      tapBtn.querySelector('.front').textContent = 'TAP';
+      mainEl.textContent = '0';
+      mainEl.style.color = '#4ade80';
+      mainEl.style.fontSize = '5rem';
+      titleEl.textContent = '⚔️ TAP AS FAST AS YOU CAN!';
+      titleEl.style.fontSize = '1rem';
+      subEl.textContent = '';
+
+      const endTime = d.startTime + d.duration * 1000;
+      if (duelEndTimer) { clearInterval(duelEndTimer); duelEndTimer = null; }
+      duelEndTimer = setInterval(() => {
+        if (Date.now() >= endTime) {
+          clearInterval(duelEndTimer);
+          duelEndTimer = null;
+          duelTapActive = false;
+          tapBtn.style.display = 'none';
+          mainEl.textContent = 'TIME!';
+          mainEl.style.color = '#e74c3c';
+          mainEl.style.fontSize = '3rem';
+          titleEl.textContent = '';
+          subEl.textContent = 'Submitting score...';
+          haptic(50);
+          submitDuelScore(duelTapCount);
+        }
+      }, 50);
+    }
 
   } else if (d.status === 'finished') {
     if (duelStateVersion === stateKey) return;
     duelStateVersion = stateKey;
-    // Show scoreboard from Firebase data
     if (duelCountdownInterval) { clearInterval(duelCountdownInterval); duelCountdownInterval = null; }
     if (duelEndTimer) { clearInterval(duelEndTimer); duelEndTimer = null; }
     duelTapActive = false;
@@ -12313,14 +12536,32 @@ function handleDuelState(d) {
     overlay.classList.remove('show');
     const results = d.results || {};
     const names = d.resultNames || {};
-    const sorted = Object.entries(results)
-      .map(([id, taps]) => ({ id, name: names[id] || 'Player', taps }))
-      .sort((a, b) => b.taps - a.taps);
-    if (sorted.length > 0) {
-      renderDuelScoreboard(sorted);
-      document.getElementById('duel-continue-btn').style.display = isHost ? '' : 'none';
-      document.getElementById('duel-waiting-text').style.display = isHost ? 'none' : '';
-      document.getElementById('duel-score-overlay').classList.add('show');
+    const finishedMode = d.mode || 'fastest';
+    if (finishedMode === 'timetap') {
+      duelTargetTime = d.targetTime || d.duration || 10;
+      const sorted = Object.entries(results)
+        .map(([id, ms]) => ({ id, name: names[id] || 'Player', tapMs: ms }))
+        .sort((a, b) => Math.abs(a.tapMs - duelTargetTime * 1000) - Math.abs(b.tapMs - duelTargetTime * 1000));
+      if (sorted.length > 0) {
+        const dqThresh = (duelTargetTime + 4.5) * 1000;
+        const realPlayers = sorted.filter(p => p.tapMs < dqThresh);
+        duelWinnerId = (realPlayers.length > 0 && d.winnerId) ? d.winnerId : null;
+        renderTimeTapScoreboard(sorted);
+        document.getElementById('duel-continue-btn').style.display = isHost ? '' : 'none';
+        document.getElementById('duel-waiting-text').style.display = isHost ? 'none' : '';
+        document.getElementById('duel-score-overlay').classList.add('show');
+      }
+    } else {
+      const sorted = Object.entries(results)
+        .map(([id, taps]) => ({ id, name: names[id] || 'Player', taps }))
+        .sort((a, b) => b.taps - a.taps);
+      if (sorted.length > 0) {
+        duelWinnerId = d.winnerId || null;
+        renderDuelScoreboard(sorted);
+        document.getElementById('duel-continue-btn').style.display = isHost ? '' : 'none';
+        document.getElementById('duel-waiting-text').style.display = isHost ? 'none' : '';
+        document.getElementById('duel-score-overlay').classList.add('show');
+      }
     }
   }
 }
@@ -12329,12 +12570,38 @@ window.onDuelTap = function(e) {
   if (!duelTapActive) return;
   e.preventDefault();
   e.stopPropagation();
-  duelTapCount++;
-  duelTapActive = false; // lock — one tap per event, re-enabled on next frame
-  requestAnimationFrame(() => { if (duelTapCount >= 0) duelTapActive = true; });
-  const mainEl = document.getElementById('duel-live-main');
-  if (mainEl) mainEl.textContent = duelTapCount;
-  haptic(5);
+
+  if (duelMode === 'timetap') {
+    // Time Tap: record the exact timestamp of the single tap
+    duelTapTime = Date.now() - duelTapStartTime;
+    duelTapActive = false;
+    const mainEl = document.getElementById('duel-live-main');
+    if (mainEl) {
+      mainEl.textContent = (duelTapTime / 1000).toFixed(2) + 's';
+      mainEl.style.color = '#fbbf24';
+    }
+    const titleEl = document.getElementById('duel-live-title');
+    if (titleEl) titleEl.textContent = '⏱️ TIME RECORDED!';
+    const tapBtn = document.getElementById('duel-tap-btn');
+    if (tapBtn) { tapBtn.disabled = true; tapBtn.style.opacity = '0.4'; }
+    haptic(20);
+    // Clear end timer and submit immediately
+    if (duelEndTimer) { clearInterval(duelEndTimer); duelEndTimer = null; }
+    if (duelCountdownInterval) { clearInterval(duelCountdownInterval); duelCountdownInterval = null; }
+    setTimeout(() => {
+      const subEl = document.getElementById('duel-live-sub');
+      if (subEl) subEl.textContent = 'Submitting score...';
+      submitTimeTapScore(duelTapTime);
+    }, 500);
+  } else {
+    // Fastest Tapper: count taps
+    duelTapCount++;
+    duelTapActive = false;
+    requestAnimationFrame(() => { if (duelTapCount >= 0) duelTapActive = true; });
+    const mainEl = document.getElementById('duel-live-main');
+    if (mainEl) mainEl.textContent = duelTapCount;
+    haptic(5);
+  }
 };
 
 let duelResultsUnsub = null; // live listener on duel/results for scoreboard
@@ -12419,8 +12686,6 @@ function renderDuelScoreboard(sorted) {
   const winner = sorted[0];
   document.getElementById('duel-score-winner').textContent =
     '🏆 ' + winner.name + ' wins with ' + winner.taps + ' taps!';
-  // Set winner immediately (host needs this for crown in lobby)
-  duelWinnerId = winner.id;
   const listEl = document.getElementById('duel-score-list');
   listEl.innerHTML = '';
   sorted.forEach((p, i) => {
@@ -12441,6 +12706,121 @@ function renderDuelScoreboard(sorted) {
 }
 
 // showDuelScoreboard removed — replaced by renderDuelScoreboard in submitDuelScore
+
+function submitTimeTapScore(tapTimeMs) {
+  const liveOverlay = document.getElementById('duel-live-overlay');
+  liveOverlay.classList.remove('show');
+
+  renderTimeTapScoreboard([{ id: myId, name: myName, tapMs: tapTimeMs }]);
+  document.getElementById('duel-continue-btn').style.display = isHost ? '' : 'none';
+  document.getElementById('duel-waiting-text').style.display = isHost ? 'none' : '';
+  document.getElementById('duel-score-overlay').classList.add('show');
+
+  if (db && roomCode && myId) {
+    update(ref(db), {
+      [`rooms/${roomCode}/duel/results/${myId}`]: tapTimeMs,
+      [`rooms/${roomCode}/duel/resultNames/${myId}`]: myName
+    }).catch(() => {});
+
+    const resultsRef2 = ref(db, `rooms/${roomCode}/duel/results`);
+    const namesRef2 = ref(db, `rooms/${roomCode}/duel/resultNames`);
+    Promise.all([get(resultsRef2), get(namesRef2)]).then(([rSnap, nSnap]) => {
+      const rData = rSnap.exists() ? rSnap.val() : {};
+      const nData = nSnap.exists() ? nSnap.val() : {};
+      rData[myId] = tapTimeMs;
+      nData[myId] = myName;
+      const sorted = Object.entries(rData)
+        .map(([id, ms]) => ({ id, name: nData[id] || 'Player', tapMs: ms }))
+        .sort((a, b) => Math.abs(a.tapMs - duelTargetTime * 1000) - Math.abs(b.tapMs - duelTargetTime * 1000));
+      if (sorted.length > 0) renderTimeTapScoreboard(sorted);
+    }).catch(() => {});
+
+    if (duelResultsUnsub) duelResultsUnsub();
+    const resultsRef = ref(db, `rooms/${roomCode}/duel/results`);
+    const namesRef = ref(db, `rooms/${roomCode}/duel/resultNames`);
+    let resultsData = {};
+    let namesData = {};
+
+    function updateScoreboard() {
+      const sorted = Object.entries(resultsData)
+        .map(([id, ms]) => ({ id, name: namesData[id] || 'Player', tapMs: ms }))
+        .sort((a, b) => Math.abs(a.tapMs - duelTargetTime * 1000) - Math.abs(b.tapMs - duelTargetTime * 1000));
+      if (sorted.length > 0) renderTimeTapScoreboard(sorted);
+
+      if (isHost) {
+        const activeCount = localPlayers.length;
+        if (Object.keys(resultsData).length >= activeCount) {
+          const winner = sorted[0];
+          duelWinnerId = winner.id;
+          update(ref(db), {
+            [`rooms/${roomCode}/duel/status`]: 'finished',
+            [`rooms/${roomCode}/duel/winnerId`]: winner.id,
+            [`rooms/${roomCode}/duel/winnerName`]: winner.name
+          }).catch(() => {});
+        }
+      }
+    }
+
+    const unsubR = onValue(resultsRef, snap => {
+      resultsData = snap.exists() ? snap.val() : {};
+      resultsData[myId] = tapTimeMs;
+      updateScoreboard();
+    });
+    const unsubN = onValue(namesRef, snap => {
+      namesData = snap.exists() ? snap.val() : {};
+      namesData[myId] = myName;
+      updateScoreboard();
+    });
+    duelResultsUnsub = () => { unsubR(); unsubN(); };
+  }
+}
+
+function renderTimeTapScoreboard(sorted) {
+  if (sorted.length === 0) return;
+  const targetMs = duelTargetTime * 1000;
+  const dqThreshold = (duelTargetTime + 4.5) * 1000;
+  const dqPlayers = sorted.filter(p => p.tapMs >= dqThreshold);
+  const realPlayers = sorted.filter(p => p.tapMs < dqThreshold);
+  const winner = realPlayers.length > 0 ? realPlayers[0] : sorted[0];
+  const winnerDQ = dqPlayers.length === sorted.length;
+  document.getElementById('duel-score-winner').textContent = winnerDQ
+    ? '🏆 No one tapped in time!'
+    : '🏆 ' + winner.name + ' wins! (' + (Math.abs(winner.tapMs - targetMs) / 1000).toFixed(2) + 's off)';
+  const listEl = document.getElementById('duel-score-list');
+  listEl.innerHTML = '';
+  const targetLabel = document.createElement('div');
+  targetLabel.style.cssText = 'text-align:center;font-size:0.75rem;color:var(--muted);margin-bottom:0.3rem;';
+  targetLabel.textContent = 'Target: ' + duelTargetTime + 's';
+  listEl.appendChild(targetLabel);
+  const displayList = realPlayers.concat(dqPlayers);
+  displayList.forEach((p, i) => {
+    const isDQ = p.tapMs >= dqThreshold;
+    const diff = p.tapMs - targetMs;
+    const absDiff = Math.abs(diff);
+    const sign = diff >= 0 ? '+' : '-';
+    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const row = document.createElement('div');
+    row.className = 'duel-scoreboard-row' + (i === 0 && !isDQ ? ' winner' : '');
+    if (isDQ) {
+      row.style.opacity = '0.5';
+      row.innerHTML = '<span class="duel-rank">' + (i + 1) + '</span>'
+        + '<span class="duel-score-name">' + esc(p.name) + '</span>'
+        + '<span style="font-size:0.75rem;color:#e74c3c;min-width:60px;text-align:right;">DQ</span>'
+        + '<span style="font-size:0.75rem;color:var(--muted);">No tap</span>';
+    } else {
+      row.innerHTML = '<span class="duel-rank ' + rankClass + '">' + (i + 1) + '</span>'
+        + '<span class="duel-score-name">' + esc(p.name) + '</span>'
+        + '<span style="font-size:0.8rem;color:var(--muted);min-width:60px;text-align:right;">' + sign + (absDiff / 1000).toFixed(2) + 's</span>'
+        + '<span class="duel-score-taps">' + (p.tapMs / 1000).toFixed(2) + 's</span>';
+    }
+    listEl.appendChild(row);
+  });
+  const continueBtn = document.getElementById('duel-continue-btn');
+  continueBtn.style.display = isHost ? '' : 'none';
+  continueBtn.disabled = true;
+  continueBtn.style.opacity = '0.4';
+  setTimeout(() => { continueBtn.disabled = false; continueBtn.style.opacity = '1'; }, 3000);
+}
 
 window.duelContinue = function() {
   closeDuelScore();
@@ -12487,22 +12867,17 @@ window.startNewGameSetup = async function() {
     setAvatarLabel(avLabel, savedAv);
   }
   if (turnMode) {
-    const tmClassic = document.getElementById('tm-btn-classic');
-    const tmSpeed = document.getElementById('tm-btn-speed');
-    if (turnMode === 'classic') {
-      if (tmClassic) tmClassic.classList.add('selected');
-      if (tmSpeed) tmSpeed.classList.remove('selected');
-    } else {
-      if (tmSpeed) tmSpeed.classList.add('selected');
-      if (tmClassic) tmClassic.classList.remove('selected');
+    if (turnMode === 'classic' && passDirection) {
+      const dirEl = document.getElementById('tm-inline-' + passDirection);
+      if (dirEl) dirEl.classList.add('selected');
     }
     const selTxt = document.getElementById('tm-summary');
-    const dirLabels = { cw: '↻ Left', both: '↔ Both', ccw: '↺ Right' };
+    const dirLabels = { cw: '↻ Left', both: '↔ Left & Right', ccw: '↺ Right' };
     if (selTxt) {
       if (turnMode === 'classic') {
-        selTxt.innerHTML = `♟️ Classic Turns — <span>${dirLabels[passDirection] || passDirection}</span>`;
+        selTxt.innerHTML = 'Turn Direction — <span>' + (dirLabels[passDirection] || passDirection) + '</span>';
       } else {
-        selTxt.innerHTML = `⚡ Speed Round — <span>${speedMode === 'firstToTap' ? 'First to Tap' : 'Down the Line'}</span>`;
+        selTxt.innerHTML = '⚡ Speed Round — <span>' + (speedMode === 'firstToTap' ? '1st To Tap' : 'Down The Line') + '</span> · ' + speedRoundsTotal + ' rounds';
       }
     }
     document.getElementById('tm-required-note').style.display = 'none';
