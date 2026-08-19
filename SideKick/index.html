@@ -4758,13 +4758,13 @@
 
     <div class="setup-step">
       <h3>Step 2 — Create a Realtime Database</h3>
-      <p>In the left sidebar, click <strong>Build → Realtime Database</strong>, then click <strong>Create Database</strong>.</p>
+      <p>In the left sidebar, click <strong>Build ▶ Realtime Database</strong>, then click <strong>Create Database</strong>.</p>
       <p>Choose any location (US is fine). When asked about security rules, choose <strong>Start in test mode</strong> (we'll keep it simple). Click <strong>Enable</strong>.</p>
     </div>
 
     <div class="setup-step">
       <h3>Step 3 — Get your config keys</h3>
-      <p>Click the gear icon ⚙️ next to <em>Project Overview</em> → <strong>Project settings</strong>. Scroll down to <em>Your apps</em> and click the <strong>&lt;/&gt;</strong> (web) icon. Register the app (any nickname), then copy the config shown. It looks like:</p>
+      <p>Click the gear icon ⚙️ next to <em>Project Overview</em> ▶ <strong>Project settings</strong>. Scroll down to <em>Your apps</em> and click the <strong>&lt;/&gt;</strong> (web) icon. Register the app (any nickname), then copy the config shown. It looks like:</p>
       <div class="code-block">const firebaseConfig = {
   apiKey: "AIzaSy...",
   authDomain: "yourproject.firebaseapp.com",
@@ -4831,16 +4831,23 @@
 <!-- ═══════════════════════════════════════════ -->
 <div id="screen-home" class="screen active" style="position:relative;">
   <button class="btn-secondary btn-sm" id="account-btn" style="position:fixed; top:14px; right:14px; width:auto; padding:0.5rem 1rem; font-size:0.85rem; background:transparent; border:1px solid var(--border); z-index:20;" onclick="openAccountOverlay()">Login</button>
+  <div id="lang-btn-wrap" style="position:fixed; top:14px; left:14px; z-index:20;">
+    <button id="lang-btn" onclick="toggleLangMenu()" style="width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:0.95rem;font-weight:800;letter-spacing:0.03em;color:var(--text);line-height:1;display:flex;align-items:center;justify-content:center;padding:0;" title="Change language">EN</button>
+    <div id="lang-menu" style="display:none;position:absolute;top:52px;left:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0.4rem;box-shadow:0 6px 20px rgba(0,0,0,0.25);flex-direction:column;gap:0.2rem;min-width:150px;">
+      <button onclick="setLang('en')" style="display:flex;align-items:center;gap:0.5rem;width:100%;padding:0.5rem 0.75rem;border:none;background:none;cursor:pointer;border-radius:8px;font-size:0.9rem;color:var(--text);text-align:left;"><span style="font-weight:800;color:var(--accent-light);width:1.6rem;display:inline-block;text-align:center;">EN</span> English</button>
+      <button onclick="setLang('es')" style="display:flex;align-items:center;gap:0.5rem;width:100%;padding:0.5rem 0.75rem;border:none;background:none;cursor:pointer;border-radius:8px;font-size:0.9rem;color:var(--text);text-align:left;"><span style="font-weight:800;color:var(--accent-light);width:1.6rem;display:inline-block;text-align:center;">ES</span> Español</button>
+    </div>
+  </div>
   <div class="screen-content-scaler" id="scaler-home">
   <div class="logo" style="display:flex;flex-direction:column;align-items:center;gap:0.1rem;line-height:1.1;">
     <span style="font-size:1.2rem;font-weight:600;letter-spacing:0.22em;text-transform;color:var(--muted);opacity:0.7;text-shadow:none;">iSideQuest's</span>
     <span style="font-size:4rem">SideKick</span>
   </div>
-  <div class="tagline">Pass the turn. Keep the vibe.</div>
+  <div class="tagline" data-i18n="tagline">Pass the turn. Keep the vibe.</div>
   <div class="card">
     <div class="btn-group">
-      <button class="btn-primary" onclick="showCreateRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999px;">Host Room</button>
-      <button class="btn-secondary" onclick="showJoinRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999px;">Join Room</button>
+      <button class="btn-primary" onclick="showCreateRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999px;" data-i18n="hostRoom">Host Room</button>
+      <button class="btn-secondary" onclick="showJoinRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999px;" data-i18n="joinRoom">Join Room</button>
     </div>
   </div>
   <p id="home-status" class="status"></p>
@@ -4848,15 +4855,15 @@
   <!-- Tools card (collapsible) -->
   <div class="card" style="margin-top:2.0rem; padding:0;">
     <button onclick="toggleTools()" id="tools-toggle-btn" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;width:100%;background:none;border:none;padding:1rem 1.2rem;cursor:pointer;transition:background 0.2s;border-radius:12px;">
-      <span style="font-size:1.1rem;color:var(--accent-light);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;">Tools</span>
+      <span style="font-size:1.1rem;color:var(--accent-light);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;" data-i18n="tools">Tools</span>
       <span id="tools-arrow" style="font-size:0.9rem;color:var(--muted);transition:transform 0.3s;">▸</span>
     </button>
     <div id="tools-body" style="max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s;opacity:0;padding:0 1.2rem;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;padding-bottom:1rem;">
-        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openTool('rng', true)">🎲 RNG</button>
-        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openTool('picker', true)">🎯 Teams</button>
-        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openSpeedRoundFromTool()">⚡ Speed Round</button>
-        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openTool('timers', true)">⏱️ Timers</button>
+        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openTool('rng', true)">🎲 <span data-i18n="rng">RNG</span></button>
+        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openTool('picker', true)">🎯 <span data-i18n="teams">Teams</span></button>
+        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openSpeedRoundFromTool()">⚡ <span data-i18n="speedRound">Speed Round</span></button>
+        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openTool('timers', true)">⏱️ <span data-i18n="timers">Timers</span></button>
       </div>
     </div>
   </div>
@@ -4901,32 +4908,32 @@
     <div id="create-cards-area" style="display:flex;flex-direction:column;width:100%;max-width:380px;margin:0 auto;padding:0 1rem;align-items:center;flex:1;min-height:0;" class="step-mode">
 
     <!-- Page header (moves to top on step 2+) -->
-    <div class="logo" id="create-logo" style="font-size:2rem;">Room Settings</div>
+    <div class="logo" id="create-logo" style="font-size:2rem;" data-i18n="roomSettings">Room Settings</div>
 
     <!-- Card 1: Enter Player Name & Color (Step 1) -->
     <div class="create-step revealed" data-step="1">
       <div class="card" style="padding-top: 1rem; padding-bottom: 1rem;">
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;">Step 1</div>
-        <input id="host-name" placeholder="Type Player Or Team Name" maxlength="20" style="margin-bottom: 0.75rem;">
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;"><span data-i18n="step">Step</span> 1</div>
+        <input id="host-name" placeholder="Type Player Or Team Name" maxlength="20" style="margin-bottom: 0.75rem;" data-i18n-ph="playerNamePh">
         <div style="display:flex;gap:2rem;justify-content:center;">
           <button class="color-picker-btn" onclick="openColorPicker('host')" id="host-color-btn">
-            <span id="host-color-label">Choose<br>Color</span>
+            <span id="host-color-label" data-i18n="chooseColor">Choose<br>Color</span>
           </button>
           <button class="color-picker-btn" onclick="openRoomAvatarOverlay()" id="host-avatar-btn">
-            <span id="host-avatar-label">Choose<br>Avatar</span>
+            <span id="host-avatar-label" data-i18n="chooseAvatar">Choose<br>Avatar</span>
           </button>
         </div>
-        <div id="color-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;">⚠️ Please choose a color.</div>
-        <div id="avatar-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;">⚠️ Please select an avatar.</div>
-        <button class="btn-primary" id="create-next-btn" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;">Confirm →</button>
+        <div id="color-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;" data-i18n="plsColor">⚠️ Please choose a color.</div>
+        <div id="avatar-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;" data-i18n="plsAvatar">⚠️ Please select an avatar.</div>
+        <button class="btn-primary" id="create-next-btn" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm ▶</button>
       </div>
       <button class="step-collapse-btn" onclick="expandCreateStep(1)">
-        <span class="step-collapse-label">Step 1:</span>
+        <span class="step-collapse-label"><span data-i18n="step">Step</span> 1:</span>
         <div class="step-collapse-main">
-          <span class="step-collapse-detail step-collapse-name" id="create-collapse-name">Player</span>
+          <span class="step-collapse-detail step-collapse-name" id="create-collapse-name" data-i18n="player">Player</span>
           <div class="step-collapse-row">
             <span class="step-collapse-swatch-inline" id="create-collapse-swatch-inline"></span>
-            <span class="step-collapse-detail" id="create-collapse-color-text">No color</span>
+            <span class="step-collapse-detail" id="create-collapse-color-text" data-i18n="noColor">No color</span>
             <span class="step-collapse-sep">|</span>
             <span class="step-collapse-detail" id="create-collapse-avatar-text">👤</span>
           </div>
@@ -4937,34 +4944,34 @@
     <!-- Card 2: Turn Mode (Step 2) -->
     <div class="create-step" data-step="2">
       <div class="card" style="padding-top:1rem; padding-bottom:1rem;">
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;">Step 2</div>
-        <div style="font-size:.9rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;">Choose the turn direction for your game</div>
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 2</div>
+        <div style="font-size:.9rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;" data-i18n="turnDirTitle">Choose the turn direction for your game</div>
         <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:stretch;">
           <div class="dir-row" style="justify-content:center;">
             <div class="dir-option" id="tm-inline-cw" onclick="selectInlineDir('cw')">
               <span class="dir-icon"><img src="img/svg/PassLeft.svg" alt="Left"></span>
-              <span class="dir-name">Left</span>
-              <span class="dir-desc">Clockwise</span>
+              <span class="dir-name" data-i18n="left">Left</span>
+              <span class="dir-desc" data-i18n="clockwise">Clockwise</span>
             </div>
             <div class="dir-option" id="tm-inline-ccw" onclick="selectInlineDir('ccw')">
               <span class="dir-icon"><img src="img/svg/PassRight.svg" alt="Right"></span>
-              <span class="dir-name">Right</span>
-              <span class="dir-desc">Counterclockwise</span>
+              <span class="dir-name" data-i18n="right">Right</span>
+              <span class="dir-desc" data-i18n="counterclockwise">Counterclockwise</span>
             </div>
           </div>
           <div class="dir-row" style="justify-content:center;">
             <div class="dir-option dir-option-wide" id="tm-inline-both" onclick="selectInlineDir('both')">
               <span class="dir-icon" style="display:flex;align-items:center;gap:0.3rem;"><img src="img/svg/LArrow.svg" alt="Left"><img src="img/svg/RArrow.svg" alt="Right"></span>
-              <span class="dir-name">Left & Right</span>
-              <span class="dir-desc">If game changes turn direction, use this option (games like UNO)</span>
+              <span class="dir-name" data-i18n="leftRight">Left & Right</span>
+              <span class="dir-desc" data-i18n="leftRightDesc">If game changes turn direction, use this option (games like UNO)</span>
             </div>
           </div>
         </div>
-        <div id="tm-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;">⚠️ Please choose a turn mode.</div>
-        <button class="btn-primary" id="create-next-btn-2" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;">Confirm →</button>
+        <div id="tm-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;" data-i18n="plsTurnMode">⚠️ Please choose a turn mode.</div>
+        <button class="btn-primary" id="create-next-btn-2" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm ▶</button>
       </div>
       <button class="step-collapse-btn" onclick="expandCreateStep(2)">
-        <span class="step-collapse-label">Step 2:</span>
+        <span class="step-collapse-label"><span data-i18n="step">Step</span> 2:</span>
         <span class="step-collapse-detail" id="create-collapse-mode">No mode</span>
       </button>
     </div>
@@ -4973,43 +4980,43 @@
     <div class="create-step" data-step="3">
       <div class="card" style="padding-top: 1rem; padding-bottom: 1rem; position:relative;">
         <button class="features-help-btn" onclick="openFeaturesHelpOverlay()" title="What are the game features?">?</button>
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;">Step 3</div>
-        <div style="font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;">Tap To Add Game Feature(s)</div>
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;"><span data-i18n="step">Step</span> 3</div>
+        <div style="font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;" data-i18n="tapToAdd">Tap To Add Game Feature(s)</div>
 
         <div class="feature-grid" id="features-available-grid">
           <div class="feature-card" data-feature="nudge" onclick="toggleFeature('nudge')">
-            <span class="fc-name">Nudge</span>
-            <span class="fc-settings">⚙ Settings</span>
+            <span class="fc-name" data-i18n="featNudge">Nudge</span>
+            <span class="fc-settings" data-i18n="settings">⚙ Settings</span>
           </div>
           <div class="feature-card" data-feature="awards" onclick="toggleFeature('awards')">
-            <span class="fc-name">Awards</span>
+            <span class="fc-name" data-i18n="featAwards">Awards</span>
           </div>
           <div class="feature-card" data-feature="timers" onclick="toggleFeature('timers')">
-            <span class="fc-name">Timers</span>
-            <span class="fc-settings">⚙ Settings</span>
+            <span class="fc-name" data-i18n="featTimers">Timers</span>
+            <span class="fc-settings" data-i18n="settings">⚙ Settings</span>
           </div>
           <div class="feature-card" data-feature="vp" onclick="toggleFeature('vp')">
-            <span class="fc-name">Victory Points</span>
+            <span class="fc-name" data-i18n="featVP">Victory Points</span>
           </div>
           <div class="feature-card" data-feature="status" onclick="toggleFeature('status')">
-            <span class="fc-name">Status Effects</span>
+            <span class="fc-name" data-i18n="featStatus">Status Effects</span>
           </div>
           <div class="feature-card" data-feature="rounds" onclick="toggleFeature('rounds')">
-            <span class="fc-name">Rounds</span>
-            <span class="fc-settings">⚙ Settings</span>
+            <span class="fc-name" data-i18n="featRounds">Rounds</span>
+            <span class="fc-settings" data-i18n="settings">⚙ Settings</span>
           </div>
           <div class="feature-card" data-feature="dnd" onclick="toggleFeature('dnd')">
-            <span class="fc-name">D&D</span>
+            <span class="fc-name" data-i18n="featDnD">D&D</span>
           </div>
           <div class="feature-card" data-feature="undo" onclick="toggleFeature('undo')">
-            <span class="fc-name">Undo Pass</span>
+            <span class="fc-name" data-i18n="featUndo">Undo Pass</span>
           </div>
         </div>
 
-        <button class="btn-primary" id="create-final-btn" onclick="onCreateFinalBtn()" style="width:100%;margin-top:0.75rem;">Create Room</button>
+        <button class="btn-primary" id="create-final-btn" onclick="onCreateFinalBtn()" style="width:100%;margin-top:0.75rem;" data-i18n="createRoom">Create Room</button>
       </div>
       <button class="step-collapse-btn" onclick="expandCreateStep(3)">
-        <span class="step-collapse-label">Step 3:</span>
+        <span class="step-collapse-label"><span data-i18n="step">Step</span> 3:</span>
         <span class="step-collapse-detail" id="create-collapse-features">All features off</span>
       </button>
     </div>
@@ -5019,7 +5026,7 @@
     <!-- Bottom buttons -->
     <div id="create-wizard-btns" style="width:100%;max-width:380px;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
       <p id="create-status" class="status"></p>
-      <button class="btn-secondary btn-sm" id="create-home-btn" onclick="goHome()" style="width:100%;">← Home</button>
+      <button class="btn-secondary btn-sm" id="create-home-btn" onclick="goHome()" style="width:100%;" data-i18n="home">◀ Home</button>
     </div>
 
   </div>
@@ -5035,25 +5042,25 @@
     <div id="join-cards-area" style="display:flex;flex-direction:column;width:100%;max-width:380px;margin:0 auto;padding:0 1rem;align-items:center;flex:1;min-height:0;" class="step-mode">
 
     <!-- Page header (moves to top on step 2+) -->
-    <div class="logo" id="join-logo" style="font-size:2rem;">Join Room</div>
+    <div class="logo" id="join-logo" style="font-size:2rem;" data-i18n="joinLobby">Join Room</div>
 
     <!-- Step 1: Player name & color -->
     <div class="join-step revealed" data-step="1">
       <div class="card">
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;">Step 1</div>
-        <input id="join-name" placeholder="Type Player Or Team Name" maxlength="20" style="margin-bottom:0.75rem;" oninput="updateJoinCollapseSummary()">
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;"><span data-i18n="step">Step</span> 1</div>
+        <input id="join-name" placeholder="Type Player Or Team Name" maxlength="20" style="margin-bottom:0.75rem;" oninput="updateJoinCollapseSummary()" data-i18n-ph="playerNamePh">
         <div style="display:flex;gap:2rem;justify-content:center;">
           <button class="color-picker-btn" onclick="openColorPicker('join')" id="join-color-btn">
-            <span id="join-color-label">Choose<br>Color</span>
+            <span id="join-color-label" data-i18n="chooseColor">Choose<br>Color</span>
           </button>
           <button class="color-picker-btn" onclick="openRoomAvatarOverlay()" id="join-avatar-btn">
-            <span id="join-avatar-label">Choose<br>Avatar</span>
+            <span id="join-avatar-label" data-i18n="chooseAvatar">Choose<br>Avatar</span>
           </button>
         </div>
-        <button class="btn-primary" id="join-next-btn" onclick="joinNextStep()" style="width:100%;margin-top:0.75rem;">Confirm →</button>
+        <button class="btn-primary" id="join-next-btn" onclick="joinNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm ▶</button>
       </div>
       <button class="step-collapse-btn" onclick="expandJoinStep(1)">
-        <span class="step-collapse-label">Step 1:</span>
+        <span class="step-collapse-label"><span data-i18n="step">Step</span> 1:</span>
         <div class="step-collapse-main">
           <span class="step-collapse-detail step-collapse-name" id="join-collapse-name">Player</span>
           <div class="step-collapse-row">
@@ -5069,25 +5076,25 @@
     <!-- Step 2: Room Code -->
     <div class="join-step" data-step="2">
       <div class="card">
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;">Step 2</div>
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;"><span data-i18n="step">Step</span> 2</div>
         <div style="display:flex;align-items:stretch;gap:0.5rem;margin-bottom:0.75rem;">
           <button class="turn-mode-btn" onclick="openQRScanner()" style="flex:1;min-width:0;padding:1.5rem 0.5rem;">
             <span class="tm-icon" style="font-size:1.8rem;">📷</span>
-            <span style="font-size:0.95rem;">Scan Room</span>
-            <span style="font-size:0.95rem;">QR Code</span>
+            <span style="font-size:0.95rem;" data-i18n="scanRoom">Scan Room</span>
+            <span style="font-size:0.95rem;" data-i18n="qrCode">QR Code</span>
           </button>
-          <span style="font-size:0.85rem;color:var(--muted);font-weight:700;align-self:center;flex-shrink:0;">Or</span>
+          <span style="font-size:0.85rem;color:var(--muted);font-weight:700;align-self:center;flex-shrink:0;" data-i18n="or">Or</span>
           <div class="turn-mode-btn" style="flex:1;min-width:0;cursor:default;padding:1.5rem 0.5rem;gap:0;">
             <div style="flex:1;display:flex;align-items:center;justify-content:center;">
-              <span style="font-size:1.05rem;font-weight:700;color:#fff;">Type Code</span>
+              <span style="font-size:1.05rem;font-weight:700;color:#fff;" data-i18n="typeCode">Type Code</span>
             </div>
             <input id="join-code" placeholder="----" maxlength="4" oninput="updateJoinCollapseSummary()" style="width:100%;background:transparent;border:none;color:var(--text);font-family:monospace;font-size:1.5rem;letter-spacing:0.4em;text-align:center;text-transform:uppercase;outline:none;padding:0;">
           </div>
         </div>
-        <button class="btn-primary" id="join-final-btn" onclick="joinRoom()" style="width:100%;">Join Room</button>
+        <button class="btn-primary" id="join-final-btn" onclick="joinRoom()" style="width:100%;" data-i18n="joinRoom">Join Room</button>
       </div>
       <button class="step-collapse-btn" onclick="expandJoinStep(2)">
-        <span class="step-collapse-label">Step 2:</span>
+        <span class="step-collapse-label"><span data-i18n="step">Step</span> 2:</span>
         <span class="step-collapse-detail" id="join-collapse-code">Enter Code</span>
         <span class="step-collapse-sep" style="margin-left:auto;"></span>
       </button>
@@ -5098,7 +5105,7 @@
     <!-- Wizard buttons (outside cards area, pinned to bottom) -->
     <div id="join-wizard-btns" style="width:100%;max-width:380px;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
       <p id="join-status" class="status"></p>
-      <button class="btn-secondary btn-sm" onclick="goHome()" style="width:100%;margin-top:0;">← Home</button>
+      <button class="btn-secondary btn-sm" onclick="goHome()" style="width:100%;margin-top:0;" data-i18n="home">◀ Home</button>
     </div>
 
   </div>
@@ -5155,7 +5162,7 @@
   <div class="screen-content-scaler" id="scaler-lobby" style="display:flex;flex-direction:column;height:100%;justify-content:center;">
 
     <!-- Page header -->
-    <div class="logo" style="font-size:2rem;letter-spacing:0.04em;margin-bottom:0.4rem;text-align:center;">Player Lobby</div>
+    <div class="logo" style="font-size:2rem;letter-spacing:0.04em;margin-bottom:0.4rem;text-align:center;" data-i18n="playerLobby">Player Lobby</div>
 
     <!-- Card 1: QR code + room code -->
     <div class="card" style="max-width:480px;margin-bottom:0.35rem;text-align:center; padding: 0.4rem 0.5rem 0.2rem;">
@@ -5170,7 +5177,7 @@
     <!-- Card 2: Player list with custom side scrollbars -->
     <div id="lobby-player-card" class="card" style="max-width:480px;margin-bottom:0; padding: 0.5rem 0.6rem 0.3rem; border-radius:10px 10px 0 0;">
       <div style="text-align:center;">
-        <span style="font-size:0.85rem;font-weight:700;color:var(--text);">Player List (Drag to Reorder)</span>
+        <span style="font-size:0.85rem;font-weight:700;color:var(--text);" data-i18n="playerListDrag">Player List (Drag to Reorder)</span>
       </div>
     </div>
     <div id="lobby-scroll-wrapper" style="max-width:480px;width:100%;flex:none;margin:0 auto;display:flex;align-items:stretch;max-height:65vh;">
@@ -5195,11 +5202,11 @@
           <input type="checkbox" id="random-first-player" onchange="onRandomFirstToggle(this.checked)">
           <span class="toggle-slider"></span>
         </label>
-        <span style="font-size:0.85rem;font-weight:600;color:var(--text);margin-top:0.3rem;">&#127922; Pick A Random First Player</span>
+        <span style="font-size:0.85rem;font-weight:600;color:var(--text);margin-top:0.3rem;" data-i18n="randomFirst">&#127922; Pick A Random First Player</span>
       </div>
-      <button class="btn-secondary btn-sm" onclick="openDuelSetup()" style="width:100%;margin-bottom:0.75rem;font-size:0.85rem;">Duel For 1st Player</button>
-      <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;margin-bottom:0.3rem;">Start Game &#9654;</button>
-      <button class="btn-secondary btn-sm" onclick="goBackToCreate()" style="width:100%;">&#8592; Back To Room Settings</button>
+      <button class="btn-secondary btn-sm" onclick="openDuelSetup()" style="width:100%;margin-bottom:0.75rem;font-size:0.85rem;" data-i18n="duel1st">Duel For 1st Player</button>
+      <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;margin-bottom:0.3rem;" data-i18n="startGame">Start Game &#9654;</button>
+      <button class="btn-secondary btn-sm" onclick="goBackToCreate()" style="width:100%;" data-i18n="backToRoomSet">&#8592; Back To Room Settings</button>
     </div>
 
   </div>
@@ -5211,12 +5218,12 @@
 <div id="screen-waiting-lobby" class="screen">
   <div class="screen-content-scaler" id="scaler-waiting-lobby">
   <div style="text-align:center;">
-    <div class="room-code-label" style="color:var(--muted);">Joined room</div>
+    <div class="room-code-label" style="color:var(--muted);" data-i18n="joinedRoom">Joined room</div>
     <div class="room-code" id="wl-code">----</div>
     <div class="spinner"></div>
-    <p style="color:var(--muted); font-size:0.9rem;">Waiting for host to start…</p>
+    <p style="color:var(--muted); font-size:0.9rem;" data-i18n="waitingHost">Waiting for host to start…</p>
     <div class="player-list" id="wl-player-list" style="margin-top:1.5rem; max-width:380px; margin-left:auto; margin-right:auto;"></div>
-    <button class="btn-secondary btn-sm" onclick="leaveRoom()" style="margin-top:1.5rem;">Leave</button>
+    <button class="btn-secondary btn-sm" onclick="leaveRoom()" style="margin-top:1.5rem;" data-i18n="leave">Leave</button>
   </div>
   </div>
 </div>
@@ -5256,7 +5263,7 @@
   </div>
   <button class="action-btn btn-left" onclick="passTurn('left')" id="btn-left">
     <div class="btn-label">Pass Left</div>
-    <div class="btn-arrow">←</div>
+    <div class="btn-arrow">◀</div>
     <div class="btn-player-name" id="left-player-name"></div>
   </button>
   <div class="active-divider" id="active-divider"></div>
@@ -5286,7 +5293,7 @@
   </div>
   <button class="action-btn btn-right" onclick="passTurn('right')" id="btn-right">
     <div class="btn-label">Pass Right</div>
-    <div class="btn-arrow">→</div>
+    <div class="btn-arrow">▶</div>
     <div class="btn-player-name" id="right-player-name"></div>
   </button>
   <!-- Single-tap pass button (shown for CW or CCW mode) -->
@@ -5595,13 +5602,13 @@
       </div>
     </div>
     <button class="vp-submit-btn" onclick="submitVP()" style="margin-top:0.75rem;">Submit Points</button>
-    <button id="vp-back-btn" onclick="confirmVPBack()" style="display:none;margin-top:0.5rem;width:100%;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;">← Back to Room</button>
+    <button id="vp-back-btn" onclick="confirmVPBack()" style="display:none;margin-top:0.5rem;width:100%;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;">◀ Back to Room</button>
   </div>
   <div id="vp-waiting-section" style="display:none; flex-direction:column; align-items:center; gap:0.75rem; width:100%;">
     <div class="vp-submitted-msg">✓ Score submitted! Waiting for others…</div>
     <div class="vp-waiting-list" id="vp-waiting-list"></div>
     <button class="vp-begin-btn" id="vp-begin-btn" onclick="beginAfterVP()">🏆 Begin Ceremony</button>
-    <button id="vp-back-btn-waiting" onclick="confirmVPBack()" style="display:none;margin-top:0.25rem;width:100%;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;">← Back to Room</button>
+    <button id="vp-back-btn-waiting" onclick="confirmVPBack()" style="display:none;margin-top:0.25rem;width:100%;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;">◀ Back to Room</button>
   </div>
 </div>
 
@@ -5865,32 +5872,32 @@
 <div class="tools-overlay" id="account-overlay">
   <div class="auth-modal">
     <div class="auth-close-x" onclick="closeAccountOverlay()">×</div>
-    <div class="auth-title" id="account-modal-title">Welcome Back</div>
-    <div class="auth-subtitle" id="account-modal-subtitle">Sign in to access your host account</div>
+    <div class="auth-title" id="account-modal-title" data-i18n="welcomeBack">Welcome Back</div>
+    <div class="auth-subtitle" id="account-modal-subtitle" data-i18n="welcomeSub">Sign in to access your host account</div>
 
     <div class="auth-tab-row">
-      <button class="auth-tab active" id="auth-tab-login" onclick="setAccountTab('login')">Log In</button>
-      <button class="auth-tab" id="auth-tab-signup" onclick="setAccountTab('signup')">Sign Up</button>
+      <button class="auth-tab active" id="auth-tab-login" onclick="setAccountTab('login')" data-i18n="logIn">Log In</button>
+      <button class="auth-tab" id="auth-tab-signup" onclick="setAccountTab('signup')" data-i18n="signUp">Sign Up</button>
     </div>
 
     <div id="account-form-step" style="width:100%;">
       <button type="button" class="auth-google-btn" id="google-signin-btn" onclick="continueWithGoogle()">
         <svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        Continue with Google
+        <span data-i18n="continueGoogle">Continue with Google</span>
       </button>
-      <div class="auth-or-divider"><span>or</span></div>
+      <div class="auth-or-divider"><span data-i18n="or">or</span></div>
       <div class="auth-input-group">
         <span class="auth-input-icon">✉️</span>
-        <input type="email" id="account-email" placeholder="Email address" autocomplete="email">
+        <input type="email" id="account-email" placeholder="Email address" autocomplete="email" data-i18n-ph="emailPh">
       </div>
       <div class="auth-input-group">
         <span class="auth-input-icon">🔒</span>
-        <input type="password" id="account-password" placeholder="Password" autocomplete="current-password">
+        <input type="password" id="account-password" placeholder="Password" autocomplete="current-password" data-i18n-ph="passwordPh">
       </div>
-      <button type="button" class="auth-forgot-link" id="auth-forgot-link" onclick="resetPassword()">Forgot password?</button>
-      <button class="auth-submit-btn" id="account-submit-btn" onclick="submitAccountForm()">Log In</button>
+      <button type="button" class="auth-forgot-link" id="auth-forgot-link" onclick="resetPassword()" data-i18n="forgotPass">Forgot password?</button>
+      <button class="auth-submit-btn" id="account-submit-btn" onclick="submitAccountForm()" data-i18n="logIn">Log In</button>
       <p id="account-status" class="status" style="text-align:center; margin-top:0.5rem;"></p>
-      <button type="button" class="auth-close-btn" onclick="closeAccountOverlay()">Close</button>
+      <button type="button" class="auth-close-btn" onclick="closeAccountOverlay()" data-i18n="close">Close</button>
     </div>
 
     <div id="account-signedin-step" style="display:none; width:100%;" class="auth-signedin-card">
@@ -5899,8 +5906,8 @@
         <svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
         Link Google account
       </button>
-      <button class="auth-submit-btn" style="width:100%;" onclick="closeAccountOverlay(); openProfileScreen();">👤 Go to Profile</button>
-      <button type="button" class="profile-signout-link" onclick="doSignOut()" style="width:100%; text-align:center;">Sign Out</button>
+      <button class="auth-submit-btn" style="width:100%;" onclick="closeAccountOverlay(); openProfileScreen();" data-i18n="goToProfile">👤 Go to Profile</button>
+      <button type="button" class="profile-signout-link" onclick="doSignOut()" style="width:100%; text-align:center;" data-i18n="signOut">Sign Out</button>
     </div>
   </div>
 </div>
@@ -5928,17 +5935,17 @@
       <div class="profile-stat-card">
         <div class="profile-stat-icon">🏠</div>
         <div class="profile-stat-value" id="profile-games-hosted">0</div>
-        <div class="profile-stat-label">Hosted</div>
+        <div class="profile-stat-label" data-i18n="hosted">Hosted</div>
       </div>
       <div class="profile-stat-card" onclick="openMyAwards()" style="cursor:pointer;">
         <div class="profile-stat-icon">🏆</div>
         <div class="profile-stat-value" id="profile-awards-count">0</div>
-        <div class="profile-stat-label">Awards</div>
+        <div class="profile-stat-label" data-i18n="awards">Awards</div>
       </div>
       <div class="profile-stat-card">
         <div class="profile-stat-icon">⏱️</div>
         <div class="profile-stat-value" id="profile-rooms-created">0</div>
-        <div class="profile-stat-label">Rooms</div>
+        <div class="profile-stat-label" data-i18n="rooms">Rooms</div>
       </div>
     </div>
 
@@ -5947,40 +5954,40 @@
       <div class="profile-menu-item" onclick="openEditProfileOverlay()">
         <div class="profile-menu-icon icon-saves">✏️</div>
         <div class="profile-menu-text">
-          <div class="profile-menu-title">Edit Profile</div>
-          <div class="profile-menu-desc">Change your avatar and preferred name</div>
+          <div class="profile-menu-title" data-i18n="editProfile">Edit Profile</div>
+          <div class="profile-menu-desc" data-i18n="editProfileDesc">Change your avatar and preferred name</div>
         </div>
         <div class="profile-menu-chevron">›</div>
       </div>
       <div class="profile-menu-item" onclick="openMyCollection()">
         <div class="profile-menu-icon icon-saves">🎲</div>
         <div class="profile-menu-text">
-          <div class="profile-menu-title">My Collection</div>
-          <div class="profile-menu-desc">Board games you own</div>
+          <div class="profile-menu-title" data-i18n="myCollection">My Collection</div>
+          <div class="profile-menu-desc" data-i18n="myCollectionDesc">Board games you own</div>
         </div>
         <div class="profile-menu-chevron">›</div>
       </div>
       <div class="profile-menu-item" onclick="openMySavedGames()">
         <div class="profile-menu-icon icon-saves">💾</div>
         <div class="profile-menu-text">
-          <div class="profile-menu-title">My Saved Games</div>
-          <div class="profile-menu-desc">View and resume your saved sessions</div>
+          <div class="profile-menu-title" data-i18n="mySavedGames">My Saved Games</div>
+          <div class="profile-menu-desc" data-i18n="mySavedGamesDesc">View and resume your saved sessions</div>
         </div>
         <div class="profile-menu-chevron">›</div>
       </div>
       <div class="profile-menu-item" onclick="openThemesOverlay()">
         <div class="profile-menu-icon icon-themes">🎨</div>
         <div class="profile-menu-text">
-          <div class="profile-menu-title">Themes</div>
-          <div class="profile-menu-desc">Customize your visual experience</div>
+          <div class="profile-menu-title" data-i18n="themes">Themes</div>
+          <div class="profile-menu-desc" data-i18n="themesDesc">Customize your visual experience</div>
         </div>
         <div class="profile-menu-chevron">›</div>
       </div>
       <div class="profile-menu-item" onclick="openAccountSettingsOverlay()">
         <div class="profile-menu-icon icon-settings">⚙️</div>
         <div class="profile-menu-text">
-          <div class="profile-menu-title">Account Settings</div>
-          <div class="profile-menu-desc">Manage your account details</div>
+          <div class="profile-menu-title" data-i18n="acctSettings">Account Settings</div>
+          <div class="profile-menu-desc" data-i18n="acctSettingsDesc">Manage your account details</div>
         </div>
         <div class="profile-menu-chevron">›</div>
       </div>
@@ -5988,8 +5995,8 @@
 
     <!-- Footer -->
     <div class="profile-footer" style="width:min(380px,92vw);">
-      <button class="btn-secondary btn-sm" style="width:100%;" onclick="backToHomeFromProfile()">Back to Home</button>
-      <button class="profile-signout-link" onclick="confirmSignOut()">Sign Out</button>
+      <button class="btn-secondary btn-sm" style="width:100%;" onclick="backToHomeFromProfile()" data-i18n="backToHome">Back to Home</button>
+      <button class="profile-signout-link" onclick="confirmSignOut()" data-i18n="signOut">Sign Out</button>
     </div>
 
   </div>
@@ -6026,7 +6033,7 @@
 
     <!-- Library: search + filter -->
     <div id="collection-library" style="display:none;">
-      <button class="btn-secondary btn-sm" style="margin-bottom:0.5rem;" onclick="showCollectionMenu()">← Back</button>
+      <button class="btn-secondary btn-sm" style="margin-bottom:0.5rem;" onclick="showCollectionMenu()">◀ Back</button>
       <div class="tools-modal-title" style="font-size:1.05rem;">📚 Library</div>
 
       <div id="collection-filters" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.6rem;">
@@ -6206,7 +6213,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="avatar-overlay" id="edit-profile-overlay">
   <div class="avatar-modal" style="gap:0.8rem;">
-    <div class="avatar-modal-title">Edit Profile</div>
+    <div class="avatar-modal-title" data-i18n="editProfile">Edit Profile</div>
     <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:-0.2rem;">Avatar</div>
     <div class="avatar-tabs" id="edit-profile-avatar-tabs"></div>
     <div class="avatar-grid" id="edit-profile-avatar-grid"></div>
@@ -6219,7 +6226,7 @@
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:0;">
         <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.35rem;">Preferred Color</div>
         <button class="color-picker-btn" id="edit-profile-color-btn" onclick="openEditProfileColorOverlay()" style="width:56px;height:56px;flex:0 0 56px;margin:0;padding:0.25rem;border-radius:12px;">
-          <span id="edit-profile-color-label" style="font-size:0.66rem;line-height:1.2;">Choose<br>Color</span>
+          <span id="edit-profile-color-label" style="font-size:0.66rem;line-height:1.2;" data-i18n="chooseColor">Choose<br>Color</span>
         </button>
       </div>
     </div>
@@ -6231,11 +6238,11 @@
 <!-- ACCOUNT SETTINGS OVERLAY -->
 <div class="tools-overlay" id="account-settings-overlay">
   <div class="tools-modal" style="max-width:340px;">
-    <div class="tools-modal-title">Account Settings</div>
-    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;">Email</div>
+    <div class="tools-modal-title" data-i18n="acctSettings">Account Settings</div>
+    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;" data-i18n="email">Email</div>
     <div id="acct-settings-email" style="font-size:0.95rem;color:var(--text);padding:0.6rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;margin-bottom:1rem;word-break:break-all;"></div>
-    <button class="btn-primary btn-sm" style="width:100%;" onclick="resetPassword(); showToast('Password reset email sent!');">Change Password</button>
-    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="document.getElementById('account-settings-overlay').classList.remove('show')">Close</button>
+    <button class="btn-primary btn-sm" style="width:100%;" onclick="resetPassword(); showToast('Password reset email sent!');" data-i18n="changePassword">Change Password</button>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="document.getElementById('account-settings-overlay').classList.remove('show')" data-i18n="close">Close</button>
   </div>
 </div>
 
@@ -6269,7 +6276,7 @@
         <div class="tutorial-icon">🏠</div>
         <div class="tutorial-title">Create a Room</div>
         <div class="tutorial-desc">Tap <strong>Create a Room</strong> and set up your name, color, and avatar. Pick a turn mode — <em>Turn Direction</em> passes left, right, or both ways. <em>Speed Round</em> lets players race to tap in.</div>
-        <div class="tutorial-visual">Step 1 → Step 2 → Step 3</div>
+        <div class="tutorial-visual">Step 1 ▶ Step 2 ▶ Step 3</div>
       </div>
       <!-- Slide 3 -->
       <div class="tutorial-slide">
@@ -6310,8 +6317,8 @@
     </div>
     <div class="tutorial-dots" id="tutorial-dots"></div>
     <div class="tutorial-nav">
-      <button class="btn-secondary btn-sm" id="tutorial-prev" onclick="tutorialPrev()" style="flex:1;">← Prev</button>
-      <button class="btn-primary btn-sm" id="tutorial-next" onclick="tutorialNext()" style="flex:1;">Next →</button>
+      <button class="btn-secondary btn-sm" id="tutorial-prev" onclick="tutorialPrev()" style="flex:1;">◀ Prev</button>
+      <button class="btn-primary btn-sm" id="tutorial-next" onclick="tutorialNext()" style="flex:1;">Next ▶</button>
     </div>
   </div>
 </div>
@@ -6344,7 +6351,7 @@
       </div>
     </div>
 
-    <button class="btn-primary" onclick="confirmClassicDir()" style="margin-top:0.25rem;">Confirm →</button>
+    <button class="btn-primary" onclick="confirmClassicDir()" style="margin-top:0.25rem;">Confirm ▶</button>
     <button class="btn-secondary btn-sm" onclick="closeClassicDirOverlay()" style="margin-top:0;">Cancel</button>
   </div>
 </div>
@@ -6386,7 +6393,7 @@
     <input type="hidden" id="speed-rounds-total" value="3">
 
     <div id="speed-mode-required" style="display:none;color:#e05555;font-size:0.75rem;text-align:center;">⚠ Choose a speed mode first.</div>
-    <button class="btn-primary" onclick="confirmSpeedMode()" style="margin-top:0.25rem;">Confirm →</button>
+    <button class="btn-primary" onclick="confirmSpeedMode()" style="margin-top:0.25rem;">Confirm ▶</button>
     <button class="btn-secondary btn-sm" onclick="closeSpeedModeOverlay()">Cancel</button>
   </div>
 </div>
@@ -6768,6 +6775,240 @@ let unsubscribers = [];
 let localPlayers = [];
 let myName = '';
 
+// ── I18N (LANGUAGE) ──────────────────────────
+const I18N_STRINGS = {
+  en: {
+    tagline: 'Pass the turn. Keep the vibe.',
+    hostRoom: 'Host Room',
+    joinRoom: 'Join Room',
+    tools: 'Tools',
+    rng: 'RNG',
+    teams: 'Teams',
+    speedRound: 'Speed Round',
+    timers: 'Timers',
+    login: 'Login',
+    roomSettings: 'Room Settings',
+    step: 'Step',
+    playerNamePh: 'Type Player Or Team Name',
+    chooseColor: 'Choose<br>Color',
+    chooseAvatar: 'Choose<br>Avatar',
+    chooseColor2: 'Choose Color',
+    chooseAvatar2: 'Choose Avatar',
+    plsColor: '⚠️ Please choose a color.',
+    plsAvatar: '⚠️ Please select an avatar.',
+    confirm: 'Confirm ▶',
+    player: 'Player',
+    noColor: 'No color',
+    turnDirTitle: 'Choose the turn direction for your game',
+    left: 'Left',
+    right: 'Right',
+    leftRight: 'Left & Right',
+    clockwise: 'Clockwise',
+    counterclockwise: 'Counterclockwise',
+    leftRightDesc: 'If game changes turn direction, use this option (games like UNO)',
+    plsTurnMode: '⚠️ Please choose a turn mode.',
+    noMode: 'No mode',
+    tapToAdd: 'Tap To Add Game Feature(s)',
+    featNudge: 'Nudge',
+    featAwards: 'Awards',
+    featTimers: 'Timers',
+    featVP: 'Victory Points',
+    featStatus: 'Status Effects',
+    featRounds: 'Rounds',
+    featDnD: 'D&D',
+    featUndo: 'Undo Pass',
+    settings: '⚙ Settings',
+    createRoom: 'Create Room',
+    allFeaturesOff: 'All features off',
+    home: '◀ Home',
+    joinLobby: 'Join Room',
+    scanRoom: 'Scan Room',
+    qrCode: 'QR Code',
+    or: 'Or',
+    typeCode: 'Type Code',
+    enterCode: 'Enter Code',
+    playerLobby: 'Player Lobby',
+    playerListDrag: 'Player List (Drag to Reorder)',
+    randomFirst: '🎲 Pick A Random First Player',
+    duel1st: 'Duel For 1st Player',
+    startGame: 'Start Game ▶',
+    backToRoomSet: '◀ Back To Room Settings',
+    joinedRoom: 'Joined room',
+    waitingHost: 'Waiting for host to start…',
+    leave: 'Leave',
+    hosted: 'Hosted',
+    awards: 'Awards',
+    rooms: 'Rooms',
+    editProfile: 'Edit Profile',
+    editProfileDesc: 'Change your avatar and preferred name',
+    myCollection: 'My Collection',
+    myCollectionDesc: 'Board games you own',
+    mySavedGames: 'My Saved Games',
+    mySavedGamesDesc: 'View and resume your saved sessions',
+    themes: 'Themes',
+    themesDesc: 'Customize your visual experience',
+    acctSettings: 'Account Settings',
+    acctSettingsDesc: 'Manage your account details',
+    backToHome: 'Back to Home',
+    signOut: 'Sign Out',
+    welcomeBack: 'Welcome Back',
+    welcomeSub: 'Sign in to access your host account',
+    createAccount: 'Create Account',
+    createAccountSub: 'Set up a host account to create rooms',
+    logIn: 'Log In',
+    signUp: 'Sign Up',
+    signUpFree: 'Sign Up Free',
+    continueGoogle: 'Continue with Google',
+    emailPh: 'Email address',
+    passwordPh: 'Password',
+    forgotPass: 'Forgot password?',
+    close: 'Close',
+    goToProfile: '👤 Go to Profile',
+    linkGoogle: 'Link Google account',
+    email: 'Email',
+    changePassword: 'Change Password',
+    play: 'Play',
+    buzz: 'Buzz'
+  },
+  es: {
+    tagline: 'Pasa el turno. Mantén la energía.',
+    hostRoom: 'Crear Sala',
+    joinRoom: 'Unirse a Sala',
+    tools: 'Herramientas',
+    rng: 'RNG',
+    teams: 'Equipos',
+    speedRound: 'Ronda Rápida',
+    timers: 'Temporizadores',
+    login: 'Iniciar Sesión',
+    roomSettings: 'Configuración de Sala',
+    step: 'Paso',
+    playerNamePh: 'Escribe el nombre del jugador o equipo',
+    chooseColor: 'Elegir<br>Color',
+    chooseAvatar: 'Elegir<br>Avatar',
+    chooseColor2: 'Elegir Color',
+    chooseAvatar2: 'Elegir Avatar',
+    plsColor: '⚠️ Por favor, elige un color.',
+    plsAvatar: '⚠️ Por favor, selecciona un avatar.',
+    confirm: 'Confirmar ▶',
+    player: 'Jugador',
+    noColor: 'Sin color',
+    turnDirTitle: 'Elige la dirección del turno para tu juego',
+    left: 'Izquierda',
+    right: 'Derecha',
+    leftRight: 'Izquierda y Derecha',
+    clockwise: 'En el sentido de las agujas del reloj',
+    counterclockwise: 'En sentido contrario',
+    leftRightDesc: 'Si el juego cambia de dirección de turno, usa esta opción (juegos como UNO)',
+    plsTurnMode: '⚠️ Por favor, elige un modo de turno.',
+    noMode: 'Sin modo',
+    tapToAdd: 'Toca para Añadir Función(es) del Juego',
+    featNudge: 'Empujón',
+    featAwards: 'Premios',
+    featTimers: 'Temporizadores',
+    featVP: 'Puntos de Victoria',
+    featStatus: 'Efectos de Estado',
+    featRounds: 'Rondas',
+    featDnD: 'D&D',
+    featUndo: 'Deshacer Pase',
+    settings: '⚙ Ajustes',
+    createRoom: 'Crear Sala',
+    allFeaturesOff: 'Todas las funciones desactivadas',
+    home: '◀ Inicio',
+    joinLobby: 'Unirse a Sala',
+    scanRoom: 'Escanear Sala',
+    qrCode: 'Código QR',
+    or: 'O',
+    typeCode: 'Escribe el Código',
+    enterCode: 'Ingresar Código',
+    playerLobby: 'Sala de Jugadores',
+    playerListDrag: 'Lista de Jugadores (Arrastra para Reordenar)',
+    randomFirst: '🎲 Elegir Primer Jugador al Azar',
+    duel1st: 'Duelo por el 1er Jugador',
+    startGame: 'Iniciar Juego ▶',
+    backToRoomSet: '◀ Volver a la Configuración de la Sala',
+    joinedRoom: 'Sala unida',
+    waitingHost: 'Esperando a que el anfitrión comience…',
+    leave: 'Salir',
+    hosted: 'Organizadas',
+    awards: 'Premios',
+    rooms: 'Salas',
+    editProfile: 'Editar Perfil',
+    editProfileDesc: 'Cambia tu avatar y nombre preferido',
+    myCollection: 'Mi Colección',
+    myCollectionDesc: 'Juegos de mesa que posees',
+    mySavedGames: 'Mis Juegos Guardados',
+    mySavedGamesDesc: 'Ver y retomar tus sesiones guardadas',
+    themes: 'Temas',
+    themesDesc: 'Personaliza tu experiencia visual',
+    acctSettings: 'Configuración de Cuenta',
+    acctSettingsDesc: 'Gestiona los detalles de tu cuenta',
+    backToHome: 'Volver al Inicio',
+    signOut: 'Cerrar Sesión',
+    welcomeBack: 'Bienvenido de Nuevo',
+    welcomeSub: 'Inicia sesión para acceder a tu cuenta de anfitrión',
+    createAccount: 'Crear Cuenta',
+    createAccountSub: 'Crea una cuenta de anfitrión para crear salas',
+    logIn: 'Iniciar Sesión',
+    signUp: 'Registrarse',
+    signUpFree: 'Regístrate Gratis',
+    continueGoogle: 'Continuar con Google',
+    emailPh: 'Dirección de correo',
+    passwordPh: 'Contraseña',
+    forgotPass: '¿Olvidaste tu contraseña?',
+    close: 'Cerrar',
+    goToProfile: '👤 Ir al Perfil',
+    linkGoogle: 'Vincular cuenta de Google',
+    email: 'Correo electrónico',
+    changePassword: 'Cambiar Contraseña',
+    play: 'Jugar',
+    buzz: 'Zumbido'
+  }
+};
+let lang = 'en';
+let loadedLang = null;
+function t(key) {
+  const dict = I18N_STRINGS[lang] || I18N_STRINGS.en;
+  return dict[key] !== undefined ? dict[key] : I18N_STRINGS.en[key] !== undefined ? I18N_STRINGS.en[key] : key;
+}
+function flagFor(l) { return l === 'es' ? 'ES' : 'EN'; }
+window.toggleLangMenu = function() {
+  const m = document.getElementById('lang-menu');
+  if (!m) return;
+  const show = m.style.display !== 'flex';
+  m.style.display = show ? 'flex' : 'none';
+};
+window.setLang = function(l) {
+  lang = l;
+  try { localStorage.setItem('sk_lang', l); } catch {}
+  const flag = document.getElementById('lang-btn');
+  if (flag) flag.textContent = flagFor(l);
+  const menu = document.getElementById('lang-menu');
+  if (menu) menu.style.display = 'none';
+  applyLang();
+};
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('lang-menu');
+  if (!menu || menu.style.display !== 'flex') return;
+  if (!e.target.closest('#lang-btn-wrap')) menu.style.display = 'none';
+});
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    el.textContent = val;
+    if (val.indexOf('<') !== -1) el.innerHTML = val;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    el.placeholder = t(key);
+  });
+  const acctBtn = document.getElementById('account-btn');
+  if (acctBtn && !acctBtn.dataset.i18nLocked) acctBtn.textContent = t('login');
+  if (typeof renderAccountMode === 'function') renderAccountMode();
+  if (typeof updateJoinCollapseSummary === 'function') updateJoinCollapseSummary();
+  if (typeof updateCreateCollapseSummary === 'function') updateCreateCollapseSummary();
+}
+
 // ── CREATOR / USER ROLE ──────────────────────────
 // Add your Firebase Auth UIDs here to grant Creator access.
 // Creator accounts see all features; User accounts see a stripped-down UI.
@@ -6837,9 +7078,9 @@ window.closeAccountOverlay = function() {
 
 function renderAccountMode() {
   const isLogin = accountMode === 'login';
-  document.getElementById('account-modal-title').textContent = isLogin ? 'Welcome Back' : 'Create Account';
-  document.getElementById('account-modal-subtitle').textContent = isLogin ? 'Sign in to access your host account' : 'Set up a host account to create rooms';
-  document.getElementById('account-submit-btn').textContent = isLogin ? 'Log In' : 'Sign Up Free';
+  document.getElementById('account-modal-title').textContent = isLogin ? t('welcomeBack') : t('createAccount');
+  document.getElementById('account-modal-subtitle').textContent = isLogin ? t('welcomeSub') : t('createAccountSub');
+  document.getElementById('account-submit-btn').textContent = isLogin ? t('logIn') : t('signUpFree');
   const forgotRow = document.getElementById('auth-forgot-link');
   if (forgotRow) forgotRow.style.display = isLogin ? '' : 'none';
   document.getElementById('auth-tab-login').classList.toggle('active', isLogin);
@@ -6850,6 +7091,13 @@ window.setAccountTab = function(tab) {
   status('account-status', '');
   renderAccountMode();
 };
+
+document.getElementById('account-email').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); submitAccountForm(); }
+});
+document.getElementById('account-password').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); submitAccountForm(); }
+});
 
 window.submitAccountForm = async function() {
   if (!auth) { status('account-status', 'Not connected to Firebase yet.', 'error'); return; }
@@ -6956,7 +7204,7 @@ function friendlyAuthError(err) {
   if (code.includes('weak-password')) return 'Password must be at least 6 characters.';
   if (code.includes('network-request-failed')) return 'Network error — check your connection and try again.';
   if (code.includes('popup-blocked')) return 'Popup was blocked — allow popups for this site, or use email instead.';
-  if (code.includes('unauthorized-domain')) return 'Google sign-in is not enabled for this domain yet. Enable it in Firebase console → Authentication → Sign-in method → Google → Authorized domains.';
+  if (code.includes('unauthorized-domain')) return 'Google sign-in is not enabled for this domain yet. Enable it in Firebase console ▶ Authentication ▶ Sign-in method ▶ Google ▶ Authorized domains.';
   return (err && err.message) ? err.message : 'Something went wrong. Please try again.';
 }
 
@@ -7521,7 +7769,7 @@ function setAvatarLabel(el, avatar) {
   if (!el) return;
   const btn = el.closest('.color-picker-btn');
   if (!avatar) {
-    el.textContent = 'Choose\nAvatar';
+    el.textContent = lang === 'es' ? 'Elegir\nAvatar' : 'Choose\nAvatar';
     if (btn) btn.classList.remove('avatar-filled');
     return;
   }
@@ -7582,7 +7830,7 @@ function updateAccountButtonUI() {
     btn.textContent = 'Hey ' + (name || initial) + '!';
     btn.onclick = () => openProfileScreen();
   } else {
-    btn.textContent = 'Login';
+    btn.textContent = t('login');
     btn.onclick = () => openAccountOverlay('login');
   }
 }
@@ -8312,6 +8560,15 @@ const hardcodedCfg = {
   projectId: "sidekick-tracker",
   appId: "1:84234153779:web:0afd3d49cff20f616b9846"
 };
+(function() {
+  try {
+    const saved = localStorage.getItem('sk_lang');
+    if (saved === 'es' || saved === 'en') lang = saved;
+  } catch {}
+  const flag = document.getElementById('lang-btn');
+  if (flag) flag.textContent = flagFor(lang);
+  applyLang();
+})();
 initFirebase(hardcodedCfg);
 
 function requireDb() {
@@ -8511,12 +8768,12 @@ let joinStep = 1;
 window.updateJoinCollapseSummary = function() {
   const name = document.getElementById('join-name')?.value.trim() || '';
   const avatar = roomAvatarSelection || getSavedAvatar() || '👤';
-  const colorName = myColor ? (PLAYER_COLORS.find(c => c.hex === myColor)?.name || 'Custom') : 'No color';
+  const colorName = myColor ? (PLAYER_COLORS.find(c => c.hex === myColor)?.name || 'Custom') : t('noColor');
   const collapseName = document.getElementById('join-collapse-name');
   const collapseColorText = document.getElementById('join-collapse-color-text');
   const collapseAvatarText = document.getElementById('join-collapse-avatar-text');
   const collapseSwatch = document.getElementById('join-collapse-swatch-inline');
-  if (collapseName) collapseName.textContent = name || 'Player';
+  if (collapseName) collapseName.textContent = name || t('player');
   if (collapseColorText) collapseColorText.textContent = colorName;
   if (collapseAvatarText) {
     collapseAvatarText.textContent = '';
@@ -8535,7 +8792,7 @@ window.updateJoinCollapseSummary = function() {
   }
   const code = document.getElementById('join-code')?.value.toUpperCase().trim() || '';
   const collapseCode = document.getElementById('join-collapse-code');
-  if (collapseCode) collapseCode.textContent = code || 'Enter Code';
+  if (collapseCode) collapseCode.textContent = code || t('enterCode');
 }
 
 function renderJoinStep() {
@@ -8603,12 +8860,12 @@ let startingNewGame = false;
 window.updateCreateCollapseSummary = function() {
   const name = document.getElementById('host-name')?.value.trim() || '';
   const avatar = roomAvatarSelection || getSavedAvatar() || '👤';
-  const colorName = myColor ? (PLAYER_COLORS.find(c => c.hex === myColor)?.name || 'Custom') : 'No color';
+  const colorName = myColor ? (PLAYER_COLORS.find(c => c.hex === myColor)?.name || 'Custom') : t('noColor');
   const collapseName = document.getElementById('create-collapse-name');
   const collapseColorText = document.getElementById('create-collapse-color-text');
   const collapseAvatarText = document.getElementById('create-collapse-avatar-text');
   const collapseSwatch = document.getElementById('create-collapse-swatch-inline');
-  if (collapseName) collapseName.textContent = name || 'Player';
+  if (collapseName) collapseName.textContent = name || t('player');
   if (collapseColorText) collapseColorText.textContent = colorName;
   if (collapseAvatarText) {
     collapseAvatarText.textContent = '';
@@ -8631,17 +8888,17 @@ window.updateCreateCollapseSummary = function() {
       const modeLabels = { firstToTap: '1st To Tap', downTheLine: 'Down The Line' };
       modeLabel.textContent = '⚡ ' + (modeLabels[speedMode] || speedMode) + ' · ' + speedRoundsTotal + ' rounds';
     } else if (turnMode === 'classic' && passDirection) {
-      const dirLabels = { cw: 'Left', both: 'Left & Right', ccw: 'Right' };
+      const dirLabels = { cw: t('left'), both: t('leftRight'), ccw: t('right') };
       modeLabel.textContent = 'Turn Direction · ' + (dirLabels[passDirection] || passDirection);
     } else {
-      modeLabel.textContent = 'No mode';
+      modeLabel.textContent = t('noMode');
     }
   }
   const featLabel = document.getElementById('create-collapse-features');
   if (featLabel) {
     const visibleDefs = FEATURE_DEFS_GRID.filter(f => !f.creatorOnly || isCreator);
     const enabled = visibleDefs.filter(f => isFeatureEnabled(f.key));
-    featLabel.textContent = enabled.length ? '⚙️ ' + enabled.length + ' feature' + (enabled.length > 1 ? 's' : '') : 'All features off';
+    featLabel.textContent = enabled.length ? '⚙️ ' + enabled.length + ' feature' + (enabled.length > 1 ? 's' : '') : t('allFeaturesOff');
   }
 }
 
@@ -8764,7 +9021,7 @@ function tutorialUpdateDots() {
   const prev = document.getElementById('tutorial-prev');
   const next = document.getElementById('tutorial-next');
   if (prev) prev.style.visibility = tutorialSlide === 0 ? 'hidden' : 'visible';
-  if (next) next.textContent = tutorialSlide === dots.length - 1 ? 'Done ✓' : 'Next →';
+  if (next) next.textContent = tutorialSlide === dots.length - 1 ? 'Done ✓' : 'Next ▶';
 }
 
 function tutorialGoTo(idx) {
@@ -9479,8 +9736,8 @@ window.onCreateFinalBtn = function() {
 function renderEditRoomButtons() {
   const finalBtn = document.getElementById('create-final-btn');
   if (finalBtn) {
-    if (startingNewGame) { finalBtn.textContent = 'Start Game →'; }
-    else if (editingRoom) { finalBtn.textContent = 'Back to Lobby →'; }
+    if (startingNewGame) { finalBtn.textContent = 'Start Game ▶'; }
+    else if (editingRoom) { finalBtn.textContent = 'Back to Lobby ▶'; }
     else { finalBtn.textContent = 'Create Room'; }
   }
 }
@@ -10183,11 +10440,11 @@ function renderFeatureGrid() {
       } else if (def.key === 'timers') {
         detail = '⚙ Settings';
       }
-      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + def.name + '</span></div><div class="fc-divider"></div><div class="fc-right" onclick="event.stopPropagation(); openFeatureSettings(\'' + def.settingKey + '\')"><span class="fc-edit-label">Edit</span><span class="fc-settings">' + detail + '</span></div>';
+      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + t('feat' + def.key[0].toUpperCase() + def.key.slice(1)) + '</span></div><div class="fc-divider"></div><div class="fc-right" onclick="event.stopPropagation(); openFeatureSettings(\'' + def.settingKey + '\')"><span class="fc-edit-label">Edit</span><span class="fc-settings">' + detail + '</span></div>';
     } else if (enabled) {
-      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + def.name + '</span></div>';
+      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + t('feat' + def.key[0].toUpperCase() + def.key.slice(1)) + '</span></div>';
     } else {
-      card.innerHTML = '<span class="fc-name">' + def.name + '</span>';
+      card.innerHTML = '<span class="fc-name">' + t('feat' + def.key[0].toUpperCase() + def.key.slice(1)) + '</span>';
     }
     avail.appendChild(card);
   });
@@ -10202,15 +10459,15 @@ function updateFeaturesSummary() {
   const el = document.getElementById('features-summary');
   if (!el) return;
   const active = [];
-  if (featureNudgeEnabled)         active.push('Nudge');
-  if (featureAwardsEnabled)        active.push('Awards');
-  if (featureTimersEnabled)        active.push('Timers');
-  if (featureVPEnabled)            active.push('VP');
-  if (featureStatusEffectsEnabled) active.push('Status');
-  if (featureDndEnabled)           active.push('D&D');
-  if (featureRoundsEnabled)        active.push('Rounds');
-  if (featureUndoEnabled)          active.push('Undo');
-  el.textContent = active.length ? active.join(' · ') : 'All features off';
+  if (featureNudgeEnabled)         active.push(t('featNudge'));
+  if (featureAwardsEnabled)        active.push(t('featAwards'));
+  if (featureTimersEnabled)        active.push(t('featTimers'));
+  if (featureVPEnabled)            active.push(t('featVP'));
+  if (featureStatusEffectsEnabled) active.push(t('featStatus'));
+  if (featureDndEnabled)           active.push(t('featDnD'));
+  if (featureRoundsEnabled)        active.push(t('featRounds'));
+  if (featureUndoEnabled)          active.push(t('featUndo'));
+  el.textContent = active.length ? active.join(' · ') : t('allFeaturesOff');
   // Also update the Step 3 grid if it exists
   if (document.getElementById('features-available-grid')) renderFeatureGrid();
 }
@@ -10484,7 +10741,7 @@ window.onCountdownToggle = function(checked) {
   document.getElementById('countdown-inputs').style.display = checked ? 'flex' : 'none';
 };
 
-// Format seconds → MM:SS
+// Format seconds ▶ MM:SS
 function fmtTime(s) {
   s = Math.max(0, Math.round(s));
   const m = Math.floor(s / 60);
@@ -14288,8 +14545,8 @@ function vpDialUpdateDisplay() {
   valueEl.style.color = vpDialValue > 0 ? '#4ade80' : vpDialValue < 0 ? '#e74c3c' : '#fff';
 
   // Rotate knob around the track
-  // Knob is 38px, top:-19px → knob center at outer circle top edge (y=0)
-  // Outer circle center at y=110 → transform-origin Y = 110 - (-19) = 129px
+  // Knob is 38px, top:-19px ▶ knob center at outer circle top edge (y=0)
+  // Outer circle center at y=110 ▶ transform-origin Y = 110 - (-19) = 129px
   const angle = vpDialValue * 7.2; // 7.2 degrees per point (50 per rotation)
   knob.style.transform = `translateX(-50%) rotate(${angle}deg)`;
   knob.style.transformOrigin = '50% 129px';
