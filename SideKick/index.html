@@ -93,7 +93,7 @@
   }
 
   /* ── LIGHT MODE ── */
-  body.light-mode {
+  body.light-mode:not(.in-game) {
     --bg: #f0f0f8;
     --surface: #ffffff;
     --border: #d0d0e0;
@@ -104,66 +104,67 @@
     --danger: #c0392b;
     --lobby-list-bg: #ffffff;
   }
-  body.light-mode input {
+  body.light-mode:not(.in-game) input {
     background: #f8f8ff;
     color: var(--text);
   }
-  body.light-mode .player-item,
-  body.light-mode .manage-player-item {
+  body.light-mode:not(.in-game) .player-item,
+  body.light-mode:not(.in-game) .manage-player-item {
     background: #f0f0fb;
   }
-  body.light-mode .player-item:hover {
+  body.light-mode:not(.in-game) .player-item:hover {
     background: #e4e4f4;
   }
-  body.light-mode .player-avatar,
-  body.light-mode .manage-player-avatar {
+  body.light-mode:not(.in-game) #manage-player-list .player-item {
+    background: #13131a;
+    border-color: #2a2a3a;
+  }
+  body.light-mode:not(.in-game) #manage-player-list .player-item:hover {
+    background: #1d1d28;
+  }
+  body.light-mode:not(.in-game) #manage-player-list .player-name {
+    color: #f0eeff;
+  }
+  body.light-mode:not(.in-game) #manage-player-list .player-avatar {
+    background: #2a2a3a;
+  }
+  body.light-mode:not(.in-game) .player-avatar,
+  body.light-mode:not(.in-game) .manage-player-avatar {
     background: #e0e0ee;
   }
-  body.light-mode #screen-waiting {
+  body.light-mode:not(.in-game) #screen-waiting {
     background: #f5f5ff;
   }
-  body.light-mode .manage-card,
-  body.light-mode .info-modal,
-  body.light-mode .feature-settings-modal,
-  body.light-mode .color-picker-modal {
+  body.light-mode:not(.in-game) .manage-card,
+  body.light-mode:not(.in-game) .info-modal,
+  body.light-mode:not(.in-game) .feature-settings-modal,
+  body.light-mode:not(.in-game) .color-picker-modal {
     background: #ffffff;
   }
-  body.light-mode .settings-inner {
+  body.light-mode:not(.in-game) .settings-inner {
     background: rgba(240,240,255,0.95);
     border-color: rgba(0,0,0,0.1);
   }
-  body.light-mode .host-game-menu-drawer {
-    background: #ffffff;
-  }
-  body.light-mode .timer-pill {
+  body.light-mode:not(.in-game) .timer-pill {
     background: rgba(255,255,255,0.8);
     border-color: rgba(0,0,0,0.15);
     color: rgba(0,0,0,0.7);
   }
-  body.light-mode .exit-btn,
-  body.light-mode .host-game-menu-btn,
-  body.light-mode .host-manage-btn {
-    background: rgba(255,255,255,0.75);
-    border-color: rgba(0,0,0,0.15);
-    color: rgba(0,0,0,0.5);
-  }
-  body.light-mode .settings-gear {
-    background: rgba(255,255,255,0.75);
-    border-color: rgba(0,0,0,0.15);
-    color: rgba(0,0,0,0.5);
-  }
-  body.light-mode .ctrl-btn {
+  body.light-mode:not(.in-game) .ctrl-btn {
     background: rgba(0,0,0,0.06);
     border-color: rgba(0,0,0,0.12);
     color: rgba(0,0,0,0.5);
   }
-  body.light-mode .ctrl-btn.active-ctrl {
+  body.light-mode:not(.in-game) .ctrl-btn.active-ctrl {
     background: rgba(124,92,191,0.25);
     color: var(--accent);
     border-color: rgba(124,92,191,0.4);
   }
-  body.light-mode .ctrl-label { color: rgba(0,0,0,0.4); }
-  body.light-mode .neo-status-text { color: var(--muted); }
+  body.light-mode:not(.in-game) .ctrl-label { color: rgba(0,0,0,0.4); }
+  body.light-mode:not(.in-game) .neo-status-text { color: var(--muted); }
+  body.light-mode:not(.in-game) .logo { text-shadow: none; }
+  body.light-mode:not(.in-game) .info-modal-title,
+  body.light-mode:not(.in-game) .feature-settings-modal-title { color: var(--accent-light); text-shadow: none; }
 
   html, body {
     position: fixed;
@@ -854,21 +855,21 @@
     transform: scale(1.1);
     box-shadow: 0 0 0 2px rgba(255,255,255,0.4);
   }
-  body.light-mode .color-swatch.selected {
+  body.light-mode:not(.in-game) .color-swatch.selected {
     border-color: #333;
     box-shadow: 0 0 0 2px rgba(0,0,0,0.25);
   }
-  body.light-mode .color-swatch {
+  body.light-mode:not(.in-game) .color-swatch {
     outline-color: rgba(0,0,0,0.4);
   }
-  body.light-mode .color-swatch.light-fill {
+  body.light-mode:not(.in-game) .color-swatch.light-fill {
     outline-color: rgba(0,0,0,0.55);
   }
-  body.light-mode .color-picker-btn.light-fill {
+  body.light-mode:not(.in-game) .color-picker-btn.light-fill {
     border-color: #000000 !important;
     box-shadow: 0 0 0 2px rgba(0,0,0,0.2);
   }
-  body.light-mode .step-collapse-swatch-inline.light-fill {
+  body.light-mode:not(.in-game) .step-collapse-swatch-inline.light-fill {
     border-color: #000000;
   }
   .color-picker-confirm {
@@ -1286,7 +1287,7 @@
     background: #1e1e2e; border: 1px solid var(--border); border-radius: 12px;
     padding: 0.75rem 1.5rem; margin: 0.5rem 0; color: var(--text);
   }
-  body.light-mode .saved-screen-code { background: #f0f0fb; }
+  body.light-mode:not(.in-game) .saved-screen-code { background: #f0f0fb; }
 
   /* ── PASS DIRECTION SELECTOR ── */
   .pass-dir-group {
@@ -1750,14 +1751,14 @@
     cursor: pointer; transition: border-color 0.15s, background 0.15s;
   }
   .tool-list-btn:hover { border-color: var(--accent); background: rgba(124,92,191,0.12); }
-  body.light-mode .tool-list-btn { background: #f0f0fb; }
+  body.light-mode:not(.in-game) .tool-list-btn { background: #f0f0fb; }
 
   /* ── SAVED GAME LIST ROW ── */
   .save-row {
     background: #1e1e2e; border: 1px solid var(--border); border-radius: 10px;
     padding: 0.65rem 0.75rem; display: flex; flex-direction: column; gap: 0.4rem;
   }
-  body.light-mode .save-row { background: #f0f0fb; }
+  body.light-mode:not(.in-game) .save-row { background: #f0f0fb; }
   .save-row-name { font-weight: 700; font-size: 0.9rem; color: var(--text); }
   .save-row-date { font-size: 0.72rem; color: var(--muted); }
   .save-row-actions { display: flex; gap: 0.4rem; margin-top: 0.2rem; }
@@ -1796,7 +1797,7 @@
     font-family: inherit; outline: none; margin-bottom: 0;
   }
   .picker-textarea:focus { border-color: var(--accent); }
-  body.light-mode .picker-textarea { background: #f0f0fb; }
+  body.light-mode:not(.in-game) .picker-textarea { background: #f0f0fb; }
   .picker-count-row { display: flex; align-items: center; gap: 0.5rem; }
   .picker-count-row input {
     margin-bottom: 0; text-align: center; flex: 1;
@@ -1810,7 +1811,7 @@
     border-radius: 999px; font-size: 0.88rem; font-weight: 600;
     background: #1e1e2e; border: 1.5px solid var(--border); color: var(--text);
   }
-  body.light-mode .picker-name-chip { background: #f0f0fb; }
+  body.light-mode:not(.in-game) .picker-name-chip { background: #f0f0fb; }
   .picker-name-chip.picked {
     background: var(--accent); border-color: var(--accent); color: #fff;
   }
@@ -1862,7 +1863,7 @@
   }
   .dice-btn:active { transform: scale(0.96); }
   .dice-btn:hover { border-color: var(--accent); background: rgba(124,92,191,0.12); }
-  body.light-mode .dice-btn { background: #f0f0fb; }
+  body.light-mode:not(.in-game) .dice-btn { background: #f0f0fb; }
   .rng-result {
     margin-top: 0.65rem;
     background: #1e1e2e;
@@ -1873,7 +1874,7 @@
     min-height: 60px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
   }
-  body.light-mode .rng-result { background: #f0f0fb; }
+  body.light-mode:not(.in-game) .rng-result { background: #f0f0fb; }
   .rng-result-value {
     font-size: 2.2rem; font-weight: 800; color: var(--accent-light);
     font-family: 'Courier New', monospace;
@@ -1921,7 +1922,7 @@
     text-align: center; background: #1e1e2e; border: 1px solid var(--border);
     border-radius: 12px; padding: 1rem 0.5rem; letter-spacing: 0.02em;
   }
-  body.light-mode .timer-display { background: #f0f0fb; }
+  body.light-mode:not(.in-game) .timer-display { background: #f0f0fb; }
   .timer-display.alarm { color: #ff5c5c; animation: timerPulse 0.6s ease-in-out infinite; }
   @keyframes timerPulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
   .timer-input-row { display: flex; align-items: center; gap: 0.4rem; }
@@ -1943,7 +1944,7 @@
     display: flex; justify-content: space-between; font-size: 0.8rem;
     padding: 0.35rem 0.6rem; background: #1e1e2e; border-radius: 8px; color: var(--text);
   }
-  body.light-mode .lap-row { background: #f0f0fb; }
+  body.light-mode:not(.in-game) .lap-row { background: #f0f0fb; }
   .lap-row .lap-num { color: var(--muted); }
 
   /* ── CALCULATOR TOOL OVERLAY ── */
@@ -2655,7 +2656,7 @@
   }
   .status-toggle-row:hover { border-color: var(--accent); }
   .status-toggle-row.active { border-color: #f97316; background: rgba(249,115,22,0.08); }
-  body.light-mode .status-toggle-row { background: #f0f0fb; }
+  body.light-mode:not(.in-game) .status-toggle-row { background: #f0f0fb; }
   .status-toggle-info { display: flex; align-items: center; gap: 0.6rem; flex: 1; min-width: 0; }
   .status-toggle-icon { font-size: 1.4rem; flex-shrink: 0; }
   .status-toggle-name { font-size: 0.9rem; font-weight: 700; color: var(--text); }
@@ -3809,25 +3810,25 @@
   .avatar-option:hover { transform:scale(1.1); }
   .avatar-option.selected { border-color:var(--accent-light); background:rgba(124,92,191,0.2); transform:scale(1.1); box-shadow:0 0 0 2px rgba(124,92,191,0.3); }
   .avatar-option img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:9px; }
-  body.light-mode .avatar-option { background:#f0f0fb; }
-  body.light-mode .avatar-option.selected { background:rgba(124,92,191,0.15); border-color:var(--accent); }
+  body.light-mode:not(.in-game) .avatar-option { background:#f0f0fb; }
+  body.light-mode:not(.in-game) .avatar-option.selected { background:rgba(124,92,191,0.15); border-color:var(--accent); }
 
   /* Profile + Auth light-mode overrides */
-  body.light-mode .profile-hero { background:linear-gradient(145deg, rgba(124,92,191,0.08) 0%, rgba(124,92,191,0.02) 100%); border-color:rgba(124,92,191,0.1); }
-  body.light-mode .profile-stat-card { background:#f0f0fb; border-color:#ddd; }
-  body.light-mode .profile-stat-card:hover { border-color:var(--accent); }
-  body.light-mode .profile-menu-item { background:#f0f0fb; border-color:#ddd; }
-  body.light-mode .profile-menu-item:hover { border-color:var(--accent); background:rgba(124,92,191,0.05); }
-  body.light-mode .auth-modal { background:#fff; border-color:#ddd; }
-  body.light-mode .auth-input-group input { background:#f0f0fb; border-color:#ddd; color:#333; }
-  body.light-mode .auth-input-group input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(124,92,191,0.15); }
-  body.light-mode .auth-signedin-email { background:rgba(124,92,191,0.06); border-color:rgba(124,92,191,0.15); }
-  body.light-mode .awards-history-item { background:rgba(0,0,0,0.03); border-color:#ddd; }
-  body.light-mode .awards-history-item:hover { border-color:var(--accent); }
+  body.light-mode:not(.in-game) .profile-hero { background:linear-gradient(145deg, rgba(124,92,191,0.08) 0%, rgba(124,92,191,0.02) 100%); border-color:rgba(124,92,191,0.1); }
+  body.light-mode:not(.in-game) .profile-stat-card { background:#f0f0fb; border-color:#ddd; }
+  body.light-mode:not(.in-game) .profile-stat-card:hover { border-color:var(--accent); }
+  body.light-mode:not(.in-game) .profile-menu-item { background:#f0f0fb; border-color:#ddd; }
+  body.light-mode:not(.in-game) .profile-menu-item:hover { border-color:var(--accent); background:rgba(124,92,191,0.05); }
+  body.light-mode:not(.in-game) .auth-modal { background:#fff; border-color:#ddd; }
+  body.light-mode:not(.in-game) .auth-input-group input { background:#f0f0fb; border-color:#ddd; color:#333; }
+  body.light-mode:not(.in-game) .auth-input-group input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(124,92,191,0.15); }
+  body.light-mode:not(.in-game) .auth-signedin-email { background:rgba(124,92,191,0.06); border-color:rgba(124,92,191,0.15); }
+  body.light-mode:not(.in-game) .awards-history-item { background:rgba(0,0,0,0.03); border-color:#ddd; }
+  body.light-mode:not(.in-game) .awards-history-item:hover { border-color:var(--accent); }
 
   .themes-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; width:100%; }
   .theme-option { display:flex; flex-direction:column; align-items:center; gap:0.4rem; padding:0.6rem 0.3rem; background:#1e1e2e; border:2px solid var(--border); border-radius:12px; cursor:pointer; transition:border-color 0.15s,background 0.15s,transform 0.15s; user-select:none; text-align:center; }
-  body.light-mode    .theme-option { background:#f0f0fb; }
+  body.light-mode:not(.in-game)    .theme-option { background:#f0f0fb; }
   body.theme-8bit    .theme-option { background:#1a0a1e !important; border:2px solid var(--border) !important; box-shadow:3px 3px 0 #000; border-radius:0 !important; }
   body.theme-cyberpunk .theme-option { background:rgba(0,8,20,0.6) !important; border:1px solid rgba(0,255,231,0.3) !important; border-radius:8px !important; }
   body.theme-fantasy .theme-option   { background:rgba(14,10,4,0.5) !important; border:1px solid rgba(139,105,20,0.5) !important; }
@@ -5691,7 +5692,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="info-overlay" id="features-help-overlay">
   <div class="info-modal" style="width:min(380px,95vw);max-height:90vh;overflow-y:auto;padding:1.5rem 1.25rem;">
-    <div style="font-size:1.1rem;font-weight:800;color:var(--text);text-align:center;margin-bottom:0.25rem;">Game Features</div>
+    <div style="font-size:1.1rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;">Game Features</div>
     <div style="font-size:0.75rem;color:var(--muted);text-align:center;margin-bottom:1rem;">Tap on a game feature to learn more</div>
     <div id="features-help-list" style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;"></div>
     <button class="info-modal-close" onclick="closeFeaturesHelpOverlay()" style="width:100%;margin-top:1.25rem;">Close</button>
@@ -8187,6 +8188,7 @@ function genCode() {
   return Array.from({length:4}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
 }
 function showScreen(id) {
+  document.body.classList.toggle('in-game', ['active','waiting','buzz'].includes(id));
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-'+id).classList.add('active');
   if (id !== 'join') requestAnimationFrame(rescaleCurrentScreen);
