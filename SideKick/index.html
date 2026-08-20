@@ -398,6 +398,8 @@
   button:disabled { opacity: 0.45; cursor: not-allowed; }
 
   .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; box-shadow: 0 4px 14px rgba(124,92,191,0.5), 0 2px 4px rgba(0,0,0,0.2); }
+  .play-tri { font-size: 0.66em; display: inline-block; }
+  .first-opt-btn.selected { border-color: var(--accent-light) !important; background: rgba(124,92,191,0.18) !important; color: var(--accent-light) !important; font-weight: 800; }
   .btn-primary:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(124,92,191,0.6), 0 3px 6px rgba(0,0,0,0.25); }
   .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
   .btn-danger { background: linear-gradient(135deg, var(--danger), #e74c3c); color: #fff; box-shadow: 0 2px 8px rgba(192,57,43,0.3); }
@@ -4291,7 +4293,7 @@
     animation: duelFlash 0.3s ease-in-out infinite alternate;
   }
   @keyframes duelFlash { from { opacity: 1; } to { opacity: 0.7; } }
-  #duel-tap-btn.nudge-btn { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%) !important; }
+  #duel-tap-btn.nudge-btn { position: absolute; top: auto; bottom: 50px; left: 50%; transform: translateX(-50%) !important; }
   #duel-tap-btn.nudge-btn:hover:not(:disabled) { transform: translateX(-50%) !important; }
   #duel-tap-btn.nudge-btn:active:not(:disabled) { transform: translateX(-50%) scale(0.95) !important; }
   .duel-tap-counter {
@@ -4758,13 +4760,13 @@
 
     <div class="setup-step">
       <h3>Step 2 — Create a Realtime Database</h3>
-      <p>In the left sidebar, click <strong>Build ▶ Realtime Database</strong>, then click <strong>Create Database</strong>.</p>
+      <p>In the left sidebar, click <strong>Build <span class="play-tri">▶</span> Realtime Database</strong>, then click <strong>Create Database</strong>.</p>
       <p>Choose any location (US is fine). When asked about security rules, choose <strong>Start in test mode</strong> (we'll keep it simple). Click <strong>Enable</strong>.</p>
     </div>
 
     <div class="setup-step">
       <h3>Step 3 — Get your config keys</h3>
-      <p>Click the gear icon ⚙️ next to <em>Project Overview</em> ▶ <strong>Project settings</strong>. Scroll down to <em>Your apps</em> and click the <strong>&lt;/&gt;</strong> (web) icon. Register the app (any nickname), then copy the config shown. It looks like:</p>
+      <p>Click the gear icon ⚙️ next to <em>Project Overview</em> <span class="play-tri">▶</span> <strong>Project settings</strong>. Scroll down to <em>Your apps</em> and click the <strong>&lt;/&gt;</strong> (web) icon. Register the app (any nickname), then copy the config shown. It looks like:</p>
       <div class="code-block">const firebaseConfig = {
   apiKey: "AIzaSy...",
   authDomain: "yourproject.firebaseapp.com",
@@ -4862,7 +4864,7 @@
   <div class="card" style="margin-top:2.0rem; padding:0;">
     <button onclick="toggleTools()" id="tools-toggle-btn" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;width:100%;background:none;border:none;padding:1rem 1.2rem;cursor:pointer;transition:background 0.2s;border-radius:12px;">
       <span style="font-size:1.1rem;color:var(--accent-light);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;" data-i18n="tools">Tools</span>
-      <span id="tools-arrow" style="font-size:0.9rem;color:var(--muted);transition:transform 0.3s;">▸</span>
+      <span id="tools-arrow" style="font-size:0.9rem;color:var(--muted);transition:transform 0.3s;"><span class="play-tri">▶</span></span>
     </button>
     <div id="tools-body" style="max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s;opacity:0;padding:0 1.2rem;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;padding-bottom:1rem;">
@@ -4931,7 +4933,7 @@
         </div>
         <div id="color-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;" data-i18n="plsColor">⚠️ Please choose a color.</div>
         <div id="avatar-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;" data-i18n="plsAvatar">⚠️ Please select an avatar.</div>
-        <button class="btn-primary" id="create-next-btn" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm ▶</button>
+        <button class="btn-primary" id="create-next-btn" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm <span class="play-tri">▶</span></button>
       </div>
       <button class="step-collapse-btn" onclick="expandCreateStep(1)">
         <span class="step-collapse-label"><span data-i18n="step">Step</span> 1:</span>
@@ -4974,7 +4976,7 @@
           </div>
         </div>
         <div id="tm-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;" data-i18n="plsTurnMode">⚠️ Please choose a turn mode.</div>
-        <button class="btn-primary" id="create-next-btn-2" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm ▶</button>
+        <button class="btn-primary" id="create-next-btn-2" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm <span class="play-tri">▶</span></button>
       </div>
       <button class="step-collapse-btn" onclick="expandCreateStep(2)">
         <span class="step-collapse-label"><span data-i18n="step">Step</span> 2:</span>
@@ -5032,7 +5034,7 @@
     <!-- Bottom buttons -->
     <div id="create-wizard-btns" style="width:100%;max-width:380px;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
       <p id="create-status" class="status"></p>
-      <button class="btn-secondary btn-sm" id="create-home-btn" onclick="goHome()" style="width:100%;" data-i18n="home">◀ Home</button>
+      <button class="btn-secondary btn-sm" id="create-home-btn" onclick="goHome()" style="width:100%;" data-i18n="home"><span class="play-tri">◀</span> Home</button>
     </div>
 
   </div>
@@ -5063,7 +5065,7 @@
             <span id="join-avatar-label" data-i18n="chooseAvatar">Choose<br>Avatar</span>
           </button>
         </div>
-        <button class="btn-primary" id="join-next-btn" onclick="joinNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm ▶</button>
+        <button class="btn-primary" id="join-next-btn" onclick="joinNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm <span class="play-tri">▶</span></button>
       </div>
       <button class="step-collapse-btn" onclick="expandJoinStep(1)">
         <span class="step-collapse-label"><span data-i18n="step">Step</span> 1:</span>
@@ -5111,7 +5113,7 @@
     <!-- Wizard buttons (outside cards area, pinned to bottom) -->
     <div id="join-wizard-btns" style="width:100%;max-width:380px;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
       <p id="join-status" class="status"></p>
-      <button class="btn-secondary btn-sm" onclick="goHome()" style="width:100%;margin-top:0;" data-i18n="home">◀ Home</button>
+      <button class="btn-secondary btn-sm" onclick="goHome()" style="width:100%;margin-top:0;" data-i18n="home"><span class="play-tri">◀</span> Home</button>
     </div>
 
   </div>
@@ -5203,14 +5205,14 @@
 
     <!-- Fixed bottom bar -->
     <div style="width:100%;max-width:480px;margin:0 auto;padding:0.3rem 0.5rem env(safe-area-inset-bottom, 0.3rem);flex-shrink:0;">
-      <div style="display:flex;align-items:center;justify-content:center;gap:0.6rem;margin-bottom:0.5rem;">
-        <label class="feature-toggle" style="flex-shrink:0;">
-          <input type="checkbox" id="random-first-player" onchange="onRandomFirstToggle(this.checked)">
-          <span class="toggle-slider"></span>
-        </label>
-        <span style="font-size:0.85rem;font-weight:600;color:var(--text);margin-top:0.3rem;" data-i18n="randomFirst">&#127922; Pick A Random First Player</span>
+      <div id="first-opt-card" class="card" style="max-width:480px;margin:0 auto 0.6rem;padding:0.6rem 0.7rem;border-radius:10px;background:var(--lobby-list-bg);">
+        <div style="text-align:center;font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;" data-i18n="chooseFirst">Choose Option For First Player</div>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-spot1" onclick="selectFirstPlayerOption('spot1')" style="flex:1;font-size:0.82rem;" data-i18n="spot1Opt">Spot 1</button>
+          <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-random" onclick="selectFirstPlayerOption('random')" style="flex:1;font-size:0.82rem;" data-i18n="randomOpt">Random</button>
+          <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-duel" onclick="selectFirstPlayerOption('duel')" style="flex:1;font-size:0.82rem;" data-i18n="duelOpt">Duel</button>
+        </div>
       </div>
-      <button class="btn-secondary btn-sm" onclick="openDuelSetup()" style="width:100%;margin-bottom:0.75rem;font-size:0.85rem;" data-i18n="duel1st">Duel For 1st Player</button>
       <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;margin-bottom:0.3rem;" data-i18n="startGame">Start Game &#9654;</button>
       <button class="btn-secondary btn-sm" onclick="goBackToCreate()" style="width:100%;" data-i18n="backToRoomSet">&#8592; Back To Room Settings</button>
     </div>
@@ -5269,7 +5271,7 @@
   </div>
   <button class="action-btn btn-left" onclick="passTurn('left')" id="btn-left">
     <div class="btn-label">Pass Left</div>
-    <div class="btn-arrow">◀</div>
+    <div class="btn-arrow"><span class="play-tri">◀</span></div>
     <div class="btn-player-name" id="left-player-name"></div>
   </button>
   <div class="active-divider" id="active-divider"></div>
@@ -5299,7 +5301,7 @@
   </div>
   <button class="action-btn btn-right" onclick="passTurn('right')" id="btn-right">
     <div class="btn-label">Pass Right</div>
-    <div class="btn-arrow">▶</div>
+    <div class="btn-arrow"><span class="play-tri">▶</span></div>
     <div class="btn-player-name" id="right-player-name"></div>
   </button>
   <!-- Single-tap pass button (shown for CW or CCW mode) -->
@@ -5608,13 +5610,13 @@
       </div>
     </div>
     <button class="vp-submit-btn" onclick="submitVP()" style="margin-top:0.75rem;">Submit Points</button>
-    <button id="vp-back-btn" onclick="confirmVPBack()" style="display:none;margin-top:0.5rem;width:100%;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;">◀ Back to Room</button>
+    <button id="vp-back-btn" onclick="confirmVPBack()" style="display:none;margin-top:0.5rem;width:100%;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;"><span class="play-tri">◀</span> Back to Room</button>
   </div>
   <div id="vp-waiting-section" style="display:none; flex-direction:column; align-items:center; gap:0.75rem; width:100%;">
     <div class="vp-submitted-msg">✓ Score submitted! Waiting for others…</div>
     <div class="vp-waiting-list" id="vp-waiting-list"></div>
     <button class="vp-begin-btn" id="vp-begin-btn" onclick="beginAfterVP()">🏆 Begin Ceremony</button>
-    <button id="vp-back-btn-waiting" onclick="confirmVPBack()" style="display:none;margin-top:0.25rem;width:100%;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;">◀ Back to Room</button>
+    <button id="vp-back-btn-waiting" onclick="confirmVPBack()" style="display:none;margin-top:0.25rem;width:100%;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;"><span class="play-tri">◀</span> Back to Room</button>
   </div>
 </div>
 
@@ -6039,7 +6041,7 @@
 
     <!-- Library: search + filter -->
     <div id="collection-library" style="display:none;">
-      <button class="btn-secondary btn-sm" style="margin-bottom:0.5rem;" onclick="showCollectionMenu()">◀ Back</button>
+      <button class="btn-secondary btn-sm" style="margin-bottom:0.5rem;" onclick="showCollectionMenu()"><span class="play-tri">◀</span> Back</button>
       <div class="tools-modal-title" style="font-size:1.05rem;">📚 Library</div>
 
       <div id="collection-filters" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.6rem;">
@@ -6282,7 +6284,7 @@
         <div class="tutorial-icon">🏠</div>
         <div class="tutorial-title">Create a Room</div>
         <div class="tutorial-desc">Tap <strong>Create a Room</strong> and set up your name, color, and avatar. Pick a turn mode — <em>Turn Direction</em> passes left, right, or both ways. <em>Speed Round</em> lets players race to tap in.</div>
-        <div class="tutorial-visual">Step 1 ▶ Step 2 ▶ Step 3</div>
+        <div class="tutorial-visual">Step 1 <span class="play-tri">▶</span> Step 2 <span class="play-tri">▶</span> Step 3</div>
       </div>
       <!-- Slide 3 -->
       <div class="tutorial-slide">
@@ -6323,8 +6325,8 @@
     </div>
     <div class="tutorial-dots" id="tutorial-dots"></div>
     <div class="tutorial-nav">
-      <button class="btn-secondary btn-sm" id="tutorial-prev" onclick="tutorialPrev()" style="flex:1;">◀ Prev</button>
-      <button class="btn-primary btn-sm" id="tutorial-next" onclick="tutorialNext()" style="flex:1;">Next ▶</button>
+      <button class="btn-secondary btn-sm" id="tutorial-prev" onclick="tutorialPrev()" style="flex:1;"><span class="play-tri">◀</span> Prev</button>
+      <button class="btn-primary btn-sm" id="tutorial-next" onclick="tutorialNext()" style="flex:1;">Next <span class="play-tri">▶</span></button>
     </div>
   </div>
 </div>
@@ -6357,7 +6359,7 @@
       </div>
     </div>
 
-    <button class="btn-primary" onclick="confirmClassicDir()" style="margin-top:0.25rem;">Confirm ▶</button>
+    <button class="btn-primary" onclick="confirmClassicDir()" style="margin-top:0.25rem;">Confirm <span class="play-tri">▶</span></button>
     <button class="btn-secondary btn-sm" onclick="closeClassicDirOverlay()" style="margin-top:0;">Cancel</button>
   </div>
 </div>
@@ -6399,7 +6401,7 @@
     <input type="hidden" id="speed-rounds-total" value="3">
 
     <div id="speed-mode-required" style="display:none;color:#e05555;font-size:0.75rem;text-align:center;">⚠ Choose a speed mode first.</div>
-    <button class="btn-primary" onclick="confirmSpeedMode()" style="margin-top:0.25rem;">Confirm ▶</button>
+    <button class="btn-primary" onclick="confirmSpeedMode()" style="margin-top:0.25rem;">Confirm <span class="play-tri">▶</span></button>
     <button class="btn-secondary btn-sm" onclick="closeSpeedModeOverlay()">Cancel</button>
   </div>
 </div>
@@ -6440,7 +6442,7 @@
     <div class="saved-screen-sub" id="saved-screen-name" style="font-weight:700; color:var(--text);">—</div>
     <div class="saved-screen-sub">This save is in your "My Saved Games" list on the home screen. The room code below stays the same — anyone can rejoin with it once you resume.</div>
     <div class="saved-screen-code" id="saved-screen-code">----</div>
-    <button class="btn-primary btn-sm" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem;" onclick="continueSavedGame()">Continue ▶</button>
+    <button class="btn-primary btn-sm" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem;" onclick="continueSavedGame()">Continue <span class="play-tri">▶</span></button>
     <button class="btn-secondary btn-sm" style="margin-top:0.5rem; width:auto; padding:0.6rem 1.5rem;" onclick="hostLeaveGame()">🏠 Back to Home</button>
   </div>
   <div id="saved-screen-player-view" style="display:none;">
@@ -6450,7 +6452,7 @@
     </div>
     <div id="saved-screen-player-action" style="display:none;">
       <div class="saved-screen-sub" id="saved-screen-player-action-text"></div>
-      <button class="btn-primary btn-sm" id="saved-screen-player-continue-btn" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem; display:none;" onclick="playerContinueGame()">Continue ▶</button>
+      <button class="btn-primary btn-sm" id="saved-screen-player-continue-btn" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem; display:none;" onclick="playerContinueGame()">Continue <span class="play-tri">▶</span></button>
       <button class="btn-secondary btn-sm" style="margin-top:0.5rem; width:auto; padding:0.6rem 1.5rem;" onclick="leaveSavedScreen()">🏠 Back to Home</button>
     </div>
   </div>
@@ -6534,7 +6536,7 @@
         <button class="timer-preset-btn" onclick="setCountdownPreset(10)">10 min</button>
       </div>
       <div class="timer-btn-row">
-        <button class="btn-primary btn-sm" id="cd-start-btn" onclick="startCountdown()">Start ▶</button>
+        <button class="btn-primary btn-sm" id="cd-start-btn" onclick="startCountdown()">Start <span class="play-tri">▶</span></button>
         <button class="btn-secondary btn-sm" onclick="resetCountdown()">↺ Reset</button>
       </div>
     </div>
@@ -6543,7 +6545,7 @@
     <div class="timer-pane" id="timer-pane-stopwatch">
       <div class="timer-display" id="sw-display">00:00.00</div>
       <div class="timer-btn-row">
-        <button class="btn-primary btn-sm" id="sw-start-btn" onclick="toggleStopwatch()">Start ▶</button>
+        <button class="btn-primary btn-sm" id="sw-start-btn" onclick="toggleStopwatch()">Start <span class="play-tri">▶</span></button>
         <button class="btn-secondary btn-sm" onclick="resetStopwatch()">↺ Reset</button>
       </div>
     </div>
@@ -6552,7 +6554,7 @@
     <div class="timer-pane" id="timer-pane-lap">
       <div class="timer-display" id="lap-display">00:00.00</div>
       <div class="timer-btn-row">
-        <button class="btn-primary btn-sm" id="lap-start-btn" onclick="toggleLapTimer()">Start ▶</button>
+        <button class="btn-primary btn-sm" id="lap-start-btn" onclick="toggleLapTimer()">Start <span class="play-tri">▶</span></button>
         <button class="btn-secondary btn-sm" onclick="recordLap()">🚩 Lap</button>
         <button class="btn-secondary btn-sm" onclick="resetLapTimer()">↺ Reset</button>
       </div>
@@ -6638,7 +6640,7 @@
     <div class="duel-modal-title">🏆 Duel Results</div>
     <div id="duel-score-winner" style="font-size:1.1rem;font-weight:800;color:#fbbf24;text-align:center;"></div>
     <div id="duel-score-list" style="display:flex;flex-direction:column;gap:0.4rem;width:100%;"></div>
-    <button class="btn-primary" style="width:100%;margin-top:0.4rem;" id="duel-continue-btn" onclick="duelContinue()">Continue ▶</button>
+    <button class="btn-primary" style="width:100%;margin-top:0.4rem;" id="duel-continue-btn" onclick="duelContinue()">Continue <span class="play-tri">▶</span></button>
     <div id="duel-waiting-text" style="display:none;font-size:0.8rem;color:var(--muted);text-align:center;margin-top:0.3rem;">Waiting for host to continue...</div>
   </div>
 </div>
@@ -6785,6 +6787,7 @@ let myName = '';
 const I18N_STRINGS = {
   en: {
     tagline: 'Pass the turn. Keep the vibe.',
+    hey: 'Hey',
     hostRoom: 'Host Room',
     joinRoom: 'Join Room',
     tools: 'Tools',
@@ -6802,7 +6805,7 @@ const I18N_STRINGS = {
     chooseAvatar2: 'Choose Avatar',
     plsColor: '⚠️ Please choose a color.',
     plsAvatar: '⚠️ Please select an avatar.',
-    confirm: 'Confirm ▶',
+    confirm: 'Confirm <span class="play-tri">▶</span>',
     player: 'Player',
     noColor: 'No color',
     turnDirTitle: 'Choose the turn direction for your game',
@@ -6826,7 +6829,7 @@ const I18N_STRINGS = {
     settings: '⚙ Settings',
     createRoom: 'Create Room',
     allFeaturesOff: 'All features off',
-    home: '◀ Home',
+    home: '<span class="play-tri">◀</span> Home',
     joinLobby: 'Join Room',
     scanRoom: 'Scan Room',
     qrCode: 'QR Code',
@@ -6837,8 +6840,12 @@ const I18N_STRINGS = {
     playerListDrag: 'Player List (Drag to Reorder)',
     randomFirst: '🎲 Pick A Random First Player',
     duel1st: 'Duel For 1st Player',
-    startGame: 'Start Game ▶',
-    backToRoomSet: '◀ Back To Room Settings',
+    startGame: 'Start Game <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> Back To Room Settings',
+    chooseFirst: 'Choose Option For First Player',
+    spot1Opt: 'Spot 1',
+    randomOpt: 'Random',
+    duelOpt: 'Duel',
     joinedRoom: 'Joined room',
     waitingHost: 'Waiting for host to start…',
     leave: 'Leave',
@@ -6878,6 +6885,7 @@ const I18N_STRINGS = {
   },
   es: {
     tagline: 'Pasa el turno. Mantén la energía.',
+    hey: 'Hola',
     hostRoom: 'Crear Sala',
     joinRoom: 'Unirse a Sala',
     tools: 'Herramientas',
@@ -6895,7 +6903,7 @@ const I18N_STRINGS = {
     chooseAvatar2: 'Elegir Avatar',
     plsColor: '⚠️ Por favor, elige un color.',
     plsAvatar: '⚠️ Por favor, selecciona un avatar.',
-    confirm: 'Confirmar ▶',
+    confirm: 'Confirmar <span class="play-tri">▶</span>',
     player: 'Jugador',
     noColor: 'Sin color',
     turnDirTitle: 'Elige la dirección del turno para tu juego',
@@ -6919,7 +6927,7 @@ const I18N_STRINGS = {
     settings: '⚙ Ajustes',
     createRoom: 'Crear Sala',
     allFeaturesOff: 'Todas las funciones desactivadas',
-    home: '◀ Inicio',
+    home: '<span class="play-tri">◀</span> Inicio',
     joinLobby: 'Unirse a Sala',
     scanRoom: 'Escanear Sala',
     qrCode: 'Código QR',
@@ -6930,8 +6938,12 @@ const I18N_STRINGS = {
     playerListDrag: 'Lista de Jugadores (Arrastra para Reordenar)',
     randomFirst: '🎲 Elegir Primer Jugador al Azar',
     duel1st: 'Duelo por el 1er Jugador',
-    startGame: 'Iniciar Juego ▶',
-    backToRoomSet: '◀ Volver a la Configuración de la Sala',
+    startGame: 'Iniciar Juego <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> Volver a la Configuración de la Sala',
+    chooseFirst: 'Elige Opción Para el Primer Jugador',
+    spot1Opt: 'Puesto 1',
+    randomOpt: 'Aleatorio',
+    duelOpt: 'Duelo',
     joinedRoom: 'Sala unida',
     waitingHost: 'Esperando a que el anfitrión comience…',
     leave: 'Salir',
@@ -6971,6 +6983,7 @@ const I18N_STRINGS = {
   },
   zh: {
     tagline: '传递回合。保持气氛。',
+    hey: '嗨',
     hostRoom: '创建房间',
     joinRoom: '加入房间',
     tools: '工具',
@@ -6988,7 +7001,7 @@ const I18N_STRINGS = {
     chooseAvatar2: '选择头像',
     plsColor: '⚠️ 请选择一种颜色。',
     plsAvatar: '⚠️ 请选择一个头像。',
-    confirm: '确认 ▶',
+    confirm: '确认 <span class="play-tri">▶</span>',
     player: '玩家',
     noColor: '无颜色',
     turnDirTitle: '为你的游戏选择回合方向',
@@ -7012,7 +7025,7 @@ const I18N_STRINGS = {
     settings: '⚙ 设置',
     createRoom: '创建房间',
     allFeaturesOff: '所有功能已关闭',
-    home: '◀ 主页',
+    home: '<span class="play-tri">◀</span> 主页',
     joinLobby: '加入房间',
     scanRoom: '扫描房间',
     qrCode: '二维码',
@@ -7023,8 +7036,12 @@ const I18N_STRINGS = {
     playerListDrag: '玩家列表（拖动重新排序）',
     randomFirst: '🎲 随机选择第一位玩家',
     duel1st: '争夺第一位玩家',
-    startGame: '开始游戏 ▶',
-    backToRoomSet: '◀ 返回房间设置',
+    startGame: '开始游戏 <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> 返回房间设置',
+    chooseFirst: '为第一位玩家选择选项',
+    spot1Opt: '位置 1',
+    randomOpt: '随机',
+    duelOpt: '决斗',
     joinedRoom: '已加入房间',
     waitingHost: '正在等待房主开始…',
     leave: '离开',
@@ -7064,6 +7081,7 @@ const I18N_STRINGS = {
   },
   de: {
     tagline: 'Gib den Zug weiter. Bleib in der Stimmung.',
+    hey: 'Hallo',
     hostRoom: 'Raum erstellen',
     joinRoom: 'Raum beitreten',
     tools: 'Werkzeuge',
@@ -7081,7 +7099,7 @@ const I18N_STRINGS = {
     chooseAvatar2: 'Avatar wählen',
     plsColor: '⚠️ Bitte wähle eine Farbe.',
     plsAvatar: '⚠️ Bitte wähle einen Avatar.',
-    confirm: 'Bestätigen ▶',
+    confirm: 'Bestätigen <span class="play-tri">▶</span>',
     player: 'Spieler',
     noColor: 'Keine Farbe',
     turnDirTitle: 'Wähle die Zugrichtung für dein Spiel',
@@ -7105,7 +7123,7 @@ const I18N_STRINGS = {
     settings: '⚙ Einstellungen',
     createRoom: 'Raum erstellen',
     allFeaturesOff: 'Alle Funktionen aus',
-    home: '◀ Start',
+    home: '<span class="play-tri">◀</span> Start',
     joinLobby: 'Raum beitreten',
     scanRoom: 'Raum scannen',
     qrCode: 'QR-Code',
@@ -7116,8 +7134,12 @@ const I18N_STRINGS = {
     playerListDrag: 'Spielerliste (Ziehen zum Sortieren)',
     randomFirst: '🎲 Zufälligen ersten Spieler wählen',
     duel1st: 'Duell um den 1. Spieler',
-    startGame: 'Spiel starten ▶',
-    backToRoomSet: '◀ Zurück zu den Raumeinstellungen',
+    startGame: 'Spiel starten <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> Zurück zu den Raumeinstellungen',
+    chooseFirst: 'Option für den ersten Spieler wählen',
+    spot1Opt: 'Platz 1',
+    randomOpt: 'Zufällig',
+    duelOpt: 'Duell',
     joinedRoom: 'Raum beigetreten',
     waitingHost: 'Warten auf den Gastgeber…',
     leave: 'Verlassen',
@@ -7157,6 +7179,7 @@ const I18N_STRINGS = {
   },
   fr: {
     tagline: 'Passez le tour. Gardez le rythme.',
+    hey: 'Salut',
     hostRoom: 'Créer une salle',
     joinRoom: 'Rejoindre une salle',
     tools: 'Outils',
@@ -7174,7 +7197,7 @@ const I18N_STRINGS = {
     chooseAvatar2: 'Choisir un avatar',
     plsColor: '⚠️ Veuillez choisir une couleur.',
     plsAvatar: '⚠️ Veuillez sélectionner un avatar.',
-    confirm: 'Confirmer ▶',
+    confirm: 'Confirmer <span class="play-tri">▶</span>',
     player: 'Joueur',
     noColor: 'Aucune couleur',
     turnDirTitle: 'Choisissez la direction du tour pour votre jeu',
@@ -7198,7 +7221,7 @@ const I18N_STRINGS = {
     settings: '⚙ Réglages',
     createRoom: 'Créer une salle',
     allFeaturesOff: 'Toutes les fonctions désactivées',
-    home: '◀ Accueil',
+    home: '<span class="play-tri">◀</span> Accueil',
     joinLobby: 'Rejoindre une salle',
     scanRoom: 'Scanner la salle',
     qrCode: 'Code QR',
@@ -7209,8 +7232,12 @@ const I18N_STRINGS = {
     playerListDrag: 'Liste des joueurs (glisser pour réorganiser)',
     randomFirst: '🎲 Choisir un premier joueur au hasard',
     duel1st: 'Duel pour le 1er joueur',
-    startGame: 'Démarrer le jeu ▶',
-    backToRoomSet: '◀ Retour aux paramètres de la salle',
+    startGame: 'Démarrer le jeu <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> Retour aux paramètres de la salle',
+    chooseFirst: 'Choisissez une option pour le premier joueur',
+    spot1Opt: 'Place 1',
+    randomOpt: 'Aléatoire',
+    duelOpt: 'Duel',
     joinedRoom: 'Salle rejointe',
     waitingHost: 'En attente de l\'hôte…',
     leave: 'Quitter',
@@ -7250,6 +7277,7 @@ const I18N_STRINGS = {
   },
   ja: {
     tagline: 'ターンを回そう。雰囲気を保とう。',
+    hey: 'こんにちは',
     hostRoom: 'ルームを作成',
     joinRoom: 'ルームに参加',
     tools: 'ツール',
@@ -7267,7 +7295,7 @@ const I18N_STRINGS = {
     chooseAvatar2: 'アバターを選択',
     plsColor: '⚠️ 色を選択してください。',
     plsAvatar: '⚠️ アバターを選択してください。',
-    confirm: '確認 ▶',
+    confirm: '確認 <span class="play-tri">▶</span>',
     player: 'プレイヤー',
     noColor: '色なし',
     turnDirTitle: 'ゲームのターンの向きを選択してください',
@@ -7291,7 +7319,7 @@ const I18N_STRINGS = {
     settings: '⚙ 設定',
     createRoom: 'ルームを作成',
     allFeaturesOff: 'すべての機能オフ',
-    home: '◀ ホーム',
+    home: '<span class="play-tri">◀</span> ホーム',
     joinLobby: 'ルームに参加',
     scanRoom: 'ルームをスキャン',
     qrCode: 'QRコード',
@@ -7302,8 +7330,12 @@ const I18N_STRINGS = {
     playerListDrag: 'プレイヤーリスト（ドラッグで並べ替え）',
     randomFirst: '🎲 最初のプレイヤーをランダムに選ぶ',
     duel1st: '最初のプレイヤーを決めるデュエル',
-    startGame: 'ゲーム開始 ▶',
-    backToRoomSet: '◀ ルーム設定に戻る',
+    startGame: 'ゲーム開始 <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> ルーム設定に戻る',
+    chooseFirst: '最初のプレイヤーのオプションを選択',
+    spot1Opt: 'スポット 1',
+    randomOpt: 'ランダム',
+    duelOpt: '決闘',
     joinedRoom: 'ルームに参加しました',
     waitingHost: 'ホストの開始を待っています…',
     leave: '退出',
@@ -7343,6 +7375,7 @@ const I18N_STRINGS = {
   },
   it: {
     tagline: 'Passa il turno. Mantieni l\'atmosfera.',
+    hey: 'Ciao',
     hostRoom: 'Crea Sala',
     joinRoom: 'Entra in Sala',
     tools: 'Strumenti',
@@ -7360,7 +7393,7 @@ const I18N_STRINGS = {
     chooseAvatar2: 'Scegli Avatar',
     plsColor: '⚠️ Per favore scegli un colore.',
     plsAvatar: '⚠️ Per favore seleziona un avatar.',
-    confirm: 'Conferma ▶',
+    confirm: 'Conferma <span class="play-tri">▶</span>',
     player: 'Giocatore',
     noColor: 'Nessun colore',
     turnDirTitle: 'Scegli la direzione del turno per il tuo gioco',
@@ -7384,7 +7417,7 @@ const I18N_STRINGS = {
     settings: '⚙ Impostazioni',
     createRoom: 'Crea Sala',
     allFeaturesOff: 'Tutte le funzionalità disattivate',
-    home: '◀ Home',
+    home: '<span class="play-tri">◀</span> Home',
     joinLobby: 'Entra in Sala',
     scanRoom: 'Scansiona Sala',
     qrCode: 'Codice QR',
@@ -7395,8 +7428,12 @@ const I18N_STRINGS = {
     playerListDrag: 'Elenco Giocatori (Trascina per Riordinare)',
     randomFirst: '🎲 Scegli un Primo Giocatore a Caso',
     duel1st: 'Duello per il 1° Giocatore',
-    startGame: 'Inizia Gioco ▶',
-    backToRoomSet: '◀ Torna alle Impostazioni della Sala',
+    startGame: 'Inizia Gioco <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> Torna alle Impostazioni della Sala',
+    chooseFirst: 'Scegli un\'opzione per il Primo Giocatore',
+    spot1Opt: 'Posto 1',
+    randomOpt: 'Casuale',
+    duelOpt: 'Duello',
     joinedRoom: 'Sala a cui ti sei unito',
     waitingHost: 'In attesa che l\'host inizi…',
     leave: 'Esci',
@@ -7436,6 +7473,7 @@ const I18N_STRINGS = {
   },
   pt: {
     tagline: 'Passe o turno. Mantenha a energia.',
+    hey: 'Olá',
     hostRoom: 'Criar Sala',
     joinRoom: 'Entrar na Sala',
     tools: 'Ferramentas',
@@ -7453,7 +7491,7 @@ const I18N_STRINGS = {
     chooseAvatar2: 'Escolher Avatar',
     plsColor: '⚠️ Por favor, escolha uma cor.',
     plsAvatar: '⚠️ Por favor, selecione um avatar.',
-    confirm: 'Confirmar ▶',
+    confirm: 'Confirmar <span class="play-tri">▶</span>',
     player: 'Jogador',
     noColor: 'Sem cor',
     turnDirTitle: 'Escolha a direção do turno para o seu jogo',
@@ -7477,7 +7515,7 @@ const I18N_STRINGS = {
     settings: '⚙ Configurações',
     createRoom: 'Criar Sala',
     allFeaturesOff: 'Todos os recursos desativados',
-    home: '◀ Início',
+    home: '<span class="play-tri">◀</span> Início',
     joinLobby: 'Entrar na Sala',
     scanRoom: 'Escanear Sala',
     qrCode: 'Código QR',
@@ -7488,8 +7526,12 @@ const I18N_STRINGS = {
     playerListDrag: 'Lista de Jogadores (Arraste para Reordenar)',
     randomFirst: '🎲 Escolher Primeiro Jogador Aleatório',
     duel1st: 'Duelo pelo 1º Jogador',
-    startGame: 'Iniciar Jogo ▶',
-    backToRoomSet: '◀ Voltar às Configurações da Sala',
+    startGame: 'Iniciar Jogo <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> Voltar às Configurações da Sala',
+    chooseFirst: 'Escolha uma opção para o Primeiro Jogador',
+    spot1Opt: 'Lugar 1',
+    randomOpt: 'Aleatório',
+    duelOpt: 'Duelo',
     joinedRoom: 'Sala ingressada',
     waitingHost: 'Aguardando o anfitrião começar…',
     leave: 'Sair',
@@ -7578,7 +7620,7 @@ function applyLang() {
     el.placeholder = t(key);
   });
   const acctBtn = document.getElementById('account-btn');
-  if (acctBtn && !acctBtn.dataset.i18nLocked) acctBtn.textContent = t('login');
+  if (acctBtn && !acctBtn.dataset.i18nLocked) updateAccountButtonUI();
   if (typeof renderAccountMode === 'function') renderAccountMode();
   if (typeof updateJoinCollapseSummary === 'function') updateJoinCollapseSummary();
   if (typeof updateCreateCollapseSummary === 'function') updateCreateCollapseSummary();
@@ -8403,7 +8445,7 @@ function updateAccountButtonUI() {
   if (currentUser) {
     const name = getSavedName();
     const initial = (currentUser.email || '?').charAt(0).toUpperCase();
-    btn.textContent = 'Hey ' + (name || initial) + '!';
+    btn.textContent = t('hey') + ' ' + (name || initial) + '!';
     btn.onclick = () => openProfileScreen();
   } else {
     btn.textContent = t('login');
@@ -9597,7 +9639,7 @@ function tutorialUpdateDots() {
   const prev = document.getElementById('tutorial-prev');
   const next = document.getElementById('tutorial-next');
   if (prev) prev.style.visibility = tutorialSlide === 0 ? 'hidden' : 'visible';
-  if (next) next.textContent = tutorialSlide === dots.length - 1 ? 'Done ✓' : 'Next ▶';
+  if (next) next.innerHTML = tutorialSlide === dots.length - 1 ? 'Done ✓' : 'Next <span class="play-tri">▶</span>';
 }
 
 function tutorialGoTo(idx) {
@@ -9768,7 +9810,7 @@ window.startCountdown = function() {
     clearInterval(toolCdInterval);
     toolCdInterval = null;
     cdRunning = false;
-    document.getElementById('cd-start-btn').textContent = 'Resume ▶';
+    document.getElementById('cd-start-btn').innerHTML = 'Resume <span class="play-tri">▶</span>';
     return;
   }
   let secondsLeft = cdRemainingAtPause;
@@ -9791,7 +9833,7 @@ window.startCountdown = function() {
       toolCdInterval = null;
       cdRunning = false;
       cdRemainingAtPause = 0;
-      document.getElementById('cd-start-btn').textContent = 'Start ▶';
+      document.getElementById('cd-start-btn').innerHTML = 'Start <span class="play-tri">▶</span>';
       document.getElementById('cd-display').classList.add('alarm');
       playBuzzerSound();
       return;
@@ -9808,7 +9850,7 @@ window.resetCountdown = function() {
   cdTargetTime = 0;
   document.getElementById('cd-display').textContent = '00:00.00';
   document.getElementById('cd-display').classList.remove('alarm');
-  document.getElementById('cd-start-btn').textContent = 'Start ▶';
+  document.getElementById('cd-start-btn').innerHTML = 'Start <span class="play-tri">▶</span>';
   document.getElementById('cd-input-row').style.display = 'flex';
 };
 
@@ -9824,7 +9866,7 @@ window.toggleStopwatch = function() {
     clearInterval(toolSwInterval);
     toolSwInterval = null;
     swRunning = false;
-    document.getElementById('sw-start-btn').textContent = 'Resume ▶';
+    document.getElementById('sw-start-btn').innerHTML = 'Resume <span class="play-tri">▶</span>';
     return;
   }
   swStartTime = Date.now();
@@ -9843,7 +9885,7 @@ window.resetStopwatch = function() {
   swAccumulated = 0;
   swStartTime = 0;
   document.getElementById('sw-display').textContent = '00:00.00';
-  document.getElementById('sw-start-btn').textContent = 'Start ▶';
+  document.getElementById('sw-start-btn').innerHTML = 'Start <span class="play-tri">▶</span>';
 };
 
 // ── Lap Timer ──
@@ -9864,7 +9906,7 @@ window.toggleLapTimer = function() {
     clearInterval(toolLapInterval);
     toolLapInterval = null;
     lapRunning = false;
-    document.getElementById('lap-start-btn').textContent = 'Resume ▶';
+    document.getElementById('lap-start-btn').innerHTML = 'Resume <span class="play-tri">▶</span>';
     return;
   }
   lapStartTime = Date.now();
@@ -9896,7 +9938,7 @@ window.resetLapTimer = function() {
   lapLastMark = 0;
   lapCount = 0;
   document.getElementById('lap-display').textContent = '00:00.00';
-  document.getElementById('lap-start-btn').textContent = 'Start ▶';
+  document.getElementById('lap-start-btn').innerHTML = 'Start <span class="play-tri">▶</span>';
   document.getElementById('lap-list').innerHTML = '';
 };
 
@@ -10234,6 +10276,7 @@ window.goBackToCreate = async function() {
   if (!roomCode) return;
   // Navigate back to create wizard in edit mode — room stays alive
   cleanupListeners();
+  resetFirstPlayerOption();
   editingRoom = true;
   const nameEl = document.getElementById('host-name');
   if (nameEl && myName) nameEl.value = myName;
@@ -10312,8 +10355,8 @@ window.onCreateFinalBtn = function() {
 function renderEditRoomButtons() {
   const finalBtn = document.getElementById('create-final-btn');
   if (finalBtn) {
-    if (startingNewGame) { finalBtn.textContent = 'Start Game ▶'; }
-    else if (editingRoom) { finalBtn.textContent = 'Back to Lobby ▶'; }
+    if (startingNewGame) { finalBtn.innerHTML = 'Start Game <span class="play-tri">▶</span>'; }
+    else if (editingRoom) { finalBtn.innerHTML = 'Back to Lobby <span class="play-tri">▶</span>'; }
     else { finalBtn.textContent = 'Create Room'; }
   }
 }
@@ -10991,6 +11034,8 @@ window.toggleFeature = function(key) {
 };
 
 function renderFeatureGrid() {
+  const map = { vp: 'featVP', dnd: 'featDnD' };
+  const featT = k => map[k] || ('feat' + k[0].toUpperCase() + k.slice(1));
   const avail = document.getElementById('features-available-grid');
   if (!avail) return;
   avail.innerHTML = '';
@@ -11016,11 +11061,11 @@ function renderFeatureGrid() {
       } else if (def.key === 'timers') {
         detail = '⚙ Settings';
       }
-      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + t('feat' + def.key[0].toUpperCase() + def.key.slice(1)) + '</span></div><div class="fc-divider"></div><div class="fc-right" onclick="event.stopPropagation(); openFeatureSettings(\'' + def.settingKey + '\')"><span class="fc-edit-label">Edit</span><span class="fc-settings">' + detail + '</span></div>';
+      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + t(featT(def.key)) + '</span></div><div class="fc-divider"></div><div class="fc-right" onclick="event.stopPropagation(); openFeatureSettings(\'' + def.settingKey + '\')"><span class="fc-edit-label">Edit</span><span class="fc-settings">' + detail + '</span></div>';
     } else if (enabled) {
-      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + t('feat' + def.key[0].toUpperCase() + def.key.slice(1)) + '</span></div>';
+      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + t(featT(def.key)) + '</span></div>';
     } else {
-      card.innerHTML = '<span class="fc-name">' + t('feat' + def.key[0].toUpperCase() + def.key.slice(1)) + '</span>';
+      card.innerHTML = '<span class="fc-name">' + t(featT(def.key)) + '</span>';
     }
     avail.appendChild(card);
   });
@@ -12896,8 +12941,7 @@ function listenLobby() {
     // If duel was removed (Continue clicked), keep duelWinnerId for crown
 
     renderLobbyList(localPlayers);
-    const count = localPlayers.length;
-    document.getElementById('start-btn').disabled = count < 2;
+    updateStartButton();
   });
   unsubscribers.push(() => unsub());
 }
@@ -12949,9 +12993,47 @@ function listenWaitingLobby() {
   unsubscribers.push(() => unsub());
 }
 
-// ── RANDOM FIRST PLAYER TOGGLE ──────────────────
-let randomFirstPlayer = false;
-window.onRandomFirstToggle = function(checked) { randomFirstPlayer = checked; };
+// ── FIRST PLAYER OPTION SELECTION ──────────────
+let firstPlayerOption = null; // 'spot1' | 'random' | 'duel'
+window.selectFirstPlayerOption = function(opt) {
+  firstPlayerOption = opt;
+  ['spot1', 'random', 'duel'].forEach(o => {
+    const b = document.getElementById('first-opt-' + o);
+    if (b) b.classList.toggle('selected', o === opt);
+  });
+  if (opt === 'duel') openDuelSetup();
+  updateStartButton();
+  renderLobbyList(localPlayers);
+};
+
+function updateStartButton() {
+  const btn = document.getElementById('start-btn');
+  if (!btn) return;
+  const count = localPlayers.length;
+  let allowed = count >= 2;
+  if (allowed) {
+    if (firstPlayerOption === 'spot1' || firstPlayerOption === 'random') {
+      allowed = true;
+    } else if (firstPlayerOption === 'duel') {
+      allowed = !!duelWinnerId;
+    } else {
+      allowed = false;
+    }
+  }
+  btn.disabled = !allowed;
+}
+
+function resetFirstPlayerOption() {
+  firstPlayerOption = null;
+  duelWinnerId = null;
+  ['spot1', 'random', 'duel'].forEach(o => {
+    const b = document.getElementById('first-opt-' + o);
+    if (b) b.classList.remove('selected');
+  });
+  updateStartButton();
+  const btn = document.getElementById('start-btn');
+  if (btn) btn.disabled = true;
+}
 
 // ── START GAME ──────────────────────────────
 window.startGame = async function() {
@@ -12963,13 +13045,13 @@ window.startGame = async function() {
   const players = roomData.players || {};
   localPlayers = buildOrderedPlayers(players);
 
-  const firstIdx = randomFirstPlayer
+  const firstIdx = firstPlayerOption === 'random'
     ? Math.floor(Math.random() * localPlayers.length)
     : 0;
 
-  // If there was a duel winner, use their index instead
+  // If Duel was chosen and there's a duel winner, use their index instead
   let actualFirstIdx = firstIdx;
-  if (duelWinnerId) {
+  if (firstPlayerOption === 'duel' && duelWinnerId) {
     const winnerIdx = localPlayers.findIndex(p => p.id === duelWinnerId);
     if (winnerIdx >= 0) actualFirstIdx = winnerIdx;
   }
@@ -13095,6 +13177,7 @@ let duelMode = 'fastest';
 let duelTargetTime = 10;
 let duelTapStartTime = 0;
 let duelTapTime = 0;
+let duelHostStartedActive = false;
 
 window.selectDuelMode = function(mode) {
   duelMode = mode;
@@ -13126,12 +13209,14 @@ window.startDuelFromSetup = async function() {
   closeDuelSetup();
   duelWinnerId = null;
   duelStateVersion = 0;
+  duelHostStartedActive = false;
 
   const now = Date.now();
   const duelData = {
     status: 'countdown',
     mode: duelMode,
     duration: duration,
+    startTime: now + 4500,
     countdownEnd: now + 3000,
     createdAt: now
   };
@@ -13187,15 +13272,18 @@ function handleDuelState(d) {
     // Clear any prior timers
     if (duelCountdownInterval) clearInterval(duelCountdownInterval);
 
-    // Always start countdown display from 3, synced via local timing
-    let countdownLocalLeft = 3;
-    mainEl.textContent = countdownLocalLeft;
-    haptic(10);
-    duelCountdownInterval = setInterval(() => {
-      countdownLocalLeft--;
-      if (countdownLocalLeft > 0) {
-        mainEl.textContent = countdownLocalLeft;
-        haptic(10);
+    // Count down to the shared absolute startTime so every device hits GO at the same instant
+    const goTime = d.startTime || (Date.now() + 4500);
+    let lastShownSecs = -1;
+    const renderCountdown = () => {
+      const remain = goTime - Date.now();
+      if (remain > 0) {
+        const secsLeft = Math.max(1, Math.min(3, Math.ceil(remain / 1000)));
+        if (secsLeft !== lastShownSecs) {
+          lastShownSecs = secsLeft;
+          mainEl.textContent = secsLeft;
+          haptic(10);
+        }
       } else {
         clearInterval(duelCountdownInterval);
         duelCountdownInterval = null;
@@ -13206,25 +13294,27 @@ function handleDuelState(d) {
         titleEl.style.fontSize = '0';
         subEl.textContent = '';
         haptic(50);
-        // Host transitions to active phase after brief flash
-        if (isHost) {
+        // Host transitions to active phase immediately at GO (startTime preserved, so all devices measure from the same instant)
+        if (isHost && !duelHostStartedActive) {
+          duelHostStartedActive = true;
           setTimeout(async () => {
             if (!db || !roomCode) return;
-            const activeStart = Date.now() + 1500;
             await update(ref(db), {
-              [`rooms/${roomCode}/duel/status`]: 'active',
-              [`rooms/${roomCode}/duel/startTime`]: activeStart
+              [`rooms/${roomCode}/duel/status`]: 'active'
             });
-          }, 800);
+          }, 100);
         }
       }
-    }, 1000);
+    };
+    renderCountdown();
+    duelCountdownInterval = setInterval(renderCountdown, 100);
 
   } else if (d.status === 'active') {
     if (duelStateVersion === stateKey) return;
     duelStateVersion = stateKey;
     if (duelCountdownInterval) { clearInterval(duelCountdownInterval); duelCountdownInterval = null; }
     const activeMode = d.mode || 'fastest';
+    duelMode = activeMode;
     duelTapCount = 0;
     duelTapActive = true;
     tapBtn.style.display = 'block';
@@ -14321,7 +14411,7 @@ function renderSaveRow(listEl, code, save) {
     <div class="save-row-name">${escapeHtml(save.name || 'Untitled Save')}</div>
     <div class="save-row-date">${escapeHtml(dateStr)} · code ${escapeHtml(code)}</div>
     <div class="save-row-actions">
-      <button data-act="resume">Resume ▶</button>
+      <button data-act="resume">Resume <span class="play-tri">▶</span></button>
       <button data-act="rename">✎ Rename</button>
       <button data-act="delete" class="danger">🗑 Delete</button>
     </div>
@@ -14723,6 +14813,7 @@ window.leaveRoom = async function() {
   releaseWakeLock();
   resetOrientation();
   cleanupListeners();
+  resetFirstPlayerOption();
   clearNudgeTimer();
   stopTimerTick();
   lastActivePlayerId = null;
@@ -14737,6 +14828,7 @@ window.closeRoom = async function() {
   releaseWakeLock();
   resetOrientation();
   cleanupListeners();
+  resetFirstPlayerOption();
   clearNudgeTimer();
   lastActivePlayerId = null;
   await remove(ref(db, `rooms/${roomCode}`));
@@ -14760,7 +14852,9 @@ function renderLobbyList(players) {
     const dotColor = p.color || 'var(--accent)';
     const dotText  = p.color && isLightColor(p.color) ? '#000' : '#fff';
     const avatarDotStyle = p.color ? `style="border-color:${p.color};"` : '';
-    const isDuelWinner = duelWinnerId && p.id === duelWinnerId;
+    const isDuelWinner = firstPlayerOption === 'duel' && duelWinnerId && p.id === duelWinnerId;
+    const isSpot1First = firstPlayerOption === 'spot1' && i === 0;
+    const hasCrown = isDuelWinner || isSpot1First;
     const div = document.createElement('div');
     div.className = 'player-item';
     div.setAttribute('draggable', 'false');
@@ -14773,7 +14867,7 @@ function renderLobbyList(players) {
           ${p.id === myId ? '<span class="player-badge host">Host</span>' : ''}
         </div>
       </div>
-      <div class="player-name">${esc(p.name)}${isDuelWinner ? ' <span style="font-size:0.85em;">👑</span>' : ''}</div>`;
+      <div class="player-name">${esc(p.name)}${hasCrown ? ' <span style="font-size:0.85em;">👑</span>' : ''}</div>`;
     // Add kick button for host (can't kick self)
     if (isHost && p.id !== myId) {
       const kickBtn = document.createElement('button');
@@ -16110,7 +16204,7 @@ window.showPrompt = function(msg, def) { return showDialog('prompt', msg, def); 
   const error = document.getElementById('pw-error');
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkPassword(); });
   window.checkPassword = function() {
-    if (input.value === 'yar') {
+    if (input.value === 'test1') {
       localStorage.setItem('sk_password_verified', '1');
       gate.classList.add('hidden');
     } else {
