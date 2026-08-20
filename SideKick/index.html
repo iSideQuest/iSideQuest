@@ -398,7 +398,7 @@
   button:disabled { opacity: 0.45; cursor: not-allowed; }
 
   .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; box-shadow: 0 4px 14px rgba(124,92,191,0.5), 0 2px 4px rgba(0,0,0,0.2); }
-  .play-tri { font-size: 0.66em; display: inline-block; }
+  .play-tri { font-size: 0.66em; display: inline-block; vertical-align: middle; line-height: 1; transform: translateY(-0.08em); }
   .first-opt-btn.selected { border-color: var(--accent-light) !important; background: rgba(124,92,191,0.18) !important; color: var(--accent-light) !important; font-weight: 800; }
   .btn-primary:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(124,92,191,0.6), 0 3px 6px rgba(0,0,0,0.25); }
   .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
@@ -4957,21 +4957,21 @@
         <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:stretch;">
           <div class="dir-row" style="justify-content:center;">
             <div class="dir-option" id="tm-inline-cw" onclick="selectInlineDir('cw')">
-              <span class="dir-icon"><img src="img/svg/PassLeft.svg" alt="Left"></span>
+<span class="dir-icon"><img class="dir-arrow" data-arrow="PassLeft" src="img/svg/PassLeft.svg" alt="Left"></span>
               <span class="dir-name" data-i18n="left">Left</span>
               <span class="dir-desc" data-i18n="clockwise">Clockwise</span>
             </div>
             <div class="dir-option" id="tm-inline-ccw" onclick="selectInlineDir('ccw')">
-              <span class="dir-icon"><img src="img/svg/PassRight.svg" alt="Right"></span>
+<span class="dir-icon"><img class="dir-arrow" data-arrow="PassRight" src="img/svg/PassRight.svg" alt="Right"></span>
               <span class="dir-name" data-i18n="right">Right</span>
               <span class="dir-desc" data-i18n="counterclockwise">Counterclockwise</span>
             </div>
           </div>
           <div class="dir-row" style="justify-content:center;">
             <div class="dir-option dir-option-wide" id="tm-inline-both" onclick="selectInlineDir('both')">
-              <span class="dir-icon" style="display:flex;align-items:center;gap:0.3rem;"><img src="img/svg/LArrow.svg" alt="Left"><img src="img/svg/RArrow.svg" alt="Right"></span>
+              <span class="dir-icon" style="display:flex;align-items:center;gap:0.3rem;"><img class="dir-arrow" data-arrow="LArrow" src="img/svg/LArrow.svg" alt="Left"><img class="dir-arrow" data-arrow="RArrow" src="img/svg/RArrow.svg" alt="Right"></span>
               <span class="dir-name" data-i18n="leftRight">Left & Right</span>
-              <span class="dir-desc" data-i18n="leftRightDesc">If game changes turn direction, use this option (games like UNO)</span>
+              <span class="dir-desc" data-i18n="leftRightDesc">If turn direction changes, use this option (games like UNO)</span>
             </div>
           </div>
         </div>
@@ -5204,7 +5204,7 @@
     </div>
 
     <!-- Fixed bottom bar -->
-    <div style="width:100%;max-width:480px;margin:0 auto;padding:0.3rem 0.5rem env(safe-area-inset-bottom, 0.3rem);flex-shrink:0;">
+    <div style="width:100%;max-width:480px;margin:0 auto;padding:0.3rem 0.5rem calc(3.4rem + env(safe-area-inset-bottom, 0.3rem));flex-shrink:0;">
       <div id="first-opt-card" class="card" style="max-width:480px;margin:0 auto 0.6rem;padding:0.6rem 0.7rem;border-radius:10px;background:var(--lobby-list-bg);">
         <div style="text-align:center;font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;" data-i18n="chooseFirst">Choose Option For First Player</div>
         <div style="display:flex;gap:0.5rem;">
@@ -5213,11 +5213,12 @@
           <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-duel" onclick="selectFirstPlayerOption('duel')" style="flex:1;font-size:0.82rem;" data-i18n="duelOpt">Duel</button>
         </div>
       </div>
-      <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;margin-bottom:0.3rem;" data-i18n="startGame">Start Game &#9654;</button>
-      <button class="btn-secondary btn-sm" onclick="goBackToCreate()" style="width:100%;" data-i18n="backToRoomSet">&#8592; Back To Room Settings</button>
+      <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;" data-i18n="startGame">Start Game &#9654;</button>
     </div>
 
   </div>
+  <!-- Back to Room Settings (outside scaler, fixed at bottom of screen) -->
+  <button class="btn-secondary btn-sm" onclick="goBackToCreate()" style="position:fixed;bottom:calc(1rem + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);width:calc(100% - 4rem);max-width:440px;z-index:30;" data-i18n="backToRoomSet">&#8592; Back To Room Settings</button>
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
@@ -6341,19 +6342,19 @@
 
     <div class="dir-row">
       <div class="dir-option" id="tmdir-cw" onclick="selectClassicDir('cw')">
-        <span class="dir-icon"><img src="img/svg/PassLeft.svg" alt="Left"></span>
+        <span class="dir-icon"><img class="dir-arrow" data-arrow="PassLeft" src="img/svg/PassLeft.svg" alt="Left"></span>
         <span class="dir-name">Left</span>
         <span class="dir-desc">Clockwise Only</span>
       </div>
       <div class="dir-option" id="tmdir-ccw" onclick="selectClassicDir('ccw')">
-        <span class="dir-icon"><img src="img/svg/PassRight.svg" alt="Right"></span>
+        <span class="dir-icon"><img class="dir-arrow" data-arrow="PassRight" src="img/svg/PassRight.svg" alt="Right"></span>
         <span class="dir-name">Right</span>
         <span class="dir-desc">Counterclockwise Only</span>
       </div>
     </div>
     <div class="dir-row">
       <div class="dir-option dir-option-wide" id="tmdir-both" onclick="selectClassicDir('both')">
-        <span class="dir-icon" style="display:flex;align-items:center;gap:0.3rem;"><img src="img/svg/LArrow.svg" alt="Left"><img src="img/svg/RArrow.svg" alt="Right"></span>
+        <span class="dir-icon" style="display:flex;align-items:center;gap:0.3rem;"><img class="dir-arrow" data-arrow="LArrow" src="img/svg/LArrow.svg" alt="Left"><img class="dir-arrow" data-arrow="RArrow" src="img/svg/RArrow.svg" alt="Right"></span>
         <span class="dir-name">Left & Right</span>
         <span class="dir-desc">Players pass their turn clockwise or counterclockwise</span>
       </div>
@@ -6814,7 +6815,7 @@ const I18N_STRINGS = {
     leftRight: 'Left & Right',
     clockwise: 'Clockwise',
     counterclockwise: 'Counterclockwise',
-    leftRightDesc: 'If game changes turn direction, use this option (games like UNO)',
+    leftRightDesc: 'If turn direction changes, use this option (games like UNO)',
     plsTurnMode: '⚠️ Please choose a turn mode.',
     noMode: 'No mode',
     tapToAdd: 'Tap To Add Game Feature(s)',
@@ -15984,6 +15985,18 @@ function applyTheme(isLight) {
   document.body.classList.toggle('light-mode', isLight);
   const knob = document.getElementById('theme-knob');
   if (knob) knob.style.transform = isLight ? 'translateX(40px)' : 'translateX(0)';
+  updateDirArrows();
+}
+
+function updateDirArrows() {
+  const isLight = document.body.classList.contains('light-mode');
+  const prefix = isLight ? 'Black' : 'White';
+  document.querySelectorAll('.dir-arrow').forEach(img => {
+    const name = img.getAttribute('data-arrow');
+    if (!name) return;
+    const target = 'img/svg/' + prefix + name + '.svg';
+    if (img.getAttribute('src') !== target) img.setAttribute('src', target);
+  });
 }
 
 function applyFullTheme(themeName, isLight) {
