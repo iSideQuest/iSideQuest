@@ -9195,7 +9195,7 @@ initFirebase(hardcodedCfg);
 // Firebase every time (no caching). Guard showCreateRoom and openAccountOverlay.
 let _accessCodeCallback = null;
 
-function requireAccessCode(callback) {
+window.requireAccessCode = function(callback) {
   // Admins (creator accounts) bypass the access code
   if (currentUser && isCreator) { if (callback) callback(); return; }
   const modal = document.getElementById('access-code-modal');
@@ -9207,7 +9207,7 @@ function requireAccessCode(callback) {
   error.textContent = '';
   modal.classList.remove('hidden');
   input.focus();
-}
+};
 
 document.getElementById('access-code-submit').addEventListener('click', submitAccessCode);
 document.getElementById('access-code-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitAccessCode(); });
