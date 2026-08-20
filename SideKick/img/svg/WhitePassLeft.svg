@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 24 24"
+   id="refresh"
+   version="1.1"
+   sodipodi:docname="WhitePassLeft.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview2"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="17.8125"
+     inkscape:cx="6.2877193"
+     inkscape:cy="12.940351"
+     inkscape:window-width="1920"
+     inkscape:window-height="1057"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="refresh" />
+  <path
+     style="fill:#ffffff;fill-opacity:1"
+     d="m 16.11911,4.4153685 c 0.164645,-0.376402 -0.0041,-0.815163 -0.378575,-0.984201 l -2.160948,-0.975429 c -0.377459,-0.170452 -0.821704,-0.0026 -0.992121,0.374978 -0.170415,0.377552 -0.0026,0.821703 0.374978,0.99212 l 0.525345,0.237104 c -4.609556,1.84743 -6.864231,7.0986545 -5.062296,11.7832465 1.191447,3.097465 3.862956,5.187697 6.880793,5.754676 0.407099,0.07649 0.799114,-0.191526 0.875564,-0.598612 0.07655,-0.407111 -0.191459,-0.799129 -0.598554,-0.875607 -2.522501,-0.473904 -4.758855,-2.221958 -5.757801,-4.81897 -1.510061,-3.925791 0.378762,-8.2989335 4.199047,-9.8437345 l -0.229876,0.525461 c -0.166026,0.379502 0.007,0.821646 0.386551,0.987668 0.379502,0.166026 0.821739,-0.0071 0.987668,-0.386551 z"
+     id="path2" />
+  <defs
+     id="defs2">
+    <linearGradient
+       id="paint0_linear_2461_19009"
+       x1="12"
+       x2="12"
+       y1="2.25"
+       y2="21.75"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#854D9C"
+         id="stop1" />
+      <stop
+         offset="1"
+         stop-color="#CD4ED3"
+         id="stop2" />
+    </linearGradient>
+  </defs>
+</svg>
