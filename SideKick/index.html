@@ -4760,13 +4760,13 @@
 
     <div class="setup-step">
       <h3>Step 2 — Create a Realtime Database</h3>
-      <p>In the left sidebar, click <strong>Build <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span> Realtime Database</strong>, then click <strong>Create Database</strong>.</p>
+      <p>In the left sidebar, click <strong>Build <span class="play-tri">▶</span> Realtime Database</strong>, then click <strong>Create Database</strong>.</p>
       <p>Choose any location (US is fine). When asked about security rules, choose <strong>Start in test mode</strong> (we'll keep it simple). Click <strong>Enable</strong>.</p>
     </div>
 
     <div class="setup-step">
       <h3>Step 3 — Get your config keys</h3>
-      <p>Click the gear icon ⚙️ next to <em>Project Overview</em> <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span> <strong>Project settings</strong>. Scroll down to <em>Your apps</em> and click the <strong>&lt;/&gt;</strong> (web) icon. Register the app (any nickname), then copy the config shown. It looks like:</p>
+      <p>Click the gear icon ⚙️ next to <em>Project Overview</em> <span class="play-tri">▶</span> <strong>Project settings</strong>. Scroll down to <em>Your apps</em> and click the <strong>&lt;/&gt;</strong> (web) icon. Register the app (any nickname), then copy the config shown. It looks like:</p>
       <div class="code-block">const firebaseConfig = {
   apiKey: "AIzaSy...",
   authDomain: "yourproject.firebaseapp.com",
@@ -4864,7 +4864,7 @@
   <div class="card" style="margin-top:2.0rem; padding:0;">
     <button onclick="toggleTools()" id="tools-toggle-btn" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;width:100%;background:none;border:none;padding:1rem 1.2rem;cursor:pointer;transition:background 0.2s;border-radius:12px;">
       <span style="font-size:1.1rem;color:var(--accent-light);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;" data-i18n="tools">Tools</span>
-      <span id="tools-arrow" style="font-size:0.9rem;color:var(--muted);transition:transform 0.3s;"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></span>
+      <span id="tools-arrow" style="font-size:0.9rem;color:var(--muted);transition:transform 0.3s;"><span class="play-tri">▶</span></span>
     </button>
     <div id="tools-body" style="max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s;opacity:0;padding:0 1.2rem;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;padding-bottom:1rem;">
@@ -4933,7 +4933,7 @@
         </div>
         <div id="color-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;" data-i18n="plsColor">⚠️ Please choose a color.</div>
         <div id="avatar-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;" data-i18n="plsAvatar">⚠️ Please select an avatar.</div>
-        <button class="btn-primary" id="create-next-btn" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></button>
+        <button class="btn-primary" id="create-next-btn" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm <span class="play-tri">▶</span></button>
       </div>
       <button class="step-collapse-btn" onclick="expandCreateStep(1)">
         <span class="step-collapse-label"><span data-i18n="step">Step</span> 1:</span>
@@ -4976,7 +4976,7 @@
           </div>
         </div>
         <div id="tm-required-note" style="display:none;color:#e05555;font-size:0.9rem;text-align:center;margin-top:0.35rem;" data-i18n="plsTurnMode">⚠️ Please choose a turn mode.</div>
-        <button class="btn-primary" id="create-next-btn-2" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></button>
+        <button class="btn-primary" id="create-next-btn-2" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm <span class="play-tri">▶</span></button>
       </div>
       <button class="step-collapse-btn" onclick="expandCreateStep(2)">
         <span class="step-collapse-label"><span data-i18n="step">Step</span> 2:</span>
@@ -5034,7 +5034,7 @@
     <!-- Bottom buttons -->
     <div id="create-wizard-btns" style="width:100%;max-width:380px;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
       <p id="create-status" class="status"></p>
-      <button class="btn-secondary btn-sm" id="create-home-btn" onclick="goHome()" style="width:100%;" data-i18n="home"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Home</button>
+      <button class="btn-secondary btn-sm" id="create-home-btn" onclick="goHome()" style="width:100%;" data-i18n="home"><span class="play-tri">◀</span> Home</button>
     </div>
 
   </div>
@@ -5065,7 +5065,7 @@
             <span id="join-avatar-label" data-i18n="chooseAvatar">Choose<br>Avatar</span>
           </button>
         </div>
-        <button class="btn-primary" id="join-next-btn" onclick="joinNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></button>
+        <button class="btn-primary" id="join-next-btn" onclick="joinNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm <span class="play-tri">▶</span></button>
       </div>
       <button class="step-collapse-btn" onclick="expandJoinStep(1)">
         <span class="step-collapse-label"><span data-i18n="step">Step</span> 1:</span>
@@ -5113,7 +5113,7 @@
     <!-- Wizard buttons (outside cards area, pinned to bottom) -->
     <div id="join-wizard-btns" style="width:100%;max-width:380px;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
       <p id="join-status" class="status"></p>
-      <button class="btn-secondary btn-sm" onclick="goHome()" style="width:100%;margin-top:0;" data-i18n="home"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Home</button>
+      <button class="btn-secondary btn-sm" onclick="goHome()" style="width:100%;margin-top:0;" data-i18n="home"><span class="play-tri">◀</span> Home</button>
     </div>
 
   </div>
@@ -5272,7 +5272,7 @@
   </div>
   <button class="action-btn btn-left" onclick="passTurn('left')" id="btn-left">
     <div class="btn-label">Pass Left</div>
-    <div class="btn-arrow"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span></div>
+    <div class="btn-arrow"><span class="play-tri">◀</span></div>
     <div class="btn-player-name" id="left-player-name"></div>
   </button>
   <div class="active-divider" id="active-divider"></div>
@@ -5302,7 +5302,7 @@
   </div>
   <button class="action-btn btn-right" onclick="passTurn('right')" id="btn-right">
     <div class="btn-label">Pass Right</div>
-    <div class="btn-arrow"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></div>
+    <div class="btn-arrow"><span class="play-tri">▶</span></div>
     <div class="btn-player-name" id="right-player-name"></div>
   </button>
   <!-- Single-tap pass button (shown for CW or CCW mode) -->
@@ -5611,13 +5611,13 @@
       </div>
     </div>
     <button class="vp-submit-btn" onclick="submitVP()" style="margin-top:0.75rem;">Submit Points</button>
-    <button id="vp-back-btn" onclick="confirmVPBack()" style="display:none;margin-top:0.5rem;width:100%;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Back to Room</button>
+    <button id="vp-back-btn" onclick="confirmVPBack()" style="display:none;margin-top:0.5rem;width:100%;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;"><span class="play-tri">◀</span> Back to Room</button>
   </div>
   <div id="vp-waiting-section" style="display:none; flex-direction:column; align-items:center; gap:0.75rem; width:100%;">
     <div class="vp-submitted-msg">✓ Score submitted! Waiting for others…</div>
     <div class="vp-waiting-list" id="vp-waiting-list"></div>
     <button class="vp-begin-btn" id="vp-begin-btn" onclick="beginAfterVP()">🏆 Begin Ceremony</button>
-    <button id="vp-back-btn-waiting" onclick="confirmVPBack()" style="display:none;margin-top:0.25rem;width:100%;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Back to Room</button>
+    <button id="vp-back-btn-waiting" onclick="confirmVPBack()" style="display:none;margin-top:0.25rem;width:100%;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;"><span class="play-tri">◀</span> Back to Room</button>
   </div>
 </div>
 
@@ -6042,7 +6042,7 @@
 
     <!-- Library: search + filter -->
     <div id="collection-library" style="display:none;">
-      <button class="btn-secondary btn-sm" style="margin-bottom:0.5rem;" onclick="showCollectionMenu()"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Back</button>
+      <button class="btn-secondary btn-sm" style="margin-bottom:0.5rem;" onclick="showCollectionMenu()"><span class="play-tri">◀</span> Back</button>
       <div class="tools-modal-title" style="font-size:1.05rem;">📚 Library</div>
 
       <div id="collection-filters" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.6rem;">
@@ -6285,7 +6285,7 @@
         <div class="tutorial-icon">🏠</div>
         <div class="tutorial-title">Create a Room</div>
         <div class="tutorial-desc">Tap <strong>Create a Room</strong> and set up your name, color, and avatar. Pick a turn mode — <em>Turn Direction</em> passes left, right, or both ways. <em>Speed Round</em> lets players race to tap in.</div>
-        <div class="tutorial-visual">Step 1 <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span> Step 2 <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span> Step 3</div>
+        <div class="tutorial-visual">Step 1 <span class="play-tri">▶</span> Step 2 <span class="play-tri">▶</span> Step 3</div>
       </div>
       <!-- Slide 3 -->
       <div class="tutorial-slide">
@@ -6326,8 +6326,8 @@
     </div>
     <div class="tutorial-dots" id="tutorial-dots"></div>
     <div class="tutorial-nav">
-      <button class="btn-secondary btn-sm" id="tutorial-prev" onclick="tutorialPrev()" style="flex:1;"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Prev</button>
-      <button class="btn-primary btn-sm" id="tutorial-next" onclick="tutorialNext()" style="flex:1;">Next <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></button>
+      <button class="btn-secondary btn-sm" id="tutorial-prev" onclick="tutorialPrev()" style="flex:1;"><span class="play-tri">◀</span> Prev</button>
+      <button class="btn-primary btn-sm" id="tutorial-next" onclick="tutorialNext()" style="flex:1;">Next <span class="play-tri">▶</span></button>
     </div>
   </div>
 </div>
@@ -6360,7 +6360,7 @@
       </div>
     </div>
 
-    <button class="btn-primary" onclick="confirmClassicDir()" style="margin-top:0.25rem;">Confirm <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></button>
+    <button class="btn-primary" onclick="confirmClassicDir()" style="margin-top:0.25rem;">Confirm <span class="play-tri">▶</span></button>
     <button class="btn-secondary btn-sm" onclick="closeClassicDirOverlay()" style="margin-top:0;">Cancel</button>
   </div>
 </div>
@@ -6402,7 +6402,7 @@
     <input type="hidden" id="speed-rounds-total" value="3">
 
     <div id="speed-mode-required" style="display:none;color:#e05555;font-size:0.75rem;text-align:center;">⚠ Choose a speed mode first.</div>
-    <button class="btn-primary" onclick="confirmSpeedMode()" style="margin-top:0.25rem;">Confirm <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></button>
+    <button class="btn-primary" onclick="confirmSpeedMode()" style="margin-top:0.25rem;">Confirm <span class="play-tri">▶</span></button>
     <button class="btn-secondary btn-sm" onclick="closeSpeedModeOverlay()">Cancel</button>
   </div>
 </div>
@@ -6443,7 +6443,7 @@
     <div class="saved-screen-sub" id="saved-screen-name" style="font-weight:700; color:var(--text);">—</div>
     <div class="saved-screen-sub">This save is in your "My Saved Games" list on the home screen. The room code below stays the same — anyone can rejoin with it once you resume.</div>
     <div class="saved-screen-code" id="saved-screen-code">----</div>
-    <button class="btn-primary btn-sm" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem;" onclick="continueSavedGame()">Continue <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></button>
+    <button class="btn-primary btn-sm" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem;" onclick="continueSavedGame()">Continue <span class="play-tri">▶</span></button>
     <button class="btn-secondary btn-sm" style="margin-top:0.5rem; width:auto; padding:0.6rem 1.5rem;" onclick="hostLeaveGame()">🏠 Back to Home</button>
   </div>
   <div id="saved-screen-player-view" style="display:none;">
@@ -6453,7 +6453,7 @@
     </div>
     <div id="saved-screen-player-action" style="display:none;">
       <div class="saved-screen-sub" id="saved-screen-player-action-text"></div>
-      <button class="btn-primary btn-sm" id="saved-screen-player-continue-btn" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem; display:none;" onclick="playerContinueGame()">Continue <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></button>
+      <button class="btn-primary btn-sm" id="saved-screen-player-continue-btn" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem; display:none;" onclick="playerContinueGame()">Continue <span class="play-tri">▶</span></button>
       <button class="btn-secondary btn-sm" style="margin-top:0.5rem; width:auto; padding:0.6rem 1.5rem;" onclick="leaveSavedScreen()">🏠 Back to Home</button>
     </div>
   </div>
@@ -6537,7 +6537,7 @@
         <button class="timer-preset-btn" onclick="setCountdownPreset(10)">10 min</button>
       </div>
       <div class="timer-btn-row">
-        <button class="btn-primary btn-sm" id="cd-start-btn" onclick="startCountdown()">Start <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></button>
+        <button class="btn-primary btn-sm" id="cd-start-btn" onclick="startCountdown()">Start <span class="play-tri">▶</span></button>
         <button class="btn-secondary btn-sm" onclick="resetCountdown()">↺ Reset</button>
       </div>
     </div>
@@ -6546,7 +6546,7 @@
     <div class="timer-pane" id="timer-pane-stopwatch">
       <div class="timer-display" id="sw-display">00:00.00</div>
       <div class="timer-btn-row">
-        <button class="btn-primary btn-sm" id="sw-start-btn" onclick="toggleStopwatch()">Start <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></button>
+        <button class="btn-primary btn-sm" id="sw-start-btn" onclick="toggleStopwatch()">Start <span class="play-tri">▶</span></button>
         <button class="btn-secondary btn-sm" onclick="resetStopwatch()">↺ Reset</button>
       </div>
     </div>
@@ -6555,7 +6555,7 @@
     <div class="timer-pane" id="timer-pane-lap">
       <div class="timer-display" id="lap-display">00:00.00</div>
       <div class="timer-btn-row">
-        <button class="btn-primary btn-sm" id="lap-start-btn" onclick="toggleLapTimer()">Start <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></button>
+        <button class="btn-primary btn-sm" id="lap-start-btn" onclick="toggleLapTimer()">Start <span class="play-tri">▶</span></button>
         <button class="btn-secondary btn-sm" onclick="recordLap()">🚩 Lap</button>
         <button class="btn-secondary btn-sm" onclick="resetLapTimer()">↺ Reset</button>
       </div>
@@ -6641,7 +6641,7 @@
     <div class="duel-modal-title">🏆 Duel Results</div>
     <div id="duel-score-winner" style="font-size:1.1rem;font-weight:800;color:#fbbf24;text-align:center;"></div>
     <div id="duel-score-list" style="display:flex;flex-direction:column;gap:0.4rem;width:100%;"></div>
-    <button class="btn-primary" style="width:100%;margin-top:0.4rem;" id="duel-continue-btn" onclick="duelContinue()">Continue <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></button>
+    <button class="btn-primary" style="width:100%;margin-top:0.4rem;" id="duel-continue-btn" onclick="duelContinue()">Continue <span class="play-tri">▶</span></button>
     <div id="duel-waiting-text" style="display:none;font-size:0.8rem;color:var(--muted);text-align:center;margin-top:0.3rem;">Waiting for host to continue...</div>
   </div>
 </div>
@@ -6806,7 +6806,7 @@ const I18N_STRINGS = {
     chooseAvatar2: 'Choose Avatar',
     plsColor: '⚠️ Please choose a color.',
     plsAvatar: '⚠️ Please select an avatar.',
-    confirm: 'Confirm <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
+    confirm: 'Confirm <span class="play-tri">▶</span>',
     player: 'Player',
     noColor: 'No color',
     turnDirTitle: 'Choose the turn direction for your game',
@@ -6830,7 +6830,7 @@ const I18N_STRINGS = {
     settings: '⚙ Settings',
     createRoom: 'Create Room',
     allFeaturesOff: 'All features off',
-    home: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Home',
+    home: '<span class="play-tri">◀</span> Home',
     joinLobby: 'Join Room',
     scanRoom: 'Scan Room',
     qrCode: 'QR Code',
@@ -6841,8 +6841,8 @@ const I18N_STRINGS = {
     playerListDrag: 'Player List (Drag to Reorder)',
     randomFirst: '🎲 Pick A Random First Player',
     duel1st: 'Duel For 1st Player',
-    startGame: 'Start Game <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
-    backToRoomSet: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Back To Room Settings',
+    startGame: 'Start Game <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> Back To Room Settings',
     chooseFirst: 'Choose Option For First Player',
     spot1Opt: 'Spot 1',
     randomOpt: 'Random',
@@ -6904,7 +6904,7 @@ const I18N_STRINGS = {
     chooseAvatar2: 'Elegir Avatar',
     plsColor: '⚠️ Por favor, elige un color.',
     plsAvatar: '⚠️ Por favor, selecciona un avatar.',
-    confirm: 'Confirmar <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
+    confirm: 'Confirmar <span class="play-tri">▶</span>',
     player: 'Jugador',
     noColor: 'Sin color',
     turnDirTitle: 'Elige la dirección del turno para tu juego',
@@ -6928,7 +6928,7 @@ const I18N_STRINGS = {
     settings: '⚙ Ajustes',
     createRoom: 'Crear Sala',
     allFeaturesOff: 'Todas las funciones desactivadas',
-    home: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Inicio',
+    home: '<span class="play-tri">◀</span> Inicio',
     joinLobby: 'Unirse a Sala',
     scanRoom: 'Escanear Sala',
     qrCode: 'Código QR',
@@ -6939,8 +6939,8 @@ const I18N_STRINGS = {
     playerListDrag: 'Lista de Jugadores (Arrastra para Reordenar)',
     randomFirst: '🎲 Elegir Primer Jugador al Azar',
     duel1st: 'Duelo por el 1er Jugador',
-    startGame: 'Iniciar Juego <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
-    backToRoomSet: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Volver a la Configuración de la Sala',
+    startGame: 'Iniciar Juego <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> Volver a la Configuración de la Sala',
     chooseFirst: 'Elige Opción Para el Primer Jugador',
     spot1Opt: 'Puesto 1',
     randomOpt: 'Aleatorio',
@@ -7002,7 +7002,7 @@ const I18N_STRINGS = {
     chooseAvatar2: '选择头像',
     plsColor: '⚠️ 请选择一种颜色。',
     plsAvatar: '⚠️ 请选择一个头像。',
-    confirm: '确认 <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
+    confirm: '确认 <span class="play-tri">▶</span>',
     player: '玩家',
     noColor: '无颜色',
     turnDirTitle: '为你的游戏选择回合方向',
@@ -7026,7 +7026,7 @@ const I18N_STRINGS = {
     settings: '⚙ 设置',
     createRoom: '创建房间',
     allFeaturesOff: '所有功能已关闭',
-    home: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> 主页',
+    home: '<span class="play-tri">◀</span> 主页',
     joinLobby: '加入房间',
     scanRoom: '扫描房间',
     qrCode: '二维码',
@@ -7037,8 +7037,8 @@ const I18N_STRINGS = {
     playerListDrag: '玩家列表（拖动重新排序）',
     randomFirst: '🎲 随机选择第一位玩家',
     duel1st: '争夺第一位玩家',
-    startGame: '开始游戏 <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
-    backToRoomSet: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> 返回房间设置',
+    startGame: '开始游戏 <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> 返回房间设置',
     chooseFirst: '为第一位玩家选择选项',
     spot1Opt: '位置 1',
     randomOpt: '随机',
@@ -7100,7 +7100,7 @@ const I18N_STRINGS = {
     chooseAvatar2: 'Avatar wählen',
     plsColor: '⚠️ Bitte wähle eine Farbe.',
     plsAvatar: '⚠️ Bitte wähle einen Avatar.',
-    confirm: 'Bestätigen <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
+    confirm: 'Bestätigen <span class="play-tri">▶</span>',
     player: 'Spieler',
     noColor: 'Keine Farbe',
     turnDirTitle: 'Wähle die Zugrichtung für dein Spiel',
@@ -7124,7 +7124,7 @@ const I18N_STRINGS = {
     settings: '⚙ Einstellungen',
     createRoom: 'Raum erstellen',
     allFeaturesOff: 'Alle Funktionen aus',
-    home: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Start',
+    home: '<span class="play-tri">◀</span> Start',
     joinLobby: 'Raum beitreten',
     scanRoom: 'Raum scannen',
     qrCode: 'QR-Code',
@@ -7135,8 +7135,8 @@ const I18N_STRINGS = {
     playerListDrag: 'Spielerliste (Ziehen zum Sortieren)',
     randomFirst: '🎲 Zufälligen ersten Spieler wählen',
     duel1st: 'Duell um den 1. Spieler',
-    startGame: 'Spiel starten <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
-    backToRoomSet: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Zurück zu den Raumeinstellungen',
+    startGame: 'Spiel starten <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> Zurück zu den Raumeinstellungen',
     chooseFirst: 'Option für den ersten Spieler wählen',
     spot1Opt: 'Platz 1',
     randomOpt: 'Zufällig',
@@ -7198,7 +7198,7 @@ const I18N_STRINGS = {
     chooseAvatar2: 'Choisir un avatar',
     plsColor: '⚠️ Veuillez choisir une couleur.',
     plsAvatar: '⚠️ Veuillez sélectionner un avatar.',
-    confirm: 'Confirmer <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
+    confirm: 'Confirmer <span class="play-tri">▶</span>',
     player: 'Joueur',
     noColor: 'Aucune couleur',
     turnDirTitle: 'Choisissez la direction du tour pour votre jeu',
@@ -7222,7 +7222,7 @@ const I18N_STRINGS = {
     settings: '⚙ Réglages',
     createRoom: 'Créer une salle',
     allFeaturesOff: 'Toutes les fonctions désactivées',
-    home: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Accueil',
+    home: '<span class="play-tri">◀</span> Accueil',
     joinLobby: 'Rejoindre une salle',
     scanRoom: 'Scanner la salle',
     qrCode: 'Code QR',
@@ -7233,8 +7233,8 @@ const I18N_STRINGS = {
     playerListDrag: 'Liste des joueurs (glisser pour réorganiser)',
     randomFirst: '🎲 Choisir un premier joueur au hasard',
     duel1st: 'Duel pour le 1er joueur',
-    startGame: 'Démarrer le jeu <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
-    backToRoomSet: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Retour aux paramètres de la salle',
+    startGame: 'Démarrer le jeu <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> Retour aux paramètres de la salle',
     chooseFirst: 'Choisissez une option pour le premier joueur',
     spot1Opt: 'Place 1',
     randomOpt: 'Aléatoire',
@@ -7296,7 +7296,7 @@ const I18N_STRINGS = {
     chooseAvatar2: 'アバターを選択',
     plsColor: '⚠️ 色を選択してください。',
     plsAvatar: '⚠️ アバターを選択してください。',
-    confirm: '確認 <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
+    confirm: '確認 <span class="play-tri">▶</span>',
     player: 'プレイヤー',
     noColor: '色なし',
     turnDirTitle: 'ゲームのターンの向きを選択してください',
@@ -7320,7 +7320,7 @@ const I18N_STRINGS = {
     settings: '⚙ 設定',
     createRoom: 'ルームを作成',
     allFeaturesOff: 'すべての機能オフ',
-    home: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> ホーム',
+    home: '<span class="play-tri">◀</span> ホーム',
     joinLobby: 'ルームに参加',
     scanRoom: 'ルームをスキャン',
     qrCode: 'QRコード',
@@ -7331,8 +7331,8 @@ const I18N_STRINGS = {
     playerListDrag: 'プレイヤーリスト（ドラッグで並べ替え）',
     randomFirst: '🎲 最初のプレイヤーをランダムに選ぶ',
     duel1st: '最初のプレイヤーを決めるデュエル',
-    startGame: 'ゲーム開始 <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
-    backToRoomSet: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> ルーム設定に戻る',
+    startGame: 'ゲーム開始 <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> ルーム設定に戻る',
     chooseFirst: '最初のプレイヤーのオプションを選択',
     spot1Opt: 'スポット 1',
     randomOpt: 'ランダム',
@@ -7394,7 +7394,7 @@ const I18N_STRINGS = {
     chooseAvatar2: 'Scegli Avatar',
     plsColor: '⚠️ Per favore scegli un colore.',
     plsAvatar: '⚠️ Per favore seleziona un avatar.',
-    confirm: 'Conferma <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
+    confirm: 'Conferma <span class="play-tri">▶</span>',
     player: 'Giocatore',
     noColor: 'Nessun colore',
     turnDirTitle: 'Scegli la direzione del turno per il tuo gioco',
@@ -7418,7 +7418,7 @@ const I18N_STRINGS = {
     settings: '⚙ Impostazioni',
     createRoom: 'Crea Sala',
     allFeaturesOff: 'Tutte le funzionalità disattivate',
-    home: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Home',
+    home: '<span class="play-tri">◀</span> Home',
     joinLobby: 'Entra in Sala',
     scanRoom: 'Scansiona Sala',
     qrCode: 'Codice QR',
@@ -7429,8 +7429,8 @@ const I18N_STRINGS = {
     playerListDrag: 'Elenco Giocatori (Trascina per Riordinare)',
     randomFirst: '🎲 Scegli un Primo Giocatore a Caso',
     duel1st: 'Duello per il 1° Giocatore',
-    startGame: 'Inizia Gioco <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
-    backToRoomSet: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Torna alle Impostazioni della Sala',
+    startGame: 'Inizia Gioco <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> Torna alle Impostazioni della Sala',
     chooseFirst: 'Scegli un\'opzione per il Primo Giocatore',
     spot1Opt: 'Posto 1',
     randomOpt: 'Casuale',
@@ -7492,7 +7492,7 @@ const I18N_STRINGS = {
     chooseAvatar2: 'Escolher Avatar',
     plsColor: '⚠️ Por favor, escolha uma cor.',
     plsAvatar: '⚠️ Por favor, selecione um avatar.',
-    confirm: 'Confirmar <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
+    confirm: 'Confirmar <span class="play-tri">▶</span>',
     player: 'Jogador',
     noColor: 'Sem cor',
     turnDirTitle: 'Escolha a direção do turno para o seu jogo',
@@ -7516,7 +7516,7 @@ const I18N_STRINGS = {
     settings: '⚙ Configurações',
     createRoom: 'Criar Sala',
     allFeaturesOff: 'Todos os recursos desativados',
-    home: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Início',
+    home: '<span class="play-tri">◀</span> Início',
     joinLobby: 'Entrar na Sala',
     scanRoom: 'Escanear Sala',
     qrCode: 'Código QR',
@@ -7527,8 +7527,8 @@ const I18N_STRINGS = {
     playerListDrag: 'Lista de Jogadores (Arraste para Reordenar)',
     randomFirst: '🎲 Escolher Primeiro Jogador Aleatório',
     duel1st: 'Duelo pelo 1º Jogador',
-    startGame: 'Iniciar Jogo <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>',
-    backToRoomSet: '<span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">◀</span></span></span></span></span> Voltar às Configurações da Sala',
+    startGame: 'Iniciar Jogo <span class="play-tri">▶</span>',
+    backToRoomSet: '<span class="play-tri">◀</span> Voltar às Configurações da Sala',
     chooseFirst: 'Escolha uma opção para o Primeiro Jogador',
     spot1Opt: 'Lugar 1',
     randomOpt: 'Aleatório',
@@ -9707,7 +9707,7 @@ function tutorialUpdateDots() {
   const prev = document.getElementById('tutorial-prev');
   const next = document.getElementById('tutorial-next');
   if (prev) prev.style.visibility = tutorialSlide === 0 ? 'hidden' : 'visible';
-  if (next) next.innerHTML = tutorialSlide === dots.length - 1 ? 'Done ✓' : 'Next <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>';
+  if (next) next.innerHTML = tutorialSlide === dots.length - 1 ? 'Done ✓' : 'Next <span class="play-tri">▶</span>';
 }
 
 function tutorialGoTo(idx) {
@@ -9878,7 +9878,7 @@ window.startCountdown = function() {
     clearInterval(toolCdInterval);
     toolCdInterval = null;
     cdRunning = false;
-    document.getElementById('cd-start-btn').innerHTML = 'Resume <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>';
+    document.getElementById('cd-start-btn').innerHTML = 'Resume <span class="play-tri">▶</span>';
     return;
   }
   let secondsLeft = cdRemainingAtPause;
@@ -9901,7 +9901,7 @@ window.startCountdown = function() {
       toolCdInterval = null;
       cdRunning = false;
       cdRemainingAtPause = 0;
-      document.getElementById('cd-start-btn').innerHTML = 'Start <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>';
+      document.getElementById('cd-start-btn').innerHTML = 'Start <span class="play-tri">▶</span>';
       document.getElementById('cd-display').classList.add('alarm');
       playBuzzerSound();
       return;
@@ -9918,7 +9918,7 @@ window.resetCountdown = function() {
   cdTargetTime = 0;
   document.getElementById('cd-display').textContent = '00:00.00';
   document.getElementById('cd-display').classList.remove('alarm');
-  document.getElementById('cd-start-btn').innerHTML = 'Start <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>';
+  document.getElementById('cd-start-btn').innerHTML = 'Start <span class="play-tri">▶</span>';
   document.getElementById('cd-input-row').style.display = 'flex';
 };
 
@@ -9934,7 +9934,7 @@ window.toggleStopwatch = function() {
     clearInterval(toolSwInterval);
     toolSwInterval = null;
     swRunning = false;
-    document.getElementById('sw-start-btn').innerHTML = 'Resume <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>';
+    document.getElementById('sw-start-btn').innerHTML = 'Resume <span class="play-tri">▶</span>';
     return;
   }
   swStartTime = Date.now();
@@ -9953,7 +9953,7 @@ window.resetStopwatch = function() {
   swAccumulated = 0;
   swStartTime = 0;
   document.getElementById('sw-display').textContent = '00:00.00';
-  document.getElementById('sw-start-btn').innerHTML = 'Start <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>';
+  document.getElementById('sw-start-btn').innerHTML = 'Start <span class="play-tri">▶</span>';
 };
 
 // ── Lap Timer ──
@@ -9974,7 +9974,7 @@ window.toggleLapTimer = function() {
     clearInterval(toolLapInterval);
     toolLapInterval = null;
     lapRunning = false;
-    document.getElementById('lap-start-btn').innerHTML = 'Resume <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>';
+    document.getElementById('lap-start-btn').innerHTML = 'Resume <span class="play-tri">▶</span>';
     return;
   }
   lapStartTime = Date.now();
@@ -10006,7 +10006,7 @@ window.resetLapTimer = function() {
   lapLastMark = 0;
   lapCount = 0;
   document.getElementById('lap-display').textContent = '00:00.00';
-  document.getElementById('lap-start-btn').innerHTML = 'Start <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>';
+  document.getElementById('lap-start-btn').innerHTML = 'Start <span class="play-tri">▶</span>';
   document.getElementById('lap-list').innerHTML = '';
 };
 
@@ -10423,8 +10423,8 @@ window.onCreateFinalBtn = function() {
 function renderEditRoomButtons() {
   const finalBtn = document.getElementById('create-final-btn');
   if (finalBtn) {
-    if (startingNewGame) { finalBtn.innerHTML = 'Start Game <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>'; }
-    else if (editingRoom) { finalBtn.innerHTML = 'Back to Lobby <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span>'; }
+    if (startingNewGame) { finalBtn.innerHTML = 'Start Game <span class="play-tri">▶</span>'; }
+    else if (editingRoom) { finalBtn.innerHTML = 'Back to Lobby <span class="play-tri">▶</span>'; }
     else { finalBtn.textContent = 'Create Room'; }
   }
 }
@@ -14479,7 +14479,7 @@ function renderSaveRow(listEl, code, save) {
     <div class="save-row-name">${escapeHtml(save.name || 'Untitled Save')}</div>
     <div class="save-row-date">${escapeHtml(dateStr)} · code ${escapeHtml(code)}</div>
     <div class="save-row-actions">
-      <button data-act="resume">Resume <span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri"><span class="play-tri">▶</span></span></span></span></span></button>
+      <button data-act="resume">Resume <span class="play-tri">▶</span></button>
       <button data-act="rename">✎ Rename</button>
       <button data-act="delete" class="danger">🗑 Delete</button>
     </div>
