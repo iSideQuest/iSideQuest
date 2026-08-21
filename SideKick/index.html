@@ -4661,16 +4661,16 @@
     word-break: break-all;
   }
 
-  /* ── ACCESS CODE MODAL ── */
-  #access-code-modal {
+  /* ── PASSWORD GATE ── */
+  #password-gate {
     position: fixed; inset: 0;
-    background: rgba(0,0,0,0.6);
+    background: var(--bg);
     z-index: 99999;
     display: flex; align-items: center; justify-content: center;
     padding: 1.5rem;
   }
-  #access-code-modal.hidden { display: none; }
-  #access-code-card {
+  #password-gate.hidden { display: none; }
+  #password-gate-card {
     background: #13131a;
     border: 1px solid #2a2a3a;
     border-radius: 16px;
@@ -4679,18 +4679,18 @@
     max-width: 340px;
     text-align: center;
   }
-  #access-code-card .pw-title {
+  #password-gate-card .pw-title {
     font-size: 1.1rem;
     font-weight: 800;
     color: var(--text);
     margin-bottom: 0.3rem;
   }
-  #access-code-card .pw-sub {
+  #password-gate-card .pw-sub {
     font-size: 0.78rem;
     color: var(--muted);
     margin-bottom: 1.2rem;
   }
-  #access-code-card input {
+  #password-gate-card input {
     width: 100%;
     padding: 0.7rem 0.9rem;
     border-radius: 10px;
@@ -4705,11 +4705,11 @@
     margin-bottom: 0.8rem;
     -webkit-appearance: none;
   }
-  #access-code-card input:focus {
+  #password-gate-card input:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(124,92,191,0.25);
   }
-  #access-code-card .pw-submit {
+  #password-gate-card .pw-submit {
     width: 100%;
     padding: 0.7rem;
     border-radius: 999px;
@@ -4722,8 +4722,8 @@
     cursor: pointer;
     transition: background 0.15s, transform 0.1s;
   }
-  #access-code-card .pw-submit:active { transform: scale(0.97); }
-  #access-code-card .pw-error {
+  #password-gate-card .pw-submit:active { transform: scale(0.97); }
+  #password-gate-card .pw-error {
     color: #e74c3c;
     font-size: 0.78rem;
     margin-top: 0.5rem;
@@ -4733,14 +4733,14 @@
 </head>
 <body>
 
-<!-- ACCESS CODE MODAL -->
-<div id="access-code-modal" class="hidden">
-  <div id="access-code-card">
-    <div class="pw-title">🔒 Access Code Required</div>
+<!-- PASSWORD GATE -->
+<div id="password-gate">
+  <div id="password-gate-card">
+    <div class="pw-title">🔒 SideKick</div>
     <div class="pw-sub">Enter the access code to continue</div>
-    <input type="password" id="access-code-input" placeholder="Access code" autocomplete="off">
-    <button class="pw-submit" id="access-code-submit">Enter</button>
-    <div class="pw-error" id="access-code-error"></div>
+    <input type="password" id="pw-input" placeholder="Access code" autocomplete="off">
+    <button class="pw-submit" id="pw-submit">Enter</button>
+    <div class="pw-error" id="pw-error"></div>
   </div>
 </div>
 
@@ -4832,7 +4832,7 @@
 <!--  SCREEN: HOME                               -->
 <!-- ═══════════════════════════════════════════ -->
 <div id="screen-home" class="screen active" style="position:relative;">
-  <button class="btn-secondary btn-sm" id="account-btn" style="position:fixed; top:14px; right:14px; width:auto; padding:0.5rem 1rem; font-size:0.85rem; background:transparent; border:1px solid var(--border); z-index:20;" onclick="requireAccessCode(function() { openAccountOverlay(); })">Login</button>
+  <button class="btn-secondary btn-sm" id="account-btn" style="position:fixed; top:14px; right:14px; width:auto; padding:0.5rem 1rem; font-size:0.85rem; background:transparent; border:1px solid var(--border); z-index:20;" onclick="openAccountOverlay()">Login</button>
   <div id="lang-btn-wrap" style="position:fixed; top:14px; left:14px; z-index:20;">
     <button id="lang-btn" onclick="toggleLangMenu()" style="height:auto;min-height:0;width:auto;padding:0.5rem 0.85rem;border-radius:999px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:0.85rem;font-weight:700;letter-spacing:0.03em;color:var(--text);line-height:1;display:flex;align-items:center;justify-content:center;" title="Change language">EN</button>
     <div id="lang-menu" style="display:none;position:absolute;top:44px;left:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0.4rem;box-shadow:0 6px 20px rgba(0,0,0,0.25);flex-direction:column;gap:0.2rem;min-width:160px;max-height:70vh;overflow-y:auto;">
@@ -4854,7 +4854,7 @@
   <div class="tagline" data-i18n="tagline">Pass the turn. Keep the vibe.</div>
   <div class="card">
     <div class="btn-group">
-      <button class="btn-primary" onclick="requireAccessCode(function() { showCreateRoom(); })" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999px;" data-i18n="hostRoom">Host Room</button>
+      <button class="btn-primary" onclick="showCreateRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999px;" data-i18n="hostRoom">Host Room</button>
       <button class="btn-secondary" onclick="showJoinRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999px;" data-i18n="joinRoom">Join Room</button>
     </div>
   </div>
@@ -9190,50 +9190,72 @@ const hardcodedCfg = {
 })();
 initFirebase(hardcodedCfg);
 
-// ── ACCESS CODE MODAL ──────────────────────────
-// Reusable per-action password gate. Reads config/playtest/password from
-// Firebase every time (no caching). Guard showCreateRoom and openAccountOverlay.
-let _accessCodeCallback = null;
+// ── PASSWORD GATE (Firebase-backed) ──────────────
+// The password is never hardcoded in the HTML — it lives in
+// config/playtest/password in Firebase Realtime Database.
+// Returning users have it cached in localStorage; the module
+// re-validates it against Firebase every load and every 5 min.
+const PW_STORAGE_KEY = 'sk_password';
+let _sidekickPassword = null;   // current Firebase password (plaintext, module-scope only)
 
-window.requireAccessCode = function(callback) {
-  // Admins (creator accounts) bypass the access code
-  if (currentUser && isCreator) { if (callback) callback(); return; }
-  const modal = document.getElementById('access-code-modal');
-  const input = document.getElementById('access-code-input');
-  const error = document.getElementById('access-code-error');
-  if (!modal || !input || !error) { if (callback) callback(); return; }
-  _accessCodeCallback = callback;
-  input.value = '';
-  error.textContent = '';
-  modal.classList.remove('hidden');
-  input.focus();
+window.checkPassword = function() {
+  const input = document.getElementById('pw-input');
+  const error = document.getElementById('pw-error');
+  const gate  = document.getElementById('password-gate');
+  if (!input || !gate) return;
+  if (!_sidekickPassword) { error.textContent = 'Still loading — try again in a moment.'; return; }
+  if (input.value === _sidekickPassword) {
+    localStorage.setItem(PW_STORAGE_KEY, input.value);
+    gate.classList.add('hidden');
+    input.value = '';
+    error.textContent = '';
+  } else {
+    error.textContent = 'Incorrect code. Try again.';
+    input.value = '';
+    input.focus();
+  }
 };
 
-document.getElementById('access-code-submit').addEventListener('click', submitAccessCode);
-document.getElementById('access-code-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitAccessCode(); });
+document.getElementById('pw-submit').addEventListener('click', window.checkPassword);
+document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') window.checkPassword(); });
 
-function submitAccessCode() {
-  const input = document.getElementById('access-code-input');
-  const error = document.getElementById('access-code-error');
-  const modal = document.getElementById('access-code-modal');
-  if (!input || !modal) return;
-  if (!db) { error.textContent = 'Not connected. Try again.'; return; }
-  get(ref(db, 'config/playtest/password')).then(snap => {
-    const expected = snap.val() || '';
-    if (input.value === expected) {
-      modal.classList.add('hidden');
-      const cb = _accessCodeCallback;
-      _accessCodeCallback = null;
-      if (cb) cb();
-    } else {
-      error.textContent = 'Incorrect code. Try again.';
-      input.value = '';
-      input.focus();
+// Fetch the current password from Firebase and re-validate stored copy.
+async function syncPassword() {
+  try {
+    const snap = await get(ref(db, 'config/playtest/password'));
+    const pw = snap.val() || 'test1';
+    _sidekickPassword = pw;
+
+    // Creator bypass — always let the developer in
+    if (currentUser && isCreator) {
+      localStorage.setItem(PW_STORAGE_KEY, pw);
+      document.getElementById('password-gate').classList.add('hidden');
+      return;
     }
-  }).catch(() => {
-    error.textContent = 'Could not verify. Check connection.';
-  });
+
+    // Re-validate the stored password
+    const stored = localStorage.getItem(PW_STORAGE_KEY);
+    if (stored !== pw) {
+      // Password changed or first load — clear and show gate
+      localStorage.removeItem(PW_STORAGE_KEY);
+      document.getElementById('password-gate').classList.remove('hidden');
+    }
+  } catch (e) {
+    // Network issue — keep current state, will retry on interval
+  }
 }
+
+// On auth state change, also check creator bypass
+onAuthStateChanged(auth, user => {
+  if (user && CREATOR_UIDS.includes(user.uid)) {
+    localStorage.setItem(PW_STORAGE_KEY, _sidekickPassword || 'bypass');
+    document.getElementById('password-gate').classList.add('hidden');
+  }
+});
+
+// Initial check + periodic re-validation every 5 minutes
+syncPassword();
+setInterval(syncPassword, 300000);
 
 function requireDb() {
   if (!db) {
@@ -16247,6 +16269,17 @@ function showDialog(type, message, defaultVal) {
 window.showAlert = function(msg) { return showDialog('alert', msg); };
 window.showConfirm = function(msg) { return showDialog('confirm', msg); };
 window.showPrompt = function(msg, def) { return showDialog('prompt', msg, def); };
+</script>
+
+<script>
+// Password gate — classic script runs during parse for instant hide
+(function() {
+  var gate = document.getElementById('password-gate');
+  if (!gate) return;
+  var stored = null;
+  try { stored = localStorage.getItem('sk_password'); } catch {}
+  if (stored) gate.classList.add('hidden');
+})();
 </script>
 
 <script>
