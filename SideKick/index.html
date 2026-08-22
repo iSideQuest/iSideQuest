@@ -2499,22 +2499,18 @@
   .ctrl-btn.active-ctrl { background: rgba(124,92,191,0.6); color: #fff; border-color: rgba(160,126,224,0.5); }
   .ctrl-sep { height: 1px; background: rgba(255,255,255,0.08); margin: 2px 0; }
 
-  /* ── PORTRAIT LOCK ── */
-  #portrait-lock-overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: #0a0a0f;
-    z-index: 99999;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    color: #fff;
-    text-align: center;
-    padding: 2rem;
-  }
+  /* ── PORTRAIT LOCK: force portrait on ALL devices ── */
   @media (orientation: landscape) {
-    #portrait-lock-overlay { display: flex; }
+    body {
+      transform: rotate(-90deg);
+      transform-origin: left bottom;
+      position: fixed;
+      top: 100%;
+      left: 0;
+      width: 100vh;
+      height: 100vw;
+      overflow: hidden;
+    }
   }
 
   /* ── MANAGE PLAYERS PANEL ── */
@@ -16627,13 +16623,6 @@ window.dismissInstall = function() {
     <button onclick="dismissInstall()" style="width:auto; padding:0.4rem 0.8rem; font-size:0.8rem; background:transparent; border:1px solid #2a2a3a; border-radius:8px; color:#7a7a9a;">Not now</button>
     <button onclick="installPWA()" style="width:auto; padding:0.4rem 0.9rem; font-size:0.8rem; background:#7c5cbf; border:none; border-radius:8px; color:#fff; font-weight:600;">Install</button>
   </div>
-</div>
-
-<!-- PORTRAIT LOCK OVERLAY -->
-<div id="portrait-lock-overlay">
-  <div style="font-size:4rem;">📱</div>
-  <div style="font-size:1.2rem; font-weight:700;">Rotate to Portrait</div>
-  <div style="font-size:0.8rem; color:rgba(255,255,255,0.5);">This app only works in portrait mode</div>
 </div>
 
 <!-- Silent audio loop: keeps iOS audio session alive when PWA is backgrounded -->
