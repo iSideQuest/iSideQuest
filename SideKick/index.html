@@ -2499,19 +2499,7 @@
   .ctrl-btn.active-ctrl { background: rgba(124,92,191,0.6); color: #fff; border-color: rgba(160,126,224,0.5); }
   .ctrl-sep { height: 1px; background: rgba(255,255,255,0.08); margin: 2px 0; }
 
-  /* ── PORTRAIT LOCK: force portrait on ALL devices ── */
-  @media (orientation: landscape) {
-    body {
-      transform: rotate(-90deg);
-      transform-origin: left bottom;
-      position: fixed;
-      top: 100%;
-      left: 0;
-      width: 100vh;
-      height: 100vw;
-      overflow: hidden;
-    }
-  }
+
 
   /* ── MANAGE PLAYERS PANEL ── */
   .manage-overlay {
@@ -12368,6 +12356,12 @@ window.toggleSound = function() {
 function resetOrientation() {
   try { screen.orientation.lock('portrait-primary').catch(()=>{}); } catch(e) {}
 }
+// Attempt to lock on every page interaction (iOS PWA requires user gesture)
+['touchstart','click','keydown'].forEach(evt => {
+  document.addEventListener(evt, () => {
+    try { screen.orientation.lock('portrait-primary').catch(()=>{}); } catch(e) {}
+  }, { once: false, passive: true });
+});
 
 // ── WAKE LOCK (keep screen on during game) ──────────────
 let wakeLock = null;
