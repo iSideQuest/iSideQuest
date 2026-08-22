@@ -2245,6 +2245,29 @@
   }
   .active-ui-btn:active { background: rgba(124,92,191,0.5); }
 
+  /* ── SKIP PLAYER BUTTON ── */
+  .active-skip-btn {
+    position: absolute;
+    bottom: 14px;
+    right: 114px;
+    top: auto;
+    left: auto;
+    z-index: 20;
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.45);
+    border: 1px solid rgba(251,191,36,0.4);
+    color: #fbbf24;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0;
+    transition: background 0.2s;
+  }
+  .active-skip-btn:active { background: rgba(251,191,36,0.3); }
+
   /* ── WHEEL OVERLAY ── */
   .wheel-overlay {
     position: absolute;
@@ -2476,25 +2499,22 @@
   .ctrl-btn.active-ctrl { background: rgba(124,92,191,0.6); color: #fff; border-color: rgba(160,126,224,0.5); }
   .ctrl-sep { height: 1px; background: rgba(255,255,255,0.08); margin: 2px 0; }
 
-  /* ── ORIENTATION CONTROL ── */
-
-  /* ── LANDSCAPE LAYOUT FIXES ── */
+  /* ── PORTRAIT LOCK ── */
+  #portrait-lock-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: #0a0a0f;
+    z-index: 99999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: #fff;
+    text-align: center;
+    padding: 2rem;
+  }
   @media (orientation: landscape) {
-    .pass-tap-its { font-size: 1.3rem; margin-bottom: 0.3rem; }
-    .pass-tap-arrow { font-size: 5.5rem; }
-    .pass-tap-label { font-size: 0.95rem; }
-    .pass-tap-player { font-size: 0.8rem; }
-    .active-center { top: 32%; transform: translate(-50%, -50%); }
-    .active-center-its { font-size: 1.8rem; }
-    .active-center-name { font-size: 1rem; }
-    .btn-arrow { font-size: 4.5rem; }
-    .btn-label { font-size: 0.95rem; }
-    .btn-player-name { font-size: 0.85rem; }
-    .exit-btn { top: 10px; right: 10px; }
-    .settings-panel { top: 10px; left: 10px; }
-    .settings-gear { width: 34px; height: 34px; font-size: 1rem; }
-    .host-game-menu { bottom: 10px; left: 10px; }
-    #screen-active .pass-tap-btn { padding: 36px 10px; }
+    #portrait-lock-overlay { display: flex; }
   }
 
   /* ── MANAGE PLAYERS PANEL ── */
@@ -2570,6 +2590,24 @@
   .manage-player-item.knocked-out .manage-name {
     text-decoration: line-through;
     color: #6a4a4a;
+  }
+  .player-item.skipped {
+    opacity: 0.45;
+    border-color: #3a2a00;
+    background: #1a1508;
+  }
+  .skipped-badge {
+    position: static;
+    display: inline-block;
+    width: auto; height: auto;
+    border-radius: 4px;
+    background: rgba(251,191,36,0.25);
+    color: #fbbf24;
+    font-size: 0.5rem;
+    font-weight: 700;
+    padding: 1px 4px;
+    margin-left: 4px;
+    line-height: 1.2;
   }
   .manage-num { width: 28px; height: 28px; border-radius: 50%; background: #7c5cbf; display:flex; align-items:center; justify-content:center; font-size:0.78rem; font-weight:700; flex-shrink:0; }
   .manage-num.out { background: #3a1a1a; color: #6a4a4a; }
@@ -5284,6 +5322,7 @@
   </div>
   <button class="active-sound-btn" id="active-sound-btn" onclick="toggleSound()">🔊</button>
   <button class="active-ui-btn" id="active-ui-btn" onclick="window.toggleUIMode()">UI</button>
+  <button class="active-skip-btn" id="active-skip-btn" onclick="window.toggleSelfSkip()" style="display:none;">Skip</button>
   <!-- Wheel overlay (shown when wheel UI mode is active) -->
   <div class="wheel-overlay" id="wheel-overlay-active">
     <div class="wheel-svg-wrap" id="wheel-svg-wrap-active">
@@ -5377,6 +5416,7 @@
   </div>
   <button class="active-sound-btn" id="active-sound-btn-wait" onclick="toggleSound()">🔊</button>
   <button class="active-ui-btn" id="active-ui-btn-wait" onclick="window.toggleUIMode()">UI</button>
+  <button class="active-skip-btn" id="active-skip-btn-wait" onclick="window.toggleSelfSkip()" style="display:none;">Skip</button>
   <!-- Wheel overlay (shown when wheel UI mode is active) -->
   <div class="wheel-overlay" id="wheel-overlay-wait">
     <div class="wheel-svg-wrap" id="wheel-svg-wrap-wait">
@@ -7984,9 +8024,30 @@ async function syncProfileFromFirebase() {
     if (profile.hostedCount != null) localStorage.setItem('sk_hosted_count', String(profile.hostedCount));
     if (profile.roomsCount != null) localStorage.setItem('sk_rooms_count', String(profile.roomsCount));
     if (profile.awards) localStorage.setItem('sk_awards_' + uid, JSON.stringify(profile.awards));
-    if (profile.theme) localStorage.setItem('sk_theme', profile.theme);
-    if (profile.namedTheme) localStorage.setItem('sk_named_theme', profile.namedTheme);
-    if (profile.namedTheme || profile.theme) {
+    // Theme: use timestamp to decide which is newer (local vs Firebase)
+    const localTs = parseInt(localStorage.getItem('sk_theme_ts') || '0', 10);
+    const firebaseTs = profile.themeTs || 0;
+    if (firebaseTs > localTs) {
+      // Firebase is newer — pull from Firebase
+      if (profile.theme) localStorage.setItem('sk_theme', profile.theme);
+      if (profile.namedTheme) localStorage.setItem('sk_named_theme', profile.namedTheme);
+      if (profile.namedTheme || profile.theme) {
+        applyFullTheme(profile.namedTheme || 'default', profile.theme === 'light');
+      }
+    } else if (localTs > 0) {
+      // Local is newer — push to Firebase
+      const localTheme = localStorage.getItem('sk_theme');
+      const localNamed = localStorage.getItem('sk_named_theme') || 'default';
+      if (localTheme) set(ref(db, `users/${uid}/theme`), localTheme).catch(() => {});
+      if (localNamed) set(ref(db, `users/${uid}/namedTheme`), localNamed).catch(() => {});
+      set(ref(db, `users/${uid}/themeTs`), localTs).catch(() => {});
+      if (localNamed || localTheme) {
+        applyFullTheme(localNamed, localTheme === 'light');
+      }
+    } else if (profile.namedTheme || profile.theme) {
+      // No timestamps — fall back to Firebase data
+      if (profile.theme) localStorage.setItem('sk_theme', profile.theme);
+      if (profile.namedTheme) localStorage.setItem('sk_named_theme', profile.namedTheme);
       applyFullTheme(profile.namedTheme || 'default', profile.theme === 'light');
     }
   }
@@ -9007,6 +9068,7 @@ let currentRound = 1;    // current round, stored in Firebase as rooms/{code}/cu
 let passDirection = '';         // 'ccw' | 'both' | 'cw' — mandatory before room creation
 let ceremonyAborted = false;    // set by host Skip Awards button
 let featureTimersEnabled = false;
+let featurePlayerSkipEnabled = false;
 
 // ── SPEED ROUND state ─────────────────────────
 let turnMode = 'classic';       // 'classic' | 'speedRound'
@@ -9355,6 +9417,7 @@ function resetCreateWizardState() {
   featureTimersEnabled = false;
   featureRoundsEnabled = false;
   featureUndoEnabled   = false;
+  featurePlayerSkipEnabled = false;
   // isFeatureEnabled() reads these from window — clear the window mirrors too
   FEATURE_DEFS_GRID.forEach(def => { window[def.var] = false; });
   const tmTxt = document.getElementById('tm-summary');
@@ -10778,12 +10841,12 @@ window.closeMidGameSettings = function() {
 const MG_KEY_MAP = {
   nudge: 'nudge', awards: 'awards', vp: 'victoryPoints',
   timers: 'timers', status: 'statusEffects', rounds: 'rounds',
-  dnd: 'dndTurnComponents', undo: 'undo'
+  dnd: 'dndTurnComponents', undo: 'undo', playerSkip: 'playerSkip'
 };
 const MG_VAR_MAP = {
   nudge: 'featureNudgeEnabled', awards: 'featureAwardsEnabled', vp: 'featureVPEnabled',
   timers: 'featureTimersEnabled', status: 'featureStatusEffectsEnabled', rounds: 'featureRoundsEnabled',
-  dnd: 'featureDndEnabled', undo: 'featureUndoEnabled'
+  dnd: 'featureDndEnabled', undo: 'featureUndoEnabled', playerSkip: 'featurePlayerSkipEnabled'
 };
 
 function isMGFeatureEnabled(key) {
@@ -10796,6 +10859,7 @@ function isMGFeatureEnabled(key) {
     case 'rounds': return featureRoundsEnabled;
     case 'dnd':    return featureDndEnabled;
     case 'undo':   return featureUndoEnabled;
+    case 'playerSkip': return featurePlayerSkipEnabled;
   }
   return !!window[MG_VAR_MAP[key]];
 }
@@ -10810,6 +10874,7 @@ function setMGFeatureState(key, enabled) {
     case 'rounds': featureRoundsEnabled = enabled; break;
     case 'dnd':    featureDndEnabled = enabled; break;
     case 'undo':   featureUndoEnabled = enabled; break;
+    case 'playerSkip': featurePlayerSkipEnabled = enabled; break;
   }
   window[MG_VAR_MAP[key]] = enabled;
 }
@@ -10963,6 +11028,7 @@ window.saveMidGameSettings = async function() {
     roundsTotal:           roundsTotalMg,
     timers:                timersOn,
     undo:                  undoOn,
+    playerSkip:            featurePlayerSkipEnabled,
     timerTurnOn:           timersOn && timerCfg.turn,
     timerTurnVisible:      timerCfg.turnVisible,
     timerRoundOn:          timersOn && timerCfg.round,
@@ -11050,7 +11116,8 @@ const FEATURE_DEFS_GRID = [
   { key: 'undo',    icon: '↩️', name: 'Undo Pass',      hasSettings: false, var: 'featureUndoEnabled' },
   { key: 'timers',  icon: '⏱️', name: 'Timers',         hasSettings: true,  settingKey: 'timers',  var: 'featureTimersEnabled',  creatorOnly: true },
   { key: 'status',  icon: '🩹', name: 'Status Effects',  hasSettings: false, var: 'featureStatusEffectsEnabled', creatorOnly: true },
-  { key: 'dnd',     icon: '⚔️', name: 'D&D',            hasSettings: false, var: 'featureDndEnabled',           creatorOnly: true }
+  { key: 'dnd',     icon: '⚔️', name: 'D&D',            hasSettings: false, var: 'featureDndEnabled',           creatorOnly: true },
+  { key: 'playerSkip', icon: '⏭️', name: 'Player Skip', hasSettings: false, var: 'featurePlayerSkipEnabled' }
 ];
 
 function isFeatureEnabled(key) {
@@ -12325,6 +12392,16 @@ document.addEventListener('visibilitychange', async () => {
       await requestWakeLock();
     }
   }
+  // Keep audio session alive when backgrounded (iOS PWA hack)
+  try {
+    const bgAudio = document.getElementById('bg-keep-alive');
+    if (bgAudio) {
+      if (document.visibilityState === 'hidden') {
+        bgAudio.currentTime = 0;
+        bgAudio.play().catch(() => {});
+      }
+    }
+  } catch(e) {}
 });
 
 
@@ -12680,8 +12757,9 @@ function renderManageList(players, rawPlayers) {
     const dotColor = p.color || 'var(--accent)';
     const dotText  = p.color && isLightColor(p.color) ? '#000' : '#fff';
     const avatarDotStyle = p.color ? `style="border-color:${p.color};"` : '';
+    const isSkipped = p.knockedOut;
     const div = document.createElement('div');
-    div.className = 'player-item';
+    div.className = 'player-item' + (isSkipped ? ' skipped' : '');
     div.setAttribute('draggable', 'false');
     div.dataset.dragId = p.id;
     div.innerHTML = `
@@ -12690,17 +12768,27 @@ function renderManageList(players, rawPlayers) {
         <div class="player-avatar-wrap">
           <div class="player-avatar" ${avatarDotStyle}>${avatarHTML(p.avatar || '👤', 24)}</div>
           ${p.id === myId ? '<span class="player-badge host">Host</span>' : ''}
+          ${isSkipped ? '<span class="player-badge skipped-badge">Skipped</span>' : ''}
         </div>
       </div>
-      <div class="player-name">${esc(p.name)}</div>`;
+      <div class="player-name" style="${isSkipped ? 'text-decoration:line-through;opacity:0.5;' : ''}">${esc(p.name)}</div>`;
+    const btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:0.3rem;justify-content:flex-end;margin-top:0.3rem;';
+    const skipBtn = document.createElement('button');
+    skipBtn.className = 'manage-skip-btn';
+    skipBtn.textContent = isSkipped ? 'Unskip' : 'Skip';
+    skipBtn.style.cssText = 'font-size:0.7rem;font-weight:600;color:' + (isSkipped ? '#4ade80' : '#fbbf24') + ';background:transparent;border:1px solid ' + (isSkipped ? 'rgba(74,222,128,0.4)' : 'rgba(251,191,36,0.4)') + ';border-radius:7px;padding:0.3rem 0.6rem;cursor:pointer;';
+    skipBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlayerSkip(p.id, p.name, p.knockedOut); });
+    btnRow.appendChild(skipBtn);
     if (p.id !== myId) {
       const kickBtn = document.createElement('button');
       kickBtn.className = 'lobby-kick-btn';
       kickBtn.textContent = '×';
       kickBtn.title = 'Remove ' + p.name;
       kickBtn.addEventListener('click', (e) => { e.stopPropagation(); kickPlayer(p.id, p.name); });
-      div.appendChild(kickBtn);
+      btnRow.appendChild(kickBtn);
     }
+    div.appendChild(btnRow);
     el.appendChild(div);
   });
   makeDraggable(el, async (srcId, destId) => {
@@ -12716,6 +12804,37 @@ function renderManageList(players, rawPlayers) {
     await update(ref(db), updates);
   });
 }
+
+// ── TOGGLE PLAYER SKIP (host or self) ──────────
+window.togglePlayerSkip = async function(playerId, playerName, currentlySkipped) {
+  if (!db || !roomCode) return;
+  const newSkipped = !currentlySkipped;
+  // If skipping the active player, advance turn first
+  if (newSkipped) {
+    const snap = await get(ref(db, `rooms/${roomCode}`));
+    if (snap.exists()) {
+      const room = snap.val();
+      const allPlayers = buildOrderedPlayers(room.players || {});
+      const activeIdx = room.activePlayerIndex ?? 0;
+      const activePlayer = allPlayers[activeIdx];
+      if (activePlayer && activePlayer.id === playerId) {
+        const dir = (room.features?.passDirection || passDirection || 'both') === 'ccw' ? 'right' : 'left';
+        await passTurn(dir);
+      }
+    }
+  }
+  await set(ref(db, `rooms/${roomCode}/players/${playerId}/knockedOut`), newSkipped);
+  haptic(10);
+};
+
+// ── SELF SKIP (player toggles own skip) ──────
+window.toggleSelfSkip = async function() {
+  if (!db || !roomCode || !myId || !isHost && !featurePlayerSkipEnabled) return;
+  const snap = await get(ref(db, `rooms/${roomCode}/players/${myId}`));
+  if (!snap.exists()) return;
+  const currentlySkipped = !!snap.val().knockedOut;
+  await togglePlayerSkip(myId, myName, currentlySkipped);
+};
 
 // Permanently removes a player from the room. Unlike the temporary
 // skip-turn toggle above, this deletes their record entirely — they'd
@@ -12854,7 +12973,8 @@ window.createRoom = async function() {
       turnMode:             turnMode,
       speedMode:            turnMode === 'speedRound' ? speedMode : '',
       speedRoundsTotal:     turnMode === 'speedRound' ? speedRoundsTotal : 0,
-      undo:                 featureUndoEnabled
+      undo:                 featureUndoEnabled,
+      playerSkip:           featurePlayerSkipEnabled
     },
     currentRound: featureRoundsEnabled ? 1 : 0,
     // Speed Round initial state
@@ -13883,6 +14003,7 @@ window.startNewGame = async function() {
   updates[`rooms/${roomCode}/features/rounds`] = featureRoundsEnabled;
   updates[`rooms/${roomCode}/features/roundsTotal`] = featureRoundsEnabled ? (parseInt(document.getElementById('rounds-total').value) || 3) : 0;
   updates[`rooms/${roomCode}/features/undo`] = featureUndoEnabled;
+  updates[`rooms/${roomCode}/features/playerSkip`] = featurePlayerSkipEnabled;
   // Reset game state — keep players and room code
   updates[`rooms/${roomCode}/status`] = 'lobby';
   updates[`rooms/${roomCode}/activePlayerIndex`] = 0;
@@ -13987,6 +14108,7 @@ function listenGameState() {
     featureRoundsEnabled          = !!roomFeatures.rounds;
     roundsTotal                   = roomFeatures.roundsTotal || 3;
     featureUndoEnabled            = !!roomFeatures.undo;
+    featurePlayerSkipEnabled      = !!roomFeatures.playerSkip;
     currentRound                  = room.currentRound || 1;
     passDirection = roomFeatures.passDirection || 'both';
     turnMode      = roomFeatures.turnMode      || 'classic';
@@ -14140,6 +14262,9 @@ function listenGameState() {
           btn.classList.toggle('host-offset', isHost);
         }
       });
+      // Player Skip button — visible when host allows it (or host themselves)
+      const skipBtnA = document.getElementById('active-skip-btn');
+      if (skipBtnA) skipBtnA.style.display = (featurePlayerSkipEnabled || isHost) ? '' : 'none';
     } else {
       // Show waiting screen
       const myPlayer = localPlayers.find(p => p.id === myId);
@@ -14189,6 +14314,9 @@ function listenGameState() {
         const effects = room.players?.[myId]?.statusEffects || {};
         updateStatusButtonIndicator(effects);
       }
+      // Player Skip button — visible when host allows it (or host themselves)
+      const skipBtnW = document.getElementById('active-skip-btn-wait');
+      if (skipBtnW) skipBtnW.style.display = (featurePlayerSkipEnabled || isHost) ? '' : 'none';
       // Timers: sync from Firebase (don't tick locally on waiting screen)
       if (turnChanged || firstTurn) initTimersForTurn(room, false);
       else syncTimersFromRoom(room);
@@ -16084,7 +16212,9 @@ function applyFullTheme(themeName, isLight) {
 
 window.toggleTheme = function() {
   const isLight = !document.body.classList.contains('light-mode');
+  const ts = String(Date.now());
   localStorage.setItem('sk_theme', isLight ? 'light' : 'dark');
+  localStorage.setItem('sk_theme_ts', ts);
   const namedTheme = localStorage.getItem('sk_named_theme') || 'default';
   if (namedTheme === 'default') applyFullTheme('default', isLight);
   // Sync to Firebase
@@ -16092,6 +16222,7 @@ window.toggleTheme = function() {
   if (uid && db) {
     set(ref(db, `users/${uid}/theme`), isLight ? 'light' : 'dark').catch(() => {});
     set(ref(db, `users/${uid}/namedTheme`), namedTheme).catch(() => {});
+    set(ref(db, `users/${uid}/themeTs`), Date.now()).catch(() => {});
   }
 };
 
@@ -16141,6 +16272,7 @@ window.closeMyAwards = function() {
 
 window.selectTheme = function(themeName) {
   localStorage.setItem('sk_named_theme', themeName);
+  localStorage.setItem('sk_theme_ts', String(Date.now()));
   const isLight = document.body.classList.contains('light-mode');
   applyFullTheme(themeName, isLight);
   document.querySelectorAll('.theme-option').forEach(el => el.classList.remove('selected'));
@@ -16150,9 +16282,16 @@ window.selectTheme = function(themeName) {
     const radio = activeOpt.querySelector('input[type="radio"]');
     if (radio) radio.checked = true;
   }
-  // Sync to Firebase
+  // Sync to Firebase — named themes always force dark, so save that too
   const uid = currentUser?.uid;
-  if (uid && db) set(ref(db, `users/${uid}/namedTheme`), themeName).catch(() => {});
+  if (uid && db) {
+    set(ref(db, `users/${uid}/namedTheme`), themeName).catch(() => {});
+    if (themeName !== 'default') {
+      localStorage.setItem('sk_theme', 'dark');
+      set(ref(db, `users/${uid}/theme`), 'dark').catch(() => {});
+    }
+    set(ref(db, `users/${uid}/themeTs`), Date.now()).catch(() => {});
+  }
 };
 
 // Apply saved theme on load
@@ -16489,6 +16628,18 @@ window.dismissInstall = function() {
     <button onclick="installPWA()" style="width:auto; padding:0.4rem 0.9rem; font-size:0.8rem; background:#7c5cbf; border:none; border-radius:8px; color:#fff; font-weight:600;">Install</button>
   </div>
 </div>
+
+<!-- PORTRAIT LOCK OVERLAY -->
+<div id="portrait-lock-overlay">
+  <div style="font-size:4rem;">📱</div>
+  <div style="font-size:1.2rem; font-weight:700;">Rotate to Portrait</div>
+  <div style="font-size:0.8rem; color:rgba(255,255,255,0.5);">This app only works in portrait mode</div>
+</div>
+
+<!-- Silent audio loop: keeps iOS audio session alive when PWA is backgrounded -->
+<audio id="bg-keep-alive" loop preload="none" style="display:none;">
+  <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
+</audio>
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" defer></script>
 </body>
