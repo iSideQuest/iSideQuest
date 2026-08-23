@@ -15398,8 +15398,8 @@ function genFriendCode() {
 
 function friendCodePath() { return `users/${currentUser.uid}/friendCode`; }
 function friendCodeIndexPath(code) { return `friendCodeIndex/${code}`; }
-function friendsPath(uid) { return `users/${uid || currentUser.uid}/friends`; }
-function friendPath(uid, friendUid) { return `users/${uid || currentUser.uid}/friends/${friendUid}`; }
+function friendsPath(uid) { return `friends/${uid || currentUser.uid}`; }
+function friendPath(uid, friendUid) { return `friends/${uid || currentUser.uid}/${friendUid}`; }
 
 async function ensureFriendCode() {
   if (!db || !currentUser) return null;
