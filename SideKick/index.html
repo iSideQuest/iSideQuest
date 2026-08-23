@@ -11150,14 +11150,15 @@ function setFeatureEnabled(key, enabled) {
   const cb = document.getElementById(toggleMap[key]);
   if (cb) cb.checked = enabled;
   // Run existing side-effect handlers
-  if (key === 'nudge')   window.onNudgeToggle(enabled);
-  if (key === 'awards')  window.onAwardsToggle(enabled);
-  if (key === 'timers')  window.onTimersToggle(enabled);
-  if (key === 'vp')      window.onVPToggle(enabled);
-  if (key === 'status')  window.onStatusEffectsToggle(enabled);
-  if (key === 'rounds')  window.onRoundsToggle(enabled);
-  if (key === 'dnd')     window.onDndToggle(enabled);
-  if (key === 'undo')    window.onUndoToggle(enabled);
+  if (key === 'nudge')      window.onNudgeToggle(enabled);
+  if (key === 'awards')     window.onAwardsToggle(enabled);
+  if (key === 'timers')     window.onTimersToggle(enabled);
+  if (key === 'vp')         window.onVPToggle(enabled);
+  if (key === 'status')     window.onStatusEffectsToggle(enabled);
+  if (key === 'rounds')     window.onRoundsToggle(enabled);
+  if (key === 'dnd')        window.onDndToggle(enabled);
+  if (key === 'undo')       window.onUndoToggle(enabled);
+  if (key === 'playerSkip') featurePlayerSkipEnabled = enabled;
 }
 
 window.toggleFeature = function(key) {
