@@ -15474,8 +15474,6 @@ function saveFriendsLocal(data) {
 window.openFriendsOverlay = async function() {
   if (!requireDb()) return;
   document.getElementById('friends-overlay').classList.add('show');
-  document.getElementById('friends-add-input').value = '';
-  document.getElementById('friends-add-status').textContent = '';
   const code = await ensureFriendCode();
   const codeEl = document.getElementById('friends-my-code');
   if (codeEl) codeEl.textContent = code || '------';
@@ -15697,8 +15695,6 @@ window.inviteFriendToRoom = async function(friendUid) {
     };
     await set(ref(db, `rooms/${roomCode}/invites/${friendUid}`), inviteData);
     await set(ref(db, `roomInvites/${friendUid}`), inviteData);
-    const statusEl = document.getElementById('friends-add-status');
-    if (statusEl) { statusEl.textContent = t('inviteSent'); statusEl.style.color = '#22c55e'; }
   } catch (e) {}
 };
 
