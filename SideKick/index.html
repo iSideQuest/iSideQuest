@@ -1672,6 +1672,8 @@
     padding: 1rem;
   }
   .tools-overlay.show { display: flex; }
+  #friend-request-popup.show, #room-invite-popup.show { display: block; animation: popupSlideIn 0.3s ease; }
+  @keyframes popupSlideIn { from { opacity:0; transform:translateX(-50%) translateY(-20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
   .tools-modal {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 18px; padding: 1.5rem 1.25rem;
@@ -6000,6 +6002,14 @@
         </div>
         <div class="profile-menu-chevron">›</div>
       </div>
+      <div class="profile-menu-item" onclick="openFriendsOverlay()">
+        <div class="profile-menu-icon icon-saves">👥</div>
+        <div class="profile-menu-text">
+          <div class="profile-menu-title" data-i18n="friends">Friends</div>
+          <div class="profile-menu-desc" data-i18n="friendsDesc">Add friends and invite them to rooms</div>
+        </div>
+        <div class="profile-menu-chevron">›</div>
+      </div>
       <div class="profile-menu-item" onclick="openMySavedGames()">
         <div class="profile-menu-icon icon-saves">💾</div>
         <div class="profile-menu-text">
@@ -6498,6 +6508,59 @@
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
+<!--  FRIENDS OVERLAY                            -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tools-overlay" id="friends-overlay">
+  <div class="tools-modal" style="max-height:88vh; overflow-y:auto;">
+    <div class="tools-modal-title">👥 <span data-i18n="friends">Friends</span></div>
+    <div style="text-align:center; margin-bottom:0.8rem;">
+      <div style="font-size:0.8rem; color:var(--muted);" data-i18n="yourFriendCode">Your Friend Code</div>
+      <div id="friends-my-code" style="font-size:1.5rem; font-weight:800; letter-spacing:0.15em; color:var(--accent); margin:0.3rem 0;">------</div>
+      <button class="btn-secondary btn-sm" style="padding:0.3rem 1rem;" onclick="copyFriendCode()" data-i18n="copyCode">Copy Code</button>
+    </div>
+    <div style="display:flex; gap:0.4rem; margin-bottom:0.8rem;">
+      <input id="friends-add-input" placeholder="Enter friend code..." style="flex:1; padding:0.5rem; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:0.9rem;" maxlength="9">
+      <button class="btn-primary btn-sm" style="padding:0.5rem 1rem;" onclick="addFriendByCode()" data-i18n="addFriend">Add</button>
+    </div>
+    <div id="friends-add-status" style="font-size:0.8rem; text-align:center; min-height:1rem; margin-bottom:0.5rem;"></div>
+
+    <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.3rem;">
+      <span data-i18n="pendingRequests">Pending Requests</span><span id="friends-pending-count"></span>
+    </div>
+    <div id="friends-pending-list" style="margin-bottom:0.8rem;"></div>
+
+    <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.3rem;" data-i18n="friendsList">Friends List</div>
+    <div id="friends-accepted-list" style="margin-bottom:0.8rem;"></div>
+
+    <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeFriendsOverlay()" data-i18n="close">Close</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  FRIEND REQUEST POPUP (toast)               -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="friend-request-popup" style="display:none; position:fixed; top:1rem; left:50%; transform:translateX(-50%); z-index:9000; background:var(--card); border:1px solid var(--accent); border-radius:12px; padding:0.8rem 1.2rem; box-shadow:0 4px 20px rgba(0,0,0,0.4); max-width:340px; width:90%;">
+  <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.4rem;" data-i18n="friendRequest">Friend Request</div>
+  <div style="font-size:0.85rem; color:var(--muted); margin-bottom:0.6rem;"><span id="friend-request-from">Someone</span> <span data-i18n="wantsToBeFriends">wants to be your friend</span></div>
+  <div style="display:flex; gap:0.4rem;">
+    <button class="btn-primary btn-sm" style="flex:1; padding:0.4rem;" id="friend-request-accept-btn" data-i18n="accept">Accept</button>
+    <button class="btn-secondary btn-sm" style="flex:1; padding:0.4rem; color:#ff5c5c;" id="friend-request-decline-btn" data-i18n="decline">Decline</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  ROOM INVITE POPUP (toast)                  -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="room-invite-popup" style="display:none; position:fixed; top:1rem; left:50%; transform:translateX(-50%); z-index:9000; background:var(--card); border:1px solid #22c55e; border-radius:12px; padding:0.8rem 1.2rem; box-shadow:0 4px 20px rgba(0,0,0,0.4); max-width:340px; width:90%;">
+  <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.4rem;" data-i18n="roomInvite">Room Invite</div>
+  <div style="font-size:0.85rem; color:var(--muted); margin-bottom:0.6rem;"><span id="room-invite-from">Someone</span> <span data-i18n="invitedYouToRoom">invited you to join a room</span></div>
+  <div style="display:flex; gap:0.4rem;">
+    <button class="btn-primary btn-sm" style="flex:1; padding:0.4rem;" id="room-invite-join-btn" data-i18n="join">Join</button>
+    <button class="btn-secondary btn-sm" style="flex:1; padding:0.4rem;" onclick="dismissRoomInvite()" data-i18n="dismiss">Dismiss</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
 <!--  TOOLS OVERLAY (list of tools)              -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="tools-overlay">
@@ -6923,7 +6986,36 @@ const I18N_STRINGS = {
     email: 'Email',
     changePassword: 'Change Password',
     play: 'Play',
-    buzz: 'Buzz'
+    buzz: 'Buzz',
+    friends: 'Friends',
+    friendsDesc: 'Add friends and invite them to rooms',
+    yourFriendCode: 'Your Friend Code',
+    copyCode: 'Copy Code',
+    addFriend: 'Add',
+    friendsList: 'Friends List',
+    pendingRequests: 'Pending Requests',
+    noFriendsYet: 'No friends yet. Add someone with their code!',
+    noPendingRequests: 'No pending requests',
+    invalidFriendCode: 'Enter a valid 8-character code',
+    friendNotFound: 'No account found with that code',
+    cannotAddSelf: 'You can\'t add yourself',
+    maxFriendsReached: 'You\'ve reached the 50 friend limit',
+    friendListFull: 'That friend\'s list is full',
+    alreadyFriends: 'Already friends',
+    requestAlreadyPending: 'Request already pending',
+    friendRequestSent: 'Friend request sent!',
+    errorOccurred: 'Something went wrong',
+    remove: 'Remove',
+    accept: 'Accept',
+    decline: 'Decline',
+    inviteToRoom: 'Invite',
+    inviteSent: 'Invite sent!',
+    friendRequest: 'Friend Request',
+    wantsToBeFriends: 'wants to be your friend',
+    roomInvite: 'Room Invite',
+    invitedYouToRoom: 'invited you to join a room',
+    join: 'Join',
+    dismiss: 'Dismiss'
   },
   es: {
     tagline: 'Pasa el turno. Mantén la energía.',
@@ -7024,7 +7116,36 @@ const I18N_STRINGS = {
     email: 'Correo electrónico',
     changePassword: 'Cambiar Contraseña',
     play: 'Jugar',
-    buzz: 'Zumbido'
+    buzz: 'Zumbido',
+    friends: 'Amigos',
+    friendsDesc: 'Agregar amigos e invitarlos a salas',
+    yourFriendCode: 'Tu Código de Amigo',
+    copyCode: 'Copiar Código',
+    addFriend: 'Agregar',
+    friendsList: 'Lista de Amigos',
+    pendingRequests: 'Solicitudes Pendientes',
+    noFriendsYet: '¡Aún no tienes amigos. ¡Agrega a alguien con su código!',
+    noPendingRequests: 'No hay solicitudes pendientes',
+    invalidFriendCode: 'Ingresa un código de 8 caracteres válido',
+    friendNotFound: 'No se encontró cuenta con ese código',
+    cannotAddSelf: 'No puedes agregarte a ti mismo',
+    maxFriendsReached: 'Alcanzaste el límite de 50 amigos',
+    friendListFull: 'La lista de ese amigo está llena',
+    alreadyFriends: 'Ya son amigos',
+    requestAlreadyPending: 'Solicitud ya pendiente',
+    friendRequestSent: '¡Solicitud de amistad enviada!',
+    errorOccurred: 'Algo salió mal',
+    remove: 'Eliminar',
+    accept: 'Aceptar',
+    decline: 'Rechazar',
+    inviteToRoom: 'Invitar',
+    inviteSent: '¡Invitación enviada!',
+    friendRequest: 'Solicitud de Amistad',
+    wantsToBeFriends: 'quiere ser tu amigo',
+    roomInvite: 'Invitación a Sala',
+    invitedYouToRoom: 'te invitó a unirte a una sala',
+    join: 'Unirse',
+    dismiss: 'Descartar'
   },
   zh: {
     tagline: '传递回合。保持气氛。',
@@ -7125,7 +7246,36 @@ const I18N_STRINGS = {
     email: '电子邮箱',
     changePassword: '更改密码',
     play: '游戏',
-    buzz: '抢答'
+    buzz: '抢答',
+    friends: '好友',
+    friendsDesc: '添加好友并邀请他们加入房间',
+    yourFriendCode: '你的好友码',
+    copyCode: '复制代码',
+    addFriend: '添加',
+    friendsList: '好友列表',
+    pendingRequests: '待处理请求',
+    noFriendsYet: '还没有好友。用好友码添加吧！',
+    noPendingRequests: '没有待处理的请求',
+    invalidFriendCode: '请输入有效的8位代码',
+    friendNotFound: '未找到该代码的账户',
+    cannotAddSelf: '不能添加自己',
+    maxFriendsReached: '已达到50个好友上限',
+    friendListFull: '对方好友列表已满',
+    alreadyFriends: '已经是好友',
+    requestAlreadyPending: '请求已待处理',
+    friendRequestSent: '好友请求已发送！',
+    errorOccurred: '出了点问题',
+    remove: '移除',
+    accept: '接受',
+    decline: '拒绝',
+    inviteToRoom: '邀请',
+    inviteSent: '邀请已发送！',
+    friendRequest: '好友请求',
+    wantsToBeFriends: '想成为你的好友',
+    roomInvite: '房间邀请',
+    invitedYouToRoom: '邀请你加入房间',
+    join: '加入',
+    dismiss: '忽略'
   },
   de: {
     tagline: 'Gib den Zug weiter. Bleib in der Stimmung.',
@@ -7226,7 +7376,36 @@ const I18N_STRINGS = {
     email: 'E-Mail',
     changePassword: 'Passwort ändern',
     play: 'Spielen',
-    buzz: 'Buzz'
+    buzz: 'Buzz',
+    friends: 'Freunde',
+    friendsDesc: 'Freunde hinzufügen und in Räume einladen',
+    yourFriendCode: 'Dein Freundescode',
+    copyCode: 'Code kopieren',
+    addFriend: 'Hinzufügen',
+    friendsList: 'Freundesliste',
+    pendingRequests: 'Ausstehende Anfragen',
+    noFriendsYet: 'Noch keine Freunde. Füge jemanden mit seinem Code hinzu!',
+    noPendingRequests: 'Keine ausstehenden Anfragen',
+    invalidFriendCode: 'Gib einen gültigen 8-Stellen-Code ein',
+    friendNotFound: 'Kein Konto mit diesem Code gefunden',
+    cannotAddSelf: 'Du kannst dich nicht selbst hinzufügen',
+    maxFriendsReached: 'Das Limit von 50 Freunden ist erreicht',
+    friendListFull: 'Die Freundesliste dieses Freundes ist voll',
+    alreadyFriends: 'Bereits befreundet',
+    requestAlreadyPending: 'Anfrage bereits ausstehend',
+    friendRequestSent: 'Freundschaftsanfrage gesendet!',
+    errorOccurred: 'Etwas ist schiefgelaufen',
+    remove: 'Entfernen',
+    accept: 'Akzeptieren',
+    decline: 'Ablehnen',
+    inviteToRoom: 'Einladen',
+    inviteSent: 'Einladung gesendet!',
+    friendRequest: 'Freundschaftsanfrage',
+    wantsToBeFriends: 'möchte dein Freund sein',
+    roomInvite: 'Raumeinladung',
+    invitedYouToRoom: 'hat dich in einen Raum eingeladen',
+    join: 'Beitreten',
+    dismiss: 'Ablehnen'
   },
   fr: {
     tagline: 'Passez le tour. Gardez le rythme.',
@@ -7327,7 +7506,36 @@ const I18N_STRINGS = {
     email: 'E-mail',
     changePassword: 'Changer le mot de passe',
     play: 'Jouer',
-    buzz: 'Buzz'
+    buzz: 'Buzz',
+    friends: 'Amis',
+    friendsDesc: 'Ajouter des amis et les inviter dans des salles',
+    yourFriendCode: 'Ton Code Ami',
+    copyCode: 'Copier le code',
+    addFriend: 'Ajouter',
+    friendsList: 'Liste d\'amis',
+    pendingRequests: 'Demandes en attente',
+    noFriendsYet: 'Pas encore d\'amis. Ajoute quelqu\'un avec son code !',
+    noPendingRequests: 'Aucune demande en attente',
+    invalidFriendCode: 'Entre un code de 8 caractères valide',
+    friendNotFound: 'Aucun compte trouvé avec ce code',
+    cannotAddSelf: 'Tu ne peux pas t\'ajouter toi-même',
+    maxFriendsReached: 'Tu as atteint la limite de 50 amis',
+    friendListFull: 'La liste d\'amis de cet ami est pleine',
+    alreadyFriends: 'Déjà amis',
+    requestAlreadyPending: 'Demande déjà en attente',
+    friendRequestSent: 'Demande d\'ami envoyée !',
+    errorOccurred: 'Quelque chose a mal tourné',
+    remove: 'Supprimer',
+    accept: 'Accepter',
+    decline: 'Refuser',
+    inviteToRoom: 'Inviter',
+    inviteSent: 'Invitation envoyée !',
+    friendRequest: 'Demande d\'ami',
+    wantsToBeFriends: 'veut être ton ami',
+    roomInvite: 'Invitation à une salle',
+    invitedYouToRoom: 't\'a invité à rejoindre une salle',
+    join: 'Rejoindre',
+    dismiss: 'Ignorer'
   },
   ja: {
     tagline: 'ターンを回そう。雰囲気を保とう。',
@@ -7428,7 +7636,36 @@ const I18N_STRINGS = {
     email: 'メール',
     changePassword: 'パスワードを変更',
     play: 'プレイ',
-    buzz: 'バズ'
+    buzz: 'バズ',
+    friends: 'フレンド',
+    friendsDesc: 'フレンドを追加してルームに招待',
+    yourFriendCode: 'あなたのフレンドコード',
+    copyCode: 'コードをコピー',
+    addFriend: '追加',
+    friendsList: 'フレンドリスト',
+    pendingRequests: '保留中のリクエスト',
+    noFriendsYet: 'フレンドがまだいません。コードで友達を追加しましょう！',
+    noPendingRequests: '保留中のリクエストはありません',
+    invalidFriendCode: '有効な8文字のコードを入力してください',
+    friendNotFound: 'そのコードのアカウントが見つかりません',
+    cannotAddSelf: '自分自身を追加することはできません',
+    maxFriendsReached: 'フレンド上限の50人に達しました',
+    friendListFull: 'このフレンドのリストは満員です',
+    alreadyFriends: 'すでにフレンドです',
+    requestAlreadyPending: 'リクエストはすでに保留中です',
+    friendRequestSent: 'フレンドリクエストを送信しました！',
+    errorOccurred: '問題が発生しました',
+    remove: '削除',
+    accept: '承諾',
+    decline: '辞退',
+    inviteToRoom: '招待',
+    inviteSent: '招待を送信しました！',
+    friendRequest: 'フレンドリクエスト',
+    wantsToBeFriends: 'フレンドになりたいと言っています',
+    roomInvite: 'ルーム招待',
+    invitedYouToRoom: 'ルームに招待しました',
+    join: '参加',
+    dismiss: '閉じる'
   },
   it: {
     tagline: 'Passa il turno. Mantieni l\'atmosfera.',
@@ -7529,7 +7766,36 @@ const I18N_STRINGS = {
     email: 'Email',
     changePassword: 'Cambia Password',
     play: 'Gioca',
-    buzz: 'Buzz'
+    buzz: 'Buzz',
+    friends: 'Amici',
+    friendsDesc: 'Aggiungi amici e invitali nelle stanze',
+    yourFriendCode: 'Il tuo Codice Amico',
+    copyCode: 'Copia codice',
+    addFriend: 'Aggiungi',
+    friendsList: 'Lista Amici',
+    pendingRequests: 'Richieste in sospeso',
+    noFriendsYet: 'Nessun amico ancora. Aggiungi qualcuno con il suo codice!',
+    noPendingRequests: 'Nessuna richiesta in sospeso',
+    invalidFriendCode: 'Inserisci un codice di 8 caratteri valido',
+    friendNotFound: 'Nessun account trovato con quel codice',
+    cannotAddSelf: 'Non puoi aggiungere te stesso',
+    maxFriendsReached: 'Hai raggiunto il limite di 50 amici',
+    friendListFull: 'La lista amici di quel amico è piena',
+    alreadyFriends: 'Già amici',
+    requestAlreadyPending: 'Richiesta già in sospeso',
+    friendRequestSent: 'Richiesta di amicizia inviata!',
+    errorOccurred: 'Qualcosa è andato storto',
+    remove: 'Rimuovi',
+    accept: 'Accetta',
+    decline: 'Rifiuta',
+    inviteToRoom: 'Invita',
+    inviteSent: 'Invito inviato!',
+    friendRequest: 'Richiesta di Amicizia',
+    wantsToBeFriends: 'vuole essere tuo amico',
+    roomInvite: 'Invito alla Stanza',
+    invitedYouToRoom: 'ti ha invitato a unirti a una stanza',
+    join: 'Unisciti',
+    dismiss: 'Chiudi'
   },
   pt: {
     tagline: 'Passe o turno. Mantenha a energia.',
@@ -7630,7 +7896,36 @@ const I18N_STRINGS = {
     email: 'E-mail',
     changePassword: 'Alterar Senha',
     play: 'Jogar',
-    buzz: 'Buzz'
+    buzz: 'Buzz',
+    friends: 'Amigos',
+    friendsDesc: 'Adicione amigos e convide-os para salas',
+    yourFriendCode: 'Seu Código de Amigo',
+    copyCode: 'Copiar código',
+    addFriend: 'Adicionar',
+    friendsList: 'Lista de Amigos',
+    pendingRequests: 'Solicitações Pendentes',
+    noFriendsYet: 'Nenhum amigo ainda. Adicione alguém com o código!',
+    noPendingRequests: 'Nenhuma solicitação pendente',
+    invalidFriendCode: 'Digite um código de 8 caracteres válido',
+    friendNotFound: 'Nenhuma conta encontrada com esse código',
+    cannotAddSelf: 'Você não pode adicionar a si mesmo',
+    maxFriendsReached: 'Você atingiu o limite de 50 amigos',
+    friendListFull: 'A lista de amigos desse amigo está cheia',
+    alreadyFriends: 'Já são amigos',
+    requestAlreadyPending: 'Solicitação já pendente',
+    friendRequestSent: 'Solicitação de amizade enviada!',
+    errorOccurred: 'Algo deu errado',
+    remove: 'Remover',
+    accept: 'Aceitar',
+    decline: 'Recusar',
+    inviteToRoom: 'Convidar',
+    inviteSent: 'Convite enviado!',
+    friendRequest: 'Solicitação de Amizade',
+    wantsToBeFriends: 'quer ser seu amigo',
+    roomInvite: 'Convite para Sala',
+    invitedYouToRoom: 'convidou você para entrar em uma sala',
+    join: 'Entrar',
+    dismiss: 'Dispensar'
   }
 };
 let lang = 'en';
@@ -9239,7 +9534,11 @@ function initFirebase(cfg) {
       document.body.classList.toggle('user-mode', !!user && !isCreator);
       updateAccountButtonUI();
       // Sync profile from Firebase into localStorage on login
-      if (user) syncProfileFromFirebase();
+      if (user) {
+        syncProfileFromFirebase();
+        ensureFriendCode();
+        startFriendRequestListener();
+      }
     });
   } catch(e) {
     status('home-status', 'Firebase error: ' + e.message, 'error');
@@ -14078,6 +14377,7 @@ window.startNewGame = async function() {
 // ── GAME STATE LISTENER ──────────────────────────
 let lastActivePlayerId = null;
 function listenGameState() {
+  startRoomInviteListener();
   const roomRef = ref(db, `rooms/${roomCode}`);
   const unsub = onValue(roomRef, snap => {
     if (!snap.exists()) {
@@ -15081,6 +15381,311 @@ document.getElementById('collection-edit-overlay').addEventListener('click', fun
 });
 
 
+// ── FRIENDS SYSTEM ────────────────────────────────────
+const FRIEND_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const MAX_FRIENDS = 50;
+let friendsData = {}; // { friendUid: { status, addedAt, addedBy } }
+let friendRequestUnsub = null;
+let roomInviteUnsub = null;
+
+function genFriendCode() {
+  let code = '';
+  for (let i = 0; i < 4; i++) code += FRIEND_CODE_CHARS[Math.floor(Math.random() * FRIEND_CODE_CHARS.length)];
+  code += '-';
+  for (let i = 0; i < 4; i++) code += FRIEND_CODE_CHARS[Math.floor(Math.random() * FRIEND_CODE_CHARS.length)];
+  return code;
+}
+
+function friendCodePath() { return `users/${currentUser.uid}/friendCode`; }
+function friendCodeIndexPath(code) { return `friendCodeIndex/${code}`; }
+function friendsPath(uid) { return `users/${uid || currentUser.uid}/friends`; }
+function friendPath(uid, friendUid) { return `users/${uid || currentUser.uid}/friends/${friendUid}`; }
+
+async function ensureFriendCode() {
+  if (!db || !currentUser) return null;
+  const uid = currentUser.uid;
+  const localCode = localStorage.getItem('sk_friend_code_' + uid);
+  if (localCode) return localCode;
+  try {
+    const snap = await get(ref(db, friendCodePath()));
+    if (snap.exists()) {
+      const code = snap.val();
+      localStorage.setItem('sk_friend_code_' + uid, code);
+      return code;
+    }
+  } catch (e) {}
+  const code = genFriendCode();
+  try {
+    const existing = await get(ref(db, friendCodeIndexPath(code)));
+    if (existing.exists()) return await ensureFriendCode();
+    const updates = {};
+    updates[friendCodePath()] = code;
+    updates[friendCodeIndexPath(code)] = uid;
+    await update(ref(db), updates);
+    localStorage.setItem('sk_friend_code_' + uid, code);
+    return code;
+  } catch (e) { return code; }
+}
+
+function loadFriendsLocal() {
+  if (!currentUser) return {};
+  try { return JSON.parse(localStorage.getItem('sk_friends_' + currentUser.uid) || '{}'); } catch { return {}; }
+}
+function saveFriendsLocal(data) {
+  if (!currentUser) return;
+  localStorage.setItem('sk_friends_' + currentUser.uid, JSON.stringify(data));
+}
+
+window.openFriendsOverlay = async function() {
+  if (!requireDb()) return;
+  document.getElementById('friends-overlay').classList.add('show');
+  document.getElementById('friends-add-input').value = '';
+  document.getElementById('friends-add-status').textContent = '';
+  const code = await ensureFriendCode();
+  const codeEl = document.getElementById('friends-my-code');
+  if (codeEl) codeEl.textContent = code || '------';
+  await loadFriendsData();
+  renderFriendsList();
+  renderPendingRequests();
+  startFriendsListener();
+};
+
+window.closeFriendsOverlay = function() {
+  document.getElementById('friends-overlay').classList.remove('show');
+  stopFriendsListener();
+};
+
+async function loadFriendsData() {
+  if (!db || !currentUser) return;
+  try {
+    const snap = await get(ref(db, friendsPath()));
+    if (snap.exists()) { friendsData = snap.val(); saveFriendsLocal(friendsData); }
+    else { friendsData = {}; saveFriendsLocal({}); }
+  } catch { friendsData = loadFriendsLocal(); }
+}
+
+function startFriendsListener() {
+  stopFriendsListener();
+  if (!db || !currentUser) return;
+  const fn = onValue(ref(db, friendsPath()), snap => {
+    friendsData = snap.val() || {};
+    saveFriendsLocal(friendsData);
+    renderFriendsList();
+    renderPendingRequests();
+  });
+  friendRequestUnsub = fn;
+}
+function stopFriendsListener() {
+  if (typeof friendRequestUnsub === 'function') { friendRequestUnsub(); friendRequestUnsub = null; }
+}
+
+function renderFriendsList() {
+  const el = document.getElementById('friends-accepted-list');
+  if (!el) return;
+  const accepted = Object.entries(friendsData).filter(([, v]) => v && v.status === 'accepted');
+  if (!accepted.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;text-align:center;padding:0.5rem;" data-i18n="noFriendsYet">No friends yet. Add someone with their code!</div>';
+    return;
+  }
+  el.innerHTML = '';
+  accepted.forEach(([uid, data]) => {
+    const name = localStorage.getItem('sk_preferred_name_' + uid) || 'Player';
+    const avatar = localStorage.getItem('sk_avatar_' + uid) || '👤';
+    const inLobby = roomCode && isHost && window._lobbyPhase;
+    const inviteBtn = inLobby ? `<button class="btn-primary btn-sm" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="inviteFriendToRoom('${uid}')">${t('inviteToRoom')}</button>` : '';
+    el.innerHTML += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:1.4rem;">${avatar}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(name)}</div>
+      </div>
+      ${inviteBtn}
+      <button class="btn-secondary btn-sm" style="padding:0.3rem 0.6rem;font-size:0.75rem;color:#ff5c5c;" onclick="removeFriend('${uid}')">${t('remove')}</button>
+    </div>`;
+  });
+}
+
+function renderPendingRequests() {
+  const el = document.getElementById('friends-pending-list');
+  if (!el) return;
+  const pending = Object.entries(friendsData).filter(([, v]) => v && v.status === 'pending' && v.addedBy === 'request');
+  const countEl = document.getElementById('friends-pending-count');
+  if (countEl) countEl.textContent = pending.length ? ` (${pending.length})` : '';
+  if (!pending.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;text-align:center;padding:0.5rem;" data-i18n="noPendingRequests">No pending requests</div>';
+    return;
+  }
+  el.innerHTML = '';
+  pending.forEach(([uid]) => {
+    const name = localStorage.getItem('sk_preferred_name_' + uid) || 'Player';
+    const avatar = localStorage.getItem('sk_avatar_' + uid) || '👤';
+    el.innerHTML += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:1.4rem;">${avatar}</div>
+      <div style="flex:1;min-width:0;font-weight:700;font-size:0.9rem;">${escapeHtml(name)}</div>
+      <button class="btn-primary btn-sm" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="acceptFriend('${uid}')">✓ ${t('accept')}</button>
+      <button class="btn-secondary btn-sm" style="padding:0.3rem 0.8rem;font-size:0.8rem;color:#ff5c5c;" onclick="declineFriend('${uid}')">✗ ${t('decline')}</button>
+    </div>`;
+  });
+}
+
+window.addFriendByCode = async function() {
+  if (!db || !currentUser) return;
+  const input = document.getElementById('friends-add-input');
+  const statusEl = document.getElementById('friends-add-status');
+  const code = (input.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (code.length !== 8) { statusEl.textContent = t('invalidFriendCode'); statusEl.style.color = '#ff5c5c'; return; }
+  const formatted = code.slice(0, 4) + '-' + code.slice(4);
+  statusEl.textContent = '';
+  try {
+    const snap = await get(ref(db, friendCodeIndexPath(formatted)));
+    if (!snap.exists()) { statusEl.textContent = t('friendNotFound'); statusEl.style.color = '#ff5c5c'; return; }
+    const targetUid = snap.val();
+    if (targetUid === currentUser.uid) { statusEl.textContent = t('cannotAddSelf'); statusEl.style.color = '#ff5c5c'; return; }
+    const acceptedCount = Object.values(friendsData).filter(v => v && v.status === 'accepted').length;
+    const targetSnap = await get(ref(db, friendsPath(targetUid)));
+    const targetFriends = targetSnap.val() || {};
+    const targetAcceptedCount = Object.values(targetFriends).filter(v => v && v.status === 'accepted').length;
+    if (acceptedCount >= MAX_FRIENDS) { statusEl.textContent = t('maxFriendsReached'); statusEl.style.color = '#ff5c5c'; return; }
+    if (targetAcceptedCount >= MAX_FRIENDS) { statusEl.textContent = t('friendListFull'); statusEl.style.color = '#ff5c5c'; return; }
+    if (friendsData[targetUid] && friendsData[targetUid].status === 'accepted') { statusEl.textContent = t('alreadyFriends'); statusEl.style.color = '#f59e0b'; return; }
+    if (friendsData[targetUid] && friendsData[targetUid].status === 'pending' && friendsData[targetUid].addedBy === 'request') { statusEl.textContent = t('requestAlreadyPending'); statusEl.style.color = '#f59e0b'; return; }
+    const updates = {};
+    updates[friendPath(currentUser.uid, targetUid)] = { status: 'pending', addedAt: Date.now(), addedBy: 'request' };
+    updates[friendPath(targetUid, currentUser.uid)] = { status: 'pending', addedAt: Date.now(), addedBy: 'accept' };
+    await update(ref(db), updates);
+    friendsData[targetUid] = { status: 'pending', addedAt: Date.now(), addedBy: 'request' };
+    saveFriendsLocal(friendsData);
+    input.value = '';
+    statusEl.textContent = t('friendRequestSent');
+    statusEl.style.color = '#22c55e';
+    renderFriendsList();
+    renderPendingRequests();
+  } catch (e) { statusEl.textContent = t('errorOccurred'); statusEl.style.color = '#ff5c5c'; }
+};
+
+window.acceptFriend = async function(friendUid) {
+  if (!db || !currentUser) return;
+  try {
+    const updates = {};
+    updates[friendPath(currentUser.uid, friendUid) + '/status'] = 'accepted';
+    updates[friendPath(friendUid, currentUser.uid) + '/status'] = 'accepted';
+    await update(ref(db), updates);
+    if (friendsData[friendUid]) friendsData[friendUid].status = 'accepted';
+    saveFriendsLocal(friendsData);
+    renderFriendsList();
+    renderPendingRequests();
+  } catch (e) {}
+};
+
+window.declineFriend = async function(friendUid) {
+  if (!db || !currentUser) return;
+  try {
+    const updates = {};
+    updates[friendPath(currentUser.uid, friendUid)] = null;
+    updates[friendPath(friendUid, currentUser.uid)] = null;
+    await update(ref(db), updates);
+    delete friendsData[friendUid];
+    saveFriendsLocal(friendsData);
+    renderFriendsList();
+    renderPendingRequests();
+  } catch (e) {}
+};
+
+window.removeFriend = async function(friendUid) {
+  if (!db || !currentUser) return;
+  try {
+    const updates = {};
+    updates[friendPath(currentUser.uid, friendUid)] = null;
+    updates[friendPath(friendUid, currentUser.uid)] = null;
+    await update(ref(db), updates);
+    delete friendsData[friendUid];
+    saveFriendsLocal(friendsData);
+    renderFriendsList();
+    renderPendingRequests();
+  } catch (e) {}
+};
+
+window.copyFriendCode = async function() {
+  const code = document.getElementById('friends-my-code');
+  if (!code) return;
+  try { await navigator.clipboard.writeText(code.textContent); } catch {}
+};
+
+window.inviteFriendToRoom = async function(friendUid) {
+  if (!db || !roomCode || !isHost) return;
+  try {
+    const myName = getSavedName() || currentUser.email.split('@')[0];
+    await set(ref(db, `rooms/${roomCode}/invites/${friendUid}`), {
+      from: currentUser.uid,
+      fromName: myName,
+      roomCode: roomCode,
+      timestamp: Date.now()
+    });
+    const statusEl = document.getElementById('friends-add-status');
+    if (statusEl) { statusEl.textContent = t('inviteSent'); statusEl.style.color = '#22c55e'; }
+  } catch (e) {}
+};
+
+function startRoomInviteListener() {
+  stopRoomInviteListener();
+  if (!db || !currentUser || !roomCode) return;
+  const fn = onValue(ref(db, `rooms/${roomCode}/invites/${currentUser.uid}`), snap => {
+    if (snap.exists()) {
+      const data = snap.val();
+      showRoomInvitePopup(data.fromName || 'Someone', data.roomCode || roomCode);
+      remove(ref(db, `rooms/${roomCode}/invites/${currentUser.uid}`)).catch(() => {});
+    }
+  });
+  roomInviteUnsub = fn;
+}
+function stopRoomInviteListener() {
+  if (typeof roomInviteUnsub === 'function') { roomInviteUnsub(); roomInviteUnsub = null; }
+}
+
+function showRoomInvitePopup(fromName, invitedRoomCode) {
+  const popup = document.getElementById('room-invite-popup');
+  if (!popup) return;
+  document.getElementById('room-invite-from').textContent = fromName;
+  popup.classList.add('show');
+  const joinBtn = document.getElementById('room-invite-join-btn');
+  if (joinBtn) {
+    joinBtn.onclick = function() {
+      popup.classList.remove('show');
+      window.location.href = '?join=' + invitedRoomCode;
+    };
+  }
+  setTimeout(() => { popup.classList.remove('show'); }, 30000);
+}
+
+window.dismissRoomInvite = function() {
+  document.getElementById('room-invite-popup').classList.remove('show');
+};
+
+function showFriendRequestPopup(fromName, fromUid) {
+  const popup = document.getElementById('friend-request-popup');
+  if (!popup) return;
+  document.getElementById('friend-request-from').textContent = fromName;
+  popup.classList.add('show');
+  const acceptBtn = document.getElementById('friend-request-accept-btn');
+  const declineBtn = document.getElementById('friend-request-decline-btn');
+  if (acceptBtn) acceptBtn.onclick = function() { acceptFriend(fromUid); popup.classList.remove('show'); };
+  if (declineBtn) declineBtn.onclick = function() { declineFriend(fromUid); popup.classList.remove('show'); };
+  setTimeout(() => { popup.classList.remove('show'); }, 30000);
+}
+
+function startFriendRequestListener() {
+  if (!db || !currentUser) return;
+  onValue(ref(db, friendsPath()), snap => {
+    const data = snap.val() || {};
+    Object.entries(data).forEach(([uid, val]) => {
+      if (val && val.status === 'pending' && val.addedBy === 'accept' && val.addedAt > (Date.now() - 10000)) {
+        const name = localStorage.getItem('sk_preferred_name_' + uid) || 'Someone';
+        showFriendRequestPopup(name, uid);
+      }
+    });
+  });
+}
+
+
 window.openResumeOverlay = function() {
   document.getElementById('resume-code').value = '';
   document.getElementById('resume-code-step').style.display = 'block';
@@ -15097,6 +15702,7 @@ window.leaveRoom = async function() {
   releaseWakeLock();
   resetOrientation();
   cleanupListeners();
+  stopRoomInviteListener();
   resetFirstPlayerOption();
   clearNudgeTimer();
   stopTimerTick();
