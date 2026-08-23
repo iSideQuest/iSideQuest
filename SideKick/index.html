@@ -2256,8 +2256,8 @@
     width: 42px; height: 42px;
     border-radius: 50%;
     background: rgba(0,0,0,0.45);
-    border: 1px solid rgba(251,191,36,0.4);
-    color: #fbbf24;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.65);
     font-size: 0.68rem;
     font-weight: 800;
     letter-spacing: 0.04em;
@@ -2266,7 +2266,7 @@
     padding: 0;
     transition: background 0.2s;
   }
-  .active-skip-btn:active { background: rgba(251,191,36,0.3); }
+  .active-skip-btn:active { background: rgba(124,92,191,0.5); }
 
   /* ── WHEEL OVERLAY ── */
   .wheel-overlay {
@@ -6851,6 +6851,7 @@ const I18N_STRINGS = {
     featRounds: 'Rounds',
     featDnD: 'D&D',
     featUndo: 'Undo Pass',
+    featPlayerSkip: 'Skip Player',
     settings: '⚙ Settings',
     createRoom: 'Create Room',
     allFeaturesOff: 'All features off',
@@ -6949,6 +6950,7 @@ const I18N_STRINGS = {
     featRounds: 'Rondas',
     featDnD: 'D&D',
     featUndo: 'Deshacer Pase',
+    featPlayerSkip: 'Saltar Jugador',
     settings: '⚙ Ajustes',
     createRoom: 'Crear Sala',
     allFeaturesOff: 'Todas las funciones desactivadas',
@@ -7047,6 +7049,7 @@ const I18N_STRINGS = {
     featRounds: '回合',
     featDnD: 'D&D',
     featUndo: '撤销传递',
+    featPlayerSkip: '跳过玩家',
     settings: '⚙ 设置',
     createRoom: '创建房间',
     allFeaturesOff: '所有功能已关闭',
@@ -7145,6 +7148,7 @@ const I18N_STRINGS = {
     featRounds: 'Runden',
     featDnD: 'D&D',
     featUndo: 'Zug rückgängig',
+    featPlayerSkip: 'Spieler überspringen',
     settings: '⚙ Einstellungen',
     createRoom: 'Raum erstellen',
     allFeaturesOff: 'Alle Funktionen aus',
@@ -7243,6 +7247,7 @@ const I18N_STRINGS = {
     featRounds: 'Manches',
     featDnD: 'D&D',
     featUndo: 'Annuler le passage',
+    featPlayerSkip: 'Passer le joueur',
     settings: '⚙ Réglages',
     createRoom: 'Créer une salle',
     allFeaturesOff: 'Toutes les fonctions désactivées',
@@ -7341,6 +7346,7 @@ const I18N_STRINGS = {
     featRounds: 'ラウンド',
     featDnD: 'D&D',
     featUndo: 'パスを元に戻す',
+    featPlayerSkip: 'プレイヤーをスキップ',
     settings: '⚙ 設定',
     createRoom: 'ルームを作成',
     allFeaturesOff: 'すべての機能オフ',
@@ -7439,6 +7445,7 @@ const I18N_STRINGS = {
     featRounds: 'Round',
     featDnD: 'D&D',
     featUndo: 'Annulla Passaggio',
+    featPlayerSkip: 'Salta Giocatore',
     settings: '⚙ Impostazioni',
     createRoom: 'Crea Sala',
     allFeaturesOff: 'Tutte le funzionalità disattivate',
@@ -7537,6 +7544,7 @@ const I18N_STRINGS = {
     featRounds: 'Rounds',
     featDnD: 'D&D',
     featUndo: 'Desfazer Passagem',
+    featPlayerSkip: 'Pular Jogador',
     settings: '⚙ Configurações',
     createRoom: 'Criar Sala',
     allFeaturesOff: 'Todos os recursos desativados',
@@ -11210,6 +11218,7 @@ function updateFeaturesSummary() {
   if (featureDndEnabled)           active.push(t('featDnD'));
   if (featureRoundsEnabled)        active.push(t('featRounds'));
   if (featureUndoEnabled)          active.push(t('featUndo'));
+  if (featurePlayerSkipEnabled)    active.push(t('featPlayerSkip'));
   el.textContent = active.length ? active.join(' · ') : t('allFeaturesOff');
   // Also update the Step 3 grid if it exists
   if (document.getElementById('features-available-grid')) renderFeatureGrid();
@@ -12767,7 +12776,7 @@ function renderManageList(players, rawPlayers) {
     const skipBtn = document.createElement('button');
     skipBtn.className = 'manage-skip-btn';
     skipBtn.textContent = isSkipped ? 'Unskip' : 'Skip';
-    skipBtn.style.cssText = 'font-size:0.7rem;font-weight:600;color:' + (isSkipped ? '#4ade80' : '#fbbf24') + ';background:transparent;border:1px solid ' + (isSkipped ? 'rgba(74,222,128,0.4)' : 'rgba(251,191,36,0.4)') + ';border-radius:7px;padding:0.3rem 0.6rem;cursor:pointer;';
+    skipBtn.style.cssText = 'font-size:0.7rem;font-weight:600;color:' + (isSkipped ? '#4ade80' : 'rgba(255,255,255,0.7)') + ';background:transparent;border:1px solid ' + (isSkipped ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.15)') + ';border-radius:7px;padding:0.3rem 0.6rem;cursor:pointer;';
     skipBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlayerSkip(p.id, p.name, p.knockedOut); });
     btnRow.appendChild(skipBtn);
     if (p.id !== myId) {
@@ -14252,9 +14261,9 @@ function listenGameState() {
           btn.classList.toggle('host-offset', isHost);
         }
       });
-      // Player Skip button — visible when host allows it (or host themselves)
+      // Player Skip button — visible for ALL players when feature is enabled
       const skipBtnA = document.getElementById('active-skip-btn');
-      if (skipBtnA) skipBtnA.style.display = (featurePlayerSkipEnabled || isHost) ? '' : 'none';
+      if (skipBtnA) skipBtnA.style.display = featurePlayerSkipEnabled ? '' : 'none';
     } else {
       // Show waiting screen
       const myPlayer = localPlayers.find(p => p.id === myId);
@@ -14304,9 +14313,9 @@ function listenGameState() {
         const effects = room.players?.[myId]?.statusEffects || {};
         updateStatusButtonIndicator(effects);
       }
-      // Player Skip button — visible when host allows it (or host themselves)
+      // Player Skip button — visible for ALL players when feature is enabled
       const skipBtnW = document.getElementById('active-skip-btn-wait');
-      if (skipBtnW) skipBtnW.style.display = (featurePlayerSkipEnabled || isHost) ? '' : 'none';
+      if (skipBtnW) skipBtnW.style.display = featurePlayerSkipEnabled ? '' : 'none';
       // Timers: sync from Firebase (don't tick locally on waiting screen)
       if (turnChanged || firstTurn) initTimersForTurn(room, false);
       else syncTimersFromRoom(room);
