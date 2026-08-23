@@ -15788,6 +15788,22 @@ function renderLobbyList(players) {
     }
     el.appendChild(div);
   });
+  if (isHost) {
+    const inviteDiv = document.createElement('div');
+    inviteDiv.className = 'player-item';
+    inviteDiv.style.cursor = 'pointer';
+    inviteDiv.style.opacity = '0.7';
+    inviteDiv.innerHTML = `
+      <div class="player-tile-top">
+        <div class="player-num" style="background:var(--accent);color:#fff;">+</div>
+        <div class="player-avatar-wrap">
+          <div class="player-avatar" style="font-size:1.2rem;">👥</div>
+        </div>
+      </div>
+      <div class="player-name" style="color:var(--accent);">Invite Friend</div>`;
+    inviteDiv.addEventListener('click', () => { openFriendsOverlay(); });
+    el.appendChild(inviteDiv);
+  }
   makeDraggable(el, async (srcId, destId) => {
     const snap = await get(ref(db, `rooms/${roomCode}/players`));
     if (!snap.exists()) return;
