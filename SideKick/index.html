@@ -1672,7 +1672,7 @@
     padding: 1rem;
   }
   .tools-overlay.show { display: flex; }
-  #friend-request-popup.show, #room-invite-popup.show { display: block; animation: popupSlideIn 0.3s ease; }
+  #friend-request-popup.show, #room-invite-popup.show { display: block !important; animation: popupSlideIn 0.3s ease; }
   @keyframes popupSlideIn { from { opacity:0; transform:translateX(-50%) translateY(-20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
   .tools-modal {
     background: var(--surface); border: 1px solid var(--border);
@@ -15639,13 +15639,16 @@ window.inviteFriendToRoom = async function(friendUid) {
   } catch (e) {}
 };
 
+let _seenInviteTs = 0;
 function startRoomInviteListener() {
   stopRoomInviteListener();
   if (!db || !currentUser) return;
+  _seenInviteTs = 0;
   const fn = onValue(ref(db, `roomInvites/${currentUser.uid}`), snap => {
     if (snap.exists()) {
       const data = snap.val();
-      if (data && data.roomCode && data.fromName) {
+      if (data && data.roomCode && data.fromName && data.timestamp !== _seenInviteTs) {
+        _seenInviteTs = data.timestamp || Date.now();
         showRoomInvitePopup(data.fromName, data.roomCode);
       }
       remove(ref(db, `roomInvites/${currentUser.uid}`)).catch(() => {});
@@ -15661,19 +15664,25 @@ function showRoomInvitePopup(fromName, invitedRoomCode) {
   const popup = document.getElementById('room-invite-popup');
   if (!popup) return;
   document.getElementById('room-invite-from').textContent = fromName;
+  popup.style.display = 'block';
   popup.classList.add('show');
   const joinBtn = document.getElementById('room-invite-join-btn');
   if (joinBtn) {
     joinBtn.onclick = function() {
       popup.classList.remove('show');
-      window.location.href = '?join=' + invitedRoomCode;
+      popup.style.display = 'none';
+      window.showJoinRoom();
+      const codeEl = document.getElementById('join-code');
+      if (codeEl) { codeEl.value = invitedRoomCode; updateJoinCollapseSummary(); }
     };
   }
-  setTimeout(() => { popup.classList.remove('show'); }, 30000);
+  setTimeout(() => { popup.classList.remove('show'); popup.style.display = 'none'; }, 30000);
 }
 
 window.dismissRoomInvite = function() {
-  document.getElementById('room-invite-popup').classList.remove('show');
+  const popup = document.getElementById('room-invite-popup');
+  popup.classList.remove('show');
+  popup.style.display = 'none';
 };
 
 function showFriendRequestPopup(fromName, fromUid) {
@@ -15721,7 +15730,6 @@ window.leaveRoom = async function() {
   releaseWakeLock();
   resetOrientation();
   cleanupListeners();
-  stopRoomInviteListener();
   resetFirstPlayerOption();
   clearNudgeTimer();
   stopTimerTick();
