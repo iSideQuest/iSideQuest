@@ -1673,6 +1673,7 @@
   }
   .tools-overlay.show { display: flex; }
   #friend-request-popup.show, #room-invite-popup.show { display: block !important; animation: popupSlideIn 0.3s ease; }
+  #remove-friend-confirm.show { display: flex !important; }
   @keyframes popupSlideIn { from { opacity:0; transform:translateX(-50%) translateY(-20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
   .tools-modal {
     background: var(--surface); border: 1px solid var(--border);
@@ -6511,7 +6512,7 @@
 <!--  FRIENDS OVERLAY                            -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="friends-overlay">
-  <div class="tools-modal" style="max-height:88vh; overflow-y:auto;">
+  <div class="tools-modal" style="overflow:visible;">
     <div class="tools-modal-title">👥 <span data-i18n="friends">Friends</span></div>
     <div style="text-align:center; margin-bottom:0.8rem;">
       <div style="font-size:0.8rem; color:var(--muted);" data-i18n="yourFriendCode">Your Friend Code</div>
@@ -6524,15 +6525,27 @@
     </div>
     <div id="friends-add-status" style="font-size:0.8rem; text-align:center; min-height:1rem; margin-bottom:0.5rem;"></div>
 
+    <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.3rem;" data-i18n="friendsList">Friends List</div>
+    <div id="friends-accepted-list" style="margin-bottom:0.6rem;"></div>
+
     <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.3rem;">
       <span data-i18n="pendingRequests">Pending Requests</span><span id="friends-pending-count"></span>
     </div>
-    <div id="friends-pending-list" style="margin-bottom:0.8rem;"></div>
-
-    <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.3rem;" data-i18n="friendsList">Friends List</div>
-    <div id="friends-accepted-list" style="margin-bottom:0.8rem;"></div>
+    <div id="friends-pending-list" style="margin-bottom:0.6rem;"></div>
 
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeFriendsOverlay()" data-i18n="close">Close</button>
+  </div>
+</div>
+
+<!-- REMOVE FRIEND CONFIRM -->
+<div id="remove-friend-confirm" style="position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem;max-width:300px;width:90%;text-align:center;">
+    <div style="font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Remove Friend</div>
+    <div style="font-size:0.9rem;color:var(--muted);margin-bottom:1rem;">Remove <span id="remove-friend-name">this friend</span>?</div>
+    <div style="display:flex;gap:0.5rem;">
+      <button id="remove-friend-no" class="btn-secondary btn-sm" style="flex:1;">Cancel</button>
+      <button id="remove-friend-yes" class="btn-primary btn-sm" style="flex:1;background:#ff5c5c;border-color:#ff5c5c;">Confirm</button>
+    </div>
   </div>
 </div>
 
@@ -15496,12 +15509,12 @@ function renderFriendsList() {
     const inLobby = roomCode && isHost && window._lobbyPhase;
     const inviteBtn = inLobby ? `<button class="btn-primary btn-sm" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="inviteFriendToRoom('${uid}')">${t('inviteToRoom')}</button>` : '';
     el.innerHTML += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
-      <div style="font-size:1.4rem;">${avatar}</div>
+      <div style="font-size:1.4rem;flex-shrink:0;width:32px;text-align:center;">${avatarHTML(avatar, 28)}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-weight:700;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(name)}</div>
       </div>
       ${inviteBtn}
-      <button class="btn-secondary btn-sm" style="padding:0.3rem 0.6rem;font-size:0.75rem;color:#ff5c5c;" onclick="removeFriend('${uid}')">${t('remove')}</button>
+      <button class="btn-secondary btn-sm" style="padding:0.3rem 0.6rem;font-size:0.75rem;color:#ff5c5c;" onclick="confirmRemoveFriend('${uid}','${escapeHtml(name)}')">${t('remove')}</button>
     </div>`;
   });
 }
@@ -15522,7 +15535,7 @@ function renderPendingRequests() {
     const name = localStorage.getItem('sk_preferred_name_' + uid) || 'Player';
     const avatar = localStorage.getItem('sk_avatar_' + uid) || '👤';
     el.innerHTML += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
-      <div style="font-size:1.4rem;">${avatar}</div>
+      <div style="font-size:1.4rem;flex-shrink:0;width:32px;text-align:center;">${avatarHTML(avatar, 28)}</div>
       <div style="flex:1;min-width:0;font-weight:700;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(name)}</div>
       <span style="font-size:0.8rem;color:var(--muted);">Request sent</span>
     </div>`;
@@ -15531,7 +15544,7 @@ function renderPendingRequests() {
     const name = localStorage.getItem('sk_preferred_name_' + uid) || 'Player';
     const avatar = localStorage.getItem('sk_avatar_' + uid) || '👤';
     el.innerHTML += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
-      <div style="font-size:1.4rem;">${avatar}</div>
+      <div style="font-size:1.4rem;flex-shrink:0;width:32px;text-align:center;">${avatarHTML(avatar, 28)}</div>
       <div style="flex:1;min-width:0;font-weight:700;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(name)}</div>
       <button class="btn-primary btn-sm" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="acceptFriend('${uid}')">✓ ${t('accept')}</button>
       <button class="btn-secondary btn-sm" style="padding:0.3rem 0.8rem;font-size:0.8rem;color:#ff5c5c;" onclick="declineFriend('${uid}')">✗ ${t('decline')}</button>
@@ -15600,6 +15613,20 @@ window.declineFriend = async function(friendUid) {
     renderFriendsList();
     renderPendingRequests();
   } catch (e) {}
+};
+
+window.confirmRemoveFriend = function(friendUid, friendName) {
+  const overlay = document.getElementById('remove-friend-confirm');
+  if (!overlay) return;
+  document.getElementById('remove-friend-name').textContent = friendName;
+  overlay.classList.add('show');
+  document.getElementById('remove-friend-yes').onclick = function() {
+    overlay.classList.remove('show');
+    window.removeFriend(friendUid);
+  };
+  document.getElementById('remove-friend-no').onclick = function() {
+    overlay.classList.remove('show');
+  };
 };
 
 window.removeFriend = async function(friendUid) {
