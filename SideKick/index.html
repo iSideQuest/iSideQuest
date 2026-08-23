@@ -6852,6 +6852,8 @@ const I18N_STRINGS = {
     featDnD: 'D&D',
     featUndo: 'Undo Pass',
     featPlayerSkip: 'Skip Player',
+    skip: 'Skip',
+    unskip: 'Unskip',
     settings: '⚙ Settings',
     createRoom: 'Create Room',
     allFeaturesOff: 'All features off',
@@ -6951,6 +6953,8 @@ const I18N_STRINGS = {
     featDnD: 'D&D',
     featUndo: 'Deshacer Pase',
     featPlayerSkip: 'Saltar Jugador',
+    skip: 'Saltar',
+    unskip: 'Restaurar',
     settings: '⚙ Ajustes',
     createRoom: 'Crear Sala',
     allFeaturesOff: 'Todas las funciones desactivadas',
@@ -7050,6 +7054,8 @@ const I18N_STRINGS = {
     featDnD: 'D&D',
     featUndo: '撤销传递',
     featPlayerSkip: '跳过玩家',
+    skip: '跳过',
+    unskip: '恢复',
     settings: '⚙ 设置',
     createRoom: '创建房间',
     allFeaturesOff: '所有功能已关闭',
@@ -7149,6 +7155,8 @@ const I18N_STRINGS = {
     featDnD: 'D&D',
     featUndo: 'Zug rückgängig',
     featPlayerSkip: 'Spieler überspringen',
+    skip: 'Überspringen',
+    unskip: 'Wiederherstellen',
     settings: '⚙ Einstellungen',
     createRoom: 'Raum erstellen',
     allFeaturesOff: 'Alle Funktionen aus',
@@ -7248,6 +7256,8 @@ const I18N_STRINGS = {
     featDnD: 'D&D',
     featUndo: 'Annuler le passage',
     featPlayerSkip: 'Passer le joueur',
+    skip: 'Passer',
+    unskip: 'Rétablir',
     settings: '⚙ Réglages',
     createRoom: 'Créer une salle',
     allFeaturesOff: 'Toutes les fonctions désactivées',
@@ -7347,6 +7357,8 @@ const I18N_STRINGS = {
     featDnD: 'D&D',
     featUndo: 'パスを元に戻す',
     featPlayerSkip: 'プレイヤーをスキップ',
+    skip: 'スキップ',
+    unskip: '元に戻す',
     settings: '⚙ 設定',
     createRoom: 'ルームを作成',
     allFeaturesOff: 'すべての機能オフ',
@@ -7446,6 +7458,8 @@ const I18N_STRINGS = {
     featDnD: 'D&D',
     featUndo: 'Annulla Passaggio',
     featPlayerSkip: 'Salta Giocatore',
+    skip: 'Salta',
+    unskip: 'Ripristina',
     settings: '⚙ Impostazioni',
     createRoom: 'Crea Sala',
     allFeaturesOff: 'Tutte le funzionalità disattivate',
@@ -7545,6 +7559,8 @@ const I18N_STRINGS = {
     featDnD: 'D&D',
     featUndo: 'Desfazer Passagem',
     featPlayerSkip: 'Pular Jogador',
+    skip: 'Pular',
+    unskip: 'Restaurar',
     settings: '⚙ Configurações',
     createRoom: 'Criar Sala',
     allFeaturesOff: 'Todos os recursos desativados',
@@ -10527,6 +10543,8 @@ window.saveRoomChanges = async function() {
   updates[`rooms/${roomCode}/features/timerCountdownSecs`] = (parseInt(document.getElementById('timer-countdown-min').value)||0)*60 + (parseInt(document.getElementById('timer-countdown-sec').value)||30);
   updates[`rooms/${roomCode}/features/rounds`] = featureRoundsEnabled;
   updates[`rooms/${roomCode}/features/roundsTotal`] = featureRoundsEnabled ? (parseInt(document.getElementById('rounds-total').value) || 3) : 0;
+  updates[`rooms/${roomCode}/features/undo`] = featureUndoEnabled;
+  updates[`rooms/${roomCode}/features/playerSkip`] = featurePlayerSkipEnabled;
   await update(ref(db), updates);
   haptic(20);
   editingRoom = false;
@@ -14263,7 +14281,11 @@ function listenGameState() {
       });
       // Player Skip button — visible for ALL players when feature is enabled
       const skipBtnA = document.getElementById('active-skip-btn');
-      if (skipBtnA) skipBtnA.style.display = featurePlayerSkipEnabled ? '' : 'none';
+      if (skipBtnA) {
+        skipBtnA.style.display = featurePlayerSkipEnabled ? '' : 'none';
+        const myKnockedOut = !!(room.players && room.players[myId] && room.players[myId].knockedOut);
+        skipBtnA.textContent = myKnockedOut ? t('unskip') : t('skip');
+      }
     } else {
       // Show waiting screen
       const myPlayer = localPlayers.find(p => p.id === myId);
@@ -14315,7 +14337,11 @@ function listenGameState() {
       }
       // Player Skip button — visible for ALL players when feature is enabled
       const skipBtnW = document.getElementById('active-skip-btn-wait');
-      if (skipBtnW) skipBtnW.style.display = featurePlayerSkipEnabled ? '' : 'none';
+      if (skipBtnW) {
+        skipBtnW.style.display = featurePlayerSkipEnabled ? '' : 'none';
+        const myKnockedOut2 = !!(room.players && room.players[myId] && room.players[myId].knockedOut);
+        skipBtnW.textContent = myKnockedOut2 ? t('unskip') : t('skip');
+      }
       // Timers: sync from Firebase (don't tick locally on waiting screen)
       if (turnChanged || firstTurn) initTimersForTurn(room, false);
       else syncTimersFromRoom(room);
