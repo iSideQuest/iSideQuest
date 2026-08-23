@@ -1674,6 +1674,7 @@
   .tools-overlay.show { display: flex; }
   #friend-request-popup.show, #room-invite-popup.show { display: block !important; animation: popupSlideIn 0.3s ease; }
   #remove-friend-confirm.show { display: flex !important; }
+  #add-friend-overlay.show { display: flex !important; }
   @keyframes popupSlideIn { from { opacity:0; transform:translateX(-50%) translateY(-20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
   .tools-modal {
     background: var(--surface); border: 1px solid var(--border);
@@ -6519,11 +6520,9 @@
       <div id="friends-my-code" style="font-size:1.5rem; font-weight:800; letter-spacing:0.15em; color:var(--accent); margin:0.3rem 0;">------</div>
       <button class="btn-secondary btn-sm" style="padding:0.3rem 1rem;" onclick="copyFriendCode()" data-i18n="copyCode">Copy Code</button>
     </div>
-    <div style="display:flex; gap:0.4rem; margin-bottom:0.8rem;">
-      <input id="friends-add-input" placeholder="Enter friend code..." style="flex:1; padding:0.5rem; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:0.9rem;" maxlength="9">
-      <button class="btn-primary btn-sm" style="padding:0.5rem 1rem;" onclick="addFriendByCode()" data-i18n="addFriend">Add</button>
+    <div style="text-align:center;margin-bottom:0.8rem;">
+      <button class="btn-primary btn-sm" style="padding:0.5rem 1.5rem;" onclick="openAddFriendOverlay()" data-i18n="addNewFriend">+ Add New Friend</button>
     </div>
-    <div id="friends-add-status" style="font-size:0.8rem; text-align:center; min-height:1rem; margin-bottom:0.5rem;"></div>
 
     <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.3rem;" data-i18n="friendsList">Friends List</div>
     <div id="friends-accepted-list" style="margin-bottom:0.6rem;"></div>
@@ -6538,13 +6537,26 @@
 </div>
 
 <!-- REMOVE FRIEND CONFIRM -->
-<div id="remove-friend-confirm" style="position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;">
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem;max-width:300px;width:90%;text-align:center;">
+<div id="remove-friend-confirm" style="position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem;max-width:300px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.6);">
     <div style="font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Remove Friend</div>
     <div style="font-size:0.9rem;color:var(--muted);margin-bottom:1rem;">Remove <span id="remove-friend-name">this friend</span>?</div>
     <div style="display:flex;gap:0.5rem;">
       <button id="remove-friend-no" class="btn-secondary btn-sm" style="flex:1;">Cancel</button>
       <button id="remove-friend-yes" class="btn-primary btn-sm" style="flex:1;background:#ff5c5c;border-color:#ff5c5c;">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD NEW FRIEND OVERLAY -->
+<div id="add-friend-overlay" style="position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem;max-width:320px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.6);">
+    <div style="font-weight:700;font-size:1rem;margin-bottom:0.8rem;">Enter Friend Code</div>
+    <input id="friends-add-input" placeholder="Enter code..." style="width:100%;padding:0.6rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:monospace;font-size:1.1rem;letter-spacing:0.2em;text-align:center;text-transform:uppercase;outline:none;margin-bottom:0.8rem;" maxlength="9">
+    <div id="add-friend-status" style="font-size:0.8rem;text-align:center;min-height:1rem;margin-bottom:0.6rem;"></div>
+    <div style="display:flex;gap:0.5rem;">
+      <button class="btn-secondary btn-sm" style="flex:1;" onclick="closeAddFriendOverlay()">Close</button>
+      <button class="btn-primary btn-sm" style="flex:1;" onclick="addFriendByCode()">Add Friend</button>
     </div>
   </div>
 </div>
@@ -7005,6 +7017,7 @@ const I18N_STRINGS = {
     yourFriendCode: 'Your Friend Code',
     copyCode: 'Copy Code',
     addFriend: 'Add',
+    addNewFriend: '+ Add New Friend',
     friendsList: 'Friends List',
     pendingRequests: 'Pending Requests',
     noFriendsYet: 'No friends yet. Add someone with their code!',
@@ -7135,6 +7148,7 @@ const I18N_STRINGS = {
     yourFriendCode: 'Tu Código de Amigo',
     copyCode: 'Copiar Código',
     addFriend: 'Agregar',
+    addNewFriend: '+ Agregar Nuevo Amigo',
     friendsList: 'Lista de Amigos',
     pendingRequests: 'Solicitudes Pendientes',
     noFriendsYet: '¡Aún no tienes amigos. ¡Agrega a alguien con su código!',
@@ -7265,6 +7279,7 @@ const I18N_STRINGS = {
     yourFriendCode: '你的好友码',
     copyCode: '复制代码',
     addFriend: '添加',
+    addNewFriend: '+ 添加新好友',
     friendsList: '好友列表',
     pendingRequests: '待处理请求',
     noFriendsYet: '还没有好友。用好友码添加吧！',
@@ -7395,6 +7410,7 @@ const I18N_STRINGS = {
     yourFriendCode: 'Dein Freundescode',
     copyCode: 'Code kopieren',
     addFriend: 'Hinzufügen',
+    addNewFriend: '+ Neuen Freund Hinzufügen',
     friendsList: 'Freundesliste',
     pendingRequests: 'Ausstehende Anfragen',
     noFriendsYet: 'Noch keine Freunde. Füge jemanden mit seinem Code hinzu!',
@@ -7525,6 +7541,7 @@ const I18N_STRINGS = {
     yourFriendCode: 'Ton Code Ami',
     copyCode: 'Copier le code',
     addFriend: 'Ajouter',
+    addNewFriend: '+ Ajouter un Ami',
     friendsList: 'Liste d\'amis',
     pendingRequests: 'Demandes en attente',
     noFriendsYet: 'Pas encore d\'amis. Ajoute quelqu\'un avec son code !',
@@ -7655,6 +7672,7 @@ const I18N_STRINGS = {
     yourFriendCode: 'あなたのフレンドコード',
     copyCode: 'コードをコピー',
     addFriend: '追加',
+    addNewFriend: '+ 新しい友達を追加',
     friendsList: 'フレンドリスト',
     pendingRequests: '保留中のリクエスト',
     noFriendsYet: 'フレンドがまだいません。コードで友達を追加しましょう！',
@@ -7785,6 +7803,7 @@ const I18N_STRINGS = {
     yourFriendCode: 'Il tuo Codice Amico',
     copyCode: 'Copia codice',
     addFriend: 'Aggiungi',
+    addNewFriend: '+ Aggiungi Nuovo Amico',
     friendsList: 'Lista Amici',
     pendingRequests: 'Richieste in sospeso',
     noFriendsYet: 'Nessun amico ancora. Aggiungi qualcuno con il suo codice!',
@@ -7915,6 +7934,7 @@ const I18N_STRINGS = {
     yourFriendCode: 'Seu Código de Amigo',
     copyCode: 'Copiar código',
     addFriend: 'Adicionar',
+    addNewFriend: '+ Adicionar Novo Amigo',
     friendsList: 'Lista de Amigos',
     pendingRequests: 'Solicitações Pendentes',
     noFriendsYet: 'Nenhum amigo ainda. Adicione alguém com o código!',
@@ -15467,7 +15487,23 @@ window.openFriendsOverlay = async function() {
 
 window.closeFriendsOverlay = function() {
   document.getElementById('friends-overlay').classList.remove('show');
+  closeAddFriendOverlay();
   stopFriendsListener();
+};
+
+window.openAddFriendOverlay = function() {
+  const overlay = document.getElementById('add-friend-overlay');
+  const input = document.getElementById('friends-add-input');
+  const status = document.getElementById('add-friend-status');
+  if (input) input.value = '';
+  if (status) { status.textContent = ''; status.style.color = ''; }
+  if (overlay) overlay.classList.add('show');
+  if (input) input.focus();
+};
+
+window.closeAddFriendOverlay = function() {
+  const overlay = document.getElementById('add-friend-overlay');
+  if (overlay) overlay.classList.remove('show');
 };
 
 async function loadFriendsData() {
@@ -15555,7 +15591,7 @@ function renderPendingRequests() {
 window.addFriendByCode = async function() {
   if (!db || !currentUser) return;
   const input = document.getElementById('friends-add-input');
-  const statusEl = document.getElementById('friends-add-status');
+  const statusEl = document.getElementById('add-friend-status');
   const code = (input.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
   if (code.length !== 8) { statusEl.textContent = t('invalidFriendCode'); statusEl.style.color = '#ff5c5c'; return; }
   const formatted = code.slice(0, 4) + '-' + code.slice(4);
