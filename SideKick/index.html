@@ -9438,6 +9438,7 @@ function genCode() {
   return Array.from({length:4}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
 }
 function showScreen(id) {
+  window._lobbyPhase = (id === 'lobby');
   document.body.classList.toggle('in-game', ['active','waiting','buzz'].includes(id));
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-'+id).classList.add('active');
@@ -9538,6 +9539,7 @@ function initFirebase(cfg) {
         syncProfileFromFirebase();
         ensureFriendCode();
         startFriendRequestListener();
+        startRoomInviteListener();
       }
     });
   } catch(e) {
@@ -15507,20 +15509,30 @@ function renderFriendsList() {
 function renderPendingRequests() {
   const el = document.getElementById('friends-pending-list');
   if (!el) return;
-  const pending = Object.entries(friendsData).filter(([, v]) => v && v.status === 'pending' && v.addedBy === 'request');
+  const pending = Object.entries(friendsData).filter(([k, v]) => v && v.status === 'pending' && v.sentBy !== currentUser.uid);
+  const sent = Object.entries(friendsData).filter(([k, v]) => v && v.status === 'pending' && v.sentBy === currentUser.uid);
   const countEl = document.getElementById('friends-pending-count');
   if (countEl) countEl.textContent = pending.length ? ` (${pending.length})` : '';
-  if (!pending.length) {
+  if (!pending.length && !sent.length) {
     el.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;text-align:center;padding:0.5rem;" data-i18n="noPendingRequests">No pending requests</div>';
     return;
   }
   el.innerHTML = '';
+  sent.forEach(([uid]) => {
+    const name = localStorage.getItem('sk_preferred_name_' + uid) || 'Player';
+    const avatar = localStorage.getItem('sk_avatar_' + uid) || '👤';
+    el.innerHTML += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:1.4rem;">${avatar}</div>
+      <div style="flex:1;min-width:0;font-weight:700;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(name)}</div>
+      <span style="font-size:0.8rem;color:var(--muted);">Request sent</span>
+    </div>`;
+  });
   pending.forEach(([uid]) => {
     const name = localStorage.getItem('sk_preferred_name_' + uid) || 'Player';
     const avatar = localStorage.getItem('sk_avatar_' + uid) || '👤';
     el.innerHTML += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
       <div style="font-size:1.4rem;">${avatar}</div>
-      <div style="flex:1;min-width:0;font-weight:700;font-size:0.9rem;">${escapeHtml(name)}</div>
+      <div style="flex:1;min-width:0;font-weight:700;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(name)}</div>
       <button class="btn-primary btn-sm" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="acceptFriend('${uid}')">✓ ${t('accept')}</button>
       <button class="btn-secondary btn-sm" style="padding:0.3rem 0.8rem;font-size:0.8rem;color:#ff5c5c;" onclick="declineFriend('${uid}')">✗ ${t('decline')}</button>
     </div>`;
@@ -15547,12 +15559,12 @@ window.addFriendByCode = async function() {
     if (acceptedCount >= MAX_FRIENDS) { statusEl.textContent = t('maxFriendsReached'); statusEl.style.color = '#ff5c5c'; return; }
     if (targetAcceptedCount >= MAX_FRIENDS) { statusEl.textContent = t('friendListFull'); statusEl.style.color = '#ff5c5c'; return; }
     if (friendsData[targetUid] && friendsData[targetUid].status === 'accepted') { statusEl.textContent = t('alreadyFriends'); statusEl.style.color = '#f59e0b'; return; }
-    if (friendsData[targetUid] && friendsData[targetUid].status === 'pending' && friendsData[targetUid].addedBy === 'request') { statusEl.textContent = t('requestAlreadyPending'); statusEl.style.color = '#f59e0b'; return; }
+    if (friendsData[targetUid] && friendsData[targetUid].status === 'pending' && friendsData[targetUid].sentBy === currentUser.uid) { statusEl.textContent = t('requestAlreadyPending'); statusEl.style.color = '#f59e0b'; return; }
     const updates = {};
-    updates[friendPath(currentUser.uid, targetUid)] = { status: 'pending', addedAt: Date.now(), addedBy: 'request' };
-    updates[friendPath(targetUid, currentUser.uid)] = { status: 'pending', addedAt: Date.now(), addedBy: 'accept' };
+    updates[friendPath(currentUser.uid, targetUid)] = { status: 'pending', addedAt: Date.now(), sentBy: currentUser.uid };
+    updates[friendPath(targetUid, currentUser.uid)] = { status: 'pending', addedAt: Date.now(), sentBy: currentUser.uid };
     await update(ref(db), updates);
-    friendsData[targetUid] = { status: 'pending', addedAt: Date.now(), addedBy: 'request' };
+    friendsData[targetUid] = { status: 'pending', addedAt: Date.now(), sentBy: currentUser.uid };
     saveFriendsLocal(friendsData);
     input.value = '';
     statusEl.textContent = t('friendRequestSent');
@@ -15614,12 +15626,14 @@ window.inviteFriendToRoom = async function(friendUid) {
   if (!db || !roomCode || !isHost) return;
   try {
     const myName = getSavedName() || currentUser.email.split('@')[0];
-    await set(ref(db, `rooms/${roomCode}/invites/${friendUid}`), {
+    const inviteData = {
       from: currentUser.uid,
       fromName: myName,
       roomCode: roomCode,
       timestamp: Date.now()
-    });
+    };
+    await set(ref(db, `rooms/${roomCode}/invites/${friendUid}`), inviteData);
+    await set(ref(db, `roomInvites/${friendUid}`), inviteData);
     const statusEl = document.getElementById('friends-add-status');
     if (statusEl) { statusEl.textContent = t('inviteSent'); statusEl.style.color = '#22c55e'; }
   } catch (e) {}
@@ -15627,12 +15641,14 @@ window.inviteFriendToRoom = async function(friendUid) {
 
 function startRoomInviteListener() {
   stopRoomInviteListener();
-  if (!db || !currentUser || !roomCode) return;
-  const fn = onValue(ref(db, `rooms/${roomCode}/invites/${currentUser.uid}`), snap => {
+  if (!db || !currentUser) return;
+  const fn = onValue(ref(db, `roomInvites/${currentUser.uid}`), snap => {
     if (snap.exists()) {
       const data = snap.val();
-      showRoomInvitePopup(data.fromName || 'Someone', data.roomCode || roomCode);
-      remove(ref(db, `rooms/${roomCode}/invites/${currentUser.uid}`)).catch(() => {});
+      if (data && data.roomCode && data.fromName) {
+        showRoomInvitePopup(data.fromName, data.roomCode);
+      }
+      remove(ref(db, `roomInvites/${currentUser.uid}`)).catch(() => {});
     }
   });
   roomInviteUnsub = fn;
@@ -15672,12 +15688,15 @@ function showFriendRequestPopup(fromName, fromUid) {
   setTimeout(() => { popup.classList.remove('show'); }, 30000);
 }
 
+let lastFriendRequestSeen = 0;
+
 function startFriendRequestListener() {
   if (!db || !currentUser) return;
   onValue(ref(db, friendsPath()), snap => {
     const data = snap.val() || {};
     Object.entries(data).forEach(([uid, val]) => {
-      if (val && val.status === 'pending' && val.addedBy === 'accept' && val.addedAt > (Date.now() - 10000)) {
+      if (val && val.status === 'pending' && val.sentBy !== currentUser.uid && (val.addedAt || 0) > lastFriendRequestSeen) {
+        lastFriendRequestSeen = val.addedAt || Date.now();
         const name = localStorage.getItem('sk_preferred_name_' + uid) || 'Someone';
         showFriendRequestPopup(name, uid);
       }
