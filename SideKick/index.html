@@ -15522,6 +15522,9 @@ window.openCollectionEdit = function(id) {
 };
 window.closeCollectionEdit = function() {
   document.getElementById('collection-edit-overlay').classList.remove('show');
+  document.getElementById('collection-db-search').style.display = 'none';
+  document.getElementById('collection-main-menu').style.display = '';
+  document.getElementById('collection-library').style.display = 'none';
 };
 
 function renderCollectionEditChips() {
