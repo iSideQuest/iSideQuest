@@ -6072,7 +6072,8 @@
       <div style="font-size:0.78rem;color:var(--muted);text-align:center;margin-bottom:0.9rem;">Your board games — build your library, then filter to find the right one for your event.</div>
 
       <button class="btn-primary" style="width:100%;" onclick="openCollectionLibrary()">📚 Library</button>
-      <button class="btn-secondary" style="width:100%;margin-top:0.5rem;" onclick="openCollectionEdit()">+ Add Game</button>
+      <button class="btn-secondary" style="width:100%;margin-top:0.5rem;" onclick="openCollectionSearchDB()">+ Add Game from Database</button>
+      <button class="btn-secondary" style="width:100%;margin-top:0.5rem;" onclick="openCollectionEdit()">+ Add Game Manually</button>
       <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.5rem;" onclick="closeCollection()">Close</button>
     </div>
 
@@ -6096,6 +6097,15 @@
       <button class="btn-secondary" style="width:100%;margin-bottom:0.6rem;" onclick="pickRandomGame()">🎲 Pick at Random</button>
 
       <div id="collection-list" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+    </div>
+
+    <!-- Database search -->
+    <div id="collection-db-search" style="display:none;">
+      <button class="btn-secondary btn-sm" style="margin-bottom:0.5rem;" onclick="showCollectionMenu()"><span class="play-tri">◀</span> Back</button>
+      <div class="tools-modal-title" style="font-size:1.05rem;">🔍 Search Game Database</div>
+      <div style="font-size:0.78rem;color:var(--muted);text-align:center;margin-bottom:0.6rem;">Type a game name to search 299+ board games. Tap a result to add it to your collection.</div>
+      <input id="collection-db-input" placeholder="Type game name…" oninput="searchGameDatabase()" style="width:100%;margin-bottom:0.5rem;">
+      <div id="collection-db-results" style="display:flex;flex-direction:column;gap:0.4rem;max-height:50vh;overflow-y:auto;"></div>
     </div>
   </div>
 </div>
@@ -15263,10 +15273,113 @@ window.openCollectionLibrary = async function() {
 };
 window.showCollectionMenu = function() {
   document.getElementById('collection-library').style.display = 'none';
+  document.getElementById('collection-db-search').style.display = 'none';
   document.getElementById('collection-main-menu').style.display = '';
 };
 window.closeCollection = function() {
   document.getElementById('collection-overlay').classList.remove('show');
+};
+
+// ── GAME DATABASE SEARCH ──────────────────────
+let gameDatabaseCache = null;
+let gameDatabaseLoading = false;
+
+async function loadGameDatabase() {
+  if (gameDatabaseCache) return gameDatabaseCache;
+  if (gameDatabaseLoading) return [];
+  gameDatabaseLoading = true;
+  try {
+    const snap = await get(ref(db, 'games'));
+    if (snap.exists()) {
+      const obj = snap.val();
+      gameDatabaseCache = Object.entries(obj).map(([id, g]) => ({ id, ...g }));
+    } else {
+      gameDatabaseCache = [];
+    }
+  } catch (e) {
+    gameDatabaseCache = [];
+  }
+  gameDatabaseLoading = false;
+  return gameDatabaseCache;
+}
+
+window.openCollectionSearchDB = async function() {
+  document.getElementById('collection-main-menu').style.display = 'none';
+  document.getElementById('collection-library').style.display = 'none';
+  document.getElementById('collection-db-search').style.display = '';
+  document.getElementById('collection-db-input').value = '';
+  document.getElementById('collection-db-results').innerHTML = '<div style="color:var(--muted);font-size:0.82rem;text-align:center;padding:0.5rem;">Loading game database…</div>';
+  document.getElementById('collection-overlay').classList.add('show');
+  await loadGameDatabase();
+  document.getElementById('collection-db-results').innerHTML = '<div style="color:var(--muted);font-size:0.82rem;text-align:center;padding:0.5rem;">Start typing to search…</div>';
+};
+
+window.searchGameDatabase = function() {
+  const input = document.getElementById('collection-db-input');
+  const resultsEl = document.getElementById('collection-db-results');
+  const query = (input.value || '').trim().toLowerCase();
+  if (!query) {
+    resultsEl.innerHTML = '<div style="color:var(--muted);font-size:0.82rem;text-align:center;padding:0.5rem;">Start typing to search…</div>';
+    return;
+  }
+  if (!gameDatabaseCache) {
+    resultsEl.innerHTML = '<div style="color:var(--muted);font-size:0.82rem;text-align:center;padding:0.5rem;">Database still loading…</div>';
+    return;
+  }
+  const existingNames = new Set(collectionGames.map(g => (g.name || '').toLowerCase()));
+  const matches = gameDatabaseCache.filter(g => {
+    const name = (g.name || '').toLowerCase();
+    return name.indexOf(query) !== -1;
+  }).slice(0, 30);
+  if (!matches.length) {
+    resultsEl.innerHTML = '<div style="color:var(--muted);font-size:0.82rem;text-align:center;padding:0.5rem;">No games found. Try a different search.</div>';
+    return;
+  }
+  resultsEl.innerHTML = '';
+  matches.forEach(g => {
+    const alreadyOwned = existingNames.has((g.name || '').toLowerCase());
+    const meta = [];
+    if (g.minPlayers && g.maxPlayers) meta.push(g.minPlayers + '–' + g.maxPlayers + ' players');
+    if (g.playTime) meta.push(g.playTime);
+    if (g.publisher) meta.push(g.publisher);
+    const div = document.createElement('div');
+    div.style.cssText = 'padding:0.5rem;border:1px solid var(--border);border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:0.5rem;' + (alreadyOwned ? 'opacity:0.5;' : '');
+    div.innerHTML = '<div style="min-width:0;"><div style="font-weight:700;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(g.name) + '</div>' +
+      '<div style="font-size:0.72rem;color:var(--muted);">' + meta.join(' · ') + '</div></div>' +
+      (alreadyOwned ? '<span style="font-size:0.72rem;color:var(--muted);white-space:nowrap;">In Library</span>' : '<button class="btn-primary btn-sm" style="padding:0.25rem 0.6rem;font-size:0.75rem;white-space:nowrap;">Add</button>');
+    if (!alreadyOwned) {
+      div.addEventListener('click', () => addGameFromDatabase(g));
+    }
+    resultsEl.appendChild(div);
+  });
+};
+
+window.addGameFromDatabase = function(game) {
+  const catMap = { 'cooperative': 'coop', 'co-op': 'coop', 'competitive': 'competitive', 'party': 'party', 'solo': 'solo', 'teams': 'teams' };
+  const mechMap = { 'deck-building': 'deck-builder', 'deck builder': 'deck-builder', 'worker-placement': 'worker-placement', 'worker placement': 'worker-placement', 'area-control': 'area-control', 'area control': 'area-control', 'drafting': 'drafting', 'card-game': 'card-game', 'card game': 'card-game', 'dice': 'dice', 'engine-building': 'engine-building', 'engine building': 'engine-building', 'deduction': 'deduction' };
+  const cats = new Set();
+  const mechs = new Set();
+  (game.categories || []).forEach(c => {
+    const mapped = catMap[c.toLowerCase()];
+    if (mapped) cats.add(mapped);
+    const mechMapped = mechMap[c.toLowerCase()];
+    if (mechMapped) mechs.add(mechMapped);
+  });
+
+  collectionEditingId = null;
+  document.getElementById('collection-edit-title').textContent = 'Add Game';
+  document.getElementById('ce-name').value = game.name || '';
+  document.getElementById('ce-min').value = game.minPlayers || 2;
+  document.getElementById('ce-max').value = game.maxPlayers || 4;
+  document.getElementById('ce-time').value = game.playTime || '';
+  document.getElementById('ce-notes').value = '';
+  document.getElementById('collection-edit-error').style.display = 'none';
+  collectionEditCats = cats;
+  collectionEditMechs = mechs;
+  renderCollectionEditChips();
+
+  document.getElementById('collection-db-search').style.display = 'none';
+  document.getElementById('collection-edit-overlay').classList.add('show');
 };
 
 function renderCollectionFilters() {
