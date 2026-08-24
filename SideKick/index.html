@@ -15289,6 +15289,7 @@ async function loadGameDatabase() {
   if (gameDatabaseLoading) return [];
   gameDatabaseLoading = true;
   try {
+    if (!db) { gameDatabaseCache = []; gameDatabaseLoading = false; return []; }
     const snap = await get(ref(db, 'games'));
     if (snap.exists()) {
       const obj = snap.val();
@@ -15297,6 +15298,7 @@ async function loadGameDatabase() {
       gameDatabaseCache = [];
     }
   } catch (e) {
+    console.warn('Could not load game database:', e.message);
     gameDatabaseCache = [];
   }
   gameDatabaseLoading = false;
