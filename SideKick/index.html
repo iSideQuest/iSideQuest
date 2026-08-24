@@ -8650,6 +8650,84 @@ window.closeNameOverlay = function() {
   cleanupNameOverlayPosition();
 };
 
+// ── GLOBAL KEYBOARD HANDLER FOR ALL OVERLAYS ──────────────
+(function() {
+  let activeOverlay = null;
+  let activeModal = null;
+  let vhListener = null;
+
+  function findOverlay(el) {
+    return el.closest('.tools-overlay, .avatar-overlay, .color-picker-overlay, .rng-overlay, .timer-overlay, .picker-overlay, .feature-settings-overlay, .info-overlay, .turn-mode-overlay, .duel-overlay, .status-overlay, .themes-overlay, .saved-screen, .vp-overlay, #password-gate, #setup-overlay, #add-friend-overlay, #remove-friend-confirm, #app-dialog-overlay, #friends-overlay');
+  }
+  function findModal(overlay) {
+    if (!overlay) return null;
+    return overlay.querySelector('.tools-modal, .avatar-modal, .auth-modal, .color-picker-modal, .rng-modal, .timer-modal, .picker-modal, .info-modal, .feature-settings-modal, .turn-mode-modal, .duel-modal, .status-modal, .themes-modal, .vp-modal, #name-modal, [id$="-modal"]') || overlay.querySelector('div:not(.tools-overlay):not(.avatar-overlay) > div');
+  }
+
+  function repositionModal() {
+    if (!activeModal) return;
+    const vh = window.visualViewport.height;
+    if (vh < window.innerHeight * 0.75) {
+      activeModal.style.position = 'fixed';
+      activeModal.style.top = Math.max(16, vh * 0.25) + 'px';
+      activeModal.style.left = '50%';
+      activeModal.style.transform = 'translateX(-50%)';
+      activeModal.style.zIndex = '10001';
+    } else {
+      activeModal.style.position = '';
+      activeModal.style.top = '';
+      activeModal.style.left = '';
+      activeModal.style.transform = '';
+      activeModal.style.zIndex = '';
+    }
+  }
+
+  function startListening(overlay) {
+    stopListening();
+    activeOverlay = overlay;
+    activeModal = findModal(overlay);
+    if (!activeModal) return;
+    vhListener = repositionModal;
+    window.visualViewport.addEventListener('resize', vhListener);
+    repositionModal();
+  }
+
+  function stopListening() {
+    if (vhListener) { window.visualViewport.removeEventListener('resize', vhListener); vhListener = null; }
+    if (activeModal) {
+      activeModal.style.position = '';
+      activeModal.style.top = '';
+      activeModal.style.left = '';
+      activeModal.style.transform = '';
+      activeModal.style.zIndex = '';
+    }
+    activeOverlay = null;
+    activeModal = null;
+  }
+
+  document.addEventListener('focusin', function(e) {
+    const target = e.target;
+    if (!target || (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && target.tagName !== 'SELECT')) return;
+    const overlay = findOverlay(target);
+    if (!overlay) return;
+    startListening(overlay);
+  });
+
+  document.addEventListener('focusout', function(e) {
+    setTimeout(function() {
+      const active = document.activeElement;
+      if (!active || (active.tagName !== 'INPUT' && active.tagName !== 'TEXTAREA' && active.tagName !== 'SELECT')) {
+        stopListening();
+        return;
+      }
+      const overlay = findOverlay(active);
+      if (!overlay || overlay !== activeOverlay) {
+        stopListening();
+      }
+    }, 100);
+  });
+})();
+
 window.openEditProfileOverlay = function() {
   const current = getSavedAvatar();
   editProfileColorSelection = getSavedColor() || '';
