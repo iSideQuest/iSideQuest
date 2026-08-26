@@ -183,8 +183,8 @@
     font-size: 17px;
   }
 
-  /* ── iOS LANDSCAPE PORTRAIT LOCK ── */
-  @media (orientation: landscape) {
+  /* ── iOS LANDSCAPE PORTRAIT LOCK (standalone PWA on touch devices only) ── */
+  @media (orientation: landscape) and (display-mode: standalone) and (hover: none) {
     html, body {
       position: fixed;
       top: 0; left: 0;
