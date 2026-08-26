@@ -172,6 +172,7 @@
     overflow: hidden;
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
+    contain: layout style paint;
   }
   html { width: 100vw; height: 100vh; }
 
@@ -196,8 +197,8 @@
   }
 
   /* ── SCREENS ── */
-  .screen { display: none; width: 100%; height: 100vh; height: 100dvh; flex-direction: column; align-items: center; justify-content: center; padding: calc(2rem + env(safe-area-inset-top, 0px)) 2rem calc(2rem + env(safe-area-inset-bottom, 0px)) 2rem; overflow: hidden; }
-  .screen.active { display: flex; animation: screenFadeIn 0.2s ease-out; }
+  .screen { display: none; width: 100%; height: 100vh; height: 100dvh; flex-direction: column; align-items: center; justify-content: center; padding: calc(2rem + env(safe-area-inset-top, 0px)) 2rem calc(2rem + env(safe-area-inset-bottom, 0px)) 2rem; overflow: hidden; content-visibility: auto; contain-intrinsic-size: 100vw 100vh; }
+  .screen.active { display: flex; animation: screenFadeIn 0.2s ease-out; content-visibility: visible; }
   @keyframes screenFadeIn { from { opacity: 0; } to { opacity: 1; } }
   /* Setup/menu screens (Home, Create, Join, Lobby, Waiting Lobby, Profile)
      wrap their content in .screen-content-scaler, which JS shrinks via
@@ -822,6 +823,7 @@
     z-index: 9000;
     align-items: center;
     justify-content: center;
+    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
   }
   #edit-profile-color-overlay {
     z-index: 9800;
@@ -1290,6 +1292,7 @@
     gap: 0.75rem;
     text-align: center;
     padding: 2rem;
+    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
   }
   .saved-screen.show { display: flex; }
   .saved-screen-icon { font-size: 3rem; }
@@ -1615,7 +1618,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.82); z-index: 9600;
     align-items: center; justify-content: center;
-    padding: 1rem;
+    padding: 1rem; content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
   }
   .feature-settings-overlay.show { display: flex; }
   .feature-settings-modal {
@@ -1671,6 +1674,7 @@
     z-index: 9500;
     align-items: center;
     justify-content: center;
+    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
   }
   .info-overlay.show { display: flex; }
   #features-help-overlay { z-index: 9500; }
@@ -1681,7 +1685,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.82); z-index: 9600;
     align-items: center; justify-content: center;
-    padding: 1rem;
+    padding: 1rem; content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
   }
   .tools-overlay.show { display: flex; }
   #friend-request-popup.show, #room-invite-popup.show { display: block !important; animation: popupSlideIn 0.3s ease; }
@@ -1793,7 +1797,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.85); z-index: 9650;
     align-items: center; justify-content: center;
-    padding: 1rem;
+    padding: 1rem; content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
   }
   .picker-overlay.show { display: flex; }
   .picker-modal {
@@ -1847,7 +1851,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.85); z-index: 9650;
     align-items: center; justify-content: center;
-    padding: 1rem;
+    padding: 1rem; content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
   }
   .rng-overlay.show { display: flex; }
   .rng-modal {
@@ -1905,7 +1909,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.85); z-index: 9650;
     align-items: center; justify-content: center;
-    padding: 1rem;
+    padding: 1rem; content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
   }
   .timer-overlay.show { display: flex; }
   .timer-modal {
@@ -2526,6 +2530,7 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
   }
   .manage-overlay.show { display: flex; }
   .manage-card {
@@ -2676,6 +2681,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.88); z-index: 9700;
     align-items: center; justify-content: center; padding: 1rem;
+    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
   }
   .status-overlay.show { display: flex; }
   .status-menu-modal {
@@ -2749,6 +2755,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.92); z-index: 9800;
     align-items: center; justify-content: center; padding: 1rem;
+    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
   }
   .status-alert-overlay.show { display: flex; }
   .status-alert-modal {
@@ -2873,6 +2880,7 @@
     background: rgba(0,0,0,0.96); z-index: 8050;
     flex-direction: column; align-items: center; justify-content: center;
     padding: 2rem 1.5rem; gap: 1rem;
+    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
   }
   .vp-overlay.show { display: flex; }
   .vp-overlay-title { font-size: 1.8rem; font-weight: 900; color: #fff; text-align: center; }
@@ -3777,12 +3785,12 @@
   /* ══════════════════════════════════════════════
      THEMES OVERLAY
   ══════════════════════════════════════════════ */
-  .themes-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9700; align-items:center; justify-content:center; padding:1rem; }
+  .themes-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9700; align-items:center; justify-content:center; padding:1rem; content-visibility:auto; contain-intrinsic-size:100vw 100vh; }
   .themes-overlay.show { display:flex; }
   .themes-modal { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1rem; width:min(360px,92vw); box-shadow:0 8px 40px rgba(0,0,0,0.7); display:flex; flex-direction:column; align-items:center; gap:0.5rem; }
 
   /* Awards overlay */
-  .awards-history-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9700; align-items:center; justify-content:center; padding:1rem; }
+  .awards-history-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9700; align-items:center; justify-content:center; padding:1rem; content-visibility:auto; contain-intrinsic-size:100vw 100vh; }
   .awards-history-overlay.show { display:flex; }
   .awards-history-modal { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:1.5rem 1.25rem; width:min(360px,92vw); max-height:80vh; overflow-y:auto; box-shadow:0 8px 40px rgba(0,0,0,0.7); display:flex; flex-direction:column; gap:0.5rem; }
   .awards-history-title { font-size:1.1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:0.25rem; }
@@ -3811,7 +3819,7 @@
   .themes-modal-title { font-size:1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:0.1rem; }
 
   /* ── AVATAR PICKER ── */
-  .avatar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9700; align-items:center; justify-content:center; padding:1rem; }
+  .avatar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9700; align-items:center; justify-content:center; padding:1rem; content-visibility:auto; contain-intrinsic-size:100vw 100vh; }
   .avatar-overlay.show { display:flex; }
   .avatar-modal { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:1.5rem 1.25rem; width:min(360px,92vw); box-shadow:0 8px 40px rgba(0,0,0,0.7); display:flex; flex-direction:column; gap:0.6rem; overflow:hidden; }
   body.theme-8bit .avatar-modal { background:#0d0208 !important; border:3px solid var(--accent) !important; box-shadow:6px 6px 0 #000 !important; }
@@ -4036,6 +4044,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.88); z-index: 9600;
     align-items: center; justify-content: center; padding: 1.25rem;
+    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
   }
   .turn-mode-overlay.show { display: flex; }
   .turn-mode-modal {
@@ -4299,6 +4308,7 @@
     background: rgba(0,0,0,0.92); z-index: 9660;
     align-items: center; justify-content: center;
     padding: 1rem;
+    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
   }
   .duel-overlay.show { display: flex; }
   .duel-modal {
@@ -6892,7 +6902,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set, get, onValue, update, remove, push, serverTimestamp, runTransaction }
+import { getDatabase, ref, set, get, onValue, update, remove, push, serverTimestamp, runTransaction, goOffline, goOnline }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, linkWithCredential, linkWithPopup, fetchSignInMethodsForEmail, EmailAuthProvider }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -6900,6 +6910,9 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, si
 // ── STATE ──────────────────────────────────────
 let db = null;
 let serverTimeOffset = 0; // ms difference between Firebase server clock and this device's clock
+let _timeOffsetInterval = null;
+let _passwordSyncInterval = null;
+window._swUpdateInterval = null;
 
 // Returns the current time synced to the Firebase server clock. Two different
 // phones' local clocks can be seconds apart, which made buzz-in reaction
@@ -9676,9 +9689,14 @@ function initFirebase(cfg) {
   try {
     const app = initializeApp(cfg, cfg.projectId);
     db = getDatabase(app);
-    onValue(ref(db, '.info/serverTimeOffset'), snap => {
-      serverTimeOffset = snap.val() || 0;
-    });
+    // Use periodic one-time reads instead of persistent onValue to reduce CPU on desktop
+    function refreshTimeOffset() {
+      get(ref(db, '.info/serverTimeOffset')).then(snap => {
+        serverTimeOffset = snap.val() || 0;
+      }).catch(() => {});
+    }
+    refreshTimeOffset();
+    _timeOffsetInterval = setInterval(refreshTimeOffset, 60000);
     auth = getAuth(app);
     onAuthStateChanged(auth, user => {
       currentUser = user;
@@ -9794,7 +9812,7 @@ onAuthStateChanged(auth, user => {
 
 // Initial check + periodic re-validation every 5 minutes
 syncPassword();
-setInterval(syncPassword, 300000);
+_passwordSyncInterval = setInterval(syncPassword, 300000);
 
 function requireDb() {
   if (!db) {
@@ -15655,7 +15673,6 @@ const FRIEND_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const MAX_FRIENDS = 50;
 let friendsData = {}; // { friendUid: { status, addedAt, addedBy } }
 let friendRequestUnsub = null;
-let roomInviteUnsub = null;
 
 function genFriendCode() {
   let code = '';
@@ -15800,17 +15817,16 @@ async function loadFriendsData() {
 function startFriendsListener() {
   stopFriendsListener();
   if (!db || !currentUser) return;
-  const fn = onValue(ref(db, friendsPath()), snap => {
-    friendsData = snap.val() || {};
-    saveFriendsLocal(friendsData);
+  // The global friendRequestListener already handles data + rendering.
+  // This function just ensures data is loaded and UI is refreshed when overlay opens.
+  loadFriendsData().then(() => {
     renderFriendsList();
     renderPendingRequests();
     renderInviteFriendsList();
   });
-  friendRequestUnsub = fn;
 }
 function stopFriendsListener() {
-  if (typeof friendRequestUnsub === 'function') { friendRequestUnsub(); friendRequestUnsub = null; }
+  // No-op: the global listener handles everything. Kept for API compatibility.
 }
 
 function renderFriendsList() {
@@ -15992,24 +16008,29 @@ window.inviteFriendToRoom = async function(friendUid) {
 };
 
 let _seenInviteTs = 0;
+let _roomInviteInterval = null;
 function startRoomInviteListener() {
   stopRoomInviteListener();
   if (!db || !currentUser) return;
   _seenInviteTs = 0;
-  const fn = onValue(ref(db, `roomInvites/${currentUser.uid}`), snap => {
-    if (snap.exists()) {
-      const data = snap.val();
-      if (data && data.roomCode && data.fromName && data.timestamp !== _seenInviteTs) {
-        _seenInviteTs = data.timestamp || Date.now();
-        showRoomInvitePopup(data.fromName, data.roomCode);
+  async function poll() {
+    try {
+      const snap = await get(ref(db, `roomInvites/${currentUser.uid}`));
+      if (snap.exists()) {
+        const data = snap.val();
+        if (data && data.roomCode && data.fromName && data.timestamp !== _seenInviteTs) {
+          _seenInviteTs = data.timestamp || Date.now();
+          showRoomInvitePopup(data.fromName, data.roomCode);
+        }
+        remove(ref(db, `roomInvites/${currentUser.uid}`)).catch(() => {});
       }
-      remove(ref(db, `roomInvites/${currentUser.uid}`)).catch(() => {});
-    }
-  });
-  roomInviteUnsub = fn;
+    } catch {}
+  }
+  poll();
+  _roomInviteInterval = setInterval(poll, 20000);
 }
 function stopRoomInviteListener() {
-  if (typeof roomInviteUnsub === 'function') { roomInviteUnsub(); roomInviteUnsub = null; }
+  if (_roomInviteInterval) { clearInterval(_roomInviteInterval); _roomInviteInterval = null; }
 }
 
 function showRoomInvitePopup(fromName, invitedRoomCode) {
@@ -16050,25 +16071,40 @@ function showFriendRequestPopup(fromName, fromUid) {
 }
 
 let lastFriendRequestSeen = 0;
-let friendRequestGlobalUnsub = null;
+let _friendReqInterval = null;
 
 function startFriendRequestListener() {
-  if (friendRequestGlobalUnsub) { friendRequestGlobalUnsub(); friendRequestGlobalUnsub = null; }
+  stopFriendRequestListener();
   if (!db || !currentUser) return;
-  const fn = onValue(ref(db, friendsPath()), snap => {
-    const data = snap.val() || {};
-    Object.entries(data).forEach(([uid, val]) => {
-      if (val && val.status === 'pending' && val.sentBy !== currentUser.uid && (val.addedAt || 0) > lastFriendRequestSeen) {
-        lastFriendRequestSeen = val.addedAt || Date.now();
-        const name = localStorage.getItem('sk_preferred_name_' + uid) || 'Someone';
-        showFriendRequestPopup(name, uid);
+  async function poll() {
+    try {
+      const snap = await get(ref(db, friendsPath()));
+      const data = snap.val() || {};
+      friendsData = data;
+      saveFriendsLocal(friendsData);
+      const friendsOverlayVisible = document.getElementById('friends-overlay')?.classList.contains('show');
+      const inviteOverlayVisible = document.getElementById('invite-friends-overlay')?.classList.contains('show');
+      if (friendsOverlayVisible) {
+        renderFriendsList();
+        renderPendingRequests();
       }
-    });
-  });
-  friendRequestGlobalUnsub = fn;
+      if (inviteOverlayVisible) {
+        renderInviteFriendsList();
+      }
+      Object.entries(data).forEach(([uid, val]) => {
+        if (val && val.status === 'pending' && val.sentBy !== currentUser.uid && (val.addedAt || 0) > lastFriendRequestSeen) {
+          lastFriendRequestSeen = val.addedAt || Date.now();
+          const name = localStorage.getItem('sk_preferred_name_' + uid) || 'Someone';
+          showFriendRequestPopup(name, uid);
+        }
+      });
+    } catch {}
+  }
+  poll();
+  _friendReqInterval = setInterval(poll, 20000);
 }
 function stopFriendRequestListener() {
-  if (friendRequestGlobalUnsub) { friendRequestGlobalUnsub(); friendRequestGlobalUnsub = null; }
+  if (_friendReqInterval) { clearInterval(_friendReqInterval); _friendReqInterval = null; }
 }
 
 
@@ -17503,6 +17539,34 @@ function showDialog(type, message, defaultVal) {
 window.showAlert = function(msg) { return showDialog('alert', msg); };
 window.showConfirm = function(msg) { return showDialog('confirm', msg); };
 window.showPrompt = function(msg, def) { return showDialog('prompt', msg, def); };
+
+// ── PAUSE ALL INTERVALS + DISCONNECT FIREBASE WHEN TAB IS HIDDEN ──────────────
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    // Tab hidden — disconnect Firebase and clear all intervals
+    if (db) try { goOffline(db); } catch {}
+    if (_timeOffsetInterval)    { clearInterval(_timeOffsetInterval);    _timeOffsetInterval = null; }
+    if (_passwordSyncInterval)  { clearInterval(_passwordSyncInterval);  _passwordSyncInterval = null; }
+    if (_friendReqInterval)     { clearInterval(_friendReqInterval);     _friendReqInterval = null; }
+    if (_roomInviteInterval)    { clearInterval(_roomInviteInterval);    _roomInviteInterval = null; }
+    if (window._swUpdateInterval) { clearInterval(window._swUpdateInterval); window._swUpdateInterval = null; }
+  } else {
+    // Tab visible again — reconnect Firebase and restart intervals
+    if (db) try { goOnline(db); } catch {}
+    if (db) {
+      function refreshTimeOffset() {
+        get(ref(db, '.info/serverTimeOffset')).then(snap => {
+          serverTimeOffset = snap.val() || 0;
+        }).catch(() => {});
+      }
+      refreshTimeOffset();
+      _timeOffsetInterval = setInterval(refreshTimeOffset, 60000);
+    }
+    if (!_passwordSyncInterval) { syncPassword(); _passwordSyncInterval = setInterval(syncPassword, 300000); }
+    if (currentUser && !_friendReqInterval) startFriendRequestListener();
+    if (currentUser && !_roomInviteInterval) startRoomInviteListener();
+  }
+});
 </script>
 
 <script>
@@ -17514,14 +17578,15 @@ window.showPrompt = function(msg, def) { return showDialog('prompt', msg, def); 
   try { stored = localStorage.getItem('sk_password'); } catch {}
   if (stored) gate.classList.add('hidden');
 })();
+
 </script>
 
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
-      // Periodically check for updates while the app is open (every 30s)
-      setInterval(() => { reg.update().catch(() => {}); }, 30000);
+      // Periodically check for updates while the app is open (every 5 min)
+      window._swUpdateInterval = setInterval(() => { reg.update().catch(() => {}); }, 300000);
 
       let refreshing = false;
       // When the new worker takes control, reload to apply the update.
