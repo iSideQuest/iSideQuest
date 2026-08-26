@@ -4898,22 +4898,6 @@
   </div>
   <p id="home-status" class="status"></p>
 
-  <!-- Tools card (collapsible) -->
-  <div class="card" style="margin-top:2.0rem; padding:0;">
-    <button onclick="toggleTools()" id="tools-toggle-btn" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;width:100%;background:none;border:none;padding:1rem 1.2rem;cursor:pointer;transition:background 0.2s;border-radius:12px;">
-      <span style="font-size:1.1rem;color:var(--accent-light);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;" data-i18n="tools">Tools</span>
-      <span id="tools-arrow" style="font-size:0.9rem;color:var(--muted);transition:transform 0.3s;"><span class="play-tri">▶</span></span>
-    </button>
-    <div id="tools-body" style="max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s;opacity:0;padding:0 1.2rem;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;padding-bottom:1rem;">
-        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openTool('rng', true)">🎲 <span data-i18n="rng">RNG</span></button>
-        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openTool('picker', true)">🎯 <span data-i18n="teams">Teams</span></button>
-        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openSpeedRoundFromTool()">⚡ <span data-i18n="speedRound">Speed Round</span></button>
-        <button class="btn-secondary" style="width:100%;font-size:0.82rem;padding:0.7rem 0.4rem;" onclick="openTool('timers', true)">⏱️ <span data-i18n="timers">Timers</span></button>
-      </div>
-    </div>
-  </div>
-
   <!-- Theme toggle -->
   <div style="margin-top:1rem;">
     <button id="theme-toggle-btn" onclick="toggleTheme()" style="
@@ -6004,15 +5988,7 @@
         <div class="profile-menu-icon icon-saves">✏️</div>
         <div class="profile-menu-text">
           <div class="profile-menu-title" data-i18n="editProfile">Edit Profile</div>
-          <div class="profile-menu-desc" data-i18n="editProfileDesc">Change your avatar and preferred name</div>
-        </div>
-        <div class="profile-menu-chevron">›</div>
-      </div>
-      <div class="profile-menu-item" onclick="openMyCollection()">
-        <div class="profile-menu-icon icon-saves">🎲</div>
-        <div class="profile-menu-text">
-          <div class="profile-menu-title" data-i18n="myCollection">My Collection</div>
-          <div class="profile-menu-desc" data-i18n="myCollectionDesc">Board games you own</div>
+          <div class="profile-menu-desc" data-i18n="editProfileDesc">Avatar, name, color & settings</div>
         </div>
         <div class="profile-menu-chevron">›</div>
       </div>
@@ -6024,27 +6000,11 @@
         </div>
         <div class="profile-menu-chevron">›</div>
       </div>
-      <div class="profile-menu-item" onclick="openMySavedGames()">
-        <div class="profile-menu-icon icon-saves">💾</div>
+      <div class="profile-menu-item" onclick="openGameFeaturesOverlay()">
+        <div class="profile-menu-icon icon-saves">🎮</div>
         <div class="profile-menu-text">
-          <div class="profile-menu-title" data-i18n="mySavedGames">My Saved Games</div>
-          <div class="profile-menu-desc" data-i18n="mySavedGamesDesc">View and resume your saved sessions</div>
-        </div>
-        <div class="profile-menu-chevron">›</div>
-      </div>
-      <div class="profile-menu-item" onclick="openThemesOverlay()">
-        <div class="profile-menu-icon icon-themes">🎨</div>
-        <div class="profile-menu-text">
-          <div class="profile-menu-title" data-i18n="themes">Themes</div>
-          <div class="profile-menu-desc" data-i18n="themesDesc">Customize your visual experience</div>
-        </div>
-        <div class="profile-menu-chevron">›</div>
-      </div>
-      <div class="profile-menu-item" onclick="openAccountSettingsOverlay()">
-        <div class="profile-menu-icon icon-settings">⚙️</div>
-        <div class="profile-menu-text">
-          <div class="profile-menu-title" data-i18n="acctSettings">Account Settings</div>
-          <div class="profile-menu-desc" data-i18n="acctSettingsDesc">Manage your account details</div>
+          <div class="profile-menu-title" data-i18n="gameFeatures">Game Features</div>
+          <div class="profile-menu-desc" data-i18n="gameFeaturesDesc">Collection, saved games & tools</div>
         </div>
         <div class="profile-menu-chevron">›</div>
       </div>
@@ -6052,7 +6012,7 @@
 
     <!-- Footer -->
     <div class="profile-footer" style="width:min(380px,92vw);">
-      <button class="btn-secondary btn-sm" style="width:100%;" onclick="backToHomeFromProfile()" data-i18n="backToHome">Back to Home</button>
+      <button class="btn-primary" style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;font-size:1rem;padding:0.8rem 1.5rem;" onclick="backToHomeFromProfile()"><span class="play-tri" style="transform:rotate(180deg);">▶</span> <span data-i18n="home">Home</span></button>
       <button class="profile-signout-link" onclick="confirmSignOut()" data-i18n="signOut">Sign Out</button>
     </div>
 
@@ -6298,7 +6258,11 @@
       </div>
     </div>
     <button class="btn-primary" style="width:100%;margin-top:0.2rem;" onclick="saveEditProfile()">Save Profile</button>
-    <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeEditProfileOverlay()">Cancel</button>
+    <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+      <button class="btn-secondary btn-sm" style="flex:1;" onclick="closeEditProfileOverlay(); openAccountSettingsOverlay()">⚙️ <span data-i18n="acctSettings">Account Settings</span></button>
+      <button class="btn-secondary btn-sm" style="flex:1;" onclick="closeEditProfileOverlay(); openThemesOverlay()">🎨 <span data-i18n="themes">Themes</span></button>
+    </div>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeEditProfileOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
 
@@ -6565,6 +6529,18 @@
     <div class="tools-modal-title"><span data-i18n="inviteFriends">Invite Friends</span></div>
     <div id="invite-friends-list" style="margin-bottom:0.8rem;"></div>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeInviteFriendsOverlay()" data-i18n="close">Close</button>
+  </div>
+</div>
+
+<!--  GAME FEATURES OVERLAY                         -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tools-overlay" id="game-features-overlay">
+  <div class="tools-modal">
+    <div class="tools-modal-title">🎮 <span data-i18n="gameFeatures">Game Features</span></div>
+    <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openMyCollection()">🎲 <span data-i18n="myCollection">My Collection</span></button>
+    <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openMySavedGames()">💾 <span data-i18n="mySavedGames">My Saved Games</span></button>
+    <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openToolsOverlay(false)">🧰 <span data-i18n="tools">Tools</span></button>
+    <button class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="closeGameFeaturesOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
 
@@ -7046,6 +7022,9 @@ const I18N_STRINGS = {
     buzz: 'Buzz',
     friends: 'Friends',
     friendsDesc: 'Add friends and invite them to rooms',
+    gameFeatures: 'Game Features',
+    gameFeaturesDesc: 'Collection, saved games & tools',
+    home: 'Home',
     yourFriendCode: 'Your Friend Code',
     copyCode: 'Copy Code',
     addFriend: 'Add',
@@ -7178,6 +7157,9 @@ const I18N_STRINGS = {
     buzz: 'Zumbido',
     friends: 'Amigos',
     friendsDesc: 'Agregar amigos e invitarlos a salas',
+    gameFeatures: 'Juegos',
+    gameFeaturesDesc: 'Colección, partidas guardadas y herramientas',
+    home: 'Inicio',
     yourFriendCode: 'Tu Código de Amigo',
     copyCode: 'Copiar Código',
     addFriend: 'Agregar',
@@ -7310,6 +7292,9 @@ const I18N_STRINGS = {
     buzz: '抢答',
     friends: '好友',
     friendsDesc: '添加好友并邀请他们加入房间',
+    gameFeatures: '游戏功能',
+    gameFeaturesDesc: '收藏、保存的游戏和工具',
+    home: '首页',
     yourFriendCode: '你的好友码',
     copyCode: '复制代码',
     addFriend: '添加',
@@ -7442,6 +7427,9 @@ const I18N_STRINGS = {
     buzz: 'Buzz',
     friends: 'Freunde',
     friendsDesc: 'Freunde hinzufügen und in Räume einladen',
+    gameFeatures: 'Spiel Funktionen',
+    gameFeaturesDesc: 'Sammlung, gespeicherte Spiele & Werkzeuge',
+    home: 'Startseite',
     yourFriendCode: 'Dein Freundescode',
     copyCode: 'Code kopieren',
     addFriend: 'Hinzufügen',
@@ -7574,6 +7562,9 @@ const I18N_STRINGS = {
     buzz: 'Buzz',
     friends: 'Amis',
     friendsDesc: 'Ajouter des amis et les inviter dans des salles',
+    gameFeatures: 'Fonctionnalités',
+    gameFeaturesDesc: 'Collection, parties sauvegardées & outils',
+    home: 'Accueil',
     yourFriendCode: 'Ton Code Ami',
     copyCode: 'Copier le code',
     addFriend: 'Ajouter',
@@ -7706,6 +7697,9 @@ const I18N_STRINGS = {
     buzz: 'バズ',
     friends: 'フレンド',
     friendsDesc: 'フレンドを追加してルームに招待',
+    gameFeatures: 'ゲーム機能',
+    gameFeaturesDesc: 'コレクション、保存済みゲーム＆ツール',
+    home: 'ホーム',
     yourFriendCode: 'あなたのフレンドコード',
     copyCode: 'コードをコピー',
     addFriend: '追加',
@@ -7838,6 +7832,9 @@ const I18N_STRINGS = {
     buzz: 'Buzz',
     friends: 'Amici',
     friendsDesc: 'Aggiungi amici e invitali nelle stanze',
+    gameFeatures: 'Funzionalità',
+    gameFeaturesDesc: 'Collezioni, giochi salvati e strumenti',
+    home: 'Home',
     yourFriendCode: 'Il tuo Codice Amico',
     copyCode: 'Copia codice',
     addFriend: 'Aggiungi',
@@ -7970,6 +7967,9 @@ const I18N_STRINGS = {
     buzz: 'Buzz',
     friends: 'Amigos',
     friendsDesc: 'Adicione amigos e convide-os para salas',
+    gameFeatures: 'Recursos',
+    gameFeaturesDesc: 'Coleção, jogos salvos e ferramentas',
+    home: 'Início',
     yourFriendCode: 'Seu Código de Amigo',
     copyCode: 'Copiar código',
     addFriend: 'Adicionar',
@@ -8697,7 +8697,7 @@ window.closeNameOverlay = function() {
   let vhListener = null;
 
   function findOverlay(el) {
-    return el.closest('.tools-overlay, .avatar-overlay, .color-picker-overlay, .rng-overlay, .timer-overlay, .picker-overlay, .feature-settings-overlay, .info-overlay, .turn-mode-overlay, .duel-overlay, .status-overlay, .themes-overlay, .saved-screen, .vp-overlay, #password-gate, #setup-overlay, #add-friend-overlay, #remove-friend-confirm, #app-dialog-overlay, #friends-overlay, #invite-friends-overlay');
+    return el.closest('.tools-overlay, .avatar-overlay, .color-picker-overlay, .rng-overlay, .timer-overlay, .picker-overlay, .feature-settings-overlay, .info-overlay, .turn-mode-overlay, .duel-overlay, .status-overlay, .themes-overlay, .saved-screen, .vp-overlay, #password-gate, #setup-overlay, #add-friend-overlay, #remove-friend-confirm, #app-dialog-overlay, #friends-overlay, #invite-friends-overlay, #game-features-overlay');
   }
   function findModal(overlay) {
     if (!overlay) return null;
@@ -15639,6 +15639,9 @@ document.getElementById('collection-overlay').addEventListener('click', function
 document.getElementById('invite-friends-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeInviteFriendsOverlay();
 });
+document.getElementById('game-features-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeGameFeaturesOverlay();
+});
 document.getElementById('collection-edit-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeCollectionEdit();
 });
@@ -15758,6 +15761,14 @@ function renderInviteFriendsList() {
     </div>`;
   });
 }
+
+// ── GAME FEATURES OVERLAY ──────────────────────
+window.openGameFeaturesOverlay = function() {
+  document.getElementById('game-features-overlay').classList.add('show');
+};
+window.closeGameFeaturesOverlay = function() {
+  document.getElementById('game-features-overlay').classList.remove('show');
+};
 
 window.openAddFriendOverlay = function() {
   const overlay = document.getElementById('add-friend-overlay');
