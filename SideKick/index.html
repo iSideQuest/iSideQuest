@@ -183,6 +183,18 @@
     font-size: 17px;
   }
 
+  /* ── iOS LANDSCAPE PORTRAIT LOCK ── */
+  @media (orientation: landscape) {
+    html, body {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vh; height: 100vw;
+      transform: rotate(-90deg);
+      transform-origin: top left;
+      overflow: hidden;
+    }
+  }
+
   /* ── SCREENS ── */
   .screen { display: none; width: 100%; height: 100vh; height: 100dvh; flex-direction: column; align-items: center; justify-content: center; padding: calc(2rem + env(safe-area-inset-top, 0px)) 2rem calc(2rem + env(safe-area-inset-bottom, 0px)) 2rem; overflow: hidden; }
   .screen.active { display: flex; animation: screenFadeIn 0.2s ease-out; }
@@ -12827,7 +12839,7 @@ function resetOrientation() {
   }, { once: false, passive: true });
 });
 
-// ── WAKE LOCK (keep screen on during game) ──────────────
+// ── WAKE LOCK (keep screen on at all times) ──────────────
 let wakeLock = null;
 async function requestWakeLock() {
   try {
@@ -12841,10 +12853,7 @@ async function releaseWakeLock() {
 }
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState === 'visible' && wakeLock === null) {
-    const activeScreen = document.querySelector('.screen.active');
-    if (activeScreen && (activeScreen.id === 'screen-active' || activeScreen.id === 'screen-waiting')) {
-      await requestWakeLock();
-    }
+    await requestWakeLock();
   }
   // Keep audio session alive when backgrounded (iOS PWA hack)
   try {
@@ -12857,6 +12866,8 @@ document.addEventListener('visibilitychange', async () => {
     }
   } catch(e) {}
 });
+// Request wake lock immediately on load
+if (document.visibilityState === 'visible') requestWakeLock();
 
 
 // ── CUSTOM SOUND FILES ────────────────────────
@@ -15737,7 +15748,11 @@ function renderFriendsList() {
     const name = localStorage.getItem('sk_preferred_name_' + uid) || 'Player';
     const avatar = localStorage.getItem('sk_avatar_' + uid) || '👤';
     const inLobby = roomCode && isHost && window._lobbyPhase;
-    const inviteBtn = inLobby ? `<button class="btn-primary btn-sm" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="inviteFriendToRoom('${uid}')">${t('inviteToRoom')}</button>` : '';
+    const alreadyInvited = _invitedFriendUids.has(uid);
+    const inviteBtn = inLobby ? (alreadyInvited
+      ? `<span style="padding:0.3rem 0.8rem;font-size:0.8rem;color:#4caf50;font-weight:700;">✓ ${t('inviteSent')}</span>`
+      : `<button class="btn-primary btn-sm" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="inviteFriendToRoom('${uid}')">${t('inviteToRoom')}</button>`)
+      : '';
     el.innerHTML += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
       <div style="font-size:1.4rem;flex-shrink:0;width:32px;text-align:center;">${avatarHTML(avatar, 28)}</div>
       <div style="flex:1;min-width:0;">
@@ -15879,6 +15894,7 @@ window.copyFriendCode = async function() {
   try { await navigator.clipboard.writeText(code.textContent); } catch {}
 };
 
+let _invitedFriendUids = new Set();
 window.inviteFriendToRoom = async function(friendUid) {
   if (!db || !roomCode || !isHost) return;
   try {
@@ -15891,6 +15907,8 @@ window.inviteFriendToRoom = async function(friendUid) {
     };
     await set(ref(db, `rooms/${roomCode}/invites/${friendUid}`), inviteData);
     await set(ref(db, `roomInvites/${friendUid}`), inviteData);
+    _invitedFriendUids.add(friendUid);
+    renderFriendsList();
   } catch (e) {}
 };
 
