@@ -12851,11 +12851,14 @@ function resetOrientation() {
   try { screen.orientation.lock('portrait-primary').catch(()=>{}); } catch(e) {}
 }
 // Attempt to lock on every page interaction (iOS PWA requires user gesture)
-['touchstart','click','keydown'].forEach(evt => {
-  document.addEventListener(evt, () => {
-    try { screen.orientation.lock('portrait-primary').catch(()=>{}); } catch(e) {}
-  }, { once: false, passive: true });
-});
+// Only on touch devices — desktop browsers don't support orientation lock and the constant failing calls waste CPU
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+  ['touchstart','click','keydown'].forEach(evt => {
+    document.addEventListener(evt, () => {
+      try { screen.orientation.lock('portrait-primary').catch(()=>{}); } catch(e) {}
+    }, { once: false, passive: true });
+  });
+}
 
 // ── WAKE LOCK (keep screen on at all times) ──────────────
 let wakeLock = null;
@@ -16047,10 +16050,12 @@ function showFriendRequestPopup(fromName, fromUid) {
 }
 
 let lastFriendRequestSeen = 0;
+let friendRequestGlobalUnsub = null;
 
 function startFriendRequestListener() {
+  if (friendRequestGlobalUnsub) { friendRequestGlobalUnsub(); friendRequestGlobalUnsub = null; }
   if (!db || !currentUser) return;
-  onValue(ref(db, friendsPath()), snap => {
+  const fn = onValue(ref(db, friendsPath()), snap => {
     const data = snap.val() || {};
     Object.entries(data).forEach(([uid, val]) => {
       if (val && val.status === 'pending' && val.sentBy !== currentUser.uid && (val.addedAt || 0) > lastFriendRequestSeen) {
@@ -16060,6 +16065,10 @@ function startFriendRequestListener() {
       }
     });
   });
+  friendRequestGlobalUnsub = fn;
+}
+function stopFriendRequestListener() {
+  if (friendRequestGlobalUnsub) { friendRequestGlobalUnsub(); friendRequestGlobalUnsub = null; }
 }
 
 
