@@ -6558,6 +6558,16 @@
   </div>
 </div>
 
+<!--  INVITE FRIENDS OVERLAY (Lobby)              -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tools-overlay" id="invite-friends-overlay">
+  <div class="tools-modal" style="overflow:visible;">
+    <div class="tools-modal-title"><span data-i18n="inviteFriends">Invite Friends</span></div>
+    <div id="invite-friends-list" style="margin-bottom:0.8rem;"></div>
+    <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeInviteFriendsOverlay()" data-i18n="close">Close</button>
+  </div>
+</div>
+
 <!-- REMOVE FRIEND CONFIRM -->
 <div id="remove-friend-confirm" style="position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;">
   <div class="tools-modal" style="max-width:300px;text-align:center;">
@@ -7057,6 +7067,7 @@ const I18N_STRINGS = {
     accept: 'Accept',
     decline: 'Decline',
     inviteToRoom: 'Invite',
+    inviteFriends: 'Invite Friends',
     inviteSent: 'Invite sent!',
     friendRequest: 'Friend Request',
     wantsToBeFriends: 'wants to be your friend',
@@ -7188,6 +7199,7 @@ const I18N_STRINGS = {
     accept: 'Aceptar',
     decline: 'Rechazar',
     inviteToRoom: 'Invitar',
+    inviteFriends: 'Invitar Amigos',
     inviteSent: '¡Invitación enviada!',
     friendRequest: 'Solicitud de Amistad',
     wantsToBeFriends: 'quiere ser tu amigo',
@@ -7319,6 +7331,7 @@ const I18N_STRINGS = {
     accept: '接受',
     decline: '拒绝',
     inviteToRoom: '邀请',
+    inviteFriends: '邀请好友',
     inviteSent: '邀请已发送！',
     friendRequest: '好友请求',
     wantsToBeFriends: '想成为你的好友',
@@ -7450,6 +7463,7 @@ const I18N_STRINGS = {
     accept: 'Akzeptieren',
     decline: 'Ablehnen',
     inviteToRoom: 'Einladen',
+    inviteFriends: 'Freunde einladen',
     inviteSent: 'Einladung gesendet!',
     friendRequest: 'Freundschaftsanfrage',
     wantsToBeFriends: 'möchte dein Freund sein',
@@ -7581,6 +7595,7 @@ const I18N_STRINGS = {
     accept: 'Accepter',
     decline: 'Refuser',
     inviteToRoom: 'Inviter',
+    inviteFriends: 'Inviter des amis',
     inviteSent: 'Invitation envoyée !',
     friendRequest: 'Demande d\'ami',
     wantsToBeFriends: 'veut être ton ami',
@@ -7712,6 +7727,7 @@ const I18N_STRINGS = {
     accept: '承諾',
     decline: '辞退',
     inviteToRoom: '招待',
+    inviteFriends: 'フレンドを招待',
     inviteSent: '招待を送信しました！',
     friendRequest: 'フレンドリクエスト',
     wantsToBeFriends: 'フレンドになりたいと言っています',
@@ -7843,6 +7859,7 @@ const I18N_STRINGS = {
     accept: 'Accetta',
     decline: 'Rifiuta',
     inviteToRoom: 'Invita',
+    inviteFriends: 'Invita Amici',
     inviteSent: 'Invito inviato!',
     friendRequest: 'Richiesta di Amicizia',
     wantsToBeFriends: 'vuole essere tuo amico',
@@ -7974,6 +7991,7 @@ const I18N_STRINGS = {
     accept: 'Aceitar',
     decline: 'Recusar',
     inviteToRoom: 'Convidar',
+    inviteFriends: 'Convidar Amigos',
     inviteSent: 'Convite enviado!',
     friendRequest: 'Solicitação de Amizade',
     wantsToBeFriends: 'quer ser seu amigo',
@@ -8679,7 +8697,7 @@ window.closeNameOverlay = function() {
   let vhListener = null;
 
   function findOverlay(el) {
-    return el.closest('.tools-overlay, .avatar-overlay, .color-picker-overlay, .rng-overlay, .timer-overlay, .picker-overlay, .feature-settings-overlay, .info-overlay, .turn-mode-overlay, .duel-overlay, .status-overlay, .themes-overlay, .saved-screen, .vp-overlay, #password-gate, #setup-overlay, #add-friend-overlay, #remove-friend-confirm, #app-dialog-overlay, #friends-overlay');
+    return el.closest('.tools-overlay, .avatar-overlay, .color-picker-overlay, .rng-overlay, .timer-overlay, .picker-overlay, .feature-settings-overlay, .info-overlay, .turn-mode-overlay, .duel-overlay, .status-overlay, .themes-overlay, .saved-screen, .vp-overlay, #password-gate, #setup-overlay, #add-friend-overlay, #remove-friend-confirm, #app-dialog-overlay, #friends-overlay, #invite-friends-overlay');
   }
   function findModal(overlay) {
     if (!overlay) return null;
@@ -15618,6 +15636,9 @@ window.deleteCollectionGame = async function(id) {
 document.getElementById('collection-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeCollection();
 });
+document.getElementById('invite-friends-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeInviteFriendsOverlay();
+});
 document.getElementById('collection-edit-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeCollectionEdit();
 });
@@ -15696,6 +15717,48 @@ window.closeFriendsOverlay = function() {
   stopFriendsListener();
 };
 
+// ── INVITE FRIENDS OVERLAY (Lobby) ──────────────────────
+window.openInviteFriendsOverlay = async function() {
+  if (!requireDb()) return;
+  document.getElementById('invite-friends-overlay').classList.add('show');
+  await loadFriendsData();
+  renderInviteFriendsList();
+  startFriendsListener();
+};
+
+window.closeInviteFriendsOverlay = function() {
+  document.getElementById('invite-friends-overlay').classList.remove('show');
+  stopFriendsListener();
+};
+
+function renderInviteFriendsList() {
+  const el = document.getElementById('invite-friends-list');
+  if (!el) return;
+  const accepted = Object.entries(friendsData)
+    .filter(([, v]) => v && v.status === 'accepted')
+    .sort((a, b) => {
+      const na = localStorage.getItem('sk_preferred_name_' + a[0]) || 'Player';
+      const nb = localStorage.getItem('sk_preferred_name_' + b[0]) || 'Player';
+      return na.localeCompare(nb);
+    });
+  if (!accepted.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;text-align:center;padding:0.5rem;" data-i18n="noFriendsYet">No friends yet. Add someone with their code!</div>';
+    return;
+  }
+  el.innerHTML = '';
+  accepted.forEach(([uid]) => {
+    const name = localStorage.getItem('sk_preferred_name_' + uid) || 'Player';
+    const avatar = localStorage.getItem('sk_avatar_' + uid) || '👤';
+    const invited = _invitedFriendUids.has(uid);
+    el.innerHTML += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:1.4rem;flex-shrink:0;width:32px;text-align:center;">${avatarHTML(avatar, 28)}</div>
+      <div style="flex:1;min-width:0;font-weight:700;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(name)}</div>
+      <button class="btn-primary btn-sm" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="inviteFriendToRoom('${uid}')">${t('inviteToRoom')}</button>
+      ${invited ? '<span style="font-size:0.85rem;color:#4caf50;margin-left:0.2rem;">✓</span>' : ''}
+    </div>`;
+  });
+}
+
 window.openAddFriendOverlay = function() {
   const overlay = document.getElementById('add-friend-overlay');
   const input = document.getElementById('friends-add-input');
@@ -15728,6 +15791,7 @@ function startFriendsListener() {
     saveFriendsLocal(friendsData);
     renderFriendsList();
     renderPendingRequests();
+    renderInviteFriendsList();
   });
   friendRequestUnsub = fn;
 }
@@ -15909,6 +15973,7 @@ window.inviteFriendToRoom = async function(friendUid) {
     await set(ref(db, `roomInvites/${friendUid}`), inviteData);
     _invitedFriendUids.add(friendUid);
     renderFriendsList();
+    renderInviteFriendsList();
   } catch (e) {}
 };
 
@@ -16082,7 +16147,7 @@ function renderLobbyList(players) {
         </div>
       </div>
       <div class="player-name" style="color:var(--accent);">Invite Friend</div>`;
-    inviteDiv.addEventListener('click', () => { openFriendsOverlay(); });
+    inviteDiv.addEventListener('click', () => { openInviteFriendsOverlay(); });
     el.appendChild(inviteDiv);
   }
   makeDraggable(el, async (srcId, destId) => {
