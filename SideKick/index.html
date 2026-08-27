@@ -197,8 +197,8 @@
   }
 
   /* ── SCREENS ── */
-  .screen { display: none; width: 100%; height: 100vh; height: 100dvh; flex-direction: column; align-items: center; justify-content: center; padding: calc(2rem + env(safe-area-inset-top, 0px)) 2rem calc(2rem + env(safe-area-inset-bottom, 0px)) 2rem; overflow: hidden; content-visibility: auto; contain-intrinsic-size: 100vw 100vh; }
-  .screen.active { display: flex; animation: screenFadeIn 0.2s ease-out; content-visibility: visible; }
+  .screen { display: none; width: 100%; height: 100vh; height: 100dvh; flex-direction: column; align-items: center; justify-content: center; padding: calc(2rem + env(safe-area-inset-top, 0px)) 2rem calc(2rem + env(safe-area-inset-bottom, 0px)) 2rem; overflow: hidden; }
+  .screen.active { display: flex; animation: screenFadeIn 0.2s ease-out; }
   @keyframes screenFadeIn { from { opacity: 0; } to { opacity: 1; } }
   /* Setup/menu screens (Home, Create, Join, Lobby, Waiting Lobby, Profile)
      wrap their content in .screen-content-scaler, which JS shrinks via
@@ -823,7 +823,7 @@
     z-index: 9000;
     align-items: center;
     justify-content: center;
-    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
+   
   }
   #edit-profile-color-overlay {
     z-index: 9800;
@@ -1292,7 +1292,7 @@
     gap: 0.75rem;
     text-align: center;
     padding: 2rem;
-    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
+   
   }
   .saved-screen.show { display: flex; }
   .saved-screen-icon { font-size: 3rem; }
@@ -1618,7 +1618,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.82); z-index: 9600;
     align-items: center; justify-content: center;
-    padding: 1rem; content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
+    padding: 1rem;
   }
   .feature-settings-overlay.show { display: flex; }
   .feature-settings-modal {
@@ -1674,7 +1674,7 @@
     z-index: 9500;
     align-items: center;
     justify-content: center;
-    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
+   
   }
   .info-overlay.show { display: flex; }
   #features-help-overlay { z-index: 9500; }
@@ -1685,7 +1685,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.82); z-index: 9600;
     align-items: center; justify-content: center;
-    padding: 1rem; content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
+    padding: 1rem;
   }
   .tools-overlay.show { display: flex; }
   #friend-request-popup.show, #room-invite-popup.show { display: block !important; animation: popupSlideIn 0.3s ease; }
@@ -1797,7 +1797,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.85); z-index: 9650;
     align-items: center; justify-content: center;
-    padding: 1rem; content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
+    padding: 1rem;
   }
   .picker-overlay.show { display: flex; }
   .picker-modal {
@@ -1851,7 +1851,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.85); z-index: 9650;
     align-items: center; justify-content: center;
-    padding: 1rem; content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
+    padding: 1rem;
   }
   .rng-overlay.show { display: flex; }
   .rng-modal {
@@ -1909,7 +1909,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.85); z-index: 9650;
     align-items: center; justify-content: center;
-    padding: 1rem; content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
+    padding: 1rem;
   }
   .timer-overlay.show { display: flex; }
   .timer-modal {
@@ -2530,7 +2530,7 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
+   
   }
   .manage-overlay.show { display: flex; }
   .manage-card {
@@ -2681,7 +2681,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.88); z-index: 9700;
     align-items: center; justify-content: center; padding: 1rem;
-    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
+   
   }
   .status-overlay.show { display: flex; }
   .status-menu-modal {
@@ -2755,7 +2755,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.92); z-index: 9800;
     align-items: center; justify-content: center; padding: 1rem;
-    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
+   
   }
   .status-alert-overlay.show { display: flex; }
   .status-alert-modal {
@@ -2880,7 +2880,7 @@
     background: rgba(0,0,0,0.96); z-index: 8050;
     flex-direction: column; align-items: center; justify-content: center;
     padding: 2rem 1.5rem; gap: 1rem;
-    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
+   
   }
   .vp-overlay.show { display: flex; }
   .vp-overlay-title { font-size: 1.8rem; font-weight: 900; color: #fff; text-align: center; }
@@ -3160,7 +3160,7 @@
     grid-template-columns: repeat(2, 1fr);
     padding: 5px; gap: 4px;
     position: relative;
-    box-shadow: 0 0 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.07);
+    box-shadow: 0 0 20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.07);
   }
   .dnd-cell {
     background: linear-gradient(to bottom, #333, #242323);
@@ -3785,14 +3785,14 @@
   /* ══════════════════════════════════════════════
      THEMES OVERLAY
   ══════════════════════════════════════════════ */
-  .themes-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9700; align-items:center; justify-content:center; padding:1rem; content-visibility:auto; contain-intrinsic-size:100vw 100vh; }
+  .themes-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9700; align-items:center; justify-content:center; padding:1rem; }
   .themes-overlay.show { display:flex; }
-  .themes-modal { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1rem; width:min(360px,92vw); box-shadow:0 8px 40px rgba(0,0,0,0.7); display:flex; flex-direction:column; align-items:center; gap:0.5rem; }
+  .themes-modal { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1rem; width:min(360px,92vw);     box-shadow: 0 8px 40px rgba(0,0,0,0.7); display:flex; flex-direction:column; align-items:center; gap:0.5rem; }
 
   /* Awards overlay */
-  .awards-history-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9700; align-items:center; justify-content:center; padding:1rem; content-visibility:auto; contain-intrinsic-size:100vw 100vh; }
+  .awards-history-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9700; align-items:center; justify-content:center; padding:1rem; }
   .awards-history-overlay.show { display:flex; }
-  .awards-history-modal { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:1.5rem 1.25rem; width:min(360px,92vw); max-height:80vh; overflow-y:auto; box-shadow:0 8px 40px rgba(0,0,0,0.7); display:flex; flex-direction:column; gap:0.5rem; }
+  .awards-history-modal { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:1.5rem 1.25rem; width:min(360px,92vw); max-height:80vh; overflow-y:auto;     box-shadow:0 8px 40px rgba(0,0,0,0.7); display:flex; flex-direction:column; gap:0.5rem; }
   .awards-history-title { font-size:1.1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:0.25rem; }
   .awards-history-empty { text-align:center; color:var(--muted); font-size:0.85rem; padding:1.5rem 0; }
   .awards-history-list { display:flex; flex-direction:column; gap:0.4rem; }
@@ -3819,7 +3819,7 @@
   .themes-modal-title { font-size:1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:0.1rem; }
 
   /* ── AVATAR PICKER ── */
-  .avatar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9700; align-items:center; justify-content:center; padding:1rem; content-visibility:auto; contain-intrinsic-size:100vw 100vh; }
+  .avatar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9700; align-items:center; justify-content:center; padding:1rem; }
   .avatar-overlay.show { display:flex; }
   .avatar-modal { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:1.5rem 1.25rem; width:min(360px,92vw); box-shadow:0 8px 40px rgba(0,0,0,0.7); display:flex; flex-direction:column; gap:0.6rem; overflow:hidden; }
   body.theme-8bit .avatar-modal { background:#0d0208 !important; border:3px solid var(--accent) !important; box-shadow:6px 6px 0 #000 !important; }
@@ -4044,7 +4044,7 @@
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.88); z-index: 9600;
     align-items: center; justify-content: center; padding: 1.25rem;
-    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
+   
   }
   .turn-mode-overlay.show { display: flex; }
   .turn-mode-modal {
@@ -4308,7 +4308,7 @@
     background: rgba(0,0,0,0.92); z-index: 9660;
     align-items: center; justify-content: center;
     padding: 1rem;
-    content-visibility: auto; contain-intrinsic-size: 100vw 100vh;
+   
   }
   .duel-overlay.show { display: flex; }
   .duel-modal {
@@ -12894,16 +12894,18 @@ document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState === 'visible' && wakeLock === null) {
     await requestWakeLock();
   }
-  // Keep audio session alive when backgrounded (iOS PWA hack)
-  try {
-    const bgAudio = document.getElementById('bg-keep-alive');
-    if (bgAudio) {
-      if (document.visibilityState === 'hidden') {
-        bgAudio.currentTime = 0;
-        bgAudio.play().catch(() => {});
+  // Keep audio session alive when backgrounded (iOS PWA hack only)
+  if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+    try {
+      const bgAudio = document.getElementById('bg-keep-alive');
+      if (bgAudio) {
+        if (document.visibilityState === 'hidden') {
+          bgAudio.currentTime = 0;
+          bgAudio.play().catch(() => {});
+        }
       }
-    }
-  } catch(e) {}
+    } catch(e) {}
+  }
 });
 // Request wake lock immediately on load
 if (document.visibilityState === 'visible') requestWakeLock();
