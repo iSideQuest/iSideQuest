@@ -16010,29 +16010,24 @@ window.inviteFriendToRoom = async function(friendUid) {
 };
 
 let _seenInviteTs = 0;
-let _roomInviteInterval = null;
+let _roomInviteUnsub = null;
 function startRoomInviteListener() {
   stopRoomInviteListener();
   if (!db || !currentUser) return;
   _seenInviteTs = 0;
-  async function poll() {
-    try {
-      const snap = await get(ref(db, `roomInvites/${currentUser.uid}`));
-      if (snap.exists()) {
-        const data = snap.val();
-        if (data && data.roomCode && data.fromName && data.timestamp !== _seenInviteTs) {
-          _seenInviteTs = data.timestamp || Date.now();
-          showRoomInvitePopup(data.fromName, data.roomCode);
-        }
-        remove(ref(db, `roomInvites/${currentUser.uid}`)).catch(() => {});
+  _roomInviteUnsub = onValue(ref(db, `roomInvites/${currentUser.uid}`), (snap) => {
+    if (snap.exists()) {
+      const data = snap.val();
+      if (data && data.roomCode && data.fromName && data.timestamp !== _seenInviteTs) {
+        _seenInviteTs = data.timestamp || Date.now();
+        showRoomInvitePopup(data.fromName, data.roomCode);
       }
-    } catch {}
-  }
-  poll();
-  _roomInviteInterval = setInterval(poll, 20000);
+      remove(ref(db, `roomInvites/${currentUser.uid}`)).catch(() => {});
+    }
+  });
 }
 function stopRoomInviteListener() {
-  if (_roomInviteInterval) { clearInterval(_roomInviteInterval); _roomInviteInterval = null; }
+  if (_roomInviteUnsub) { _roomInviteUnsub(); _roomInviteUnsub = null; }
 }
 
 function showRoomInvitePopup(fromName, invitedRoomCode) {
@@ -16073,14 +16068,13 @@ function showFriendRequestPopup(fromName, fromUid) {
 }
 
 let lastFriendRequestSeen = 0;
-let _friendReqInterval = null;
+let _friendReqUnsub = null;
 
 function startFriendRequestListener() {
   stopFriendRequestListener();
   if (!db || !currentUser) return;
-  async function poll() {
+  _friendReqUnsub = onValue(ref(db, friendsPath()), (snap) => {
     try {
-      const snap = await get(ref(db, friendsPath()));
       const data = snap.val() || {};
       friendsData = data;
       saveFriendsLocal(friendsData);
@@ -16101,12 +16095,10 @@ function startFriendRequestListener() {
         }
       });
     } catch {}
-  }
-  poll();
-  _friendReqInterval = setInterval(poll, 20000);
+  });
 }
 function stopFriendRequestListener() {
-  if (_friendReqInterval) { clearInterval(_friendReqInterval); _friendReqInterval = null; }
+  if (_friendReqUnsub) { _friendReqUnsub(); _friendReqUnsub = null; }
 }
 
 
@@ -17549,8 +17541,8 @@ document.addEventListener('visibilitychange', () => {
     if (db) try { goOffline(db); } catch {}
     if (_timeOffsetInterval)    { clearInterval(_timeOffsetInterval);    _timeOffsetInterval = null; }
     if (_passwordSyncInterval)  { clearInterval(_passwordSyncInterval);  _passwordSyncInterval = null; }
-    if (_friendReqInterval)     { clearInterval(_friendReqInterval);     _friendReqInterval = null; }
-    if (_roomInviteInterval)    { clearInterval(_roomInviteInterval);    _roomInviteInterval = null; }
+    if (_friendReqUnsub)     { _friendReqUnsub();     _friendReqUnsub = null; }
+    if (_roomInviteUnsub)    { _roomInviteUnsub();    _roomInviteUnsub = null; }
     if (window._swUpdateInterval) { clearInterval(window._swUpdateInterval); window._swUpdateInterval = null; }
   } else {
     // Tab visible again — reconnect Firebase and restart intervals
@@ -17565,8 +17557,8 @@ document.addEventListener('visibilitychange', () => {
       _timeOffsetInterval = setInterval(refreshTimeOffset, 60000);
     }
     if (!_passwordSyncInterval) { syncPassword(); _passwordSyncInterval = setInterval(syncPassword, 300000); }
-    if (currentUser && !_friendReqInterval) startFriendRequestListener();
-    if (currentUser && !_roomInviteInterval) startRoomInviteListener();
+    if (currentUser && !_friendReqUnsub) startFriendRequestListener();
+    if (currentUser && !_roomInviteUnsub) startRoomInviteListener();
   }
 });
 </script>
