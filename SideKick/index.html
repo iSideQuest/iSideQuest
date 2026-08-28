@@ -166,6 +166,9 @@
   body.light-mode:not(.in-game) .info-modal-title,
   body.light-mode:not(.in-game) .feature-settings-modal-title { color: var(--accent-light); text-shadow: none; }
 
+  html {
+    --app-height: 100dvh;
+  }
   html, body {
     position: fixed;
     inset: 0;
@@ -197,7 +200,7 @@
   }
 
   /* ── SCREENS ── */
-  .screen { display: none; width: 100%; height: 100vh; height: 100dvh; min-height: -webkit-fill-available; flex-direction: column; align-items: center; justify-content: center; padding: calc(2rem + env(safe-area-inset-top, 0px)) 2rem calc(2rem + env(safe-area-inset-bottom, 0px)) 2rem; overflow: hidden; box-sizing: border-box; }
+  .screen { display: none; width: 100%; height: 100vh; height: var(--app-height); height: 100dvh; min-height: -webkit-fill-available; flex-direction: column; align-items: center; justify-content: center; padding: calc(2rem + env(safe-area-inset-top, 0px)) 2rem calc(2rem + env(safe-area-inset-bottom, 0px)) 2rem; overflow: hidden; box-sizing: border-box; }
   .screen.active { display: flex; animation: screenFadeIn 0.2s ease-out; }
   @keyframes screenFadeIn { from { opacity: 0; } to { opacity: 1; } }
   /* Setup/menu screens (Home, Create, Join, Lobby, Waiting Lobby, Profile)
@@ -9661,13 +9664,24 @@ window.addEventListener('resize', () => {
 window.addEventListener('orientationchange', () => {
   setTimeout(rescaleCurrentScreen, 200);
 });
+function updateAppHeight() {
+  const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
+  document.documentElement.style.setProperty('--app-height', h + 'px');
+}
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', () => {
+    updateAppHeight();
     clearTimeout(rescaleResizeTimer);
     rescaleResizeTimer = setTimeout(rescaleCurrentScreen, 120);
   });
 }
-window.addEventListener('load', () => setTimeout(rescaleCurrentScreen, 300));
+window.addEventListener('resize', () => {
+  updateAppHeight();
+});
+window.addEventListener('load', () => { updateAppHeight(); setTimeout(rescaleCurrentScreen, 300); });
+updateAppHeight();
+// Re-apply after SW update reload when viewport stabilizes
+window.addEventListener('pageshow', () => { updateAppHeight(); setTimeout(rescaleCurrentScreen, 300); });
 
 function status(id, msg, type='') {
   const el = document.getElementById(id);
@@ -15871,10 +15885,8 @@ function renderInviteFriendsList() {
     else if (st === 'left') { statusText = 'Left'; statusColor = '#f44336'; }
     else if (st === 'dismissed') { statusText = 'Dismissed'; statusColor = '#f44336'; }
     else if (st === 'timedOut') { statusText = 'Timed Out'; statusColor = '#f44336'; }
-    const statusHtml = `<div style="width:92px; flex-shrink:0; text-align:left; font-size:0.8rem; font-weight:700; color:${statusColor}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${statusText}</div>`;
-    let btnDisabled = '';
-    if (st) btnDisabled = ' disabled style="opacity:0.4;pointer-events:none;padding:0.3rem 0.7rem;font-size:0.8rem;flex-shrink:0;"';
-    else btnDisabled = ' style="padding:0.3rem 0.7rem;font-size:0.8rem;flex-shrink:0;"';
+    const statusHtml = `<div style="width:92px; flex-shrink:0; text-align:center; font-size:0.8rem; font-weight:700; color:${statusColor}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${statusText}</div>`;
+    const btnDisabled = ' style="padding:0.3rem 0.7rem;font-size:0.8rem;flex-shrink:0;"';
     el.innerHTML += `<div style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
       <div style="font-size:1.4rem;flex-shrink:0;width:32px;text-align:center;">${avatarHTML(avatar, 28)}</div>
       <div style="flex:1;min-width:0;font-weight:700;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(name)}</div>
