@@ -6596,7 +6596,7 @@
 <!--  ROOM INVITE POPUP (toast)                  -->
 <!-- ═══════════════════════════════════════════ -->
 <div id="room-invite-popup" style="display:none; position:fixed; inset:0; z-index:9000; background:rgba(0,0,0,0.65); align-items:center; justify-content:center; padding:1rem;">
-  <div style="background:var(--card); border:1px solid #22c55e; border-radius:16px; padding:1.4rem 1.5rem; box-shadow:0 8px 32px rgba(0,0,0,0.5); max-width:360px; width:100%; text-align:center;">
+  <div style="background:var(--surface); border:1px solid #22c55e; border-radius:16px; padding:1.4rem 1.5rem; box-shadow:0 8px 32px rgba(0,0,0,0.5); max-width:360px; width:100%; text-align:center; opacity:1;">
     <div style="font-weight:800; font-size:1.05rem; margin-bottom:0.5rem;" data-i18n="roomInvite">Room Invite</div>
     <div style="font-size:0.9rem; color:var(--muted); margin-bottom:1rem;"><span id="room-invite-from">Someone</span> <span data-i18n="invitedYouToRoom">invited you to join a room</span></div>
     <div style="display:flex; gap:0.5rem;">
@@ -13698,7 +13698,10 @@ function listenLobby() {
           const friendName = (localStorage.getItem('sk_preferred_name_' + uid) || '').trim().toLowerCase();
           const stillInRoom = playerAuthUids.has(uid) || (friendName && playerNames.has(friendName));
           if (!stillInRoom) {
-            scheduleInviteReset(uid, 1500);
+            _inviteStatus.set(uid, 'left');
+            renderInviteFriendsList();
+            try { update(ref(db, `rooms/${roomCode}/invites/${uid}`), { status: 'left' }); } catch {}
+            scheduleInviteReset(uid, 3000);
           }
         });
       }
@@ -15834,15 +15837,18 @@ function renderInviteFriendsList() {
     const name = localStorage.getItem('sk_preferred_name_' + uid) || 'Player';
     const avatar = localStorage.getItem('sk_avatar_' + uid) || '👤';
     const st = _inviteStatus.get(uid);
-    let statusHtml = '';
+    let statusText = '';
+    let statusColor = '';
+    if (st === 'sent') { statusText = 'Sent'; statusColor = '#4caf50'; }
+    else if (st === 'joined') { statusText = 'In Lobby'; statusColor = '#4caf50'; }
+    else if (st === 'left') { statusText = 'Left'; statusColor = '#f44336'; }
+    else if (st === 'dismissed') { statusText = 'Dismissed'; statusColor = '#f44336'; }
+    else if (st === 'timedOut') { statusText = 'Timed Out'; statusColor = '#f44336'; }
+    const statusHtml = `<div style="width:92px; flex-shrink:0; text-align:left; font-size:0.8rem; font-weight:700; color:${statusColor}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${statusText}</div>`;
     let btnDisabled = '';
-    if (st === 'sent') statusHtml = '<span style="font-size:0.8rem;color:#4caf50;font-weight:700;margin-left:0.3rem;">Sent</span>';
-    else if (st === 'joined') statusHtml = '<span style="font-size:0.8rem;color:#4caf50;font-weight:700;margin-left:0.3rem;">Joined</span>';
-    else if (st === 'dismissed') statusHtml = '<span style="font-size:0.8rem;color:#f44336;font-weight:700;margin-left:0.3rem;">Dismissed</span>';
-    else if (st === 'timedOut') statusHtml = '<span style="font-size:0.8rem;color:#f44336;font-weight:700;margin-left:0.3rem;">Timed Out</span>';
-    if (st) btnDisabled = ' disabled style="opacity:0.4;pointer-events:none;padding:0.3rem 0.8rem;font-size:0.8rem;"';
-    else btnDisabled = ' style="padding:0.3rem 0.8rem;font-size:0.8rem;"';
-    el.innerHTML += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+    if (st) btnDisabled = ' disabled style="opacity:0.4;pointer-events:none;padding:0.3rem 0.7rem;font-size:0.8rem;flex-shrink:0;"';
+    else btnDisabled = ' style="padding:0.3rem 0.7rem;font-size:0.8rem;flex-shrink:0;"';
+    el.innerHTML += `<div style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
       <div style="font-size:1.4rem;flex-shrink:0;width:32px;text-align:center;">${avatarHTML(avatar, 28)}</div>
       <div style="flex:1;min-width:0;font-weight:700;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(name)}</div>
       <button class="btn-primary btn-sm"${btnDisabled} onclick="inviteFriendToRoom('${uid}')">${t('inviteToRoom')}</button>
@@ -16061,7 +16067,7 @@ let _inviteStatus = new Map();
 let _hostInviteUnsub = null;
 let _hostInviteTimers = new Map();
 let _invitedFriendUids = _inviteStatus; // backwards compat alias
-function scheduleInviteReset(uid, delayMs = 4000) {
+function scheduleInviteReset(uid, delayMs = 3000) {
   if (_hostInviteTimers.has(uid)) clearTimeout(_hostInviteTimers.get(uid));
   const t = setTimeout(async () => {
     _inviteStatus.delete(uid);
@@ -16080,14 +16086,17 @@ function startHostInviteListener() {
     Object.entries(data).forEach(([uid, val]) => {
       if (val && val.status && _inviteStatus.has(uid)) {
         const s = val.status;
-        if ((s === 'joined' || s === 'dismissed' || s === 'timedOut') && _inviteStatus.get(uid) !== s) {
+        if ((s === 'joined' || s === 'dismissed' || s === 'timedOut' || s === 'left') && _inviteStatus.get(uid) !== s) {
           _inviteStatus.set(uid, s);
           if (_hostInviteTimers.has(uid)) { clearTimeout(_hostInviteTimers.get(uid)); _hostInviteTimers.delete(uid); }
           changed = true;
           if (s === 'dismissed' || s === 'timedOut') {
-            scheduleInviteReset(uid, 4000);
+            scheduleInviteReset(uid, 3000);
           }
-          // 'joined' stays until player leaves (handled in listenLobby)
+          if (s === 'left') {
+            scheduleInviteReset(uid, 3000);
+          }
+          // 'joined' stays until player leaves (handled in listenLobby) — then becomes 'left'
         }
       }
     });
@@ -16121,7 +16130,7 @@ window.inviteFriendToRoom = async function(friendUid) {
         _inviteStatus.set(friendUid, 'timedOut');
         renderInviteFriendsList();
         try { await update(ref(db, `rooms/${roomCode}/invites/${friendUid}`), { status: 'timedOut' }); } catch {}
-        scheduleInviteReset(friendUid, 4000);
+        scheduleInviteReset(friendUid, 3000);
       }
       _hostInviteTimers.delete(friendUid);
     }, 32000);
