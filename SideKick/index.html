@@ -6604,7 +6604,7 @@
     <div style="font-size:0.9rem; color:var(--muted); margin-bottom:1rem;"><span id="room-invite-from">Someone</span> <span data-i18n="invitedYouToRoom">invited you to join a room</span></div>
     <div style="display:flex; gap:0.5rem;">
       <button class="btn-primary btn-sm" style="flex:1; padding:0.6rem;" id="room-invite-join-btn" data-i18n="join">Join</button>
-      <button class="btn-secondary btn-sm" style="flex:1; padding:0.6rem;" onclick="dismissRoomInvite()" data-i18n="dismiss">Dismiss</button>
+      <button class="btn-secondary btn-sm" style="flex:1; padding:0.6rem;" onclick="dismissRoomInvite()" data-i18n="decline">Decline</button>
     </div>
   </div>
 </div>
@@ -15883,10 +15883,12 @@ function renderInviteFriendsList() {
     else if (st === 'joined') { statusText = 'Joined'; statusColor = '#4caf50'; }
     else if (st === 'inLobby') { statusText = 'Lobby'; statusColor = '#4caf50'; }
     else if (st === 'left') { statusText = 'Left'; statusColor = '#f44336'; }
-    else if (st === 'dismissed') { statusText = 'Dismissed'; statusColor = '#f44336'; }
+    else if (st === 'dismissed') { statusText = 'Declined'; statusColor = '#f44336'; }
     else if (st === 'timedOut') { statusText = 'Timed'; statusColor = '#f44336'; }
     const statusHtml = `<div style="width:68px; flex-shrink:0; text-align:center; font-size:0.8rem; font-weight:700; color:${statusColor}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${statusText}</div>`;
-    const btnDisabled = ' style="padding:0.3rem 0.7rem;font-size:0.8rem;flex-shrink:0;"';
+    let btnDisabled = '';
+    if (st === 'inLobby') btnDisabled = ' disabled style="opacity:0.4;pointer-events:none;padding:0.3rem 0.7rem;font-size:0.8rem;flex-shrink:0;"';
+    else btnDisabled = ' style="padding:0.3rem 0.7rem;font-size:0.8rem;flex-shrink:0;"';
     el.innerHTML += `<div style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
       <div style="font-size:1.4rem;flex-shrink:0;width:32px;text-align:center;">${avatarHTML(avatar, 28)}</div>
       <div style="flex:1;min-width:0;font-weight:700;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(name)}</div>
