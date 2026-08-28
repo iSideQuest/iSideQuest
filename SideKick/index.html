@@ -9976,7 +9976,8 @@ window.showCreateRoom = function() {
   renderCreateStep();
   renderEditRoomButtons();
 };
-window.showJoinRoom = function() {
+window.showJoinRoom = function(inviteCode = null) {
+  pendingInviteCode = inviteCode ? inviteCode.toUpperCase().trim() : null;
   joinStep = 1;
   showScreen('join');
   renderJoinStep();
@@ -10004,10 +10005,21 @@ window.showJoinRoom = function() {
       joinColorLabel.style.color = isLightColor(prefColor) ? '#000' : '#fff';
     }
   }
+  const codeEl = document.getElementById('join-code');
+  const step2El = document.querySelector('.join-step[data-step="2"]');
+  if (pendingInviteCode) {
+    if (codeEl) codeEl.value = pendingInviteCode;
+    if (step2El) step2El.style.display = 'none';
+  } else {
+    if (codeEl && !codeEl.value) { /* keep existing or empty */ }
+    if (step2El) step2El.style.display = '';
+  }
+  updateJoinCollapseSummary();
 };
 
 // ── JOIN ROOM WIZARD ──
 let joinStep = 1;
+let pendingInviteCode = null;
 
 window.updateJoinCollapseSummary = function() {
   const name = document.getElementById('join-name')?.value.trim() || '';
@@ -10042,8 +10054,14 @@ window.updateJoinCollapseSummary = function() {
 function renderJoinStep() {
   const area = document.getElementById('join-cards-area');
   updateJoinCollapseSummary();
+  const step2Hidden = !!pendingInviteCode;
   document.querySelectorAll('.join-step').forEach(el => {
     const step = parseInt(el.dataset.step);
+    if (step === 2 && step2Hidden) {
+      el.style.display = 'none';
+      return;
+    }
+    el.style.display = '';
     const card = el.querySelector('.card');
     if (card) {
       card.classList.remove('step-enter');
@@ -10087,6 +10105,14 @@ window.joinNextStep = function() {
     if (!myColor) { status('join-status', 'Please choose a color.', 'error'); return; }
     if (!currentUser && !roomAvatarSelection) { document.getElementById('avatar-required-note').style.display = 'block'; return; }
     document.getElementById('avatar-required-note').style.display = 'none';
+    // If invited via Host, skip Step 2 and join directly
+    if (pendingInviteCode) {
+      status('join-status', '', '');
+      const codeEl = document.getElementById('join-code');
+      if (codeEl) codeEl.value = pendingInviteCode;
+      window.joinRoom();
+      return;
+    }
   }
   status('join-status', '', '');
   if (joinStep < 2) {
@@ -13514,20 +13540,31 @@ window.joinRoom = async function() {
   if (!requireDb()) return;
   const code = document.getElementById('join-code').value.toUpperCase().trim();
   const name = document.getElementById('join-name').value.trim();
-  if (!code || code.length !== 4) { status('join-status','Enter a 4-character room code.','error'); return; }
+  const wasInvite = !!pendingInviteCode;
+  if (!code || code.length !== 4) {
+    if (wasInvite) { pendingInviteCode = null; renderJoinStep(); }
+    status('join-status','Enter a 4-character room code.','error'); return;
+  }
   if (!name) { status('join-status','Enter your name.','error'); return; }
 
   const roomRef = ref(db, `rooms/${code}`);
   const snap = await get(roomRef);
-  if (!snap.exists()) { status('join-status','Room not found.','error'); return; }
+  if (!snap.exists()) {
+    if (wasInvite) { pendingInviteCode = null; renderJoinStep(); }
+    status('join-status','Room not found.','error'); return;
+  }
   const room = snap.val();
   // Idle-room cleanup: rooms with no recorded activity in 24h are treated as abandoned
   if (room.lastActivity && Date.now() - room.lastActivity > 24 * 60 * 60 * 1000) {
     await remove(roomRef);
+    if (wasInvite) { pendingInviteCode = null; renderJoinStep(); }
     status('join-status','That room expired (rooms idle 24+ hours are cleared).','error');
     return;
   }
-  if (room.status !== 'lobby' && room.status !== 'playing') { status('join-status','Room is not available.','error'); return; }
+  if (room.status !== 'lobby' && room.status !== 'playing') {
+    if (wasInvite) { pendingInviteCode = null; renderJoinStep(); }
+    status('join-status','Room is not available.','error'); return;
+  }
 
   // Check for an existing player with this exact name (case-insensitive) —
   // most likely a returning guest, not someone brand new.
@@ -13558,6 +13595,7 @@ async function joinAsNewPlayer(code, room, name) {
   const order = Object.keys(players).length;
   await update(ref(db, `rooms/${code}/players/${myId}`), { name, order, joinedAt: Date.now(), knockedOut: false, color: myColor, avatar: roomAvatarSelection || '👤' });
   await update(ref(db, `rooms/${code}`), { lastActivity: Date.now() });
+  pendingInviteCode = null;
   haptic(15);
   saveSession();
 
@@ -16041,9 +16079,7 @@ function showRoomInvitePopup(fromName, invitedRoomCode) {
     joinBtn.onclick = function() {
       popup.classList.remove('show');
       popup.style.display = 'none';
-      window.showJoinRoom();
-      const codeEl = document.getElementById('join-code');
-      if (codeEl) { codeEl.value = invitedRoomCode; updateJoinCollapseSummary(); }
+      window.showJoinRoom(invitedRoomCode);
     };
   }
   setTimeout(() => { popup.classList.remove('show'); popup.style.display = 'none'; }, 30000);
