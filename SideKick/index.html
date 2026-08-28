@@ -1688,7 +1688,8 @@
     padding: 1rem;
   }
   .tools-overlay.show { display: flex; }
-  #friend-request-popup.show, #room-invite-popup.show { display: block !important; animation: popupSlideIn 0.3s ease; }
+  #friend-request-popup.show { display: block !important; animation: popupSlideIn 0.3s ease; }
+  #room-invite-popup.show { display: flex !important; animation: popupSlideIn 0.3s ease; }
   #remove-friend-confirm.show { display: flex !important; }
   #add-friend-overlay.show { display: flex !important; }
   @keyframes popupSlideIn { from { opacity:0; transform:translateX(-50%) translateY(-20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
@@ -13487,6 +13488,7 @@ window.createRoom = async function() {
 
   await set(roomRef, {
     host: myId,
+    hostAuthUid: currentUser ? currentUser.uid : null,
     status: 'lobby',
     activePlayerIndex: 0,
     lastActivity: Date.now(),
@@ -13525,7 +13527,7 @@ window.createRoom = async function() {
     buzzScores: {},
     buzzTapOrder: {},
     players: {
-      [myId]: { name, order: 0, joinedAt: Date.now(), color: myColor, avatar: roomAvatarSelection || '👤' }
+      [myId]: { name, order: 0, joinedAt: Date.now(), color: myColor, avatar: roomAvatarSelection || '👤', authUid: currentUser ? currentUser.uid : null }
     }
   });
   haptic(20);
@@ -13595,7 +13597,7 @@ async function joinAsNewPlayer(code, room, name) {
 
   const players = room.players || {};
   const order = Object.keys(players).length;
-  await update(ref(db, `rooms/${code}/players/${myId}`), { name, order, joinedAt: Date.now(), knockedOut: false, color: myColor, avatar: roomAvatarSelection || '👤' });
+  await update(ref(db, `rooms/${code}/players/${myId}`), { name, order, joinedAt: Date.now(), knockedOut: false, color: myColor, avatar: roomAvatarSelection || '👤', authUid: currentUser ? currentUser.uid : null });
   await update(ref(db, `rooms/${code}`), { lastActivity: Date.now() });
   pendingInviteCode = null;
   haptic(15);
@@ -13684,6 +13686,23 @@ function listenLobby() {
       duelWinnerId = null;
     }
     // If duel was removed (Continue clicked), keep duelWinnerId for crown
+
+    // If an invited friend joined then left, reset their invite button
+    if (isHost && _inviteStatus.size) {
+      const joinedUids = [..._inviteStatus.entries()].filter(([,s]) => s === 'joined').map(([uid]) => uid);
+      if (joinedUids.length) {
+        const playerAuthUids = new Set(Object.values(players).map(p => p.authUid).filter(Boolean));
+        const playerNames = new Set(Object.values(players).map(p => (p.name||'').trim().toLowerCase()));
+        joinedUids.forEach(uid => {
+          if (_hostInviteTimers.has(uid)) return;
+          const friendName = (localStorage.getItem('sk_preferred_name_' + uid) || '').trim().toLowerCase();
+          const stillInRoom = playerAuthUids.has(uid) || (friendName && playerNames.has(friendName));
+          if (!stillInRoom) {
+            scheduleInviteReset(uid, 1500);
+          }
+        });
+      }
+    }
 
     renderLobbyList(localPlayers);
     updateStartButton();
@@ -16042,6 +16061,16 @@ let _inviteStatus = new Map();
 let _hostInviteUnsub = null;
 let _hostInviteTimers = new Map();
 let _invitedFriendUids = _inviteStatus; // backwards compat alias
+function scheduleInviteReset(uid, delayMs = 4000) {
+  if (_hostInviteTimers.has(uid)) clearTimeout(_hostInviteTimers.get(uid));
+  const t = setTimeout(async () => {
+    _inviteStatus.delete(uid);
+    renderInviteFriendsList();
+    try { await remove(ref(db, `rooms/${roomCode}/invites/${uid}`)); } catch {}
+    _hostInviteTimers.delete(uid);
+  }, delayMs);
+  _hostInviteTimers.set(uid, t);
+}
 function startHostInviteListener() {
   if (!db || !roomCode || !isHost) return;
   if (_hostInviteUnsub) return;
@@ -16055,6 +16084,10 @@ function startHostInviteListener() {
           _inviteStatus.set(uid, s);
           if (_hostInviteTimers.has(uid)) { clearTimeout(_hostInviteTimers.get(uid)); _hostInviteTimers.delete(uid); }
           changed = true;
+          if (s === 'dismissed' || s === 'timedOut') {
+            scheduleInviteReset(uid, 4000);
+          }
+          // 'joined' stays until player leaves (handled in listenLobby)
         }
       }
     });
@@ -16088,6 +16121,7 @@ window.inviteFriendToRoom = async function(friendUid) {
         _inviteStatus.set(friendUid, 'timedOut');
         renderInviteFriendsList();
         try { await update(ref(db, `rooms/${roomCode}/invites/${friendUid}`), { status: 'timedOut' }); } catch {}
+        scheduleInviteReset(friendUid, 4000);
       }
       _hostInviteTimers.delete(friendUid);
     }, 32000);
