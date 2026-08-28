@@ -15925,7 +15925,8 @@ async function loadFriendsData() {
     const snap = await get(ref(db, friendsPath()));
     if (snap.exists()) { friendsData = snap.val(); saveFriendsLocal(friendsData); }
     else { friendsData = {}; saveFriendsLocal({}); }
-  } catch { friendsData = loadFriendsLocal(); }
+    startFriendProfileListeners();
+  } catch { friendsData = loadFriendsLocal(); startFriendProfileListeners(); }
 }
 
 function startFriendsListener() {
@@ -16249,6 +16250,48 @@ function showFriendRequestPopup(fromName, fromUid) {
 
 let lastFriendRequestSeen = 0;
 let _friendReqUnsub = null;
+let _friendProfileUnsubs = new Map();
+function startFriendProfileListeners() {
+  if (!db || !currentUser) return;
+  const acceptedUids = Object.entries(friendsData).filter(([,v]) => v && v.status === 'accepted').map(([uid]) => uid);
+  // Remove listeners for friends no longer accepted
+  for (const [uid, unsub] of _friendProfileUnsubs.entries()) {
+    if (!acceptedUids.includes(uid)) { try { unsub(); } catch {} _friendProfileUnsubs.delete(uid); }
+  }
+  // Add listeners for new friends
+  acceptedUids.forEach(uid => {
+    if (_friendProfileUnsubs.has(uid)) return;
+    const unsub = onValue(ref(db, `users/${uid}`), (snap) => {
+      const data = snap.val();
+      if (!data) return;
+      let changed = false;
+      if (data.preferredName && localStorage.getItem('sk_preferred_name_' + uid) !== data.preferredName) {
+        localStorage.setItem('sk_preferred_name_' + uid, data.preferredName);
+        changed = true;
+      }
+      if (data.avatar && localStorage.getItem('sk_avatar_' + uid) !== data.avatar) {
+        localStorage.setItem('sk_avatar_' + uid, data.avatar);
+        changed = true;
+      }
+      if (data.color && localStorage.getItem('sk_color_' + uid) !== data.color) {
+        localStorage.setItem('sk_color_' + uid, data.color);
+        changed = true;
+      }
+      if (changed) {
+        const friendsOverlayVisible = document.getElementById('friends-overlay')?.classList.contains('show');
+        const inviteOverlayVisible = document.getElementById('invite-friends-overlay')?.classList.contains('show');
+        if (friendsOverlayVisible) { renderFriendsList(); renderPendingRequests(); }
+        if (inviteOverlayVisible) renderInviteFriendsList();
+        // Also refresh lobby name matching if needed
+      }
+    });
+    _friendProfileUnsubs.set(uid, unsub);
+  });
+}
+function stopFriendProfileListeners() {
+  for (const unsub of _friendProfileUnsubs.values()) { try { unsub(); } catch {} }
+  _friendProfileUnsubs.clear();
+}
 
 function startFriendRequestListener() {
   stopFriendRequestListener();
@@ -16258,6 +16301,7 @@ function startFriendRequestListener() {
       const data = snap.val() || {};
       friendsData = data;
       saveFriendsLocal(friendsData);
+      startFriendProfileListeners();
       const friendsOverlayVisible = document.getElementById('friends-overlay')?.classList.contains('show');
       const inviteOverlayVisible = document.getElementById('invite-friends-overlay')?.classList.contains('show');
       if (friendsOverlayVisible) {
@@ -16279,6 +16323,7 @@ function startFriendRequestListener() {
 }
 function stopFriendRequestListener() {
   if (_friendReqUnsub) { _friendReqUnsub(); _friendReqUnsub = null; }
+  stopFriendProfileListeners();
 }
 
 
