@@ -6594,12 +6594,14 @@
 <!-- ═══════════════════════════════════════════ -->
 <!--  ROOM INVITE POPUP (toast)                  -->
 <!-- ═══════════════════════════════════════════ -->
-<div id="room-invite-popup" style="display:none; position:fixed; top:1rem; left:50%; transform:translateX(-50%); z-index:9000; background:var(--card); border:1px solid #22c55e; border-radius:12px; padding:0.8rem 1.2rem; box-shadow:0 4px 20px rgba(0,0,0,0.4); max-width:340px; width:90%;">
-  <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.4rem;" data-i18n="roomInvite">Room Invite</div>
-  <div style="font-size:0.85rem; color:var(--muted); margin-bottom:0.6rem;"><span id="room-invite-from">Someone</span> <span data-i18n="invitedYouToRoom">invited you to join a room</span></div>
-  <div style="display:flex; gap:0.4rem;">
-    <button class="btn-primary btn-sm" style="flex:1; padding:0.4rem;" id="room-invite-join-btn" data-i18n="join">Join</button>
-    <button class="btn-secondary btn-sm" style="flex:1; padding:0.4rem;" onclick="dismissRoomInvite()" data-i18n="dismiss">Dismiss</button>
+<div id="room-invite-popup" style="display:none; position:fixed; inset:0; z-index:9000; background:rgba(0,0,0,0.65); align-items:center; justify-content:center; padding:1rem;">
+  <div style="background:var(--card); border:1px solid #22c55e; border-radius:16px; padding:1.4rem 1.5rem; box-shadow:0 8px 32px rgba(0,0,0,0.5); max-width:360px; width:100%; text-align:center;">
+    <div style="font-weight:800; font-size:1.05rem; margin-bottom:0.5rem;" data-i18n="roomInvite">Room Invite</div>
+    <div style="font-size:0.9rem; color:var(--muted); margin-bottom:1rem;"><span id="room-invite-from">Someone</span> <span data-i18n="invitedYouToRoom">invited you to join a room</span></div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="btn-primary btn-sm" style="flex:1; padding:0.6rem;" id="room-invite-join-btn" data-i18n="join">Join</button>
+      <button class="btn-secondary btn-sm" style="flex:1; padding:0.6rem;" onclick="dismissRoomInvite()" data-i18n="dismiss">Dismiss</button>
+    </div>
   </div>
 </div>
 
@@ -15812,12 +15814,20 @@ function renderInviteFriendsList() {
   accepted.forEach(([uid]) => {
     const name = localStorage.getItem('sk_preferred_name_' + uid) || 'Player';
     const avatar = localStorage.getItem('sk_avatar_' + uid) || '👤';
-    const invited = _invitedFriendUids.has(uid);
+    const st = _inviteStatus.get(uid);
+    let statusHtml = '';
+    let btnDisabled = '';
+    if (st === 'sent') statusHtml = '<span style="font-size:0.8rem;color:#4caf50;font-weight:700;margin-left:0.3rem;">Sent</span>';
+    else if (st === 'joined') statusHtml = '<span style="font-size:0.8rem;color:#4caf50;font-weight:700;margin-left:0.3rem;">Joined</span>';
+    else if (st === 'dismissed') statusHtml = '<span style="font-size:0.8rem;color:#f44336;font-weight:700;margin-left:0.3rem;">Dismissed</span>';
+    else if (st === 'timedOut') statusHtml = '<span style="font-size:0.8rem;color:#f44336;font-weight:700;margin-left:0.3rem;">Timed Out</span>';
+    if (st) btnDisabled = ' disabled style="opacity:0.4;pointer-events:none;padding:0.3rem 0.8rem;font-size:0.8rem;"';
+    else btnDisabled = ' style="padding:0.3rem 0.8rem;font-size:0.8rem;"';
     el.innerHTML += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
       <div style="font-size:1.4rem;flex-shrink:0;width:32px;text-align:center;">${avatarHTML(avatar, 28)}</div>
       <div style="flex:1;min-width:0;font-weight:700;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(name)}</div>
-      <button class="btn-primary btn-sm" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="inviteFriendToRoom('${uid}')">${t('inviteToRoom')}</button>
-      ${invited ? '<span style="font-size:0.85rem;color:#4caf50;margin-left:0.2rem;">✓</span>' : ''}
+      <button class="btn-primary btn-sm"${btnDisabled} onclick="inviteFriendToRoom('${uid}')">${t('inviteToRoom')}</button>
+      ${statusHtml}
     </div>`;
   });
 }
@@ -16028,7 +16038,34 @@ window.copyFriendCode = async function() {
   try { await navigator.clipboard.writeText(code.textContent); } catch {}
 };
 
-let _invitedFriendUids = new Set();
+let _inviteStatus = new Map();
+let _hostInviteUnsub = null;
+let _hostInviteTimers = new Map();
+let _invitedFriendUids = _inviteStatus; // backwards compat alias
+function startHostInviteListener() {
+  if (!db || !roomCode || !isHost) return;
+  if (_hostInviteUnsub) return;
+  _hostInviteUnsub = onValue(ref(db, `rooms/${roomCode}/invites`), (snap) => {
+    const data = snap.val() || {};
+    let changed = false;
+    Object.entries(data).forEach(([uid, val]) => {
+      if (val && val.status && _inviteStatus.has(uid)) {
+        const s = val.status;
+        if ((s === 'joined' || s === 'dismissed' || s === 'timedOut') && _inviteStatus.get(uid) !== s) {
+          _inviteStatus.set(uid, s);
+          if (_hostInviteTimers.has(uid)) { clearTimeout(_hostInviteTimers.get(uid)); _hostInviteTimers.delete(uid); }
+          changed = true;
+        }
+      }
+    });
+    if (changed) renderInviteFriendsList();
+  });
+}
+function stopHostInviteListener() {
+  if (_hostInviteUnsub) { _hostInviteUnsub(); _hostInviteUnsub = null; }
+  _hostInviteTimers.forEach(t => clearTimeout(t));
+  _hostInviteTimers.clear();
+}
 window.inviteFriendToRoom = async function(friendUid) {
   if (!db || !roomCode || !isHost) return;
   try {
@@ -16037,13 +16074,24 @@ window.inviteFriendToRoom = async function(friendUid) {
       from: currentUser.uid,
       fromName: myName,
       roomCode: roomCode,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      status: 'sent'
     };
     await set(ref(db, `rooms/${roomCode}/invites/${friendUid}`), inviteData);
     await set(ref(db, `roomInvites/${friendUid}`), inviteData);
-    _invitedFriendUids.add(friendUid);
-    renderFriendsList();
+    _inviteStatus.set(friendUid, 'sent');
     renderInviteFriendsList();
+    startHostInviteListener();
+    if (_hostInviteTimers.has(friendUid)) clearTimeout(_hostInviteTimers.get(friendUid));
+    const t = setTimeout(async () => {
+      if (_inviteStatus.get(friendUid) === 'sent') {
+        _inviteStatus.set(friendUid, 'timedOut');
+        renderInviteFriendsList();
+        try { await update(ref(db, `rooms/${roomCode}/invites/${friendUid}`), { status: 'timedOut' }); } catch {}
+      }
+      _hostInviteTimers.delete(friendUid);
+    }, 32000);
+    _hostInviteTimers.set(friendUid, t);
   } catch (e) {}
 };
 
@@ -16068,25 +16116,44 @@ function stopRoomInviteListener() {
   if (_roomInviteUnsub) { _roomInviteUnsub(); _roomInviteUnsub = null; }
 }
 
+let _currentInviteCode = null;
+let _currentInviteTimer = null;
 function showRoomInvitePopup(fromName, invitedRoomCode) {
   const popup = document.getElementById('room-invite-popup');
   if (!popup) return;
+  _currentInviteCode = invitedRoomCode;
   document.getElementById('room-invite-from').textContent = fromName;
-  popup.style.display = 'block';
+  popup.style.display = 'flex';
   popup.classList.add('show');
   const joinBtn = document.getElementById('room-invite-join-btn');
   if (joinBtn) {
-    joinBtn.onclick = function() {
+    joinBtn.onclick = async function() {
+      if (_currentInviteTimer) { clearTimeout(_currentInviteTimer); _currentInviteTimer = null; }
+      try { await update(ref(db, `rooms/${invitedRoomCode}/invites/${currentUser.uid}`), { status: 'joined' }); } catch {}
+      _currentInviteCode = null;
       popup.classList.remove('show');
       popup.style.display = 'none';
       window.showJoinRoom(invitedRoomCode);
     };
   }
-  setTimeout(() => { popup.classList.remove('show'); popup.style.display = 'none'; }, 30000);
+  if (_currentInviteTimer) clearTimeout(_currentInviteTimer);
+  _currentInviteTimer = setTimeout(async () => {
+    try { await update(ref(db, `rooms/${invitedRoomCode}/invites/${currentUser.uid}`), { status: 'timedOut' }); } catch {}
+    _currentInviteCode = null;
+    popup.classList.remove('show');
+    popup.style.display = 'none';
+    _currentInviteTimer = null;
+  }, 30000);
 }
 
-window.dismissRoomInvite = function() {
+window.dismissRoomInvite = async function() {
   const popup = document.getElementById('room-invite-popup');
+  const code = _currentInviteCode;
+  if (_currentInviteTimer) { clearTimeout(_currentInviteTimer); _currentInviteTimer = null; }
+  if (code && currentUser) {
+    try { await update(ref(db, `rooms/${code}/invites/${currentUser.uid}`), { status: 'dismissed' }); } catch {}
+  }
+  _currentInviteCode = null;
   popup.classList.remove('show');
   popup.style.display = 'none';
 };
@@ -16384,6 +16451,8 @@ function renderWaitingLobbyList(players) {
 function cleanupListeners() {
   unsubscribers.forEach(fn => fn());
   unsubscribers = [];
+  stopHostInviteListener();
+  _inviteStatus.clear();
 }
 
 // ── VICTORY POINTS ENTRY ──────────────────────
