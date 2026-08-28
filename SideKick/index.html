@@ -197,7 +197,7 @@
   }
 
   /* ── SCREENS ── */
-  .screen { display: none; width: 100%; height: 100vh; height: 100dvh; flex-direction: column; align-items: center; justify-content: center; padding: calc(2rem + env(safe-area-inset-top, 0px)) 2rem calc(2rem + env(safe-area-inset-bottom, 0px)) 2rem; overflow: hidden; }
+  .screen { display: none; width: 100%; height: 100vh; height: 100dvh; min-height: -webkit-fill-available; flex-direction: column; align-items: center; justify-content: center; padding: calc(2rem + env(safe-area-inset-top, 0px)) 2rem calc(2rem + env(safe-area-inset-bottom, 0px)) 2rem; overflow: hidden; box-sizing: border-box; }
   .screen.active { display: flex; animation: screenFadeIn 0.2s ease-out; }
   @keyframes screenFadeIn { from { opacity: 0; } to { opacity: 1; } }
   /* Setup/menu screens (Home, Create, Join, Lobby, Waiting Lobby, Profile)
@@ -4936,7 +4936,7 @@
   </div>
   </div><!-- end scaler-home -->
   <!-- What Is SideKick? button (outside scaler, fixed at bottom) -->
-    <button onclick="openTutorial()" style="position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);width:auto;padding:0.5rem 1rem;border:1px solid var(--border);border-radius:999px;background:transparent;color:var(--muted);font-size:0.82rem;cursor:pointer;transition:color 0.2s,border-color 0.2s;z-index:5;">What Is SideKick?</button>
+    <button onclick="openTutorial()" style="position:absolute;bottom:calc(1.2rem + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);width:auto;padding:0.5rem 1rem;border:1px solid var(--border);border-radius:999px;background:transparent;color:var(--muted);font-size:0.82rem;cursor:pointer;transition:color 0.2s,border-color 0.2s;z-index:5;max-width:90vw;">What Is SideKick?</button>
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
@@ -9638,16 +9638,18 @@ function rescaleCurrentScreen() {
   const scaler = activeScreen.querySelector(':scope > .screen-content-scaler');
   if (!scaler) return;
 
-  const origHeight = scaler.style.height;
   scaler.style.transform = 'none';
-  scaler.style.height = 'auto';
+  // Use viewport available height, not scaler's own height (which equals natural)
+  const available = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
+  // Account for screen padding (2rem top + 2rem bottom + safe areas ≈ 64px)
+  const padV = 64 + (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16) * 0;
+  const availContent = Math.max(200, available - padV);
   const natural = scaler.scrollHeight;
-  scaler.style.height = origHeight || '';
-  const available = scaler.clientHeight;
-
-  if (natural > available && natural > 0) {
-    const factor = Math.max(0.55, available / natural);
+  if (natural > availContent && natural > 0) {
+    const factor = Math.max(0.55, availContent / natural);
     scaler.style.transform = `scale(${factor})`;
+  } else {
+    scaler.style.transform = 'none';
   }
 }
 
@@ -9659,6 +9661,13 @@ window.addEventListener('resize', () => {
 window.addEventListener('orientationchange', () => {
   setTimeout(rescaleCurrentScreen, 200);
 });
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => {
+    clearTimeout(rescaleResizeTimer);
+    rescaleResizeTimer = setTimeout(rescaleCurrentScreen, 120);
+  });
+}
+window.addEventListener('load', () => setTimeout(rescaleCurrentScreen, 300));
 
 function status(id, msg, type='') {
   const el = document.getElementById(id);
@@ -13478,6 +13487,9 @@ window.createRoom = async function() {
   myId = uid();
   myName = name;
   roomCode = genCode();
+  _inviteStatus.clear();
+  stopHostInviteListener();
+  renderInviteFriendsList();
 
   let roomRef = ref(db, `rooms/${roomCode}`);
   const existing = await get(roomRef);
@@ -13597,7 +13609,11 @@ async function joinAsNewPlayer(code, room, name) {
 
   const players = room.players || {};
   const order = Object.keys(players).length;
+  const wasInviteJoin = !!pendingInviteCode && pendingInviteCode === code;
   await update(ref(db, `rooms/${code}/players/${myId}`), { name, order, joinedAt: Date.now(), knockedOut: false, color: myColor, avatar: roomAvatarSelection || '👤', authUid: currentUser ? currentUser.uid : null });
+  if (wasInviteJoin && currentUser) {
+    try { await update(ref(db, `rooms/${code}/invites/${currentUser.uid}`), { status: 'inLobby' }); } catch {}
+  }
   await update(ref(db, `rooms/${code}`), { lastActivity: Date.now() });
   pendingInviteCode = null;
   haptic(15);
@@ -13687,24 +13703,34 @@ function listenLobby() {
     }
     // If duel was removed (Continue clicked), keep duelWinnerId for crown
 
-    // If an invited friend joined then left, reset their invite button
+    // Invite status lifecycle:
+    // Sent → friend taps Join → Joined (green) → friend completes Step 1 → In Lobby (green) → friend leaves → Left (red)
+    // Sent → Dismissed/Timed Out (red) — persists until new room / game starts
     if (isHost && _inviteStatus.size) {
-      const joinedUids = [..._inviteStatus.entries()].filter(([,s]) => s === 'joined').map(([uid]) => uid);
-      if (joinedUids.length) {
-        const playerAuthUids = new Set(Object.values(players).map(p => p.authUid).filter(Boolean));
-        const playerNames = new Set(Object.values(players).map(p => (p.name||'').trim().toLowerCase()));
-        joinedUids.forEach(uid => {
-          if (_hostInviteTimers.has(uid)) return;
-          const friendName = (localStorage.getItem('sk_preferred_name_' + uid) || '').trim().toLowerCase();
-          const stillInRoom = playerAuthUids.has(uid) || (friendName && playerNames.has(friendName));
-          if (!stillInRoom) {
-            _inviteStatus.set(uid, 'left');
-            renderInviteFriendsList();
-            try { update(ref(db, `rooms/${roomCode}/invites/${uid}`), { status: 'left' }); } catch {}
-            scheduleInviteReset(uid, 3000);
-          }
-        });
-      }
+      const playerAuthUids = new Set(Object.values(players).map(p => p.authUid).filter(Boolean));
+      const playerNames = new Set(Object.values(players).map(p => (p.name||'').trim().toLowerCase()));
+      // Joined → In Lobby when friend actually appears in players
+      [..._inviteStatus.entries()].filter(([,s]) => s === 'joined').forEach(([uid]) => {
+        if (_hostInviteTimers.has(uid)) return;
+        const friendName = (localStorage.getItem('sk_preferred_name_' + uid) || '').trim().toLowerCase();
+        const stillInRoom = playerAuthUids.has(uid) || (friendName && playerNames.has(friendName));
+        if (stillInRoom) {
+          _inviteStatus.set(uid, 'inLobby');
+          renderInviteFriendsList();
+          try { update(ref(db, `rooms/${roomCode}/invites/${uid}`), { status: 'inLobby' }); } catch {}
+        }
+      });
+      // In Lobby → Left when friend leaves
+      ;[..._inviteStatus.entries()].filter(([,s]) => s === 'inLobby').forEach(([uid]) => {
+        if (_hostInviteTimers.has(uid)) return;
+        const friendName = (localStorage.getItem('sk_preferred_name_' + uid) || '').trim().toLowerCase();
+        const stillInRoom = playerAuthUids.has(uid) || (friendName && playerNames.has(friendName));
+        if (!stillInRoom) {
+          _inviteStatus.set(uid, 'left');
+          renderInviteFriendsList();
+          try { update(ref(db, `rooms/${roomCode}/invites/${uid}`), { status: 'left' }); } catch {}
+        }
+      });
     }
 
     renderLobbyList(localPlayers);
@@ -15840,7 +15866,8 @@ function renderInviteFriendsList() {
     let statusText = '';
     let statusColor = '';
     if (st === 'sent') { statusText = 'Sent'; statusColor = '#4caf50'; }
-    else if (st === 'joined') { statusText = 'In Lobby'; statusColor = '#4caf50'; }
+    else if (st === 'joined') { statusText = 'Joined'; statusColor = '#4caf50'; }
+    else if (st === 'inLobby') { statusText = 'In Lobby'; statusColor = '#4caf50'; }
     else if (st === 'left') { statusText = 'Left'; statusColor = '#f44336'; }
     else if (st === 'dismissed') { statusText = 'Dismissed'; statusColor = '#f44336'; }
     else if (st === 'timedOut') { statusText = 'Timed Out'; statusColor = '#f44336'; }
@@ -16086,17 +16113,13 @@ function startHostInviteListener() {
     Object.entries(data).forEach(([uid, val]) => {
       if (val && val.status && _inviteStatus.has(uid)) {
         const s = val.status;
-        if ((s === 'joined' || s === 'dismissed' || s === 'timedOut' || s === 'left') && _inviteStatus.get(uid) !== s) {
+        if ((s === 'joined' || s === 'inLobby' || s === 'dismissed' || s === 'timedOut' || s === 'left') && _inviteStatus.get(uid) !== s) {
           _inviteStatus.set(uid, s);
           if (_hostInviteTimers.has(uid)) { clearTimeout(_hostInviteTimers.get(uid)); _hostInviteTimers.delete(uid); }
           changed = true;
-          if (s === 'dismissed' || s === 'timedOut') {
-            scheduleInviteReset(uid, 3000);
-          }
-          if (s === 'left') {
-            scheduleInviteReset(uid, 3000);
-          }
-          // 'joined' stays until player leaves (handled in listenLobby) — then becomes 'left'
+          // statuses persist until game starts or new room (cleanupListeners clears map)
+          // 'joined' stays until player actually enters lobby (→ 'inLobby') or leaves
+          // 'left'/'dismissed'/'timedOut' persist until reset
         }
       }
     });
@@ -16130,7 +16153,6 @@ window.inviteFriendToRoom = async function(friendUid) {
         _inviteStatus.set(friendUid, 'timedOut');
         renderInviteFriendsList();
         try { await update(ref(db, `rooms/${roomCode}/invites/${friendUid}`), { status: 'timedOut' }); } catch {}
-        scheduleInviteReset(friendUid, 3000);
       }
       _hostInviteTimers.delete(friendUid);
     }, 32000);
