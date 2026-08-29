@@ -6918,7 +6918,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, onValue, update, remove, push, serverTimestamp, runTransaction, goOffline, goOnline }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, linkWithCredential, linkWithPopup, fetchSignInMethodsForEmail, EmailAuthProvider, sendEmailVerification, reauthenticateWithCredential }
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, linkWithCredential, linkWithPopup, fetchSignInMethodsForEmail, EmailAuthProvider, sendEmailVerification, reauthenticateWithCredential, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 // ── STATE ──────────────────────────────────────
@@ -9779,47 +9779,28 @@ function initFirebase(cfg) {
           const snap = await get(ref(db, `users/${uid}/activeSession`));
           const existing = snap.val();
           if (existing && existing !== newSessionId) {
-            const user = auth.currentUser;
-            const isPasswordAccount = user && user.providerData.some(p => p.providerId === 'password');
-            if (isPasswordAccount) {
-              const pwd = await showPasswordPrompt('Account is active on another device. Enter your password to take over:');
-              if (!pwd) {
-                try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
-                await signOut(auth);
-                currentUser = null;
-                isCreator = false;
-                document.body.classList.add('user-mode');
-                updateAccountButtonUI();
-                showScreen('home');
-                showAlert('Sign in cancelled — account remains active on other device.');
-                return;
-              }
-              try {
-                const cred = EmailAuthProvider.credential(user.email, pwd);
-                await reauthenticateWithCredential(user, cred);
-              } catch (e) {
-                try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
-                await signOut(auth);
-                currentUser = null;
-                isCreator = false;
-                document.body.classList.add('user-mode');
-                updateAccountButtonUI();
-                showScreen('home');
-                showAlert('Incorrect password — could not take over session.');
-                return;
-              }
+            // Check if this device was recently verified via email link (5 min window)
+            const verifiedKey = 'sk_deviceVerified_' + uid;
+            const verifiedTs = parseInt(localStorage.getItem(verifiedKey) || '0', 10);
+            if (Date.now() - verifiedTs < 5 * 60 * 1000) {
+              try { localStorage.removeItem(verifiedKey); } catch {}
             } else {
-              const ok = await showConfirm('Account is active on another device. Take over and sign out the other device?');
-              if (!ok) {
-                try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
-                await signOut(auth);
-                currentUser = null;
-                isCreator = false;
-                document.body.classList.add('user-mode');
-                updateAccountButtonUI();
-                showScreen('home');
-                return;
-              }
+              const email = auth.currentUser ? auth.currentUser.email : '';
+              try {
+                const actionCodeSettings = { url: window.location.origin + '/SideKick/', handleCodeInApp: true };
+                await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+                try { localStorage.setItem('emailForSignIn', email); } catch {}
+                try { localStorage.setItem('sk_pendingTakeover_' + uid, newSessionId); } catch {}
+              } catch (e) {}
+              try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
+              await signOut(auth);
+              currentUser = null;
+              isCreator = false;
+              document.body.classList.add('user-mode');
+              updateAccountButtonUI();
+              showScreen('home');
+              showAlert('A verification link has been sent to ' + (email || 'your email') + '. Click it to verify this new device, then try logging in again.');
+              return;
             }
           }
         } catch {}
@@ -9894,6 +9875,23 @@ function initFirebase(cfg) {
         stopSessionEnforcement();
       }
     });
+    // Handle email link verification for new device takeover
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      let email = null;
+      try { email = localStorage.getItem('emailForSignIn'); } catch {}
+      if (!email) email = window.prompt('Please provide your email for confirmation');
+      if (email) {
+        signInWithEmailLink(auth, email, window.location.href).then(result => {
+          const uid = result.user.uid;
+          try { localStorage.setItem('sk_deviceVerified_' + uid, Date.now().toString()); } catch {}
+          try { localStorage.removeItem('emailForSignIn'); } catch {}
+          history.replaceState(null, '', window.location.pathname);
+          showAlert('Device verified — you can now log in.');
+        }).catch(err => {
+          showAlert('Verification failed: ' + (err && err.message ? err.message : err));
+        });
+      }
+    }
   } catch(e) {
     status('home-status', 'Firebase error: ' + e.message, 'error');
   }
