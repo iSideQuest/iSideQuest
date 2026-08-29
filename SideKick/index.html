@@ -5999,7 +5999,7 @@
 
     <!-- Menu Items -->
     <div class="profile-menu" style="width:min(380px,92vw); margin-bottom:0.75rem;">
-      <div class="profile-menu-item" onclick="openEditProfileOverlay()">
+      <div class="profile-menu-item" onclick="openEditProfileMenuOverlay()">
         <div class="profile-menu-icon icon-saves">✏️</div>
         <div class="profile-menu-text">
           <div class="profile-menu-title" data-i18n="editProfile">Edit Profile</div>
@@ -6273,11 +6273,18 @@
       </div>
     </div>
     <button class="btn-primary" style="width:100%;margin-top:0.2rem;" onclick="saveEditProfile()">Save Profile</button>
-    <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
-      <button class="btn-secondary btn-sm" style="flex:1;" onclick="closeEditProfileOverlay(); openAccountSettingsOverlay()">⚙️ <span data-i18n="acctSettings">Account Settings</span></button>
-      <button class="btn-secondary btn-sm" style="flex:1;" onclick="closeEditProfileOverlay(); openThemesOverlay()">🎨 <span data-i18n="themes">Themes</span></button>
-    </div>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeEditProfileOverlay()" data-i18n="close">Close</button>
+  </div>
+</div>
+
+<!-- EDIT PROFILE MENU (submenu) -->
+<div class="tools-overlay" id="edit-profile-menu-overlay">
+  <div class="tools-modal" style="max-width:340px;">
+    <div class="tools-modal-title" data-i18n="editProfile">Edit Profile</div>
+    <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openEditProfilePrefs()">✏️ <span data-i18n="editProfile">Edit Profile</span></button>
+    <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openThemesOverlay()">🎨 <span data-i18n="themes">Themes</span></button>
+    <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openAccountSettingsOverlay()">⚙️ <span data-i18n="acctSettings">Account Settings</span></button>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeEditProfileMenuOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
 
@@ -8293,6 +8300,15 @@ window.resetPassword = async function() {
 window.doSignOut = async function() {
   if (!auth) return;
   try {
+    const uid = currentUser?.uid;
+    const sid = window._mySessionId;
+    if (uid && sid && db) {
+      try {
+        const snap = await get(ref(db, `users/${uid}/activeSession`));
+        if (snap.val() === sid) await remove(ref(db, `users/${uid}/activeSession`));
+      } catch {}
+    }
+    window._stopSessionEnforcement && window._stopSessionEnforcement();
     await signOut(auth);
     showScreen('home');
   } catch (err) {
@@ -8410,7 +8426,7 @@ function applyProfileRingColor() {
 // Saves per-user data to Firebase so it survives uninstall/reinstall
 function syncProfileToFirebase(uid, data) {
   if (!db || !uid) return;
-  set(ref(db, `users/${uid}`), data).catch(() => {});
+  update(ref(db, `users/${uid}`), data).catch(() => {});
 }
 
 async function loadProfileFromFirebase(uid) {
@@ -8856,6 +8872,15 @@ window.confirmEditProfileColor = function() {
 window.closeEditProfileOverlay = function() {
   document.getElementById('edit-profile-overlay').classList.remove('show');
 };
+window.openEditProfileMenuOverlay = function() {
+  document.getElementById('edit-profile-menu-overlay').classList.add('show');
+};
+window.closeEditProfileMenuOverlay = function() {
+  document.getElementById('edit-profile-menu-overlay').classList.remove('show');
+};
+window.openEditProfilePrefs = function() {
+  window.openEditProfileOverlay();
+};
 
 window.saveEditProfile = function() {
   const grid = document.getElementById('edit-profile-avatar-grid');
@@ -8975,7 +9000,7 @@ window.openProfileScreen = function() {
   const roleText = document.getElementById('profile-role-text');
   if (badge && roleText) {
     badge.style.display = isHost ? 'inline-flex' : 'none';
-    roleText.textContent = isHost ? 'Host Account' : 'Player Account';
+    roleText.textContent = isHost ? 'Creator' : 'Player Account';
   }
 
   const hostedEl = document.getElementById('profile-games-hosted');
@@ -9725,6 +9750,44 @@ function initFirebase(cfg) {
     refreshTimeOffset();
     _timeOffsetInterval = setInterval(refreshTimeOffset, 60000);
     auth = getAuth(app);
+    let _mySessionId = null;
+    let _sessionUnsub = null;
+    function startSessionEnforcement(uid) {
+      if (_sessionUnsub) { try { _sessionUnsub(); } catch {} _sessionUnsub = null; }
+      try {
+        _mySessionId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Math.random().toString(36).slice(2) + Date.now().toString(36));
+        window._mySessionId = _mySessionId;
+        localStorage.setItem('sk_sessionId_' + uid, _mySessionId);
+      } catch {}
+      if (db) {
+        set(ref(db, `users/${uid}/activeSession`), _mySessionId).catch(()=>{});
+        set(ref(db, `users/${uid}/activeSessionTs`), Date.now()).catch(()=>{});
+        _sessionUnsub = onValue(ref(db, `users/${uid}/activeSession`), snap => {
+          const remote = snap.val();
+          if (remote && _mySessionId && remote !== _mySessionId) {
+            if (_sessionUnsub) { try { _sessionUnsub(); } catch {} _sessionUnsub = null; }
+            _mySessionId = null;
+            window._mySessionId = null;
+            try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
+            signOut(auth).catch(()=>{});
+            currentUser = null;
+            isCreator = false;
+            document.body.classList.add('user-mode');
+            updateAccountButtonUI();
+            showScreen('home');
+            showAlert('You have been signed out — your account was signed in on another device.');
+          }
+        });
+      }
+    }
+    function stopSessionEnforcement() {
+      if (_sessionUnsub) { try { _sessionUnsub(); } catch {} _sessionUnsub = null; }
+      _mySessionId = null;
+      window._mySessionId = null;
+    }
+    window._stopSessionEnforcement = stopSessionEnforcement;
+    window._startSessionEnforcement = startSessionEnforcement;
+    window._mySessionId = null;
     onAuthStateChanged(auth, user => {
       currentUser = user;
       isCreator = user ? CREATOR_UIDS.includes(user.uid) : false;
@@ -9736,6 +9799,9 @@ function initFirebase(cfg) {
         ensureFriendCode();
         startFriendRequestListener();
         startRoomInviteListener();
+        startSessionEnforcement(user.uid);
+      } else {
+        stopSessionEnforcement();
       }
     });
   } catch(e) {
