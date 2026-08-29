@@ -6918,7 +6918,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, onValue, update, remove, push, serverTimestamp, runTransaction, goOffline, goOnline }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, linkWithCredential, linkWithPopup, fetchSignInMethodsForEmail, EmailAuthProvider }
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, linkWithCredential, linkWithPopup, fetchSignInMethodsForEmail, EmailAuthProvider, sendEmailVerification, reauthenticateWithCredential }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 // ── STATE ──────────────────────────────────────
@@ -8183,9 +8183,22 @@ window.submitAccountForm = async function() {
 
   try {
     if (accountMode === 'signup') {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      // Require email verification before account is usable
+      try { await sendEmailVerification(cred.user); } catch {}
+      await signOut(auth);
+      status('account-status', 'Verification email sent — check your inbox and click the link, then log in.', '');
+      return;
     } else {
       await signInWithEmailAndPassword(auth, email, password);
+      // Block login if email not yet verified (password accounts only; Google is pre-verified)
+      const u = auth.currentUser;
+      if (u && !u.emailVerified && u.providerData.some(p => p.providerId === 'password')) {
+        try { await sendEmailVerification(u); } catch {}
+        await signOut(auth);
+        status('account-status', 'Email not verified — verification email resent. Click the link in your inbox, then log in.', 'error');
+        return;
+      }
     }
     // If the user started with Google but that email already had a password
     // account, signInWithPopup returned an error carrying a pending credential.
@@ -9753,15 +9766,70 @@ function initFirebase(cfg) {
     let _mySessionId = null;
     let _sessionUnsub = null;
     let _hasSeenOwnSession = false;
-    function startSessionEnforcement(uid) {
+    async function startSessionEnforcement(uid) {
       if (_sessionUnsub) { try { _sessionUnsub(); } catch {} _sessionUnsub = null; }
       _hasSeenOwnSession = false;
+      let newSessionId = null;
       try {
-        _mySessionId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Math.random().toString(36).slice(2) + Date.now().toString(36));
+        newSessionId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Math.random().toString(36).slice(2) + Date.now().toString(36));
+      } catch {}
+      // If a session is already active, require holder verification to take over
+      if (db && newSessionId) {
+        try {
+          const snap = await get(ref(db, `users/${uid}/activeSession`));
+          const existing = snap.val();
+          if (existing && existing !== newSessionId) {
+            const user = auth.currentUser;
+            const isPasswordAccount = user && user.providerData.some(p => p.providerId === 'password');
+            if (isPasswordAccount) {
+              const pwd = await showPasswordPrompt('Account is active on another device. Enter your password to take over:');
+              if (!pwd) {
+                try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
+                await signOut(auth);
+                currentUser = null;
+                isCreator = false;
+                document.body.classList.add('user-mode');
+                updateAccountButtonUI();
+                showScreen('home');
+                showAlert('Sign in cancelled — account remains active on other device.');
+                return;
+              }
+              try {
+                const cred = EmailAuthProvider.credential(user.email, pwd);
+                await reauthenticateWithCredential(user, cred);
+              } catch (e) {
+                try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
+                await signOut(auth);
+                currentUser = null;
+                isCreator = false;
+                document.body.classList.add('user-mode');
+                updateAccountButtonUI();
+                showScreen('home');
+                showAlert('Incorrect password — could not take over session.');
+                return;
+              }
+            } else {
+              const ok = await showConfirm('Account is active on another device. Take over and sign out the other device?');
+              if (!ok) {
+                try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
+                await signOut(auth);
+                currentUser = null;
+                isCreator = false;
+                document.body.classList.add('user-mode');
+                updateAccountButtonUI();
+                showScreen('home');
+                return;
+              }
+            }
+          }
+        } catch {}
+      }
+      try {
+        _mySessionId = newSessionId;
         window._mySessionId = _mySessionId;
         localStorage.setItem('sk_sessionId_' + uid, _mySessionId);
       } catch {}
-      if (db) {
+      if (db && _mySessionId) {
         set(ref(db, `users/${uid}/activeSession`), _mySessionId).catch(()=>{});
         set(ref(db, `users/${uid}/activeSessionTs`), Date.now()).catch(()=>{});
         _sessionUnsub = onValue(ref(db, `users/${uid}/activeSession`), snap => {
@@ -9798,7 +9866,19 @@ function initFirebase(cfg) {
     window._stopSessionEnforcement = stopSessionEnforcement;
     window._startSessionEnforcement = startSessionEnforcement;
     window._mySessionId = null;
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, async user => {
+      // Block unverified email accounts (password provider only; Google is pre-verified)
+      if (user && !user.emailVerified && user.providerData.some(p => p.providerId === 'password')) {
+        try { await signOut(auth); } catch {}
+        currentUser = null;
+        isCreator = false;
+        document.body.classList.add('user-mode');
+        updateAccountButtonUI();
+        showScreen('home');
+        status('account-status', 'Email not verified — check your inbox and click the verification link, then log in.', 'error');
+        showAlert('Email not verified — please click the verification link in your inbox.');
+        return;
+      }
       currentUser = user;
       isCreator = user ? CREATOR_UIDS.includes(user.uid) : false;
       document.body.classList.toggle('user-mode', !!user && !isCreator);
@@ -17829,15 +17909,17 @@ function showDialog(type, message, defaultVal) {
     const okBtn = document.getElementById('app-dialog-ok');
     if (!overlay || !msgEl) { resolve(null); return; }
     msgEl.textContent = message;
-    if (type === 'prompt') {
+    if (type === 'prompt' || type === 'password') {
       input.style.display = '';
+      input.type = type === 'password' ? 'password' : 'text';
       input.value = defaultVal || '';
       input.focus();
     } else {
       input.style.display = 'none';
+      input.type = 'text';
     }
     cancelBtn.style.display = type === 'alert' ? 'none' : '';
-    okBtn.textContent = type === 'prompt' ? 'Save' : 'OK';
+    okBtn.textContent = type === 'prompt' || type === 'password' ? 'Save' : 'OK';
     overlay.classList.add('show');
     if (type === 'prompt') setTimeout(() => input.focus(), 100);
   });
@@ -17845,6 +17927,7 @@ function showDialog(type, message, defaultVal) {
 window.showAlert = function(msg) { return showDialog('alert', msg); };
 window.showConfirm = function(msg) { return showDialog('confirm', msg); };
 window.showPrompt = function(msg, def) { return showDialog('prompt', msg, def); };
+window.showPasswordPrompt = function(msg) { return showDialog('password', msg, ''); };
 
 // ── PAUSE ALL INTERVALS + DISCONNECT FIREBASE WHEN TAB IS HIDDEN ──────────────
 document.addEventListener('visibilitychange', () => {
