@@ -9752,8 +9752,10 @@ function initFirebase(cfg) {
     auth = getAuth(app);
     let _mySessionId = null;
     let _sessionUnsub = null;
+    let _hasSeenOwnSession = false;
     function startSessionEnforcement(uid) {
       if (_sessionUnsub) { try { _sessionUnsub(); } catch {} _sessionUnsub = null; }
+      _hasSeenOwnSession = false;
       try {
         _mySessionId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Math.random().toString(36).slice(2) + Date.now().toString(36));
         window._mySessionId = _mySessionId;
@@ -9764,10 +9766,17 @@ function initFirebase(cfg) {
         set(ref(db, `users/${uid}/activeSessionTs`), Date.now()).catch(()=>{});
         _sessionUnsub = onValue(ref(db, `users/${uid}/activeSession`), snap => {
           const remote = snap.val();
-          if (remote && _mySessionId && remote !== _mySessionId) {
+          if (!remote || ! _mySessionId) return;
+          if (remote === _mySessionId) {
+            _hasSeenOwnSession = true;
+            return;
+          }
+          // Only kick after we've confirmed our own session was active (avoids race where new device sees old session)
+          if (_hasSeenOwnSession && remote !== _mySessionId) {
             if (_sessionUnsub) { try { _sessionUnsub(); } catch {} _sessionUnsub = null; }
             _mySessionId = null;
             window._mySessionId = null;
+            _hasSeenOwnSession = false;
             try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
             signOut(auth).catch(()=>{});
             currentUser = null;
@@ -9784,6 +9793,7 @@ function initFirebase(cfg) {
       if (_sessionUnsub) { try { _sessionUnsub(); } catch {} _sessionUnsub = null; }
       _mySessionId = null;
       window._mySessionId = null;
+      _hasSeenOwnSession = false;
     }
     window._stopSessionEnforcement = stopSessionEnforcement;
     window._startSessionEnforcement = startSessionEnforcement;
