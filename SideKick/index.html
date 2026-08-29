@@ -9786,12 +9786,20 @@ function initFirebase(cfg) {
               try { localStorage.removeItem(verifiedKey); } catch {}
             } else {
               const email = auth.currentUser ? auth.currentUser.email : '';
+              let emailSent = false;
+              let emailErr = '';
               try {
                 const actionCodeSettings = { url: window.location.origin + '/SideKick/', handleCodeInApp: true };
                 await sendSignInLinkToEmail(auth, email, actionCodeSettings);
                 try { localStorage.setItem('emailForSignIn', email); } catch {}
                 try { localStorage.setItem('sk_pendingTakeover_' + uid, newSessionId); } catch {}
-              } catch (e) {}
+                emailSent = true;
+              } catch (e) {
+                emailErr = (e && (e.code || e.message)) ? (e.code + ': ' + e.message) : String(e);
+                console.error('sendSignInLinkToEmail failed', e);
+                // Fallback: try generic verification email so user still gets something
+                try { await sendEmailVerification(auth.currentUser); emailSent = true; } catch (e2) { emailErr += ' | fallback: ' + (e2.code || e2.message); }
+              }
               try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
               await signOut(auth);
               currentUser = null;
@@ -9799,7 +9807,8 @@ function initFirebase(cfg) {
               document.body.classList.add('user-mode');
               updateAccountButtonUI();
               showScreen('home');
-              showAlert('A verification link has been sent to ' + (email || 'your email') + '. Click it to verify this new device, then try logging in again.');
+              if (emailSent) showAlert('A verification link has been sent to ' + (email || 'your email') + '. Click it to verify this new device, then try logging in again.');
+              else showAlert('Failed to send verification email: ' + emailErr + '\n\nFix: Firebase Console → Authentication → Sign-in method → Enable Email link, and add isidequest.com / sidekick-tracker.firebaseapp.com to Authorized domains.');
               return;
             }
           }
