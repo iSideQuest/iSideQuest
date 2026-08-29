@@ -9766,19 +9766,40 @@ function initFirebase(cfg) {
     let _mySessionId = null;
     let _sessionUnsub = null;
     let _hasSeenOwnSession = false;
+    function getDeviceFingerprint() {
+      try {
+        const w = Math.max(screen.width, screen.height);
+        const h = Math.min(screen.width, screen.height);
+        const scr = `${w}x${h}x${screen.colorDepth}`;
+        const lang = navigator.language || '';
+        const hw = navigator.hardwareConcurrency || '';
+        const plat = navigator.platform || '';
+        const mem = navigator.deviceMemory || '';
+        const touch = navigator.maxTouchPoints || '';
+        // Exclude userAgent — Safari vs PWA on same iPhone have slightly different UA but same hardware
+        const str = `${scr}|${lang}|${hw}|${plat}|${mem}|${touch}`;
+        let hash = 0;
+        for (let i=0; i<str.length; i++) { hash = ((hash<<5)-hash)+str.charCodeAt(i); hash |=0; }
+        return 'dev-' + Math.abs(hash).toString(36);
+      } catch { return 'dev-' + Math.random().toString(36).slice(2); }
+    }
     async function startSessionEnforcement(uid) {
       if (_sessionUnsub) { try { _sessionUnsub(); } catch {} _sessionUnsub = null; }
       _hasSeenOwnSession = false;
       let newSessionId = null;
       try {
-        newSessionId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Math.random().toString(36).slice(2) + Date.now().toString(36));
+        newSessionId = getDeviceFingerprint();
+        // Fallback to random if fingerprint fails
+        if (!newSessionId) newSessionId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Math.random().toString(36).slice(2) + Date.now().toString(36));
       } catch {}
       // If a session is already active, require holder verification to take over
       if (db && newSessionId) {
         try {
           const snap = await get(ref(db, `users/${uid}/activeSession`));
           const existing = snap.val();
-          if (existing && existing !== newSessionId) {
+          // Migrate old random sessions (v133) without requiring verification
+          const isOldSession = existing && !String(existing).startsWith('dev-');
+          if (existing && existing !== newSessionId && !isOldSession) {
             // Check if this device was recently verified via email link (5 min window)
             const verifiedKey = 'sk_deviceVerified_' + uid;
             const verifiedTs = parseInt(localStorage.getItem(verifiedKey) || '0', 10);
