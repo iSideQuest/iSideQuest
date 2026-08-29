@@ -9818,8 +9818,6 @@ function initFirebase(cfg) {
               } catch (e) {
                 emailErr = (e && (e.code || e.message)) ? (e.code + ': ' + e.message) : String(e);
                 console.error('sendSignInLinkToEmail failed', e);
-                // Fallback: try generic verification email so user still gets something
-                try { await sendEmailVerification(auth.currentUser); emailSent = true; } catch (e2) { emailErr += ' | fallback: ' + (e2.code || e2.message); }
               }
               try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
               await signOut(auth);
