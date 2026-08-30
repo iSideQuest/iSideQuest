@@ -6278,7 +6278,10 @@
     <div class="avatar-modal-title">Choose Your Avatar</div>
     <div class="avatar-tabs" id="edit-profile-avatar-tabs"></div>
     <div class="avatar-grid" id="edit-profile-avatar-grid"></div>
-    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.5rem;" onclick="closeEditProfileAvatarOverlay()" data-i18n="close">Close</button>
+    <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+      <button class="btn-secondary btn-sm" style="flex:1;" onclick="closeEditProfileAvatarOverlay()" data-i18n="close">Close</button>
+      <button class="btn-primary btn-sm" style="flex:1;" onclick="confirmEditProfileAvatar()">Confirm</button>
+    </div>
   </div>
 </div>
 
@@ -6376,7 +6379,7 @@
       <div class="tutorial-slide">
         <div class="tutorial-icon">🙏</div>
         <div class="tutorial-title">Credits</div>
-        <div class="tutorial-desc">Attributions for images, icons, and other assets will appear here. Add your credits later — e.g., avatar artwork, sound effects, and illustrations.<br><br><em style="color:var(--muted);font-size:0.82rem;">(Placeholder — edit credits in the tutorial slides.)</em></div>
+        <div class="tutorial-desc">Attributions for images, icons, and other assets will appear here.<br><br><strong>Some avatars by ERABAT DIGITAL / Vecteezy</strong><br><br><em style="color:var(--muted);font-size:0.82rem;">(Add more credits as needed.)</em></div>
       </div>
       <!-- Slide 9 -->
       <div class="tutorial-slide">
@@ -8859,20 +8862,27 @@ function updateEditProfileAvatarButton() {
 }
 window.openEditProfileAvatarOverlay = function() {
   const current = editProfileAvatarSelection || getSavedAvatar() || '';
+  pendingEditAvatar = current;
   renderAvatarPicker('edit-profile-avatar', current, avatar => {
-    editProfileAvatarSelection = avatar;
+    pendingEditAvatar = avatar;
     document.querySelectorAll('#edit-profile-avatar-grid .avatar-option').forEach(el => el.classList.remove('selected'));
     const active = document.querySelector(`#edit-profile-avatar-grid .avatar-option[data-avatar="${CSS.escape(avatar)}"]`);
     if (active) active.classList.add('selected');
-    updateEditProfileAvatarButton();
     haptic(5);
-    // auto-close after selection
-    setTimeout(() => closeEditProfileAvatarOverlay(), 350);
   });
   document.getElementById('edit-profile-avatar-overlay').classList.add('show');
 };
 window.closeEditProfileAvatarOverlay = function() {
   document.getElementById('edit-profile-avatar-overlay').classList.remove('show');
+  pendingEditAvatar = null;
+};
+window.confirmEditProfileAvatar = function() {
+  if (pendingEditAvatar !== null) {
+    editProfileAvatarSelection = pendingEditAvatar;
+    updateEditProfileAvatarButton();
+    haptic(5);
+  }
+  closeEditProfileAvatarOverlay();
 };
 window.openEditProfileOverlay = function() {
   const current = getSavedAvatar();
@@ -8995,6 +9005,7 @@ window.selectAvatar = function(emoji) {
 let roomAvatarSelection = '';
 let editProfileColorSelection = '';
 let editProfileAvatarSelection = '';
+let pendingEditAvatar = null;
 
 window.openRoomAvatarOverlay = function() {
   const current = roomAvatarSelection || getSavedAvatar();
