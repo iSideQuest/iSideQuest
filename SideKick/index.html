@@ -6372,6 +6372,18 @@
         <div class="tutorial-title">Ready to Play?</div>
         <div class="tutorial-desc">That's it! Create a room or join one to get started. SideKick keeps the game flowing so you can focus on the fun.</div>
       </div>
+      <!-- Slide 8 -->
+      <div class="tutorial-slide">
+        <div class="tutorial-icon">🙏</div>
+        <div class="tutorial-title">Credits</div>
+        <div class="tutorial-desc">Attributions for images, icons, and other assets will appear here. Add your credits later — e.g., avatar artwork, sound effects, and illustrations.<br><br><em style="color:var(--muted);font-size:0.82rem;">(Placeholder — edit credits in the tutorial slides.)</em></div>
+      </div>
+      <!-- Slide 9 -->
+      <div class="tutorial-slide">
+        <div class="tutorial-icon">⚠️</div>
+        <div class="tutorial-title">Disclaimer</div>
+        <div class="tutorial-desc">Development of SideKick used AI assistance for coding. SideKick is provided as-is for tabletop game nights — have fun and play responsibly.</div>
+      </div>
     </div>
     <div class="tutorial-dots" id="tutorial-dots"></div>
     <div class="tutorial-nav">
@@ -8824,17 +8836,16 @@ window.closeNameOverlay = function() {
 
 function updateEditProfileAvatarButton() {
   const btn = document.getElementById('edit-profile-avatar-btn');
-  const label = document.getElementById('edit-profile-avatar-label');
-  if (!btn || !label) return;
+  if (!btn) return;
   const avatar = editProfileAvatarSelection || getSavedAvatar() || '';
   if (avatar) {
     btn.innerHTML = '';
     const span = document.createElement('span');
-    span.style.cssText = 'font-size:1.8rem;line-height:1;display:flex;align-items:center;justify-content:center;width:100%;height:100%;';
+    span.style.cssText = 'font-size:2.6rem;line-height:1;display:flex;align-items:center;justify-content:center;width:100%;height:100%;';
     if (isImageAvatar(avatar)) {
       const img = document.createElement('img');
       img.src = avatar; img.alt = 'avatar';
-      img.style.cssText = 'width:52px;height:52px;border-radius:10px;object-fit:cover;';
+      img.style.cssText = 'width:72px;height:72px;border-radius:12px;object-fit:cover;';
       span.appendChild(img);
     } else {
       span.textContent = avatar;
@@ -9727,6 +9738,26 @@ function rescaleCurrentScreen() {
   const scaler = activeScreen.querySelector(':scope > .screen-content-scaler');
   if (!scaler) return;
 
+  // When keyboard is open, don't shrink — just shift so the focused input stays visible
+  const ae = document.activeElement;
+  const isInputFocused = ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT');
+  const vh = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
+  const isKeyboardOpen = vh < window.innerHeight * 0.78;
+  if (isKeyboardOpen && isInputFocused) {
+    scaler.style.transform = 'none';
+    // Nudge the card so the input isn't hidden behind the keyboard
+    try {
+      const rect = ae.getBoundingClientRect();
+      const keyboardTop = vh;
+      if (rect.bottom > keyboardTop - 16) {
+        const shift = rect.bottom - keyboardTop + 24;
+        scaler.style.transform = `translateY(-${shift}px)`;
+      }
+      ae.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    } catch {}
+    return;
+  }
+
   scaler.style.transform = 'none';
   // Use viewport available height, not scaler's own height (which equals natural)
   const available = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
@@ -9750,6 +9781,8 @@ window.addEventListener('resize', () => {
 window.addEventListener('orientationchange', () => {
   setTimeout(rescaleCurrentScreen, 200);
 });
+window.addEventListener('focusin', () => setTimeout(rescaleCurrentScreen, 150));
+window.addEventListener('focusout', () => setTimeout(rescaleCurrentScreen, 150));
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
   document.documentElement.style.setProperty('--app-height', h + 'px');
