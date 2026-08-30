@@ -6254,26 +6254,31 @@
 <!--  EDIT PROFILE OVERLAY (Combined)            -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="avatar-overlay" id="edit-profile-overlay">
-  <div class="avatar-modal" style="gap:0.8rem;">
+  <div class="avatar-modal" style="gap:0.9rem;">
     <div class="avatar-modal-title" data-i18n="editProfile">Edit Profile</div>
-    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:-0.2rem;">Avatar</div>
-    <div class="avatar-tabs" id="edit-profile-avatar-tabs"></div>
-    <div class="avatar-grid" id="edit-profile-avatar-grid"></div>
-    <div style="display:flex;gap:0.8rem;align-items:flex-start;margin-top:0.1rem;">
-      <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
-        <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.35rem;">Preferred Name</div>
-        <input type="text" id="edit-profile-name-input" placeholder="Your name" maxlength="20" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;">
-      </div>
-      <div style="width:1px;background:var(--border);align-self:stretch;margin-top:0.1rem;"></div>
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:0;">
-        <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.35rem;">Preferred Color</div>
-        <button class="color-picker-btn" id="edit-profile-color-btn" onclick="openEditProfileColorOverlay()" style="width:56px;height:56px;flex:0 0 56px;margin:0;padding:0.25rem;border-radius:12px;">
+    <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
+      <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;">Preferred Name</div>
+      <input type="text" id="edit-profile-name-input" placeholder="Your name" maxlength="20" style="width:100%;padding:0.75rem 0.85rem;font-size:1rem;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.75rem;">
+      <div style="display:flex;gap:2rem;justify-content:center;margin-top:0.25rem;">
+        <button class="color-picker-btn" id="edit-profile-color-btn" onclick="openEditProfileColorOverlay()" style="width:72px;height:72px;flex:0 0 72px;margin:0;padding:0.3rem;border-radius:14px;">
           <span id="edit-profile-color-label" style="font-size:0.66rem;line-height:1.2;" data-i18n="chooseColor">Choose<br>Color</span>
+        </button>
+        <button class="color-picker-btn" id="edit-profile-avatar-btn" onclick="openEditProfileAvatarOverlay()" style="width:72px;height:72px;flex:0 0 72px;margin:0;padding:0.3rem;border-radius:14px;overflow:hidden;">
+          <span id="edit-profile-avatar-label" style="font-size:0.66rem;line-height:1.2;" data-i18n="chooseAvatar">Choose<br>Avatar</span>
         </button>
       </div>
     </div>
-    <button class="btn-primary" style="width:100%;margin-top:0.2rem;" onclick="saveEditProfile()">Save Profile</button>
+    <button class="btn-primary" style="width:100%;margin-top:0.5rem;" onclick="saveEditProfile()">Save Profile</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeEditProfileOverlay()" data-i18n="close">Close</button>
+  </div>
+</div>
+<!-- Edit Profile Avatar Picker Popup -->
+<div class="avatar-overlay" id="edit-profile-avatar-overlay">
+  <div class="avatar-modal">
+    <div class="avatar-modal-title">Choose Your Avatar</div>
+    <div class="avatar-tabs" id="edit-profile-avatar-tabs"></div>
+    <div class="avatar-grid" id="edit-profile-avatar-grid"></div>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.5rem;" onclick="closeEditProfileAvatarOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
 
@@ -8339,7 +8344,7 @@ window.confirmSignOut = async function() {
 // Saved Games or Account was left open) before switching screens, so the
 // button always visibly takes you home.
 window.backToHomeFromProfile = function() {
-  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','edit-profile-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay','features-help-overlay','collection-overlay','collection-edit-overlay','duel-mode-overlay','duel-setup-overlay','duel-live-overlay','duel-score-overlay'].forEach(id => {
+  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','edit-profile-overlay','edit-profile-avatar-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay','features-help-overlay','collection-overlay','collection-edit-overlay','duel-mode-overlay','duel-setup-overlay','duel-live-overlay','duel-score-overlay'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('show');
   });
@@ -8817,17 +8822,54 @@ window.closeNameOverlay = function() {
   });
 })();
 
-window.openEditProfileOverlay = function() {
-  const current = getSavedAvatar();
-  editProfileColorSelection = getSavedColor() || '';
+function updateEditProfileAvatarButton() {
+  const btn = document.getElementById('edit-profile-avatar-btn');
+  const label = document.getElementById('edit-profile-avatar-label');
+  if (!btn || !label) return;
+  const avatar = editProfileAvatarSelection || getSavedAvatar() || '';
+  if (avatar) {
+    btn.innerHTML = '';
+    const span = document.createElement('span');
+    span.style.cssText = 'font-size:1.8rem;line-height:1;display:flex;align-items:center;justify-content:center;width:100%;height:100%;';
+    if (isImageAvatar(avatar)) {
+      const img = document.createElement('img');
+      img.src = avatar; img.alt = 'avatar';
+      img.style.cssText = 'width:52px;height:52px;border-radius:10px;object-fit:cover;';
+      span.appendChild(img);
+    } else {
+      span.textContent = avatar;
+    }
+    btn.appendChild(span);
+    btn.style.background = 'var(--surface)';
+    btn.style.borderColor = 'var(--border)';
+  } else {
+    btn.innerHTML = '<span id="edit-profile-avatar-label" style="font-size:0.66rem;line-height:1.2;" data-i18n="chooseAvatar">Choose<br>Avatar</span>';
+  }
+}
+window.openEditProfileAvatarOverlay = function() {
+  const current = editProfileAvatarSelection || getSavedAvatar() || '';
   renderAvatarPicker('edit-profile-avatar', current, avatar => {
+    editProfileAvatarSelection = avatar;
     document.querySelectorAll('#edit-profile-avatar-grid .avatar-option').forEach(el => el.classList.remove('selected'));
     const active = document.querySelector(`#edit-profile-avatar-grid .avatar-option[data-avatar="${CSS.escape(avatar)}"]`);
     if (active) active.classList.add('selected');
+    updateEditProfileAvatarButton();
     haptic(5);
+    // auto-close after selection
+    setTimeout(() => closeEditProfileAvatarOverlay(), 350);
   });
+  document.getElementById('edit-profile-avatar-overlay').classList.add('show');
+};
+window.closeEditProfileAvatarOverlay = function() {
+  document.getElementById('edit-profile-avatar-overlay').classList.remove('show');
+};
+window.openEditProfileOverlay = function() {
+  const current = getSavedAvatar();
+  editProfileAvatarSelection = current || '';
+  editProfileColorSelection = getSavedColor() || '';
   document.getElementById('edit-profile-name-input').value = getSavedName();
   updateEditProfileColorButton();
+  updateEditProfileAvatarButton();
   document.getElementById('edit-profile-overlay').classList.add('show');
 };
 
@@ -8896,12 +8938,10 @@ window.openEditProfilePrefs = function() {
 };
 
 window.saveEditProfile = function() {
-  const grid = document.getElementById('edit-profile-avatar-grid');
-  const selectedBtn = grid?.querySelector('.avatar-option.selected');
-  if (selectedBtn) {
-    const emoji = selectedBtn.getAttribute('data-avatar');
-    saveAvatar(emoji);
-    setAvatarEl(document.getElementById('profile-avatar'), emoji, 90);
+  if (editProfileAvatarSelection) {
+    saveAvatar(editProfileAvatarSelection);
+    setAvatarEl(document.getElementById('profile-avatar'), editProfileAvatarSelection, 90);
+    editProfileAvatarSelection = '';
   }
   const name = document.getElementById('edit-profile-name-input').value.trim();
   saveName(name);
@@ -8937,6 +8977,7 @@ window.selectAvatar = function(emoji) {
 // ── ROOM AVATAR PICKER (Standalone, no auth required) ──
 let roomAvatarSelection = '';
 let editProfileColorSelection = '';
+let editProfileAvatarSelection = '';
 
 window.openRoomAvatarOverlay = function() {
   const current = roomAvatarSelection || getSavedAvatar();
