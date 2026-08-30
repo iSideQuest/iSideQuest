@@ -6260,15 +6260,15 @@
       <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;">Preferred Name</div>
       <input type="text" id="edit-profile-name-input" placeholder="Your name" maxlength="20" style="width:100%;padding:0.75rem 0.85rem;font-size:1rem;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.75rem;">
       <div style="display:flex;gap:2rem;justify-content:center;margin-top:0.25rem;">
-        <button class="color-picker-btn" id="edit-profile-color-btn" onclick="openEditProfileColorOverlay()" style="width:72px;height:72px;flex:0 0 72px;margin:0;padding:0.3rem;border-radius:14px;">
+        <button class="color-picker-btn" id="edit-profile-color-btn" onclick="openEditProfileColorOverlay()" style="width:96px;height:96px;flex:0 0 96px;margin:0;padding:0.5rem;border-radius:16px;">
           <span id="edit-profile-color-label" style="font-size:0.66rem;line-height:1.2;" data-i18n="chooseColor">Choose<br>Color</span>
         </button>
-        <button class="color-picker-btn" id="edit-profile-avatar-btn" onclick="openEditProfileAvatarOverlay()" style="width:72px;height:72px;flex:0 0 72px;margin:0;padding:0.3rem;border-radius:14px;overflow:hidden;">
+        <button class="color-picker-btn" id="edit-profile-avatar-btn" onclick="openEditProfileAvatarOverlay()" style="width:96px;height:96px;flex:0 0 96px;margin:0;padding:0.5rem;border-radius:16px;overflow:hidden;">
           <span id="edit-profile-avatar-label" style="font-size:0.66rem;line-height:1.2;" data-i18n="chooseAvatar">Choose<br>Avatar</span>
         </button>
       </div>
     </div>
-    <button class="btn-primary" style="width:100%;margin-top:0.5rem;" onclick="saveEditProfile()">Save Profile</button>
+    <button class="btn-primary" style="width:100%;margin-top:1.1rem;" onclick="saveEditProfile()">Save Profile</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeEditProfileOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -8926,6 +8926,9 @@ window.confirmEditProfileColor = function() {
 
 window.closeEditProfileOverlay = function() {
   document.getElementById('edit-profile-overlay').classList.remove('show');
+  // Return to the Edit Profile menu (Edit Profile / Themes / Account Settings)
+  const menu = document.getElementById('edit-profile-menu-overlay');
+  if (menu) menu.classList.add('show');
 };
 window.openEditProfileMenuOverlay = function() {
   document.getElementById('edit-profile-menu-overlay').classList.add('show');
@@ -8955,6 +8958,9 @@ window.saveEditProfile = function() {
   const profileNameEl = document.getElementById('profile-name');
   if (profileNameEl) profileNameEl.textContent = name || 'User';
   document.getElementById('edit-profile-overlay').classList.remove('show');
+  // Go back to the Edit Profile menu
+  const menu = document.getElementById('edit-profile-menu-overlay');
+  if (menu) menu.classList.add('show');
 };
 
 window.openAccountSettingsOverlay = function() {
