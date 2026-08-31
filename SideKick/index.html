@@ -8630,7 +8630,7 @@ window.selectPresetDir = function(dir) {
 window.togglePresetFeature = function(key) {
   _editingPresetFeatures[key] = !_editingPresetFeatures[key];
   const el = document.querySelector('#preset-features-grid .feature-card[data-feature="' + key + '"]');
-  if (el) el.classList.toggle('selected', !!_editingPresetFeatures[key]);
+  if (el) el.classList.toggle('added', !!_editingPresetFeatures[key]);
   haptic(5);
 };
 function updatePresetEditUI() {
@@ -8638,10 +8638,10 @@ function updatePresetEditUI() {
   document.querySelectorAll('#preset-dir-cw, #preset-dir-ccw, #preset-dir-both').forEach(el => el.classList.remove('selected'));
   const dirEl = document.getElementById('preset-dir-' + _editingPresetDir);
   if (dirEl) dirEl.classList.add('selected');
-  // Features
+  // Features - use 'added' class to match .feature-card.added styling
   document.querySelectorAll('#preset-features-grid .feature-card').forEach(el => {
     const k = el.dataset.feature;
-    el.classList.toggle('selected', !!_editingPresetFeatures[k]);
+    el.classList.toggle('added', !!_editingPresetFeatures[k]);
   });
 }
 window.openVoicePresetsOverlay = function() {
