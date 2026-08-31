@@ -6324,7 +6324,7 @@
   </div>
 </div>
 <div class="tools-overlay" id="voice-preset-edit-overlay">
-  <div class="tools-modal" style="max-width:380px;">
+  <div class="tools-modal" style="max-width:380px; max-height:88vh; overflow-y:auto;">
     <div class="tools-modal-title" id="voice-preset-edit-title">New Preset</div>
     <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.35rem;">Preset Name (say “Start …”)</div>
     <input type="text" id="voice-preset-name" placeholder="e.g., Ticket To Ride Game Room" maxlength="40" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.6rem;">
@@ -6338,7 +6338,28 @@
         <div class="neo-toggle-track"><div class="neo-toggle-thumb"></div></div>
       </label>
     </div>
-    <div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.6rem;">This will save your current profile (name, color, avatar) and current lobby features/turn settings as the preset.</div>
+    <div style="font-size:0.7rem;color:var(--muted);background:rgba(124,92,191,0.08);border:1px solid rgba(124,92,191,0.15);border-radius:8px;padding:0.5rem 0.6rem;margin-bottom:0.6rem;">Step 1 will use your <strong>preferred name, color, and avatar</strong> from your profile — no need to set it here.</div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:0.6rem;margin-bottom:0.6rem;">
+      <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.4rem;">Step 2: Turn Direction</div>
+      <div style="display:flex;gap:0.4rem;">
+        <button class="dir-option" data-preset-dir="cw" onclick="selectPresetDir('cw')" id="preset-dir-cw" style="flex:1;padding:0.6rem 0.4rem;flex-direction:column;gap:0.15rem;"><span class="dir-name" style="font-size:0.82rem;">Left</span><span class="dir-desc" style="font-size:0.65rem;">Clockwise</span></button>
+        <button class="dir-option" data-preset-dir="ccw" onclick="selectPresetDir('ccw')" id="preset-dir-ccw" style="flex:1;padding:0.6rem 0.4rem;flex-direction:column;gap:0.15rem;"><span class="dir-name" style="font-size:0.82rem;">Right</span><span class="dir-desc" style="font-size:0.65rem;">Counter</span></button>
+        <button class="dir-option" data-preset-dir="both" onclick="selectPresetDir('both')" id="preset-dir-both" style="flex:1;padding:0.6rem 0.4rem;flex-direction:column;gap:0.15rem;"><span class="dir-name" style="font-size:0.82rem;">Both</span><span class="dir-desc" style="font-size:0.65rem;">Left & Right</span></button>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:0.6rem;margin-bottom:0.6rem;">
+      <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.4rem;">Step 3: Game Features</div>
+      <div class="feature-grid" id="preset-features-grid" style="grid-template-columns:1fr 1fr; gap:0.4rem;">
+        <div class="feature-card" data-feature="nudge" onclick="togglePresetFeature('nudge')"><span class="fc-name">Nudge</span></div>
+        <div class="feature-card" data-feature="awards" onclick="togglePresetFeature('awards')"><span class="fc-name">Awards</span></div>
+        <div class="feature-card" data-feature="timers" onclick="togglePresetFeature('timers')"><span class="fc-name">Timers</span></div>
+        <div class="feature-card" data-feature="vp" onclick="togglePresetFeature('vp')"><span class="fc-name">Victory Points</span></div>
+        <div class="feature-card" data-feature="status" onclick="togglePresetFeature('status')"><span class="fc-name">Status Effects</span></div>
+        <div class="feature-card" data-feature="rounds" onclick="togglePresetFeature('rounds')"><span class="fc-name">Rounds</span></div>
+        <div class="feature-card" data-feature="dnd" onclick="togglePresetFeature('dnd')"><span class="fc-name">D&D</span></div>
+        <div class="feature-card" data-feature="undo" onclick="togglePresetFeature('undo')"><span class="fc-name">Undo Pass</span></div>
+      </div>
+    </div>
     <div style="display:flex;gap:0.5rem;">
       <button class="btn-secondary btn-sm" style="flex:1;" onclick="closeVoicePresetEdit()">Cancel</button>
       <button class="btn-primary btn-sm" style="flex:1;" onclick="saveCurrentVoicePreset()">Save</button>
@@ -8620,6 +8641,32 @@ async function deleteVoicePreset(id) {
 
 // ── VOICE PRESETS OVERLAY ────────────────────────
 let _editingVoicePresetId = null;
+let _editingPresetDir = '';
+let _editingPresetFeatures = {};
+window.selectPresetDir = function(dir) {
+  _editingPresetDir = dir;
+  document.querySelectorAll('#preset-dir-cw, #preset-dir-ccw, #preset-dir-both').forEach(el => el.classList.remove('selected'));
+  const el = document.getElementById('preset-dir-' + dir);
+  if (el) el.classList.add('selected');
+  haptic(5);
+};
+window.togglePresetFeature = function(key) {
+  _editingPresetFeatures[key] = !_editingPresetFeatures[key];
+  const el = document.querySelector('#preset-features-grid .feature-card[data-feature="' + key + '"]');
+  if (el) el.classList.toggle('selected', !!_editingPresetFeatures[key]);
+  haptic(5);
+};
+function updatePresetEditUI() {
+  // Turn dir
+  document.querySelectorAll('#preset-dir-cw, #preset-dir-ccw, #preset-dir-both').forEach(el => el.classList.remove('selected'));
+  const dirEl = document.getElementById('preset-dir-' + _editingPresetDir);
+  if (dirEl) dirEl.classList.add('selected');
+  // Features
+  document.querySelectorAll('#preset-features-grid .feature-card').forEach(el => {
+    const k = el.dataset.feature;
+    el.classList.toggle('selected', !!_editingPresetFeatures[k]);
+  });
+}
 window.openVoicePresetsOverlay = function() {
   renderVoicePresets();
   document.getElementById('voice-presets-overlay').classList.add('show');
@@ -8657,17 +8704,43 @@ window.openVoicePresetEdit = function(id) {
   document.getElementById('voice-preset-edit-title').textContent = preset ? 'Edit Preset' : 'New Preset';
   document.getElementById('voice-preset-name').value = preset ? preset.name : '';
   document.getElementById('voice-preset-enabled').checked = preset ? !!preset.voiceEnabled : true;
+  // Init Step 2/3 from preset or defaults (Step 1 is always profile)
+  if (preset && preset.turn) {
+    _editingPresetDir = preset.turn.passDirection || (preset.turn.turnMode === 'classic' ? 'cw' : '');
+    // Map passDirection to dir options: cw, ccw, both
+    if (preset.turn.turnMode === 'speedRound') _editingPresetDir = preset.turn.speedMode ? 'both' : _editingPresetDir;
+  } else {
+    _editingPresetDir = (typeof passDirection !== 'undefined' ? passDirection : '') || (typeof turnMode !== 'undefined' && turnMode === 'classic' ? 'cw' : '');
+  }
+  if (preset && preset.features) {
+    _editingPresetFeatures = { nudge: !!preset.features.nudge, awards: !!preset.features.awards, timers: !!preset.features.timers, vp: !!preset.features.vp, status: !!preset.features.statusEffects, rounds: !!preset.features.rounds, dnd: !!preset.features.dnd, undo: !!preset.features.undo };
+  } else {
+    _editingPresetFeatures = {
+      nudge: typeof featureNudgeEnabled !== 'undefined' ? !!featureNudgeEnabled : false,
+      awards: typeof featureAwardsEnabled !== 'undefined' ? !!featureAwardsEnabled : false,
+      timers: typeof featureTimersEnabled !== 'undefined' ? !!featureTimersEnabled : false,
+      vp: typeof featureVPEnabled !== 'undefined' ? !!featureVPEnabled : false,
+      status: typeof featureStatusEffectsEnabled !== 'undefined' ? !!featureStatusEffectsEnabled : false,
+      rounds: typeof featureRoundsEnabled !== 'undefined' ? !!featureRoundsEnabled : false,
+      dnd: typeof featureDndEnabled !== 'undefined' ? !!featureDndEnabled : false,
+      undo: typeof featureUndoEnabled !== 'undefined' ? !!featureUndoEnabled : false
+    };
+  }
   document.getElementById('voice-preset-edit-overlay').classList.add('show');
+  setTimeout(updatePresetEditUI, 50);
 };
 window.closeVoicePresetEdit = function() {
   document.getElementById('voice-preset-edit-overlay').classList.remove('show');
   _editingVoicePresetId = null;
+  _editingPresetDir = '';
+  _editingPresetFeatures = {};
 };
 window.saveCurrentVoicePreset = async function() {
   const name = document.getElementById('voice-preset-name').value.trim();
   if (!name) { showToast('Enter a preset name'); return; }
+  if (!_editingPresetDir) { showToast('Choose a turn direction (Step 2)'); return; }
   const voiceEnabled = document.getElementById('voice-preset-enabled').checked;
-  // Capture current profile + lobby settings as preset
+  // Step 1 is always profile — pulled at save time is fine, but preset's Step 2/3 are explicitly chosen here
   const preset = {
     id: _editingVoicePresetId || ('vp_' + Date.now().toString(36) + Math.random().toString(36).slice(2,5)),
     name: name,
@@ -8675,17 +8748,17 @@ window.saveCurrentVoicePreset = async function() {
     gameName: name,
     voiceEnabled: voiceEnabled,
     profile: { name: getSavedName()||'', color: getSavedColor()||'', avatar: getSavedAvatar()||'👤' },
-    turn: { turnMode: (typeof turnMode !== 'undefined' ? turnMode : ''), passDirection: (typeof passDirection !== 'undefined' ? passDirection : ''), speedMode: (typeof speedMode !== 'undefined' ? speedMode : '') },
+    turn: { turnMode: _editingPresetDir === 'both' ? 'classic' : 'classic', passDirection: _editingPresetDir, speedMode: '' },
     features: {
-      nudge: typeof featureNudgeEnabled !== 'undefined' ? featureNudgeEnabled : false,
-      timers: typeof featureTimersEnabled !== 'undefined' ? featureTimersEnabled : false,
-      awards: typeof featureAwardsEnabled !== 'undefined' ? featureAwardsEnabled : false,
-      vp: typeof featureVPEnabled !== 'undefined' ? featureVPEnabled : false,
-      statusEffects: typeof featureStatusEffectsEnabled !== 'undefined' ? featureStatusEffectsEnabled : false,
-      dnd: typeof featureDndEnabled !== 'undefined' ? featureDndEnabled : false,
-      rounds: typeof featureRoundsEnabled !== 'undefined' ? featureRoundsEnabled : false,
-      undo: typeof featureUndoEnabled !== 'undefined' ? featureUndoEnabled : false,
-      playerSkip: typeof featurePlayerSkipEnabled !== 'undefined' ? featurePlayerSkipEnabled : false
+      nudge: !!_editingPresetFeatures.nudge,
+      timers: !!_editingPresetFeatures.timers,
+      awards: !!_editingPresetFeatures.awards,
+      vp: !!_editingPresetFeatures.vp,
+      statusEffects: !!_editingPresetFeatures.status,
+      dnd: !!_editingPresetFeatures.dnd,
+      rounds: !!_editingPresetFeatures.rounds,
+      undo: !!_editingPresetFeatures.undo,
+      playerSkip: !!_editingPresetFeatures.playerSkip
     },
     createdAt: Date.now()
   };
