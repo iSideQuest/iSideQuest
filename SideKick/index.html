@@ -8631,6 +8631,12 @@ window.togglePresetFeature = function(key) {
   const el = document.querySelector('#preset-features-grid .feature-card[data-feature="' + key + '"]');
   if (el) el.classList.toggle('added', !!_editingPresetFeatures[key]);
   haptic(5);
+  // Open settings for features that have them, mirroring the main Create Room flow
+  if (_editingPresetFeatures[key]) {
+    if (key === 'nudge') { try { openNudgeSettingsOverlay(); } catch {} }
+    else if (key === 'timers') { try { openTimersSettingsOverlay(); } catch {} }
+    else if (key === 'rounds') { try { openRoundsSettingsOverlay(); } catch {} }
+  }
 };
 function updatePresetEditUI() {
   // Hide creator-only features for non-creator accounts
@@ -8829,7 +8835,8 @@ async function createRoomFromPreset(preset) {
   document.getElementById('display-code').textContent = roomCode;
   saveSession();
   closeVoicePresetsOverlay();
-  document.getElementById('voice-listening-overlay').classList.remove('show');
+  const vl = document.getElementById('voice-listening-overlay');
+  if (vl) vl.classList.remove('show');
   showScreen('lobby');
   generateLobbyQR();
   listenLobby();
