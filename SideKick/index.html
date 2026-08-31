@@ -4913,6 +4913,10 @@
   </div>
   <p id="home-status" class="status"></p>
 
+  <!-- Voice command -->
+  <button id="voice-home-btn" onclick="startVoiceCommand()" style="margin-top:0.8rem; width:64px; height:64px; border-radius:50%; border:2px solid var(--accent); background:var(--surface); color:var(--text); font-size:1.6rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(124,92,191,0.25); transition:all 0.2s;" title="Tap to speak">🎙️</button>
+  <div style="font-size:0.68rem;color:var(--muted);margin-top:0.25rem;letter-spacing:0.02em;">Tap to speak</div>
+
   <!-- Theme toggle -->
   <div style="margin-top:1rem;">
     <button id="theme-toggle-btn" onclick="toggleTheme()" style="
@@ -6290,6 +6294,7 @@
   <div class="tools-modal" style="max-width:340px;">
     <div class="tools-modal-title" data-i18n="editProfile">Edit Profile</div>
     <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openEditProfilePrefs()">✏️ <span data-i18n="editProfile">Edit Profile</span></button>
+    <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openVoicePresetsOverlay()">🎙️ Voice Presets</button>
     <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openThemesOverlay()">🎨 <span data-i18n="themes">Themes</span></button>
     <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openAccountSettingsOverlay()">⚙️ <span data-i18n="acctSettings">Account Settings</span></button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeEditProfileMenuOverlay()" data-i18n="close">Close</button>
@@ -6304,6 +6309,49 @@
     <div id="acct-settings-email" style="font-size:0.95rem;color:var(--text);padding:0.6rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;margin-bottom:1rem;word-break:break-all;"></div>
     <button class="btn-primary btn-sm" style="width:100%;" onclick="resetPassword(); showToast('Password reset email sent!');" data-i18n="changePassword">Change Password</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="document.getElementById('account-settings-overlay').classList.remove('show')" data-i18n="close">Close</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  VOICE PRESETS OVERLAYS                      -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tools-overlay" id="voice-presets-overlay">
+  <div class="tools-modal" style="max-width:380px; max-height:85vh; overflow-y:auto;">
+    <div class="tools-modal-title">🎙️ Voice Presets</div>
+    <div id="voice-presets-list" style="display:flex; flex-direction:column; gap:0.6rem; margin:0.5rem 0;"></div>
+    <button class="btn-primary btn-sm" style="width:100%; margin-top:0.6rem;" onclick="openVoicePresetEdit()">+ New Preset</button>
+    <button class="btn-secondary btn-sm" style="width:100%; margin-top:0.4rem;" onclick="closeVoicePresetsOverlay()" data-i18n="close">Close</button>
+  </div>
+</div>
+<div class="tools-overlay" id="voice-preset-edit-overlay">
+  <div class="tools-modal" style="max-width:380px;">
+    <div class="tools-modal-title" id="voice-preset-edit-title">New Preset</div>
+    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.35rem;">Preset Name (say “Start …”)</div>
+    <input type="text" id="voice-preset-name" placeholder="e.g., Ticket To Ride Game Room" maxlength="40" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.6rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.6rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;margin-bottom:0.6rem;">
+      <div>
+        <div style="font-weight:700;font-size:0.9rem;">Voice Command</div>
+        <div style="font-size:0.75rem;color:var(--muted);">Responds to “Start {name}”</div>
+      </div>
+      <label class="neo-toggle" style="flex-shrink:0;">
+        <input type="checkbox" id="voice-preset-enabled" class="neo-toggle-input" checked>
+        <div class="neo-toggle-track"><div class="neo-toggle-thumb"></div></div>
+      </label>
+    </div>
+    <div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.6rem;">This will save your current profile (name, color, avatar) and current lobby features/turn settings as the preset.</div>
+    <div style="display:flex;gap:0.5rem;">
+      <button class="btn-secondary btn-sm" style="flex:1;" onclick="closeVoicePresetEdit()">Cancel</button>
+      <button class="btn-primary btn-sm" style="flex:1;" onclick="saveCurrentVoicePreset()">Save</button>
+    </div>
+  </div>
+</div>
+<div class="tools-overlay" id="voice-listening-overlay">
+  <div class="tools-modal" style="max-width:340px; text-align:center;">
+    <div style="font-size:2.2rem; margin-bottom:0.4rem;">🎙️</div>
+    <div class="tools-modal-title" id="voice-listening-title">What can I do for you?</div>
+    <div id="voice-listening-transcript" style="font-size:0.9rem; color:var(--muted); min-height:1.2rem; margin:0.4rem 0;"></div>
+    <div id="voice-listening-status" style="font-size:0.8rem; color:var(--muted);"></div>
+    <button class="btn-secondary btn-sm" style="width:100%; margin-top:0.8rem;" onclick="cancelVoiceListening()">Cancel</button>
   </div>
 </div>
 
@@ -8525,6 +8573,329 @@ async function syncProfileFromFirebase() {
   }
   // Refresh UI now that localStorage is populated
   updateAccountButtonUI();
+  loadVoicePresetsFromFirebase();
+}
+
+// ── VOICE PRESETS (explicit save, voice toggle) ──
+const VOICE_PRESETS_LS = 'sk_voicePresets';
+function loadVoicePresetsLocal() {
+  try { return JSON.parse(localStorage.getItem(VOICE_PRESETS_LS) || '[]'); } catch { return []; }
+}
+function saveVoicePresetsLocal(list) {
+  try { localStorage.setItem(VOICE_PRESETS_LS, JSON.stringify(list)); } catch {}
+}
+function getVoicePresets() { return loadVoicePresetsLocal(); }
+async function loadVoicePresetsFromFirebase() {
+  const uid = currentUser?.uid;
+  if (!uid || !db) return;
+  try {
+    const snap = await get(ref(db, `users/${uid}/voicePresets`));
+    if (snap.exists()) {
+      const data = snap.val();
+      const list = Array.isArray(data) ? data : Object.values(data);
+      saveVoicePresetsLocal(list);
+    }
+  } catch {}
+}
+async function saveVoicePresetsToFirebase(list) {
+  const uid = currentUser?.uid;
+  if (!uid || !db) return;
+  try { await set(ref(db, `users/${uid}/voicePresets`), list); } catch {}
+}
+function normalizePhrase(s) {
+  return (s||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
+}
+async function saveVoicePreset(preset) {
+  const list = getVoicePresets();
+  const idx = list.findIndex(p => p.id === preset.id);
+  if (idx >= 0) list[idx] = preset; else list.push(preset);
+  saveVoicePresetsLocal(list);
+  await saveVoicePresetsToFirebase(list);
+}
+async function deleteVoicePreset(id) {
+  const list = getVoicePresets().filter(p => p.id !== id);
+  saveVoicePresetsLocal(list);
+  await saveVoicePresetsToFirebase(list);
+}
+
+// ── VOICE PRESETS OVERLAY ────────────────────────
+let _editingVoicePresetId = null;
+window.openVoicePresetsOverlay = function() {
+  renderVoicePresets();
+  document.getElementById('voice-presets-overlay').classList.add('show');
+};
+window.closeVoicePresetsOverlay = function() {
+  document.getElementById('voice-presets-overlay').classList.remove('show');
+};
+function renderVoicePresets() {
+  const el = document.getElementById('voice-presets-list');
+  if (!el) return;
+  const list = getVoicePresets();
+  if (!list.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;text-align:center;padding:0.8rem;">No presets yet. Tap + New Preset to save your current settings.</div>';
+    return;
+  }
+  el.innerHTML = '';
+  list.forEach(p => {
+    const voiceIcon = p.voiceEnabled ? '🎙️' : '📝';
+    const voiceLabel = p.voiceEnabled ? 'Voice' : 'Text';
+    el.innerHTML += `<div style="display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.75rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;">
+      <div style="font-size:1.2rem;flex-shrink:0;">${voiceIcon}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.name)}</div>
+        <div style="font-size:0.72rem;color:var(--muted);">${escapeHtml(p.gameName||'Custom')} • ${voiceLabel} ${p.voiceEnabled ? '• “Start ' + escapeHtml(p.name) + '”' : ''}</div>
+      </div>
+      <button class="btn-secondary btn-sm" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="openVoicePresetEdit('${p.id}')">Edit</button>
+      <button class="btn-primary btn-sm" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="createRoomFromPresetId('${p.id}')">Start</button>
+      <button class="btn-secondary btn-sm" style="padding:0.3rem 0.5rem;font-size:0.75rem;color:#ff5c5c;" onclick="deleteVoicePresetConfirm('${p.id}')">✕</button>
+    </div>`;
+  });
+}
+window.openVoicePresetEdit = function(id) {
+  _editingVoicePresetId = id || null;
+  const preset = id ? getVoicePresets().find(p=>p.id===id) : null;
+  document.getElementById('voice-preset-edit-title').textContent = preset ? 'Edit Preset' : 'New Preset';
+  document.getElementById('voice-preset-name').value = preset ? preset.name : '';
+  document.getElementById('voice-preset-enabled').checked = preset ? !!preset.voiceEnabled : true;
+  document.getElementById('voice-preset-edit-overlay').classList.add('show');
+};
+window.closeVoicePresetEdit = function() {
+  document.getElementById('voice-preset-edit-overlay').classList.remove('show');
+  _editingVoicePresetId = null;
+};
+window.saveCurrentVoicePreset = async function() {
+  const name = document.getElementById('voice-preset-name').value.trim();
+  if (!name) { showToast('Enter a preset name'); return; }
+  const voiceEnabled = document.getElementById('voice-preset-enabled').checked;
+  // Capture current profile + lobby settings as preset
+  const preset = {
+    id: _editingVoicePresetId || ('vp_' + Date.now().toString(36) + Math.random().toString(36).slice(2,5)),
+    name: name,
+    phrase: normalizePhrase('start ' + name),
+    gameName: name,
+    voiceEnabled: voiceEnabled,
+    profile: { name: getSavedName()||'', color: getSavedColor()||'', avatar: getSavedAvatar()||'👤' },
+    turn: { turnMode: (typeof turnMode !== 'undefined' ? turnMode : ''), passDirection: (typeof passDirection !== 'undefined' ? passDirection : ''), speedMode: (typeof speedMode !== 'undefined' ? speedMode : '') },
+    features: {
+      nudge: typeof featureNudgeEnabled !== 'undefined' ? featureNudgeEnabled : false,
+      timers: typeof featureTimersEnabled !== 'undefined' ? featureTimersEnabled : false,
+      awards: typeof featureAwardsEnabled !== 'undefined' ? featureAwardsEnabled : false,
+      vp: typeof featureVPEnabled !== 'undefined' ? featureVPEnabled : false,
+      statusEffects: typeof featureStatusEffectsEnabled !== 'undefined' ? featureStatusEffectsEnabled : false,
+      dnd: typeof featureDndEnabled !== 'undefined' ? featureDndEnabled : false,
+      rounds: typeof featureRoundsEnabled !== 'undefined' ? featureRoundsEnabled : false,
+      undo: typeof featureUndoEnabled !== 'undefined' ? featureUndoEnabled : false,
+      playerSkip: typeof featurePlayerSkipEnabled !== 'undefined' ? featurePlayerSkipEnabled : false
+    },
+    createdAt: Date.now()
+  };
+  await saveVoicePreset(preset);
+  closeVoicePresetEdit();
+  renderVoicePresets();
+  showToast('Preset saved');
+};
+window.deleteVoicePresetConfirm = async function(id) {
+  if (await showConfirm('Delete this preset?')) {
+    await deleteVoicePreset(id);
+    renderVoicePresets();
+  }
+};
+window.createRoomFromPresetId = async function(id) {
+  const preset = getVoicePresets().find(p=>p.id===id);
+  if (preset) await createRoomFromPreset(preset);
+};
+
+// ── VOICE COMMAND (push-to-talk) ─────────────────
+let voiceRecognition = null;
+let voiceListening = false;
+function speak(text, cb) {
+  try {
+    if (!('speechSynthesis' in window)) { if (cb) cb(); return; }
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = (typeof lang !== 'undefined' ? lang : 'en') === 'en' ? 'en-US' : (lang||'en');
+    u.rate = 1.0;
+    if (cb) u.onend = cb;
+    window.speechSynthesis.speak(u);
+    // Fallback if onend never fires
+    if (cb) setTimeout(cb, 3000);
+  } catch { if (cb) cb(); }
+}
+function findBestPreset(transcript) {
+  const norm = normalizePhrase(transcript.replace(/^start\s+/, ''));
+  const list = getVoicePresets().filter(p=>p.voiceEnabled);
+  if (!list.length) return null;
+  // Exact phrase match first
+  let best = list.find(p => p.phrase === normalizePhrase(transcript) || p.phrase === norm);
+  if (best) return best;
+  // Flexible: transcript contains preset name or vice versa
+  const candidates = list.filter(p => {
+    const pn = normalizePhrase(p.name);
+    return norm.includes(pn) || pn.includes(norm);
+  });
+  if (candidates.length === 1) return candidates[0];
+  if (candidates.length > 1) {
+    // Prefer longest matching name
+    candidates.sort((a,b)=> normalizePhrase(b.name).length - normalizePhrase(a.name).length);
+    return candidates[0];
+  }
+  return null;
+}
+window.startVoiceCommand = function() {
+  const hasSTT = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  if (!hasSTT) {
+    openVoicePresetsOverlay();
+    showToast('Voice not supported on this device — pick a preset');
+    return;
+  }
+  if (!currentUser) { openAccountOverlay('login'); showToast('Log in to use voice presets'); return; }
+  if (!getVoicePresets().some(p=>p.voiceEnabled)) {
+    openVoicePresetsOverlay();
+    showToast('No voice presets — create one first');
+    return;
+  }
+  document.getElementById('voice-listening-overlay').classList.add('show');
+  document.getElementById('voice-listening-transcript').textContent = '';
+  document.getElementById('voice-listening-status').textContent = 'Listening...';
+  document.getElementById('voice-home-btn').style.opacity = '0.6';
+  document.getElementById('voice-home-btn').style.pointerEvents = 'none';
+  // Speak then listen
+  speak('What can I do for you?', () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    try { if (voiceRecognition) voiceRecognition.abort(); } catch {}
+    voiceRecognition = new SR();
+    voiceRecognition.lang = (typeof lang !== 'undefined' && lang !== 'en') ? lang : 'en-US';
+    voiceRecognition.interimResults = true;
+    voiceRecognition.maxAlternatives = 1;
+    voiceRecognition.continuous = false;
+    let finalTranscript = '';
+    let interimTranscript = '';
+    voiceRecognition.onresult = (e) => {
+      interimTranscript = '';
+      for (let i=e.resultIndex; i<e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) finalTranscript += t + ' ';
+        else interimTranscript += t;
+      }
+      const display = (finalTranscript || interimTranscript).trim();
+      if (display) document.getElementById('voice-listening-transcript').textContent = '"' + display + '"';
+    };
+    voiceRecognition.onend = () => {
+      const transcript = (finalTranscript || interimTranscript).trim();
+      document.getElementById('voice-listening-status').textContent = transcript ? 'Heard: "' + transcript + '"' : 'Did not catch that';
+      setTimeout(() => {
+        if (!transcript) { showToast('Did not catch that — try again'); cancelVoiceListening(); return; }
+        const preset = findBestPreset(transcript);
+        if (!preset) {
+          speak("I didn't catch that preset. Try again or pick from the list.");
+          showToast('No matching voice preset — try again or pick');
+          cancelVoiceListening();
+          openVoicePresetsOverlay();
+          return;
+        }
+        // Auto-correct confirmation
+        cancelVoiceListening();
+        speak('Are you sure you would like me to start ' + preset.name + '?', () => {});
+        showConfirm('Are you sure you would like me to start ' + preset.name + '?').then(ok => {
+          if (ok) createRoomFromPreset(preset);
+        });
+      }, 400);
+    };
+    voiceRecognition.onerror = (e) => {
+      document.getElementById('voice-listening-status').textContent = 'Error: ' + (e.error||'unknown');
+      setTimeout(cancelVoiceListening, 1200);
+    };
+    try { voiceRecognition.start(); voiceListening = true; } catch (e) { cancelVoiceListening(); }
+    // Timeout after 7s
+    setTimeout(() => { if (voiceListening) { try { voiceRecognition.stop(); } catch {} } }, 7000);
+  });
+};
+window.cancelVoiceListening = function() {
+  voiceListening = false;
+  try { if (voiceRecognition) voiceRecognition.abort(); } catch {}
+  voiceRecognition = null;
+  document.getElementById('voice-listening-overlay').classList.remove('show');
+  const btn = document.getElementById('voice-home-btn');
+  if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; }
+  try { window.speechSynthesis.cancel(); } catch {}
+};
+async function createRoomFromPreset(preset) {
+  if (!requireHostAccount()) return;
+  // Apply preset profile to current session
+  if (preset.profile) {
+    if (preset.profile.name) saveName(preset.profile.name);
+    if (preset.profile.color) { myColor = preset.profile.color; saveColor(preset.profile.color); }
+    if (preset.profile.avatar) { roomAvatarSelection = preset.profile.avatar; saveAvatar(preset.profile.avatar); }
+  }
+  // Apply turn mode if preset has it
+  if (preset.turn && preset.turn.turnMode) {
+    turnMode = preset.turn.turnMode;
+    if (preset.turn.passDirection) passDirection = preset.turn.passDirection;
+    if (preset.turn.speedMode) speedMode = preset.turn.speedMode;
+  }
+  // Apply features
+  if (preset.features) {
+    if (typeof featureNudgeEnabled !== 'undefined') featureNudgeEnabled = !!preset.features.nudge;
+    if (typeof featureTimersEnabled !== 'undefined') featureTimersEnabled = !!preset.features.timers;
+    if (typeof featureAwardsEnabled !== 'undefined') featureAwardsEnabled = !!preset.features.awards;
+    if (typeof featureVPEnabled !== 'undefined') featureVPEnabled = !!preset.features.vp;
+    if (typeof featureStatusEffectsEnabled !== 'undefined') featureStatusEffectsEnabled = !!preset.features.statusEffects;
+    if (typeof featureDndEnabled !== 'undefined') featureDndEnabled = !!preset.features.dnd;
+    if (typeof featureRoundsEnabled !== 'undefined') featureRoundsEnabled = !!preset.features.rounds;
+    if (typeof featureUndoEnabled !== 'undefined') featureUndoEnabled = !!preset.features.undo;
+    if (typeof featurePlayerSkipEnabled !== 'undefined') featurePlayerSkipEnabled = !!preset.features.playerSkip;
+  }
+  // Use existing create-room flow but skip wizard — directly create lobby
+  // Reuse the same logic as showCreateRoom's final step: generate code and set room
+  isHost = true;
+  myId = uid();
+  myName = preset.profile ? preset.profile.name : getSavedName();
+  roomCode = genCode();
+  let roomRef = ref(db, `rooms/${roomCode}`);
+  const existing = await get(roomRef);
+  if (existing.exists()) {
+    roomCode = genCode();
+    roomRef = ref(db, `rooms/${roomCode}`);
+  }
+  const features = {
+    passDirection: (typeof passDirection !== 'undefined' ? passDirection : ''),
+    nudge: typeof featureNudgeEnabled !== 'undefined' ? featureNudgeEnabled : false,
+    nudgeDelay: typeof featureNudgeEnabled !== 'undefined' && featureNudgeEnabled ? (parseInt(document.getElementById('nudge-delay')?.value)||30) : 0,
+    nudgeMode: typeof nudgeMode !== 'undefined' ? nudgeMode : 'multi',
+    awards: typeof featureAwardsEnabled !== 'undefined' ? featureAwardsEnabled : false,
+    victoryPoints: typeof featureVPEnabled !== 'undefined' ? featureVPEnabled : false,
+    statusEffects: typeof featureStatusEffectsEnabled !== 'undefined' ? featureStatusEffectsEnabled : false,
+    dndTurnComponents: typeof featureDndEnabled !== 'undefined' ? featureDndEnabled : false,
+    timers: typeof featureTimersEnabled !== 'undefined' ? featureTimersEnabled : false,
+    timerTurnOn: false, timerTurnVisible: true, timerRoundOn: false, timerRoundVisible: true, timerGameOn: false, timerGameVisible: true, timerCountdownOn: false, timerCountdownVisible: true, timerCountdownSecs: 30,
+    rounds: typeof featureRoundsEnabled !== 'undefined' ? featureRoundsEnabled : false,
+    roundsTotal: 0,
+    turnMode: typeof turnMode !== 'undefined' ? turnMode : '',
+    speedMode: typeof speedMode !== 'undefined' ? speedMode : '',
+    speedRoundsTotal: 0,
+    undo: typeof featureUndoEnabled !== 'undefined' ? featureUndoEnabled : false,
+    playerSkip: typeof featurePlayerSkipEnabled !== 'undefined' ? featurePlayerSkipEnabled : false
+  };
+  await set(roomRef, {
+    host: myId,
+    hostAuthUid: currentUser ? currentUser.uid : null,
+    status: 'lobby',
+    activePlayerIndex: 0,
+    lastActivity: Date.now(),
+    features: features,
+    currentRound: 0,
+    buzzCurrentRound: 0, buzzPhase: '', buzzScores: {}, buzzTapOrder: {},
+    players: { [myId]: { name: myName, order: 0, joinedAt: Date.now(), color: myColor, avatar: roomAvatarSelection || '👤', authUid: currentUser ? currentUser.uid : null } }
+  });
+  haptic(20);
+  document.getElementById('display-code').textContent = roomCode;
+  saveSession();
+  closeVoicePresetsOverlay();
+  document.getElementById('voice-listening-overlay').classList.remove('show');
+  showScreen('lobby');
+  generateLobbyQR();
+  listenLobby();
+  showToast('Started ' + preset.name);
 }
 
 // ── AVATAR CATEGORIES ────────────────────────────
