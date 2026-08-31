@@ -6323,8 +6323,7 @@
   <div class="tools-modal" style="max-width:380px; max-height:88vh; overflow-y:auto;">
     <div class="tools-modal-title" id="voice-preset-edit-title">New Preset</div>
     <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.35rem;">Preset Name</div>
-    <input type="text" id="voice-preset-name" placeholder="e.g., Ticket To Ride" maxlength="40" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.6rem;">
-    <div style="font-size:0.7rem;color:var(--muted);background:rgba(124,92,191,0.08);border:1px solid rgba(124,92,191,0.15);border-radius:8px;padding:0.5rem 0.6rem;margin-bottom:0.6rem;">Step 1 will use your <strong>preferred name, color, and avatar</strong> from your profile — no need to set it here.</div>
+    <input type="text" id="voice-preset-name" placeholder="Type Preset Name" maxlength="40" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.6rem;">
     <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:0.6rem;margin-bottom:0.6rem;">
       <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.4rem;">Step 2: Turn Direction</div>
       <div style="display:flex;gap:0.4rem;">
@@ -8634,6 +8633,14 @@ window.togglePresetFeature = function(key) {
   haptic(5);
 };
 function updatePresetEditUI() {
+  // Hide creator-only features for non-creator accounts
+  const creatorFeatures = ['timers','status','dnd'];
+  document.querySelectorAll('#preset-features-grid .feature-card').forEach(el => {
+    const k = el.dataset.feature;
+    const isCreatorFeat = creatorFeatures.includes(k);
+    el.style.display = (!isCreator && isCreatorFeat) ? 'none' : '';
+    if (!isCreator && isCreatorFeat) _editingPresetFeatures[k] = false;
+  });
   // Turn dir
   document.querySelectorAll('#preset-dir-cw, #preset-dir-ccw, #preset-dir-both').forEach(el => el.classList.remove('selected'));
   const dirEl = document.getElementById('preset-dir-' + _editingPresetDir);
@@ -8641,6 +8648,7 @@ function updatePresetEditUI() {
   // Features - use 'added' class to match .feature-card.added styling
   document.querySelectorAll('#preset-features-grid .feature-card').forEach(el => {
     const k = el.dataset.feature;
+    if (el.style.display === 'none') return;
     el.classList.toggle('added', !!_editingPresetFeatures[k]);
   });
 }
@@ -8680,27 +8688,23 @@ window.openVoicePresetEdit = function(id) {
   const preset = id ? getVoicePresets().find(p=>p.id===id) : null;
   document.getElementById('voice-preset-edit-title').textContent = preset ? 'Edit Preset' : 'New Preset';
   document.getElementById('voice-preset-name').value = preset ? preset.name : '';
-  // Init Step 2/3 from preset or defaults (Step 1 is always profile)
+  // Init Step 2/3 from preset or reset for new preset (clean slate)
   if (preset && preset.turn) {
     _editingPresetDir = preset.turn.passDirection || (preset.turn.turnMode === 'classic' ? 'cw' : '');
-    // Map passDirection to dir options: cw, ccw, both
     if (preset.turn.turnMode === 'speedRound') _editingPresetDir = preset.turn.speedMode ? 'both' : _editingPresetDir;
+  } else if (preset) {
+    _editingPresetDir = '';
   } else {
-    _editingPresetDir = (typeof passDirection !== 'undefined' ? passDirection : '') || (typeof turnMode !== 'undefined' && turnMode === 'classic' ? 'cw' : '');
+    // New preset — start with no turn selected
+    _editingPresetDir = '';
   }
   if (preset && preset.features) {
     _editingPresetFeatures = { nudge: !!preset.features.nudge, awards: !!preset.features.awards, timers: !!preset.features.timers, vp: !!preset.features.vp, status: !!preset.features.statusEffects, rounds: !!preset.features.rounds, dnd: !!preset.features.dnd, undo: !!preset.features.undo };
+  } else if (preset) {
+    _editingPresetFeatures = { nudge: false, awards: false, timers: false, vp: false, status: false, rounds: false, dnd: false, undo: false };
   } else {
-    _editingPresetFeatures = {
-      nudge: typeof featureNudgeEnabled !== 'undefined' ? !!featureNudgeEnabled : false,
-      awards: typeof featureAwardsEnabled !== 'undefined' ? !!featureAwardsEnabled : false,
-      timers: typeof featureTimersEnabled !== 'undefined' ? !!featureTimersEnabled : false,
-      vp: typeof featureVPEnabled !== 'undefined' ? !!featureVPEnabled : false,
-      status: typeof featureStatusEffectsEnabled !== 'undefined' ? !!featureStatusEffectsEnabled : false,
-      rounds: typeof featureRoundsEnabled !== 'undefined' ? !!featureRoundsEnabled : false,
-      dnd: typeof featureDndEnabled !== 'undefined' ? !!featureDndEnabled : false,
-      undo: typeof featureUndoEnabled !== 'undefined' ? !!featureUndoEnabled : false
-    };
+    // New preset — start with no features selected
+    _editingPresetFeatures = { nudge: false, awards: false, timers: false, vp: false, status: false, rounds: false, dnd: false, undo: false };
   }
   document.getElementById('voice-preset-edit-overlay').classList.add('show');
   setTimeout(updatePresetEditUI, 50);
@@ -18338,12 +18342,11 @@ window.showErrorToast = showErrorToast;
 
 window.onerror = function(msg, src, line, col, err) {
   console.error('[SideKick Error]', msg, src, line, col, err);
-  showErrorToast('Something went wrong. Try refreshing.');
   return false;
 };
 window.addEventListener('unhandledrejection', function(e) {
   console.error('[SideKick Unhandled]', e.reason);
-  showErrorToast('Connection issue. Check your network and try again.');
+  // Red banner suppressed for background Firebase sync (e.g., voicePresets) — those are retried silently
 });
 
 // ── REUSABLE DIALOG SYSTEM ───────────────────────
