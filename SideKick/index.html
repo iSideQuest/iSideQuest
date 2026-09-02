@@ -6303,7 +6303,7 @@
     <div class="tools-modal-title" data-i18n="acctSettings">Account Settings</div>
     <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;" data-i18n="email">Email</div>
     <div id="acct-settings-email" style="font-size:0.95rem;color:var(--text);padding:0.6rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;margin-bottom:1rem;word-break:break-all;"></div>
-    <button class="btn-primary btn-sm" style="width:100%;" onclick="resetPassword(); showToast('Password reset email sent!');" data-i18n="changePassword">Change Password</button>
+    <button class="btn-primary btn-sm" style="width:100%;" onclick="resetPasswordForCurrentUser()" data-i18n="changePassword">Change Password</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="document.getElementById('account-settings-overlay').classList.remove('show')" data-i18n="close">Close</button>
   </div>
 </div>
@@ -8374,6 +8374,15 @@ window.resetPassword = async function() {
     status('account-status', friendlyAuthError(err), 'error');
   }
 };
+window.resetPasswordForCurrentUser = async function() {
+  if (!auth || !currentUser || !currentUser.email) { showToast('No account email found — log in again.'); return; }
+  try {
+    await sendPasswordResetEmail(auth, currentUser.email);
+    showToast('Password reset email sent to ' + currentUser.email + ' — check your inbox and click the link to create a new password.');
+  } catch (err) {
+    showToast(friendlyAuthError(err));
+  }
+};
 
 window.doSignOut = async function() {
   if (!auth) return;
@@ -10216,7 +10225,7 @@ function initFirebase(cfg) {
               const email = auth.currentUser ? auth.currentUser.email : '';
               const isPasswordAccount = auth.currentUser && auth.currentUser.providerData.some(p => p.providerId === 'password');
               if (isPasswordAccount) {
-                const pwd = await showPasswordPrompt('Account is active on another device. Enter your password to take over:');
+                const pwd = await showPasswordPrompt('Re-enter your password to change devices.');
                 if (!pwd) {
                   try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
                   await signOut(auth);
@@ -10233,6 +10242,8 @@ function initFirebase(cfg) {
                   await reauthenticateWithCredential(auth.currentUser, cred);
                   try { localStorage.setItem('sk_deviceVerified_' + uid, Date.now().toString()); } catch {}
                 } catch (e) {
+                  const code = e && (e.code || e.message) ? (e.code + ': ' + e.message) : String(e);
+                  console.error('reauthenticate failed', e);
                   try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
                   await signOut(auth);
                   currentUser = null;
@@ -10240,7 +10251,7 @@ function initFirebase(cfg) {
                   document.body.classList.add('user-mode');
                   updateAccountButtonUI();
                   showScreen('home');
-                  showAlert('Incorrect password — could not take over session.');
+                  showAlert('Password incorrect — could not take over session. (' + code + ')');
                   return;
                 }
               } else {
@@ -18372,9 +18383,13 @@ function showDialog(type, message, defaultVal) {
       input.type = 'text';
     }
     cancelBtn.style.display = type === 'alert' ? 'none' : '';
-    okBtn.textContent = type === 'prompt' || type === 'password' ? 'Save' : 'OK';
+    if (type === 'prompt' || type === 'password') {
+      okBtn.innerHTML = 'Continue <span class="play-tri">▶</span>';
+    } else {
+      okBtn.textContent = 'OK';
+    }
     overlay.classList.add('show');
-    if (type === 'prompt') setTimeout(() => input.focus(), 100);
+    if (type === 'prompt' || type === 'password') setTimeout(() => input.focus(), 100);
   });
 }
 window.showAlert = function(msg) { return showDialog('alert', msg); };
