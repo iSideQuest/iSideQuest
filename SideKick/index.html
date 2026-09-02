@@ -10207,57 +10207,78 @@ function initFirebase(cfg) {
           // Migrate old random sessions (v133) without requiring verification
           const isOldSession = existing && !String(existing).startsWith('dev-');
           if (existing && existing !== newSessionId && !isOldSession) {
-            // Check if this device was recently verified via password (5 min window)
+            // Check if this device was recently verified via email link (5 min window)
             const verifiedKey = 'sk_deviceVerified_' + uid;
             const verifiedTs = parseInt(localStorage.getItem(verifiedKey) || '0', 10);
             if (Date.now() - verifiedTs < 5 * 60 * 1000) {
               try { localStorage.removeItem(verifiedKey); } catch {}
             } else {
               const email = auth.currentUser ? auth.currentUser.email : '';
-              const isPasswordAccount = auth.currentUser && auth.currentUser.providerData.some(p => p.providerId === 'password');
-              if (isPasswordAccount) {
-                const pwd = await showPasswordPrompt('Account is active on another device. Enter your password to take over:');
-                if (!pwd) {
-                  try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
-                  await signOut(auth);
-                  currentUser = null;
-                  isCreator = false;
-                  document.body.classList.add('user-mode');
-                  updateAccountButtonUI();
-                  showScreen('home');
-                  showAlert('Sign in cancelled — account remains active on other device.');
-                  return;
+              let emailSent = false;
+              let emailErr = '';
+              try {
+                const actionCodeSettings = { url: window.location.origin + '/SideKick/', handleCodeInApp: true };
+                await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+                try { localStorage.setItem('emailForSignIn', email); } catch {}
+                try { localStorage.setItem('sk_pendingTakeover_' + uid, newSessionId); } catch {}
+                emailSent = true;
+              } catch (e) {
+                emailErr = (e && (e.code || e.message)) ? (e.code + ': ' + e.message) : String(e);
+                console.error('sendSignInLinkToEmail failed', e);
+                // Daily quota hit — fall back to password verification so holder isn't blocked
+                if (e && e.code === 'auth/quota-exceeded') {
+                  const isPasswordAccount = auth.currentUser && auth.currentUser.providerData.some(p => p.providerId === 'password');
+                  if (isPasswordAccount) {
+                    const pwd = await showPasswordPrompt('Daily email limit reached. Enter your password to verify this new device:');
+                    if (pwd) {
+                      try {
+                        const cred = EmailAuthProvider.credential(email, pwd);
+                        await reauthenticateWithCredential(auth.currentUser, cred);
+                        try { localStorage.setItem('sk_deviceVerified_' + uid, Date.now().toString()); } catch {}
+                        // Claim session immediately without email
+                        try { localStorage.setItem('sk_sessionId_' + uid, newSessionId); } catch {}
+                        _mySessionId = newSessionId; window._mySessionId = _mySessionId;
+                        _hasSeenOwnSession = false;
+                        if (db) {
+                          set(ref(db, `users/${uid}/activeSession`), _mySessionId).catch(()=>{});
+                          set(ref(db, `users/${uid}/activeSessionTs`), Date.now()).catch(()=>{});
+                          _sessionUnsub = onValue(ref(db, `users/${uid}/activeSession`), snap => {
+                            const remote = snap.val();
+                            if (!remote || !_mySessionId) return;
+                            if (remote === _mySessionId) { _hasSeenOwnSession = true; return; }
+                            if (_hasSeenOwnSession && remote !== _mySessionId) {
+                              if (_sessionUnsub) { try { _sessionUnsub(); } catch {} _sessionUnsub = null; }
+                              _mySessionId = null; window._mySessionId = null; _hasSeenOwnSession = false;
+                              try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
+                              signOut(auth).catch(()=>{});
+                              currentUser = null; isCreator = false;
+                              document.body.classList.add('user-mode');
+                              updateAccountButtonUI();
+                              showScreen('home');
+                              showAlert('You have been signed out — your account was signed in on another device.');
+                            }
+                          });
+                        }
+                        showAlert('Device verified via password — you are now signed in on this device.');
+                        return;
+                      } catch (e2) {
+                        showAlert('Incorrect password — could not verify device.');
+                      }
+                    }
+                  }
                 }
-                try {
-                  const cred = EmailAuthProvider.credential(email, pwd);
-                  await reauthenticateWithCredential(auth.currentUser, cred);
-                  try { localStorage.setItem('sk_deviceVerified_' + uid, Date.now().toString()); } catch {}
-                } catch (e) {
-                  try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
-                  await signOut(auth);
-                  currentUser = null;
-                  isCreator = false;
-                  document.body.classList.add('user-mode');
-                  updateAccountButtonUI();
-                  showScreen('home');
-                  showAlert('Incorrect password — could not take over session.');
-                  return;
-                }
-              } else {
-                const ok = await showConfirm('Account is active on another device. Take over and sign out the other device?');
-                if (!ok) {
-                  try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
-                  await signOut(auth);
-                  currentUser = null;
-                  isCreator = false;
-                  document.body.classList.add('user-mode');
-                  updateAccountButtonUI();
-                  showScreen('home');
-                  return;
-                }
-                try { localStorage.setItem('sk_deviceVerified_' + uid, Date.now().toString()); } catch {}
               }
-            }
+              try { localStorage.removeItem('sk_sessionId_' + uid); } catch {}
+              await signOut(auth);
+              currentUser = null;
+              isCreator = false;
+              document.body.classList.add('user-mode');
+              updateAccountButtonUI();
+              showScreen('home');
+              if (emailSent) showAlert('A verification link has been sent to ' + (email || 'your email') + '. Click it to verify this new device, then try logging in again.');
+              else if (emailErr.includes('quota-exceeded')) showAlert('Daily email limit reached for verification emails. Please try again tomorrow, or log in on your original device and use password verification. (' + emailErr + ')');
+              else showAlert('Failed to send verification email: ' + emailErr + '\n\nFix: Firebase Console → Authentication → Sign-in method → Enable Email link, and add isidequest.com / sidekick-tracker.firebaseapp.com to Authorized domains.');
+              return;
             }
           }
         } catch {}
