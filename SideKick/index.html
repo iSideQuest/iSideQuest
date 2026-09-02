@@ -7070,11 +7070,17 @@ function getVibrateMode() {
 }
 function setVibrateMode(mode) {
   const norm = mode === 'off' ? 'off' : 'on';
-  try { localStorage.setItem(VIBRATE_KEY, norm); } catch {}
+  try {
+    localStorage.setItem(VIBRATE_KEY, norm);
+    console.log('[Vibrate] set to', norm, 'localStorage now', localStorage.getItem(VIBRATE_KEY));
+  } catch (e) { console.error('[Vibrate] localStorage set failed', e); }
   const uid = currentUser?.uid;
   if (uid && db) set(ref(db, `users/${uid}/vibrateMode`), norm).catch(()=>{});
   const tog = document.getElementById('vibrate-toggle');
-  if (tog) tog.checked = norm === 'on';
+  if (tog) {
+    tog.checked = norm === 'on';
+    console.log('[Vibrate] toggle checked set to', tog.checked);
+  }
 }
 function shouldVibrateForElement(el) {
   return getVibrateMode() !== 'off';
@@ -8643,7 +8649,7 @@ async function syncProfileFromFirebase() {
     if (profile.preferredName) localStorage.setItem('sk_preferred_name_' + uid, profile.preferredName);
     if (profile.avatar) localStorage.setItem('sk_avatar_' + uid, profile.avatar);
     if (profile.color) localStorage.setItem('sk_color_' + uid, profile.color);
-    if (profile.vibrateMode) localStorage.setItem('sk_vibrate_mode', profile.vibrateMode);
+    if (profile.vibrateMode && !localStorage.getItem('sk_vibrate_mode')) localStorage.setItem('sk_vibrate_mode', profile.vibrateMode);
     if (profile.hostedCount != null) localStorage.setItem('sk_hosted_count', String(profile.hostedCount));
     if (profile.roomsCount != null) localStorage.setItem('sk_rooms_count', String(profile.roomsCount));
     if (profile.awards) localStorage.setItem('sk_awards_' + uid, JSON.stringify(profile.awards));
