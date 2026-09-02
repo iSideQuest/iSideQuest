@@ -8375,12 +8375,12 @@ window.resetPassword = async function() {
   }
 };
 window.resetPasswordForCurrentUser = async function() {
-  if (!auth || !currentUser || !currentUser.email) { showToast('No account email found — log in again.'); return; }
+  if (!auth || !currentUser || !currentUser.email) { showAlert('No account email found — log in again.'); return; }
   try {
     await sendPasswordResetEmail(auth, currentUser.email);
-    showToast('Password reset email sent to ' + currentUser.email + ' — check your inbox and click the link to create a new password.');
+    showAlert('Password reset email sent to ' + currentUser.email + ' — check your inbox and click the link to create a new password.');
   } catch (err) {
-    showToast(friendlyAuthError(err));
+    showAlert(friendlyAuthError(err));
   }
 };
 
@@ -18353,7 +18353,7 @@ window.appDialogResolve = function(val) {
   if (overlay) overlay.classList.remove('show');
   if (appDialogResolve) {
     let out = val;
-    if (appDialogType === 'prompt') {
+    if (appDialogType === 'prompt' || appDialogType === 'password') {
       const input = document.getElementById('app-dialog-input');
       out = val ? (input ? input.value : '') : null;
     }
