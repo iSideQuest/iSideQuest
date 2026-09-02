@@ -7055,6 +7055,18 @@ function serverNow() {
 }
 // ── HAPTIC FEEDBACK ──────────────────────────
 function haptic(ms) { try { navigator.vibrate && navigator.vibrate(ms || 10); } catch {} }
+// Global haptic for all interactive elements (buttons, toggles, cards, avatars)
+(function() {
+  const sel = 'button, [onclick], [role="button"], .btn, .tool-list-btn, .avatar-option, .color-swatch, .feature-card, .dir-option, .player-item, .theme-option, input[type="checkbox"], input[type="radio"], .neo-toggle, .step-collapse-btn, .manage-card, .profile-menu-item';
+  const handler = (e) => {
+    const t = e.target.closest(sel);
+    if (t && !t.disabled && !t.closest('[disabled]')) {
+      try { navigator.vibrate && navigator.vibrate(10); } catch {}
+    }
+  };
+  document.addEventListener('click', handler, { capture: true, passive: true });
+  document.addEventListener('touchstart', handler, { capture: true, passive: true });
+})();
 
 let myId = null;
 let roomCode = null;
