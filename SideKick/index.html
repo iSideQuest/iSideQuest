@@ -6356,19 +6356,11 @@
     <div class="tools-modal-title" data-i18n="acctSettings">Account Settings</div>
     <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;" data-i18n="email">Email</div>
     <div id="acct-settings-email" style="font-size:0.95rem;color:var(--text);padding:0.6rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;margin-bottom:1rem;word-break:break-all;"></div>
-    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;">Vibrate</div>
-    <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;">
-      <label style="display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;cursor:pointer;">
-        <input type="radio" name="vibrate-mode" value="all" onchange="setVibrateMode(this.value)" style="accent-color:var(--accent);">
-        <span style="flex:1;"><span style="font-weight:700;font-size:0.88rem;">All Interactions</span><br><span style="font-size:0.72rem;color:var(--muted);">Every tap vibrates</span></span>
-      </label>
-      <label style="display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;cursor:pointer;">
-        <input type="radio" name="vibrate-mode" value="progress" onchange="setVibrateMode(this.value)" style="accent-color:var(--accent);">
-        <span style="flex:1;"><span style="font-weight:700;font-size:0.88rem;">Progress Only</span><br><span style="font-size:0.72rem;color:var(--muted);">Only Continue / Confirm / Next</span></span>
-      </label>
-      <label style="display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;cursor:pointer;">
-        <input type="radio" name="vibrate-mode" value="off" onchange="setVibrateMode(this.value)" style="accent-color:var(--accent);">
-        <span style="flex:1;"><span style="font-weight:700;font-size:0.88rem;">Off</span><br><span style="font-size:0.72rem;color:var(--muted);">No vibration</span></span>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.7rem 0.85rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;margin-bottom:1rem;">
+      <span style="font-weight:700;font-size:0.9rem;">Vibrate</span>
+      <label class="neo-toggle" style="flex-shrink:0;">
+        <input type="checkbox" id="vibrate-toggle" class="neo-toggle-input" checked onchange="setVibrateMode(this.checked ? 'on' : 'off')">
+        <div class="neo-toggle-track"><div class="neo-toggle-thumb"></div></div>
       </label>
     </div>
     <button class="btn-primary btn-sm" style="width:100%;" onclick="resetPasswordForCurrentUser()" data-i18n="changePassword">Change Password</button>
@@ -7071,32 +7063,27 @@ function serverNow() {
 // ── HAPTIC FEEDBACK ──────────────────────────
 const VIBRATE_KEY = 'sk_vibrate_mode';
 function getVibrateMode() {
-  try { return localStorage.getItem(VIBRATE_KEY) || 'all'; } catch { return 'all'; }
+  try {
+    const v = localStorage.getItem(VIBRATE_KEY);
+    if (!v) return 'on';
+    if (v === 'off') return 'off';
+    // Legacy: 'all'/'progress' map to 'on'
+    return v === 'off' ? 'off' : 'on';
+  } catch { return 'on'; }
 }
 function setVibrateMode(mode) {
-  try { localStorage.setItem(VIBRATE_KEY, mode); } catch {}
+  const norm = mode === 'off' ? 'off' : 'on';
+  try { localStorage.setItem(VIBRATE_KEY, norm); } catch {}
   const uid = currentUser?.uid;
-  if (uid && db) set(ref(db, `users/${uid}/vibrateMode`), mode).catch(()=>{});
-  document.querySelectorAll('input[name="vibrate-mode"]').forEach(r => r.checked = r.value === mode);
+  if (uid && db) set(ref(db, `users/${uid}/vibrateMode`), norm).catch(()=>{});
+  const tog = document.getElementById('vibrate-toggle');
+  if (tog) tog.checked = norm === 'on';
 }
 function shouldVibrateForElement(el) {
-  const mode = getVibrateMode();
-  if (mode === 'off') return false;
-  if (mode === 'all') return true;
-  // progress only: only primary progress buttons
-  if (!el) return false;
-  const txt = (el.textContent || '').toLowerCase();
-  const isProgressText = /continue|confirm|next|start|create|join|save|done|apply|host room|join room|log in|sign up/i.test(txt);
-  const isPrimary = el.classList.contains('btn-primary') || el.classList.contains('auth-submit-btn');
-  return isProgressText || isPrimary;
+  return getVibrateMode() !== 'off';
 }
 function haptic(ms, el) {
-  const mode = getVibrateMode();
-  if (mode === 'off') return;
-  if (mode === 'progress') {
-    const target = el || window._lastHapticTarget || document.activeElement;
-    if (!shouldVibrateForElement(target)) return;
-  }
+  if (getVibrateMode() === 'off') return;
   try { navigator.vibrate && navigator.vibrate(ms || 10); } catch {}
 }
 // Global haptic for all interactive elements — single vibrate per tap (no double)
@@ -9433,9 +9420,8 @@ window.saveEditProfile = function() {
 window.openAccountSettingsOverlay = function() {
   const email = currentUser?.email || 'Not signed in';
   document.getElementById('acct-settings-email').textContent = email;
-  // Set vibrate radios to current mode
-  const mode = getVibrateMode();
-  document.querySelectorAll('input[name="vibrate-mode"]').forEach(r => r.checked = r.value === mode);
+  const tog = document.getElementById('vibrate-toggle');
+  if (tog) tog.checked = getVibrateMode() !== 'off';
   document.getElementById('account-settings-overlay').classList.add('show');
 };
 
