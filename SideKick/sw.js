@@ -1,9 +1,9 @@
-// SideKick Service Worker
+﻿// SideKick Service Worker
 
-// ⚠️ Bump this on every release so the new version takes effect for all users.
-const CACHE_NAME = 'sidekick-v151';
+// âš ï¸ Bump this on every release so the new version takes effect for all users.
+const CACHE_NAME = 'sidekick-v152';
 
-// Files to cache on install — the core app shell (relative paths)
+// Files to cache on install â€” the core app shell (relative paths)
 const PRECACHE = [
   './',
   './index.html',
@@ -12,7 +12,7 @@ const PRECACHE = [
   './icon-512.png',
 ];
 
-// External Firebase/CDN URLs we do NOT cache — they must always be live
+// External Firebase/CDN URLs we do NOT cache â€” they must always be live
 const NEVER_CACHE = [
   'firebaseio.com',
   'googleapis.com',
@@ -20,8 +20,8 @@ const NEVER_CACHE = [
   'firebaseapp.com',
 ];
 
-// ── INSTALL ──────────────────────────────────
-// No skipWaiting here — the new worker waits so the page can
+// â”€â”€ INSTALL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// No skipWaiting here â€” the new worker waits so the page can
 // confirm with the user before the update takes over.
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -31,7 +31,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// ── ACTIVATE ─────────────────────────────────
+// â”€â”€ ACTIVATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
@@ -44,15 +44,15 @@ self.addEventListener('activate', event => {
   );
 });
 
-// ── MESSAGE ──────────────────────────────────
-// Page confirms the update → activate the new worker so the reload picks it up.
+// â”€â”€ MESSAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Page confirms the update â†’ activate the new worker so the reload picks it up.
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
 
-// ── FETCH ─────────────────────────────────────
+// â”€â”€ FETCH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 self.addEventListener('fetch', event => {
   const url = event.request.url;
 
