@@ -6358,12 +6358,9 @@
     <div id="acct-settings-email" style="font-size:0.95rem;color:var(--text);padding:0.6rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;margin-bottom:1rem;word-break:break-all;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.7rem 0.85rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;margin-bottom:1rem;">
       <span style="font-weight:700;font-size:0.9rem;">Vibrate</span>
-      <label class="neo-toggle" style="flex-shrink:0;">
-        <input type="checkbox" id="vibrate-toggle" class="neo-toggle-input" checked onchange="setVibrateMode(this.checked ? 'on' : 'off')">
-        <div class="neo-toggle-track"><div class="neo-toggle-thumb"></div></div>
-      </label>
+      <label class="feature-toggle" style="flex-shrink:0;"><input type="checkbox" id="vibrate-toggle" class="neo-toggle-input" checked onchange="setVibrateMode(this.checked ? 'on' : 'off')"><span class="toggle-slider"></span></label>
     </div>
-    <button class="btn-primary btn-sm" style="width:100%;" onclick="resetPasswordForCurrentUser()" data-i18n="changePassword">Change Password</button>
+    <button class="btn-primary btn-sm" style="width:100%;" onclick="confirmChangePassword()" data-i18n="changePassword">Change Password</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="document.getElementById('account-settings-overlay').classList.remove('show')" data-i18n="close">Close</button>
   </div>
 </div>
@@ -8489,6 +8486,11 @@ window.resetPasswordForCurrentUser = async function() {
   } catch (err) {
     showAlert(friendlyAuthError(err));
   }
+};
+window.confirmChangePassword = async function() {
+  const email = currentUser?.email || '';
+  const ok = await showConfirm('Send a password reset email to ' + (email || 'your email') + '? Check your inbox and click the link to create a new password.');
+  if (ok) resetPasswordForCurrentUser();
 };
 
 window.doSignOut = async function() {
