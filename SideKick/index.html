@@ -6354,7 +6354,6 @@
     <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openEditProfilePrefs()">✏️ <span data-i18n="editProfile">Edit Profile</span></button>
     <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openVoicePresetsOverlay()">🏠 Host Room Presets</button>
     <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openThemesOverlay()">🎨 <span data-i18n="themes">Themes</span></button>
-    <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openAccountSettingsOverlay()">⚙️ <span data-i18n="acctSettings">Account Settings</span></button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeEditProfileMenuOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -6368,8 +6367,8 @@
     <div style="padding:0.7rem 0.85rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;margin-bottom:1rem;">
       <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem;">Tap Feedback</div>
       <div style="display:flex;gap:0.5rem;">
-        <button class="tap-feedback-btn" id="tap-feedback-yes" onclick="setVibrateMode('on')" style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-weight:700;font-size:0.85rem;cursor:pointer;transition:all 0.2s;">Yes</button>
-        <button class="tap-feedback-btn" id="tap-feedback-no" onclick="setVibrateMode('off')" style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-weight:700;font-size:0.85rem;cursor:pointer;transition:all 0.2s;">No</button>
+        <div role="button" class="tap-feedback-btn" id="tap-feedback-yes" style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-weight:700;font-size:0.85rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;text-align:center;">Yes</div>
+        <div role="button" class="tap-feedback-btn" id="tap-feedback-no" style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-weight:700;font-size:0.85rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;text-align:center;">No</div>
       </div>
     </div>
     <button class="btn-primary btn-sm" style="width:100%;" onclick="confirmChangePassword()" data-i18n="changePassword">Change Password</button>
@@ -7107,6 +7106,13 @@ function updateTapFeedbackUI(mode) {
     yesBtn.style.borderColor = 'var(--border)';
   }
 }
+// Tap Feedback button wiring (role=div avoids mobile onclick issues in overlays)
+(function() {
+  const y = document.getElementById('tap-feedback-yes');
+  const n = document.getElementById('tap-feedback-no');
+  if (y) y.addEventListener('click', () => setVibrateMode('on'), { passive: true });
+  if (n) n.addEventListener('click', () => setVibrateMode('off'), { passive: true });
+})();
 function shouldVibrateForElement(el) {
   return getVibrateMode() !== 'off';
 }
@@ -12924,7 +12930,7 @@ function playBuzzerSound() {
     osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(180, ctx.currentTime);
     osc.frequency.linearRampToValueAtTime(80, ctx.currentTime + 0.4);
-    gain.gain.setValueAtTime(0.8, ctx.currentTime);
+    gain.gain.setValueAtTime(1.0, ctx.currentTime);
     gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.5);
@@ -13805,7 +13811,7 @@ function _playTurnSoundSynth() {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, now + start);
       gain.gain.setValueAtTime(0, now + start);
-      gain.gain.linearRampToValueAtTime(0.5, now + start + 0.04);
+      gain.gain.linearRampToValueAtTime(1.0, now + start + 0.04);
       gain.gain.linearRampToValueAtTime(0, now + end);
       osc.start(now + start);
       osc.stop(now + end + 0.05);
@@ -13828,7 +13834,7 @@ function _playNudgeSoundSynth() {
       gain.connect(ctx.destination);
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(freq, now + start);
-      gain.gain.setValueAtTime(0.6, now + start);
+      gain.gain.setValueAtTime(1.0, now + start);
       gain.gain.linearRampToValueAtTime(0, now + end);
       osc.start(now + start);
       osc.stop(now + end + 0.02);
@@ -17166,10 +17172,11 @@ function renderLobbyList(players) {
         <div class="player-num" style="background:${dotColor};color:${dotText};">${i+1}</div>
         <div class="player-avatar-wrap">
           <div class="player-avatar" ${avatarDotStyle}>${avatarHTML(p.avatar || '👤', 24)}</div>
+          ${hasCrown ? '<span style="position:absolute;top:-0.2rem;right:-0.2rem;font-size:0.7rem;line-height:1;">👑</span>' : ''}
           ${p.id === myId ? '<span class="player-badge host">Host</span>' : ''}
         </div>
       </div>
-      <div class="player-name">${esc(p.name)}${hasCrown ? ' <span style="font-size:0.85em;">👑</span>' : ''}</div>`;
+      <div class="player-name">${esc(p.name)}</div>`;
     // Add kick button for host (can't kick self)
     if (isHost && p.id !== myId) {
       const kickBtn = document.createElement('button');
@@ -17333,10 +17340,11 @@ function renderWaitingLobbyList(players) {
         <div class="player-num" style="background:${dotColor};color:${dotText};">${i+1}</div>
         <div class="player-avatar-wrap">
           <div class="player-avatar" ${avatarDotStyle}>${avatarHTML(p.avatar || '👤', 24)}</div>
+          ${isDuelWinner ? '<span style="position:absolute;top:-0.2rem;right:-0.2rem;font-size:0.7rem;line-height:1;">👑</span>' : ''}
           ${p.id === myId ? '<span class="player-badge host">You</span>' : ''}
         </div>
       </div>
-      <div class="player-name">${esc(p.name)}${isDuelWinner ? ' <span style="font-size:0.85em;">👑</span>' : ''}</div>`;
+      <div class="player-name">${esc(p.name)}</div>`;
     el.appendChild(div);
   });
   requestAnimationFrame(rescaleCurrentScreen);
