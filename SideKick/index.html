@@ -3922,6 +3922,49 @@
   body.theme-halloween .toggle-slider { background:#331a00; border:1px solid rgba(204,102,0,0.4) !important; }
 
   /* ══════════════════════════════════════════════
+     VIKING THEME  ·  body.theme-viking
+  ══════════════════════════════════════════════ */
+  body.theme-viking { --bg:#0f0a05; --surface:#1a0f08; --border:#8b6914; --accent:#c4a035; --accent-light:#d4b84a; --text:#d4c8a0; --muted:#7a5a1e; --danger:#8b2020; font-family:'Inter',system-ui,sans-serif !important; }
+  body.theme-viking * { font-family:'Inter',system-ui,sans-serif !important; }
+  body.theme-viking::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse at 40% 30%,rgba(196,160,53,0.06) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(139,105,20,0.04) 0%,transparent 50%); pointer-events:none; z-index:9999; }
+  body.theme-viking::after { content:''; position:fixed; inset:0; background-image:radial-gradient(0.125rem 0.125rem at 15% 28%,rgba(212,184,74,0.2) 0%,transparent 100%),radial-gradient(0.09375rem 0.09375rem at 62% 55%,rgba(196,160,53,0.15) 0%,transparent 100%),radial-gradient(0.09375rem 0.09375rem at 85% 15%,rgba(212,184,74,0.1) 0%,transparent 100%); pointer-events:none; z-index:9998; }
+  body.theme-viking .card { background:linear-gradient(160deg,#1a0f08 0%,#22150a 50%,#0f0a05 100%); border:1px solid #8b6914; box-shadow:0 0.25rem 1.5rem rgba(0,0,0,0.7),inset 0 0 1.875rem rgba(196,160,53,0.04); }
+  body.theme-viking .btn-primary { background:linear-gradient(to bottom,#c4a035,#8b6914); border:1px solid #d4b84a; color:#fff; box-shadow:0 0.1875rem 1rem rgba(196,160,53,0.4),inset 0 1px 0 rgba(212,184,74,0.4); font-weight:600; }
+  body.theme-viking .btn-primary:active { box-shadow:0 1px 0.375rem rgba(196,160,53,0.3) !important; }
+  body.theme-viking .btn-secondary { background:transparent !important; border:1px solid #8b6914 !important; color:#d4b84a !important; box-shadow:inset 0 0 0.75rem rgba(196,160,53,0.06); }
+  body.theme-viking .btn-secondary:hover { border-color:#d4b84a !important; box-shadow:0 0 0.75rem rgba(196,160,53,0.25),inset 0 0 0.75rem rgba(196,160,53,0.08) !important; }
+  body.theme-viking .btn-danger { background:linear-gradient(to bottom,#8b2020,#4a0e0e); border:1px solid #cc4444; color:#ffe0e0; box-shadow:0 0.1875rem 1rem rgba(139,32,32,0.4); }
+  body.theme-viking input { background:rgba(15,10,5,0.8) !important; border:1px solid #8b6914 !important; color:#d4c8a0 !important; caret-color:#d4b84a; box-shadow:inset 0 0.125rem 0.5rem rgba(0,0,0,0.4); }
+  body.theme-viking input:focus { border-color:#d4b84a !important; box-shadow:inset 0 0.125rem 0.5rem rgba(0,0,0,0.4),0 0 0.5rem rgba(196,160,53,0.2) !important; }
+  body.theme-viking .logo { color:#d4b84a; text-shadow:0 0.125rem 0.5rem rgba(196,160,53,0.5),0 0 1.875rem rgba(196,160,53,0.2); }
+  body.theme-viking .tagline { color:#7a5a1e; letter-spacing:0.05em; font-size:0.82rem !important; }
+  body.theme-viking .room-code { color:#d4b84a; text-shadow:0 0.125rem 0.75rem rgba(196,160,53,0.5); }
+  body.theme-viking .manage-card, body.theme-viking .tools-modal, body.theme-viking .info-modal, body.theme-viking .feature-settings-modal, body.theme-viking .color-picker-modal, body.theme-viking .rng-modal, body.theme-viking .picker-modal, body.theme-viking .timer-modal { background:linear-gradient(160deg,#1a0f08,#22150a) !important; border:1px solid #8b6914 !important; box-shadow:0 0.5rem 2.5rem rgba(0,0,0,0.7),inset 0 0 1.25rem rgba(196,160,53,0.04) !important; }
+  body.theme-viking .host-menu-item { border-bottom:1px solid rgba(139,105,20,0.4) !important; color:#d4b84a !important; }
+  body.theme-viking .player-item, body.theme-viking .manage-player-item { background:rgba(15,10,5,0.6) !important; border:1px solid rgba(139,105,20,0.5) !important; }
+  body.theme-viking .tool-list-btn { background:rgba(15,10,5,0.5) !important; border:1px solid rgba(139,105,20,0.5) !important; color:#d4b84a !important; }
+  body.theme-viking .tool-list-btn:hover { border-color:#d4b84a !important; background:rgba(196,160,53,0.08) !important; }
+  body.theme-viking .save-row { background:rgba(15,10,5,0.5) !important; border:1px solid rgba(139,105,20,0.5) !important; }
+  body.theme-viking .player-badge { background:rgba(196,160,53,0.15); color:#d4b84a; border:1px solid rgba(196,160,53,0.3); }
+  body.theme-viking .player-badge.host { background:rgba(196,160,53,0.2); color:#d4b84a; }
+  body.theme-viking .player-num { background:var(--accent); color:#0f0a05; }
+  body.theme-viking label { color:#7a5a1e; text-transform:uppercase; letter-spacing:0.05em; font-size:0.78rem; }
+  body.theme-viking .exit-btn, body.theme-viking .host-game-menu-btn, body.theme-viking .host-manage-btn, body.theme-viking .settings-gear { background:rgba(15,10,5,0.85) !important; border:1px solid #8b6914 !important; color:#d4b84a !important; box-shadow:0 0 0.5rem rgba(196,160,53,0.2) !important; }
+  body.theme-viking .nudge-btn .back { background:#3a2800; }
+  body.theme-viking .nudge-btn .front { background:linear-gradient(0deg,rgba(139,105,20,0.6) 20%,rgba(196,160,53,1) 50%) !important; border-color:#3a2800 !important; color:#fff !important; }
+  body.theme-viking .timer-pill { background:rgba(15,10,5,0.8) !important; border:1px solid #8b6914 !important; color:#d4b84a !important; }
+  body.theme-viking .rng-result, body.theme-viking .timer-display, body.theme-viking .lap-row, body.theme-viking .dice-btn, body.theme-viking .picker-textarea, body.theme-viking .picker-name-chip { background:rgba(15,10,5,0.5) !important; border:1px solid rgba(139,105,20,0.5) !important; }
+  body.theme-viking .rng-result-value { color:#d4b84a; text-shadow:0 0 0.625rem rgba(196,160,53,0.5); }
+  body.theme-viking .timer-display { color:#d4b84a; }
+  body.theme-viking .status-toggle-row { background:rgba(15,10,5,0.5) !important; border:1px solid rgba(139,105,20,0.5) !important; }
+  body.theme-viking #screen-waiting { background:#0f0a05 !important; }
+  body.theme-viking .wait-active-name { text-shadow:0 0 1.875rem var(--wait-active-glow,rgba(196,160,53,0.5)),0 0.125rem 0.25rem rgba(0,0,0,0.8) !important; }
+  body.theme-viking .active-center-its { color:rgba(212,200,160,0.95) !important; text-shadow:0 0.125rem 0.75rem rgba(196,160,53,0.4) !important; }
+  body.theme-viking .pass-tap-arrow { color:#d4b84a !important; text-shadow:0 0 1rem rgba(196,160,53,0.5) !important; }
+  body.theme-viking .neo-toggle-input:checked + .toggle-slider { background:var(--accent) !important; border-color:#d4b84a !important; }
+  body.theme-viking .toggle-slider { background:#2a1a00; border:1px solid rgba(139,105,20,0.4) !important; }
+
+  /* ══════════════════════════════════════════════
      THEMES OVERLAY
   ══════════════════════════════════════════════ */
   .themes-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9700; align-items:center; justify-content:center; padding:1rem; }
@@ -3955,6 +3998,7 @@
   body.theme-dracula .themes-modal    { background:linear-gradient(160deg,#282040,#1a1128) !important; border:1px solid rgba(85,85,170,0.4) !important; box-shadow:0 0.5rem 2.5rem rgba(189,147,249,0.15) !important; }
   body.theme-gothic .themes-modal    { background:linear-gradient(160deg,#141414,#0a0a0a) !important; border:1px solid rgba(51,51,51,0.4) !important; box-shadow:0 0.5rem 2.5rem rgba(192,192,192,0.15) !important; }
   body.theme-halloween .themes-modal    { background:linear-gradient(160deg,#1a0d08,#0a0505) !important; border:1px solid rgba(255,102,0,0.4) !important; box-shadow:0 0.5rem 2.5rem rgba(255,102,0,0.15) !important; }
+  body.theme-viking .themes-modal    { background:linear-gradient(160deg,#1a0f08,#0f0a05) !important; border:1px solid rgba(196,160,53,0.4) !important; box-shadow:0 0.5rem 2.5rem rgba(196,160,53,0.15) !important; }
   .themes-modal-title { font-size:1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:0.1rem; }
 
   /* ── AVATAR PICKER ── */
@@ -3974,6 +4018,7 @@
   body.theme-dracula .avatar-modal { background:linear-gradient(160deg,#282040,#1a1128) !important; border:1px solid rgba(85,85,170,0.4) !important; box-shadow:0 0.5rem 2.5rem rgba(189,147,249,0.15) !important; }
   body.theme-gothic .avatar-modal { background:linear-gradient(160deg,#141414,#0a0a0a) !important; border:1px solid rgba(51,51,51,0.4) !important; box-shadow:0 0.5rem 2.5rem rgba(192,192,192,0.15) !important; }
   body.theme-halloween .avatar-modal { background:linear-gradient(160deg,#1a0d08,#0a0505) !important; border:1px solid rgba(255,102,0,0.4) !important; box-shadow:0 0.5rem 2.5rem rgba(255,102,0,0.15) !important; }
+  body.theme-viking .avatar-modal { background:linear-gradient(160deg,#1a0f08,#0f0a05) !important; border:1px solid rgba(196,160,53,0.4) !important; box-shadow:0 0.5rem 2.5rem rgba(196,160,53,0.15) !important; }
   .avatar-modal-title { font-size:1rem; font-weight:800; color:var(--text); text-align:center; margin-bottom:0.1rem; }
   #edit-profile-overlay .avatar-modal { max-height:88vh; overflow-y:auto; -webkit-overflow-scrolling:touch; }
   .avatar-tabs {
@@ -4029,6 +4074,7 @@
   body.theme-dracula .theme-option    { background:rgba(26,17,40,0.5) !important; border:1px solid rgba(85,85,170,0.35) !important; }
   body.theme-gothic .theme-option    { background:rgba(10,10,10,0.5) !important; border:1px solid rgba(51,51,51,0.35) !important; }
   body.theme-halloween .theme-option    { background:rgba(10,5,5,0.5) !important; border:1px solid rgba(204,102,0,0.35) !important; }
+  body.theme-viking .theme-option    { background:rgba(15,10,5,0.5) !important; border:1px solid rgba(196,160,53,0.35) !important; }
   .theme-option:hover { border-color:var(--accent); transform:scale(1.04); }
   .theme-option:active { transform:scale(0.97); }
   .theme-option.selected { border-color:var(--accent); background:rgba(124,92,191,0.15); box-shadow:0 0 0.75rem rgba(124,92,191,0.25); }
@@ -4045,6 +4091,7 @@
   body.theme-dracula .theme-option.selected    { background:rgba(189,147,249,0.1) !important; border-color:#ff79c6 !important; }
   body.theme-gothic .theme-option.selected    { background:rgba(192,192,192,0.1) !important; border-color:#e0e0e0 !important; }
   body.theme-halloween .theme-option.selected    { background:rgba(255,102,0,0.1) !important; border-color:#ff9933 !important; }
+  body.theme-viking .theme-option.selected    { background:rgba(196,160,53,0.1) !important; border-color:#d4b84a !important; }
   .theme-option input[type="radio"] { display:none; }
   .theme-option-name { font-size:0.72rem; font-weight:700; color:var(--text); line-height:1.2; }
   .theme-preview { width:2.5rem; height:2.5rem; flex-shrink:0; border-radius:0.625rem; border:0.125rem solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; overflow:hidden; font-size:1.1rem; }
@@ -4062,6 +4109,7 @@
   .theme-preview.preview-dracula    { background:linear-gradient(135deg,#1a1128 50%,#bd93f9 50%); border-color:#bd93f9; font-size:1.1rem; color:#ff79c6; }
   .theme-preview.preview-gothic    { background:linear-gradient(135deg,#0a0a0a 50%,#c0c0c0 50%); border-color:#c0c0c0; font-size:1.1rem; color:#e0e0e0; }
   .theme-preview.preview-halloween    { background:linear-gradient(135deg,#0a0505 50%,#ff6600 50%); border-color:#ff6600; font-size:1.1rem; color:#ff9933; }
+  .theme-preview.preview-viking    { background:linear-gradient(135deg,#0f0a05 50%,#c4a035 50%); border-color:#8b6914; font-size:1.1rem; color:#d4b84a; }
   /* ══════════════════════════════════════════════
      TURN MODE CARD (Create Room)
   ══════════════════════════════════════════════ */
@@ -6416,6 +6464,11 @@
         <input type="radio" name="sk-theme-choice" value="halloween" style="display:none;">
         <div class="theme-preview preview-halloween">🎃</div>
         <div class="theme-option-name">Halloween</div>
+      </label>
+      <label class="theme-option" id="theme-opt-viking" onclick="selectTheme('viking')">
+        <input type="radio" name="sk-theme-choice" value="viking" style="display:none;">
+        <div class="theme-preview preview-viking">⚔</div>
+        <div class="theme-option-name">Viking</div>
       </label>
     </div>
     <button class="btn-secondary btn-sm" style="margin-top:0.25rem;width:100%;" onclick="closeThemesOverlay()">Done</button>
@@ -18450,7 +18503,7 @@ function makeDraggable(listEl, onReorder) {
 }
 
 // ── THEME SYSTEM ─────────────────────────────
-const NAMED_THEMES = ['default','8bit','cyberpunk','fantasy','galaxy','forest','ocean','sunset','steampunk','vaporwave','nord','dracula','gothic','halloween'];
+const NAMED_THEMES = ['default','8bit','cyberpunk','fantasy','galaxy','forest','ocean','sunset','steampunk','vaporwave','nord','dracula','gothic','halloween','viking'];
 
 function applyTheme(isLight) {
   document.body.classList.toggle('light-mode', isLight);
