@@ -4863,7 +4863,7 @@
   }
   .auth-close-btn {
     background: none; border: 1px solid var(--border);
-    border-radius: 50%; color: var(--muted);
+    border-radius: 0.5rem; color: var(--muted);
     font-size: 0.85rem; font-weight: 600; padding: 0.6rem 1.2rem;
     cursor: pointer; width: 100%; margin-top: 0.5rem;
     transition: background 0.2s, color 0.2s;
@@ -6457,7 +6457,7 @@
 <!--  EDIT PROFILE OVERLAY (Combined)            -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="avatar-overlay" id="edit-profile-overlay">
-  <div class="avatar-modal" style="gap:0.9rem;">
+  <div class="avatar-modal" style="gap:0.9rem; text-align:center;">
     <div class="avatar-modal-title" data-i18n="editProfile">Edit Profile</div>
     <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
       <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;">Preferred Name</div>
@@ -6501,9 +6501,9 @@
 
 <!-- ACCOUNT SETTINGS OVERLAY -->
 <div class="tools-overlay" id="account-settings-overlay">
-  <div class="tools-modal" style="max-width:21.25rem;">
+  <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
     <div class="tools-modal-title">Settings</div>
-    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;" data-i18n="email">Email</div>
+    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;" data-i18n="accountEmail">Account Email</div>
     <div id="acct-settings-email" style="font-size:0.95rem;color:var(--text);padding:0.6rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;margin-bottom:1rem;word-break:break-all;"></div>
     <div style="padding:0.7rem 0.85rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;margin-bottom:1rem;">
       <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem;">Tap Feedback</div>
@@ -6807,7 +6807,8 @@
     <div style="text-align:center; margin-bottom:0.8rem;">
       <div style="font-size:0.8rem; color:var(--muted);" data-i18n="yourFriendCode">Your Friend Code</div>
       <div id="friends-my-code" style="font-size:1.5rem; font-weight:800; letter-spacing:0.15em; color:var(--accent); margin:0.3rem 0;">------</div>
-      <button class="btn-secondary btn-sm" style="padding:0.3rem 1rem;" onclick="copyFriendCode()" data-i18n="copyCode">Copy Code</button>
+      <div id="friend-code-qr" style="background:#fff; border-radius:0.75rem; padding:0.6rem; display:inline-block; margin:0.5rem auto;"></div>
+      <div style="font-size:0.7rem; color:var(--muted); margin-top:0.3rem;">Scan to add me as friend</div>
     </div>
     <div style="text-align:center;margin-bottom:0.8rem;">
       <button class="btn-primary btn-sm" style="padding:0.5rem 1.5rem;" onclick="openAddFriendOverlay()" data-i18n="addNewFriend">+ Add New Friend</button>
@@ -6862,7 +6863,11 @@
 <!-- ADD NEW FRIEND OVERLAY -->
 <div id="add-friend-overlay" style="position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;">
   <div class="tools-modal" style="max-width:20rem;text-align:center;">
-    <div style="font-weight:700;font-size:1rem;">Enter Friend Code</div>
+    <div style="font-weight:700;font-size:1rem;">Add Friend</div>
+    <div style="display:flex;gap:0.5rem;margin:0.6rem 0;">
+      <button class="btn-secondary btn-sm" style="flex:1;" onclick="openFriendQRScanner()">Scan QR Code</button>
+    </div>
+    <div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Or enter code manually</div>
     <input id="friends-add-input" placeholder="Enter code..." style="width:100%;padding:0.6rem;border-radius:0.5rem;border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:monospace;font-size:1.1rem;letter-spacing:0.2em;text-align:center;text-transform:uppercase;outline:none;" maxlength="9">
     <div id="add-friend-status" style="font-size:0.8rem;text-align:center;min-height:1rem;"></div>
     <div style="display:flex;gap:0.5rem;">
@@ -6902,7 +6907,7 @@
 <!--  TOOLS OVERLAY (list of tools)              -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="tools-overlay">
-  <div class="tools-modal">
+  <div class="tools-modal" style="text-align:center;">
     <div class="tools-modal-title">Tools</div>
     <button class="tool-list-btn" onclick="openTool('timers')">Timers</button>
     <button class="tool-list-btn" onclick="openTool('rng')">Random Number</button>
@@ -7433,6 +7438,7 @@ const I18N_STRINGS = {
     goToProfile: '👤 Go to Profile',
     linkGoogle: 'Link Google account',
     email: 'Email',
+    accountEmail: 'Account Email',
     changePassword: 'Change Password',
     play: 'Play',
     buzz: 'Buzz',
@@ -7440,7 +7446,6 @@ const I18N_STRINGS = {
     friendsDesc: 'Add friends and invite them to rooms',
     gameFeatures: 'Game Features',
     gameFeaturesDesc: 'Collection, saved games & tools',
-    home: 'Home',
     yourFriendCode: 'Your Friend Code',
     copyCode: 'Copy Code',
     addFriend: 'Add',
@@ -7568,6 +7573,7 @@ const I18N_STRINGS = {
     goToProfile: '👤 Ir al Perfil',
     linkGoogle: 'Vincular cuenta de Google',
     email: 'Correo electrónico',
+    accountEmail: 'Correo de la cuenta',
     changePassword: 'Cambiar Contraseña',
     play: 'Jugar',
     buzz: 'Zumbido',
@@ -7575,7 +7581,7 @@ const I18N_STRINGS = {
     friendsDesc: 'Agregar amigos e invitarlos a salas',
     gameFeatures: 'Juegos',
     gameFeaturesDesc: 'Colección, partidas guardadas y herramientas',
-    home: 'Inicio',
+    home: '<span class="play-tri">◀</span> Inicio',
     yourFriendCode: 'Tu Código de Amigo',
     copyCode: 'Copiar Código',
     addFriend: 'Agregar',
@@ -7703,6 +7709,7 @@ const I18N_STRINGS = {
     goToProfile: '👤 前往个人资料',
     linkGoogle: '关联 Google 账户',
     email: '电子邮箱',
+    accountEmail: '账户邮箱',
     changePassword: '更改密码',
     play: '游戏',
     buzz: '抢答',
@@ -7838,6 +7845,7 @@ const I18N_STRINGS = {
     goToProfile: '👤 Zum Profil',
     linkGoogle: 'Google-Konto verknüpfen',
     email: 'E-Mail',
+    accountEmail: 'Konto-E-Mail',
     changePassword: 'Passwort ändern',
     play: 'Spielen',
     buzz: 'Buzz',
@@ -7845,7 +7853,7 @@ const I18N_STRINGS = {
     friendsDesc: 'Freunde hinzufügen und in Räume einladen',
     gameFeatures: 'Spiel Funktionen',
     gameFeaturesDesc: 'Sammlung, gespeicherte Spiele & Werkzeuge',
-    home: 'Startseite',
+    home: '<span class="play-tri">◀</span> Startseite',
     yourFriendCode: 'Dein Freundescode',
     copyCode: 'Code kopieren',
     addFriend: 'Hinzufügen',
@@ -7973,6 +7981,7 @@ const I18N_STRINGS = {
     goToProfile: '👤 Aller au profil',
     linkGoogle: 'Associer un compte Google',
     email: 'E-mail',
+    accountEmail: 'E-mail du compte',
     changePassword: 'Changer le mot de passe',
     play: 'Jouer',
     buzz: 'Buzz',
@@ -7980,7 +7989,7 @@ const I18N_STRINGS = {
     friendsDesc: 'Ajouter des amis et les inviter dans des salles',
     gameFeatures: 'Fonctionnalités',
     gameFeaturesDesc: 'Collection, parties sauvegardées & outils',
-    home: 'Accueil',
+    home: '<span class="play-tri">◀</span> Accueil',
     yourFriendCode: 'Ton Code Ami',
     copyCode: 'Copier le code',
     addFriend: 'Ajouter',
@@ -8108,6 +8117,7 @@ const I18N_STRINGS = {
     goToProfile: '👤 プロフィールへ',
     linkGoogle: 'Googleアカウントをリンク',
     email: 'メール',
+    accountEmail: 'アカウントメール',
     changePassword: 'パスワードを変更',
     play: 'プレイ',
     buzz: 'バズ',
@@ -8115,7 +8125,7 @@ const I18N_STRINGS = {
     friendsDesc: 'フレンドを追加してルームに招待',
     gameFeatures: 'ゲーム機能',
     gameFeaturesDesc: 'コレクション、保存済みゲーム＆ツール',
-    home: 'ホーム',
+    home: '<span class="play-tri">◀</span> ホーム',
     yourFriendCode: 'あなたのフレンドコード',
     copyCode: 'コードをコピー',
     addFriend: '追加',
@@ -8243,6 +8253,7 @@ const I18N_STRINGS = {
     goToProfile: '👤 Vai al Profilo',
     linkGoogle: 'Collega account Google',
     email: 'Email',
+    accountEmail: 'Email dell\'account',
     changePassword: 'Cambia Password',
     play: 'Gioca',
     buzz: 'Buzz',
@@ -8250,7 +8261,7 @@ const I18N_STRINGS = {
     friendsDesc: 'Aggiungi amici e invitali nelle stanze',
     gameFeatures: 'Funzionalità',
     gameFeaturesDesc: 'Collezioni, giochi salvati e strumenti',
-    home: 'Home',
+    home: '<span class="play-tri">◀</span> Home',
     yourFriendCode: 'Il tuo Codice Amico',
     copyCode: 'Copia codice',
     addFriend: 'Aggiungi',
@@ -8378,6 +8389,7 @@ const I18N_STRINGS = {
     goToProfile: '👤 Ir para o Perfil',
     linkGoogle: 'Vincular conta do Google',
     email: 'E-mail',
+    accountEmail: 'E-mail da conta',
     changePassword: 'Alterar Senha',
     play: 'Jogar',
     buzz: 'Buzz',
@@ -8385,7 +8397,7 @@ const I18N_STRINGS = {
     friendsDesc: 'Adicione amigos e convide-os para salas',
     gameFeatures: 'Recursos',
     gameFeaturesDesc: 'Coleção, jogos salvos e ferramentas',
-    home: 'Início',
+    home: '<span class="play-tri">◀</span> Início',
     yourFriendCode: 'Seu Código de Amigo',
     copyCode: 'Copiar código',
     addFriend: 'Adicionar',
@@ -16785,6 +16797,7 @@ window.openFriendsOverlay = async function() {
   const code = await ensureFriendCode();
   const codeEl = document.getElementById('friends-my-code');
   if (codeEl) codeEl.textContent = code || '------';
+  generateFriendCodeQR();
   await loadFriendsData();
   renderFriendsList();
   renderPendingRequests();
@@ -17057,6 +17070,94 @@ window.copyFriendCode = async function() {
   if (!code) return;
   try { await navigator.clipboard.writeText(code.textContent); } catch {}
 };
+
+function generateFriendCodeQR() {
+  const box = document.getElementById('friend-code-qr');
+  const code = document.getElementById('friends-my-code');
+  if (!box || !code || code.textContent === '------') return;
+  box.innerHTML = '';
+  new QRCode(box, {
+    text: code.textContent,
+    width: 100,
+    height: 100,
+    colorDark: '#000000',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+}
+
+window.openFriendQRScanner = async function() {
+  closeAddFriendOverlay();
+  const overlay = document.getElementById('scanner-overlay');
+  const video = document.getElementById('scanner-video');
+  const statusEl = document.getElementById('scanner-status');
+  overlay.style.display = 'flex';
+  statusEl.textContent = 'Requesting camera access...';
+  try {
+    scannerStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    video.srcObject = scannerStream;
+    await video.play();
+    statusEl.textContent = 'Point camera at friend QR code';
+    startFriendQRDetection(video, statusEl);
+  } catch (e) {
+    statusEl.textContent = 'Camera access denied. Type code instead.';
+    setTimeout(() => closeQRScanner(), 2000);
+  }
+};
+
+function startFriendQRDetection(video, statusEl) {
+  if ('BarcodeDetector' in window) {
+    const detector = new BarcodeDetector({ formats: ['qr_code'] });
+    const detect = async () => {
+      if (!scannerStream) return;
+      try {
+        const codes = await detector.detect(video);
+        if (codes.length > 0) {
+          handleFriendQRScanned(codes[0].rawValue);
+          return;
+        }
+      } catch (e) {}
+      scannerAnimFrame = requestAnimationFrame(detect);
+    };
+    detect();
+  } else if (typeof jsQR === 'function') {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const detect = () => {
+      if (!scannerStream) return;
+      if (video.readyState >= video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        try {
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height);
+          if (code && code.data) {
+            handleFriendQRScanned(code.data);
+            return;
+          }
+        } catch (e) {}
+      }
+      scannerAnimFrame = requestAnimationFrame(detect);
+    };
+    detect();
+  } else {
+    statusEl.textContent = 'QR scanning not supported. Type code instead.';
+  }
+}
+
+function handleFriendQRScanned(value) {
+  haptic(10);
+  closeQRScanner();
+  const clean = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  if (clean.length === 8) {
+    openAddFriendOverlay();
+    const input = document.getElementById('friends-add-input');
+    if (input) input.value = clean.slice(0, 4) + '-' + clean.slice(4);
+  }
+}
 
 let _inviteStatus = new Map();
 let _hostInviteUnsub = null;
