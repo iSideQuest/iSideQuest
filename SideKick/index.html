@@ -6225,7 +6225,7 @@
 
     <!-- Footer -->
     <div class="profile-footer" style="width:min(23.75rem,92vw);">
-      <button class="btn-primary" style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;font-size:1rem;padding:0.8rem 1.5rem;" onclick="backToHomeFromProfile()"><span class="play-tri" style="transform:rotate(180deg);">▶</span> <span data-i18n="home">Home</span></button>
+      <button class="btn-primary" style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;font-size:1rem;padding:0.8rem 1.5rem;" onclick="backToHomeFromProfile()"><span data-i18n="home">Home</span></button>
       <button class="profile-signout-link" onclick="confirmSignOut()" data-i18n="signOut">Sign Out</button>
     </div>
 
@@ -6863,17 +6863,29 @@
 <!-- ADD NEW FRIEND OVERLAY -->
 <div id="add-friend-overlay" style="position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;">
   <div class="tools-modal" style="max-width:20rem;text-align:center;">
-    <div style="font-weight:700;font-size:1rem;">Add Friend</div>
-    <div style="display:flex;gap:0.5rem;margin:0.6rem 0;">
-      <button class="btn-secondary btn-sm" style="flex:1;" onclick="openFriendQRScanner()">Scan QR Code</button>
+    <div style="font-weight:700;font-size:1rem;margin-bottom:0.6rem;">Add Friend</div>
+    <div style="display:flex;align-items:stretch;gap:0.5rem;margin-bottom:0.5rem;">
+      <button class="turn-mode-btn" onclick="openFriendQRScanner()" style="flex:1;min-width:0;padding:1.5rem 0.5rem;">
+        <span class="tm-icon" style="font-size:1.8rem;">📷</span>
+        <span style="font-size:0.95rem;">Scan Friend</span>
+        <span style="font-size:0.95rem;">Code</span>
+      </button>
+      <span style="font-size:0.85rem;color:var(--muted);font-weight:700;align-self:center;flex-shrink:0;">Or</span>
+      <button class="turn-mode-btn" onclick="showFriendCodeInput()" id="add-friend-type-btn" style="flex:1;min-width:0;padding:1.5rem 0.5rem;">
+        <span class="tm-icon" style="font-size:1.8rem;">⌨️</span>
+        <span style="font-size:0.95rem;">Type</span>
+        <span style="font-size:0.95rem;">Code</span>
+      </button>
     </div>
-    <div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Or enter code manually</div>
-    <input id="friends-add-input" placeholder="Enter code..." style="width:100%;padding:0.6rem;border-radius:0.5rem;border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:monospace;font-size:1.1rem;letter-spacing:0.2em;text-align:center;text-transform:uppercase;outline:none;" maxlength="9">
-    <div id="add-friend-status" style="font-size:0.8rem;text-align:center;min-height:1rem;"></div>
-    <div style="display:flex;gap:0.5rem;">
-      <button class="btn-secondary btn-sm" style="flex:1;" onclick="closeAddFriendOverlay()">Close</button>
-      <button class="btn-primary btn-sm" style="flex:1;" onclick="addFriendByCode()">Add Friend</button>
+    <div id="add-friend-code-section" style="display:none;">
+      <input id="friends-add-input" placeholder="Enter code..." style="width:100%;padding:0.6rem;border-radius:0.5rem;border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:monospace;font-size:1.1rem;letter-spacing:0.2em;text-align:center;text-transform:uppercase;outline:none;margin-bottom:0.5rem;" maxlength="9">
+      <div id="add-friend-status" style="font-size:0.8rem;text-align:center;min-height:1rem;margin-bottom:0.4rem;"></div>
+      <div style="display:flex;gap:0.5rem;">
+        <button class="btn-secondary btn-sm" style="flex:1;" onclick="hideFriendCodeInput()">Back</button>
+        <button class="btn-primary btn-sm" style="flex:1;" onclick="addFriendByCode()">Add Friend</button>
+      </div>
     </div>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeAddFriendOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
 
@@ -16876,15 +16888,30 @@ window.openAddFriendOverlay = function() {
   const overlay = document.getElementById('add-friend-overlay');
   const input = document.getElementById('friends-add-input');
   const status = document.getElementById('add-friend-status');
+  const section = document.getElementById('add-friend-code-section');
   if (input) input.value = '';
   if (status) { status.textContent = ''; status.style.color = ''; }
+  if (section) section.style.display = 'none';
   if (overlay) overlay.classList.add('show');
-  if (input) input.focus();
 };
 
 window.closeAddFriendOverlay = function() {
   const overlay = document.getElementById('add-friend-overlay');
+  const section = document.getElementById('add-friend-code-section');
+  if (section) section.style.display = 'none';
   if (overlay) overlay.classList.remove('show');
+};
+
+window.showFriendCodeInput = function() {
+  const section = document.getElementById('add-friend-code-section');
+  const input = document.getElementById('friends-add-input');
+  if (section) section.style.display = 'block';
+  if (input) input.focus();
+};
+
+window.hideFriendCodeInput = function() {
+  const section = document.getElementById('add-friend-code-section');
+  if (section) section.style.display = 'none';
 };
 
 async function loadFriendsData() {
@@ -17154,6 +17181,7 @@ function handleFriendQRScanned(value) {
   const clean = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
   if (clean.length === 8) {
     openAddFriendOverlay();
+    showFriendCodeInput();
     const input = document.getElementById('friends-add-input');
     if (input) input.value = clean.slice(0, 4) + '-' + clean.slice(4);
   }
