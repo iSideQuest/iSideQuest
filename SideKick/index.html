@@ -6214,6 +6214,7 @@
 
     <!-- Hero Section -->
     <div class="profile-hero" style="width:min(23.75rem,92vw); margin-bottom:0.75rem;">
+      <div role="button" id="profile-awards-trophy" onclick="openMyAwards()" style="display:none; position:absolute; top:0.75rem; right:0.85rem; font-size:1.5rem; cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:manipulation; user-select:none; z-index:2;" title="My Awards">🏆</div>
       <div class="profile-avatar-ring" onclick="openEditProfileOverlay()" style="cursor:pointer;" title="Tap to edit profile">
         <div class="profile-avatar-inner" id="profile-avatar">👤</div>
       </div>
@@ -6221,25 +6222,6 @@
       <div class="profile-badge" id="profile-role-badge" style="display:none;">
         <span class="profile-badge-dot"></span>
         <span id="profile-role-text">Host Account</span>
-      </div>
-    </div>
-
-    <!-- Stats Row -->
-    <div class="profile-stats-row" style="width:min(23.75rem,92vw); margin-bottom:0.75rem;">
-      <div class="profile-stat-card">
-        <div class="profile-stat-icon">🏠</div>
-        <div class="profile-stat-value" id="profile-games-hosted">0</div>
-        <div class="profile-stat-label" data-i18n="hosted">Hosted</div>
-      </div>
-      <div class="profile-stat-card" onclick="openMyAwards()" style="cursor:pointer;">
-        <div class="profile-stat-icon">🏆</div>
-        <div class="profile-stat-value" id="profile-awards-count">0</div>
-        <div class="profile-stat-label" data-i18n="awards">Awards</div>
-      </div>
-      <div class="profile-stat-card">
-        <div class="profile-stat-icon">⏱️</div>
-        <div class="profile-stat-value" id="profile-rooms-created">0</div>
-        <div class="profile-stat-label" data-i18n="rooms">Rooms</div>
       </div>
     </div>
 
@@ -6273,7 +6255,7 @@
         <div class="profile-menu-icon icon-saves">⚙️</div>
         <div class="profile-menu-text">
           <div class="profile-menu-title">Settings</div>
-          <div class="profile-menu-desc">Email, tap feedback & password</div>
+          <div class="profile-menu-desc">Email, tap feedback, awards & password</div>
         </div>
         <div class="profile-menu-chevron">›</div>
       </div>
@@ -6566,6 +6548,13 @@
       <div style="display:flex;gap:0.5rem;">
         <div role="button" class="tap-feedback-btn" id="tap-feedback-yes" style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-weight:700;font-size:0.85rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;text-align:center;">Yes</div>
         <div role="button" class="tap-feedback-btn" id="tap-feedback-no" style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-weight:700;font-size:0.85rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;text-align:center;">No</div>
+      </div>
+    </div>
+    <div style="padding:0.7rem 0.85rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;margin-bottom:1rem;">
+      <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem;">Show Awards</div>
+      <div style="display:flex;gap:0.5rem;">
+        <div role="button" class="show-awards-btn" id="show-awards-yes" style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-weight:700;font-size:0.85rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;text-align:center;">Yes</div>
+        <div role="button" class="show-awards-btn" id="show-awards-no" style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-weight:700;font-size:0.85rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;text-align:center;">No</div>
       </div>
     </div>
     <button class="btn-primary btn-sm" style="width:100%;" onclick="confirmChangePassword()" data-i18n="changePassword">Change Password</button>
@@ -7309,6 +7298,41 @@ function updateTapFeedbackUI(mode) {
   const n = document.getElementById('tap-feedback-no');
   if (y) y.addEventListener('click', () => setVibrateMode('on'), { passive: true });
   if (n) n.addEventListener('click', () => setVibrateMode('off'), { passive: true });
+})();
+// Show Awards setting
+const SHOW_AWARDS_KEY = 'sk_show_awards';
+function getShowAwards() {
+  try { return localStorage.getItem(SHOW_AWARDS_KEY) !== 'no'; } catch { return true; }
+}
+function setShowAwards(val) {
+  const norm = val ? 'yes' : 'no';
+  try { localStorage.setItem(SHOW_AWARDS_KEY, norm); } catch {}
+  const uid = currentUser?.uid;
+  if (uid && db) set(ref(db, `users/${uid}/showAwards`), norm).catch(()=>{});
+  updateShowAwardsUI(norm);
+  updateProfileTrophy();
+}
+function updateShowAwardsUI(val) {
+  const y = document.getElementById('show-awards-yes');
+  const n = document.getElementById('show-awards-no');
+  if (!y || !n) return;
+  if (val === 'yes') {
+    y.style.background = 'var(--accent)'; y.style.color = '#fff'; y.style.borderColor = 'var(--accent)';
+    n.style.background = 'rgba(255,255,255,0.04)'; n.style.color = 'var(--text)'; n.style.borderColor = 'var(--border)';
+  } else {
+    n.style.background = 'var(--accent)'; n.style.color = '#fff'; n.style.borderColor = 'var(--accent)';
+    y.style.background = 'rgba(255,255,255,0.04)'; y.style.color = 'var(--text)'; y.style.borderColor = 'var(--border)';
+  }
+}
+function updateProfileTrophy() {
+  const el = document.getElementById('profile-awards-trophy');
+  if (el) el.style.display = getShowAwards() ? 'block' : 'none';
+}
+(function() {
+  const y = document.getElementById('show-awards-yes');
+  const n = document.getElementById('show-awards-no');
+  if (y) y.addEventListener('click', () => setShowAwards(true), { passive: true });
+  if (n) n.addEventListener('click', () => setShowAwards(false), { passive: true });
 })();
 function shouldVibrateForElement(el) {
   return getVibrateMode() !== 'off';
@@ -8878,6 +8902,7 @@ async function syncProfileFromFirebase() {
     if (profile.avatar) localStorage.setItem('sk_avatar_' + uid, profile.avatar);
     if (profile.color) localStorage.setItem('sk_color_' + uid, profile.color);
     if (profile.vibrateMode && !localStorage.getItem('sk_vibrate_mode')) localStorage.setItem('sk_vibrate_mode', profile.vibrateMode);
+    if (profile.showAwards && !localStorage.getItem('sk_show_awards')) localStorage.setItem('sk_show_awards', profile.showAwards);
     if (profile.hostedCount != null) localStorage.setItem('sk_hosted_count', String(profile.hostedCount));
     if (profile.roomsCount != null) localStorage.setItem('sk_rooms_count', String(profile.roomsCount));
     if (profile.awards) localStorage.setItem('sk_awards_' + uid, JSON.stringify(profile.awards));
@@ -9755,15 +9780,8 @@ window.openProfileScreen = function() {
     roleText.textContent = isHost ? 'Creator' : 'Player Account';
   }
 
-  const hostedEl = document.getElementById('profile-games-hosted');
-  const awardsEl = document.getElementById('profile-awards-count');
-  const roomsEl = document.getElementById('profile-rooms-created');
-  const hostedCount = localStorage.getItem('sk_hosted_count') || '0';
-  const roomsCount = localStorage.getItem('sk_rooms_count') || '0';
-  const awardsList = currentUser ? JSON.parse(localStorage.getItem('sk_awards_' + currentUser.uid) || '[]') : [];
-  if (hostedEl) hostedEl.textContent = hostedCount;
-  if (awardsEl) awardsEl.textContent = String(awardsList.length);
-  if (roomsEl) roomsEl.textContent = roomsCount;
+  updateProfileTrophy();
+  updateShowAwardsUI(getShowAwards() ? 'yes' : 'no');
 
   showScreen('profile');
 };
