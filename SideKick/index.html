@@ -4959,7 +4959,6 @@
   @media (min-width: 40rem) {
     html { font-size: 1.0625rem; }
     .player-list { grid-template-columns: repeat(3, 1fr); }
-    .feature-grid { grid-template-columns: repeat(3, 1fr); }
   }
   @media (min-width: 48rem) {
     html { font-size: 1.125rem; }
@@ -4977,7 +4976,6 @@
     container-name: modal;
   }
   @container modal (min-width: 20rem) {
-    .feature-grid { grid-template-columns: repeat(3, 1fr); }
   }
   /* Flexible media */
   img, svg, video, canvas, iframe {
@@ -6212,19 +6210,15 @@
     <!-- Menu Items -->
     <div class="profile-menu" style="width:min(23.75rem,92vw); margin-bottom:0.75rem;">
       <div class="profile-menu-item" onclick="openEditProfileMenuOverlay()">
-        <div class="profile-menu-icon">✏️</div>
         <div class="profile-menu-title" data-i18n="editProfile">Edit Profile</div>
       </div>
       <div class="profile-menu-item" onclick="openFriendsOverlay()">
-        <div class="profile-menu-icon">👥</div>
-        <div class="profile-menu-title" data-i18n="friends">Friends</div>
+        <div class="profile-menu-title" data-i18n="Friends List">Friends</div>
       </div>
       <div class="profile-menu-item" onclick="openGameFeaturesOverlay()">
-        <div class="profile-menu-icon">🎮</div>
-        <div class="profile-menu-title" data-i18n="gameFeatures">Game Features</div>
+        <div class="profile-menu-title" data-i18n="SideKick Tools">Game Features</div>
       </div>
       <div class="profile-menu-item" onclick="openAccountSettingsOverlay()">
-        <div class="profile-menu-icon">⚙️</div>
         <div class="profile-menu-title">Settings</div>
       </div>
     </div>
@@ -6259,7 +6253,7 @@
   <div class="tools-modal" style="max-height:88vh; overflow-y:auto;">
     <!-- Main menu -->
     <div id="collection-main-menu">
-      <div class="tools-modal-title">🎲 My Collection</div>
+      <div class="tools-modal-title">My Collection</div>
       <div style="font-size:0.78rem;color:var(--muted);text-align:center;margin-bottom:0.9rem;">Your board games — build your library, then filter to find the right one for your event.</div>
 
       <button class="btn-primary" style="width:100%;" onclick="openCollectionLibrary()">📚 Library</button>
@@ -6498,9 +6492,9 @@
 <div class="tools-overlay" id="edit-profile-menu-overlay">
   <div class="tools-modal" style="max-width:21.25rem;">
     <div class="tools-modal-title" data-i18n="editProfile">Edit Profile</div>
-    <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openEditProfilePrefs()">✏️ <span data-i18n="editProfile">Edit Profile</span></button>
-    <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openVoicePresetsOverlay()">🏠 Host Room Presets</button>
-    <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openThemesOverlay()">🎨 <span data-i18n="themes">Themes</span></button>
+    <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openEditProfilePrefs()"><span data-i18n="editProfile">Edit Profile</span></button>
+    <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openVoicePresetsOverlay()">Host Room Presets</button>
+    <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openThemesOverlay()"><span data-i18n="themes">Themes</span></button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeEditProfileMenuOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -6519,7 +6513,7 @@
       </div>
     </div>
     <div style="padding:0.7rem 0.85rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;margin-bottom:1rem;">
-      <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem;">Show Awards</div>
+      <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem;">Show Awards On Profile</div>
       <div style="display:flex;gap:0.5rem;">
         <div role="button" class="show-awards-btn" id="show-awards-yes" style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-weight:700;font-size:0.85rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;text-align:center;">Yes</div>
         <div role="button" class="show-awards-btn" id="show-awards-no" style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-weight:700;font-size:0.85rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;text-align:center;">No</div>
@@ -6743,7 +6737,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="resume-overlay">
   <div class="tools-modal">
-    <div class="tools-modal-title">💾 Resume a Saved Game</div>
+    <div class="tools-modal-title">Resume a Saved Game</div>
 
     <div id="resume-code-step">
       <input type="text" id="resume-code" placeholder="Enter save code" maxlength="6"
@@ -6809,7 +6803,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="friends-overlay">
   <div class="tools-modal" style="overflow:visible;">
-    <div class="tools-modal-title">👥 <span data-i18n="friends">Friends</span></div>
+    <div class="tools-modal-title"><span data-i18n="friends">Friends</span></div>
     <div style="text-align:center; margin-bottom:0.8rem;">
       <div style="font-size:0.8rem; color:var(--muted);" data-i18n="yourFriendCode">Your Friend Code</div>
       <div id="friends-my-code" style="font-size:1.5rem; font-weight:800; letter-spacing:0.15em; color:var(--accent); margin:0.3rem 0;">------</div>
@@ -6845,10 +6839,10 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="game-features-overlay">
   <div class="tools-modal">
-    <div class="tools-modal-title">🎮 <span data-i18n="gameFeatures">Game Features</span></div>
-    <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openMyCollection()">🎲 <span data-i18n="myCollection">My Collection</span></button>
-    <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openMySavedGames()">💾 <span data-i18n="mySavedGames">My Saved Games</span></button>
-    <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openToolsOverlay(false)">🧰 <span data-i18n="tools">Tools</span></button>
+    <div class="tools-modal-title"><span data-i18n="gameFeatures">Game Features</span></div>
+    <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openMyCollection()"><span data-i18n="myCollection">My Collection</span></button>
+    <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openMySavedGames()"><span data-i18n="mySavedGames">My Saved Games</span></button>
+    <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openToolsOverlay(false)"><span data-i18n="tools">Tools</span></button>
     <button class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="closeGameFeaturesOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -6909,12 +6903,12 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="tools-overlay">
   <div class="tools-modal">
-    <div class="tools-modal-title">🧰 Tools</div>
-    <button class="tool-list-btn" onclick="openTool('timers')">⏱️ Timers</button>
-    <button class="tool-list-btn" onclick="openTool('rng')">🎲 Random Number</button>
-    <button class="tool-list-btn" onclick="openTool('picker')">🎯 Player Picker</button>
-    <button class="tool-list-btn" onclick="openTool('status')">🩹 Status Effects</button>
-    <button class="tool-list-btn" onclick="openSpeedRoundFromTool()">⚡ Speed Round</button>
+    <div class="tools-modal-title">Tools</div>
+    <button class="tool-list-btn" onclick="openTool('timers')">Timers</button>
+    <button class="tool-list-btn" onclick="openTool('rng')">Random Number</button>
+    <button class="tool-list-btn" onclick="openTool('picker')">Player Picker</button>
+    <button class="tool-list-btn" onclick="openTool('status')">Status Effects</button>
+    <button class="tool-list-btn" onclick="openSpeedRoundFromTool()">Speed Round</button>
 
     <button class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="closeToolsOverlay()">Close</button>
   </div>
