@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iSideQuest - Elevate Your Board Game Experience</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Fixed Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-icon">&#9876;</span>
+            <span class="logo-text">iSideQuest</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#categories">Categories</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Side Navigation Dots -->
+    <div class="side-nav">
+        <a href="#home" class="side-nav-dot active" data-section="0"><span>Home</span></a>
+        <a href="#categories" class="side-nav-dot" data-section="1"><span>Products</span></a>
+        <a href="#featured" class="side-nav-dot" data-section="2"><span>Featured</span></a>
+        <a href="#about" class="side-nav-dot" data-section="3"><span>About iSideQuest</span></a>
+        <a href="#contact" class="side-nav-dot" data-section="4"><span>Contact</span></a>
+    </div>
+
+    <!-- Scroll Container -->
+    <main class="scroll-container" id="scrollContainer">
+        <!-- Hero Section -->
+        <section id="home" class="panel hero">
+            <div class="hero-bg"></div>
+            <div class="hero-content">
+                <h1 class="hero-title">iSideQuest</h1>
+                <p class="hero-subtitle">Elevate Your Board Game Experience</p>
+                <p class="hero-description">Premium upgrade components & digital enhancements for your favorite games</p>
+                <a href="#categories" class="cta-button">Explore Products</a>
+            </div>
+            <div class="scroll-indicator">
+                <span>&#8595;</span>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section id="categories" class="panel categories-section">
+            <div class="scroll-arrows top">
+                <span class="scroll-arrow up" onclick="scrollToPanel(0)">&#8593;</span>
+            </div>
+            <h2 class="section-title">Explore Our Products</h2>
+            <p class="section-subtitle">Choose your adventure</p>
+
+            <div class="categories-container">
+                <div class="category-card physical">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <h3 class="card-title">Physical Products</h3>
+                        <p class="card-description">
+                            Premium upgrade components crafted with precision. Transform your board games 
+                            with high-quality metal, wood, and resin pieces that enhance gameplay and aesthetics.
+                        </p>
+                        <ul class="feature-list">
+                            <li>&#10003; Metal coins & tokens</li>
+                            <li>&#10003; Custom player pieces</li>
+                            <li>&#10003; Premium dice sets</li>
+                            <li>&#10003; Resource bundles</li>
+                            <li>&#10003; Card holders & organizers</li>
+                        </ul>
+                        <a href="#physical-products" class="card-button">Browse Physical Products &#8594;</a>
+                    </div>
+                </div>
+
+                <div class="category-card digital">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <h3 class="card-title">Digital Products</h3>
+                        <p class="card-description">
+                            Innovative apps and digital designs to complement your tabletop experience. 
+                            Companion apps, digital rulebooks, and downloadable content for enhanced gaming.
+                        </p>
+                        <ul class="feature-list">
+                            <li>&#10003; Companion apps</li>
+                            <li>&#10003; Digital rulebooks</li>
+                            <li>&#10003; Printable inserts</li>
+                            <li>&#10003; Score trackers</li>
+                            <li>&#10003; Game organizers & guides</li>
+                        </ul>
+                        <a href="#digital-products" class="card-button" id="digitalProductsBtn">Browse Digital Products &#8594;</a>
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-arrows bottom">
+                <span class="scroll-arrow down" onclick="scrollToPanel(2)">&#8595;</span>
+            </div>
+        </section>
+
+        <!-- Digital Products Overlay -->
+        <div class="overlay" id="digitalOverlay">
+            <div class="overlay-content">
+                <button class="overlay-close" id="closeOverlay">&times;</button>
+                <h2 class="overlay-title">Digital Products</h2>
+                <p class="overlay-subtitle">Enhance your tabletop experience</p>
+                <div class="overlay-products">
+                    <div class="overlay-card" id="sidekickCard">
+                        <h3>SideKick</h3>
+                        <p>The ultimate board game companion app. Track scores, manage campaigns, and access digital rulebooks all in one place.</p>
+                        <span class="overlay-price">Free</span>
+                    </div>
+                    <div class="overlay-card">
+                        <h3>PrintForge</h3>
+                        <p>Customizable box organizers and inserts. Download templates, personalize, and 3D print for perfect game storage.</p>
+                        <span class="overlay-price">$4.99</span>
+                    </div>
+                    <div class="overlay-card">
+                        <h3>CampaignLog</h3>
+                        <p>Digital campaign journal for legacy and story-driven games. Save progress, track achievements, and share with friends.</p>
+                        <span class="overlay-price">$6.99</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SideKick Overlay -->
+        <div class="overlay" id="sidekickOverlay">
+            <div class="overlay-content sidekick-content">
+                <button class="overlay-close" id="closeSidekick">&times;</button>
+                <div class="sidekick-header">
+                    <h2 class="overlay-title">SideKick</h2>
+                </div>
+                <p class="overlay-subtitle">Your board game companion, reimagined</p>
+                <div class="sidekick-buttons">
+                    <button class="sidekick-btn" id="whatIsSidekick">What Is SideKick?</button>
+                    <button class="sidekick-btn" id="howToGet">How To Get SideKick</button>
+                    <button class="sidekick-btn primary" id="goToSidekick">Go To SideKick</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Featured Products Section -->
+        <section id="featured" class="panel featured-section">
+            <div class="scroll-arrows top">
+                <span class="scroll-arrow up" onclick="scrollToPanel(1)">&#8593;</span>
+            </div>
+            <h2 class="section-title">Featured Products</h2>
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-badge">New</div>
+                    <div class="product-image">&#9876;</div>
+                    <div class="product-info">
+                        <span class="product-category">Physical</span>
+                        <h4>Premium Metal Coins</h4>
+                        <p>Set of 50 antiqued copper coins</p>
+                        <span class="product-price">$24.99</span>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-badge">Popular</div>
+                    <div class="product-image">&#128204;</div>
+                    <div class="product-info">
+                        <span class="product-category">Digital</span>
+                        <h4>Game Companion App</h4>
+                        <p>Track scores, rules & campaigns</p>
+                        <span class="product-price">$9.99</span>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">&#127922;</div>
+                    <div class="product-info">
+                        <span class="product-category">Physical</span>
+                        <h4>Resin Token Set</h4>
+                        <p>100 premium resource tokens</p>
+                        <span class="product-price">$19.99</span>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-badge">Sale</div>
+                    <div class="product-image">&#128196;</div>
+                    <div class="product-info">
+                        <span class="product-category">Digital</span>
+                        <h4>Printable Inserts Bundle</h4>
+                        <p>50+ box organizer templates</p>
+                        <span class="product-price">$7.99</span>
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-arrows bottom">
+                <span class="scroll-arrow down" onclick="scrollToPanel(3)">&#8595;</span>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="panel about-section">
+            <div class="scroll-arrows top">
+                <span class="scroll-arrow up" onclick="scrollToPanel(2)">&#8593;</span>
+            </div>
+            <div class="about-content">
+                <h2 class="section-title">About iSideQuest</h2>
+                <p>
+                    We believe board games deserve the best components. iSideQuest was founded 
+                    with a passion for enhancing tabletop experiences through premium physical 
+                    upgrades and innovative digital solutions. Whether you're looking to elevate 
+                    the tactile feel of your game nights or add smart digital companions to your 
+                    sessions, we've got you covered.
+                </p>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">Products</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">1000+</span>
+                        <span class="stat-label">Happy Gamers</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">Games Supported</span>
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-arrows bottom">
+                <span class="scroll-arrow down" onclick="scrollToPanel(4)">&#8595;</span>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="panel contact-section">
+            <div class="scroll-arrows top">
+                <span class="scroll-arrow up" onclick="scrollToPanel(3)">&#8593;</span>
+            </div>
+            <h2 class="section-title">Get In Touch</h2>
+            <p class="section-subtitle">Have questions? We'd love to hear from you</p>
+            <form class="contact-form">
+                <div class="form-row">
+                    <input type="text" placeholder="Your Name" required>
+                    <input type="email" placeholder="Your Email" required>
+                </div>
+                <input type="text" placeholder="Subject" required>
+                <textarea placeholder="Your Message" rows="5" required></textarea>
+                <button type="submit" class="submit-button">Send Message</button>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        const container = document.getElementById('scrollContainer');
+        const panels = document.querySelectorAll('.panel');
+        const sideNavDots = document.querySelectorAll('.side-nav-dot');
+        let currentPanel = 0;
+        let isAnimating = false;
+
+        function updateSideNav() {
+            sideNavDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentPanel);
+            });
+        }
+
+        function scrollToPanel(index) {
+            if (index < 0 || index >= panels.length || isAnimating) return;
+            isAnimating = true;
+            currentPanel = index;
+            updateSideNav();
+
+            const target = panels[index];
+            const targetTop = target.offsetTop;
+            const startTop = container.scrollTop;
+            const distance = targetTop - startTop;
+            const duration = 400;
+            const startTime = performance.now();
+
+            function step(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                container.scrollTop = startTop + distance * eased;
+
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    isAnimating = false;
+                }
+            }
+
+            requestAnimationFrame(step);
+        }
+
+        window.scrollToPanel = scrollToPanel;
+
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (isAnimating) return;
+
+            if (e.deltaY > 0 && currentPanel < panels.length - 1) {
+                scrollToPanel(currentPanel + 1);
+            } else if (e.deltaY < 0 && currentPanel > 0) {
+                scrollToPanel(currentPanel - 1);
+            }
+        }, { passive: false });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                e.preventDefault();
+                scrollToPanel(currentPanel + 1);
+            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                e.preventDefault();
+                scrollToPanel(currentPanel - 1);
+            }
+        });
+
+        sideNavDots.forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = parseInt(dot.dataset.section);
+                scrollToPanel(section);
+            });
+        });
+
+        document.querySelectorAll('.nav-links a, .cta-button').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const href = link.getAttribute('href');
+                const target = document.querySelector(href);
+                if (target) {
+                    const index = Array.from(panels).indexOf(target.closest('.panel') || target);
+                    if (index !== -1) scrollToPanel(index);
+                }
+            });
+        });
+
+        let touchStartY = 0;
+        container.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        container.addEventListener('touchend', (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = touchStartY - touchEndY;
+
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) scrollToPanel(currentPanel + 1);
+                else scrollToPanel(currentPanel - 1);
+            }
+        }, { passive: true });
+
+        // Digital Products Overlay
+        const digitalBtn = document.getElementById('digitalProductsBtn');
+        const digitalOverlay = document.getElementById('digitalOverlay');
+        const closeOverlay = document.getElementById('closeOverlay');
+
+        digitalBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            digitalOverlay.classList.add('active');
+        });
+
+        closeOverlay.addEventListener('click', () => {
+            digitalOverlay.classList.remove('active');
+        });
+
+        digitalOverlay.addEventListener('click', (e) => {
+            if (e.target === digitalOverlay) {
+                digitalOverlay.classList.remove('active');
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (sidekickOverlay.classList.contains('active')) {
+                    sidekickOverlay.classList.remove('active');
+                } else if (digitalOverlay.classList.contains('active')) {
+                    digitalOverlay.classList.remove('active');
+                }
+            }
+        });
+
+        // SideKick Overlay
+        const sidekickCard = document.getElementById('sidekickCard');
+        const sidekickOverlay = document.getElementById('sidekickOverlay');
+        const closeSidekick = document.getElementById('closeSidekick');
+        const whatIsSidekick = document.getElementById('whatIsSidekick');
+        const howToGet = document.getElementById('howToGet');
+        const goToSidekick = document.getElementById('goToSidekick');
+
+        sidekickCard.addEventListener('click', () => {
+            sidekickOverlay.classList.add('active');
+        });
+
+        closeSidekick.addEventListener('click', () => {
+            sidekickOverlay.classList.remove('active');
+        });
+
+        sidekickOverlay.addEventListener('click', (e) => {
+            if (e.target === sidekickOverlay) {
+                sidekickOverlay.classList.remove('active');
+            }
+        });
+
+        whatIsSidekick.addEventListener('click', () => {
+            alert('SideKick is a free companion app that helps you manage scores, rules, and campaigns for all your favorite board games.');
+        });
+
+        howToGet.addEventListener('click', () => {
+            alert('SideKick is available for free on iOS and Android. Download it from the App Store or Google Play Store.');
+        });
+
+        goToSidekick.addEventListener('click', () => {
+            alert('Redirecting to SideKick website...');
+        });
+    </script>
+</body>
+</html>

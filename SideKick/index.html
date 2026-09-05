@@ -6541,6 +6541,25 @@
     <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.35rem;">Preset Name</div>
     <input type="text" id="voice-preset-name" placeholder="Type Preset Name" maxlength="40" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:0.625rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.6rem;">
     <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;padding:0.6rem;margin-bottom:0.6rem;">
+      <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.4rem;">Step 1: Player Identity</div>
+      <div style="display:flex;gap:0.6rem;align-items:flex-start;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;">
+          <button class="color-picker-btn" onclick="openColorPicker('preset')" id="preset-color-btn" style="width:4rem;height:4rem;flex:0 0 4rem;">
+            <span id="preset-color-label" style="font-size:0.7rem;line-height:1.2;">Choose<br>Color</span>
+          </button>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;">
+          <button class="color-picker-btn" onclick="openRoomAvatarOverlay('preset')" id="preset-avatar-btn" style="width:4rem;height:4rem;flex:0 0 4rem;">
+            <span id="preset-avatar-label" style="font-size:0.7rem;line-height:1.2;">Choose<br>Avatar</span>
+          </button>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+          <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.35rem;">Player Name</div>
+          <input type="text" id="voice-preset-player-name" placeholder="Player Name" maxlength="20" style="width:100%;padding:0.5rem 0.6rem;font-size:0.88rem;border-radius:0.5rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;">
+        </div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;padding:0.6rem;margin-bottom:0.6rem;">
       <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.4rem;">Step 2: Turn Direction</div>
       <div style="display:flex;gap:0.4rem;">
         <button class="dir-option" data-preset-dir="cw" onclick="selectPresetDir('cw')" id="preset-dir-cw" style="flex:1;padding:0.6rem 0.4rem;flex-direction:column;gap:0.15rem;"><span class="dir-name" style="font-size:0.82rem;">Left</span><span class="dir-desc" style="font-size:0.65rem;">Clockwise</span></button>
@@ -6803,7 +6822,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="friends-overlay">
   <div class="tools-modal" style="overflow:visible;">
-    <div class="tools-modal-title"><span data-i18n="friends">Friends</span></div>
+    <div class="tools-modal-title"><span data-i18n="Friends List">Friends</span></div>
     <div style="text-align:center; margin-bottom:0.8rem;">
       <div style="font-size:0.8rem; color:var(--muted);" data-i18n="yourFriendCode">Your Friend Code</div>
       <div id="friends-my-code" style="font-size:1.5rem; font-weight:800; letter-spacing:0.15em; color:var(--accent); margin:0.3rem 0;">------</div>
@@ -8985,6 +9004,9 @@ async function deleteVoicePreset(id) {
 let _editingVoicePresetId = null;
 let _editingPresetDir = '';
 let _editingPresetFeatures = {};
+let _editingPresetColor = '';
+let _editingPresetAvatar = '';
+let _avatarPickerContext = '';
 window.selectPresetDir = function(dir) {
   _editingPresetDir = dir;
   document.querySelectorAll('#preset-dir-cw, #preset-dir-ccw, #preset-dir-both').forEach(el => el.classList.remove('selected'));
@@ -9060,6 +9082,18 @@ window.openVoicePresetEdit = function(id) {
   const preset = id ? getVoicePresets().find(p=>p.id===id) : null;
   document.getElementById('voice-preset-edit-title').textContent = preset ? 'Edit Preset' : 'New Preset';
   document.getElementById('voice-preset-name').value = preset ? preset.name : '';
+  // Step 1: Player Identity
+  if (preset && preset.profile) {
+    _editingPresetColor = preset.profile.color || '';
+    _editingPresetAvatar = preset.profile.avatar || '';
+    document.getElementById('voice-preset-player-name').value = preset.profile.name || '';
+  } else {
+    _editingPresetColor = '';
+    _editingPresetAvatar = '';
+    document.getElementById('voice-preset-player-name').value = '';
+  }
+  updatePresetEditColorBtn();
+  updatePresetEditAvatarBtn();
   // Init Step 2/3 from preset or reset for new preset (clean slate)
   if (preset && preset.turn) {
     _editingPresetDir = preset.turn.passDirection || (preset.turn.turnMode === 'classic' ? 'cw' : '');
@@ -9086,19 +9120,63 @@ window.closeVoicePresetEdit = function() {
   _editingVoicePresetId = null;
   _editingPresetDir = '';
   _editingPresetFeatures = {};
+  _editingPresetColor = '';
+  _editingPresetAvatar = '';
 };
+function updatePresetEditColorBtn() {
+  const btn = document.getElementById('preset-color-btn');
+  const label = document.getElementById('preset-color-label');
+  if (!btn || !label) return;
+  if (_editingPresetColor) {
+    const colorName = PLAYER_COLORS.find(c => c.hex === _editingPresetColor)?.name || 'Custom';
+    btn.style.background = _editingPresetColor;
+    btn.style.borderColor = _editingPresetColor;
+    btn.classList.toggle('light-fill', isLightColor(_editingPresetColor));
+    label.textContent = colorName;
+    label.style.color = isLightColor(_editingPresetColor) ? '#000' : '#fff';
+  } else {
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.classList.remove('light-fill');
+    label.textContent = 'Choose\nColor';
+    label.style.color = '';
+  }
+}
+function updatePresetEditAvatarBtn() {
+  const btn = document.getElementById('preset-avatar-btn');
+  const label = document.getElementById('preset-avatar-label');
+  if (!btn || !label) return;
+  const avatar = _editingPresetAvatar;
+  if (avatar) {
+    btn.classList.add('avatar-filled');
+    if (isImageAvatar(avatar)) {
+      label.textContent = '';
+      const img = document.createElement('img');
+      img.src = avatar; img.alt = 'avatar';
+      img.className = 'avatar-btn-preview';
+      label.appendChild(img);
+    } else {
+      label.textContent = avatar;
+      label.style.color = '';
+    }
+  } else {
+    btn.classList.remove('avatar-filled');
+    label.textContent = 'Choose\nAvatar';
+    label.style.color = '';
+  }
+}
 window.saveCurrentVoicePreset = async function() {
   const name = document.getElementById('voice-preset-name').value.trim();
   if (!name) { showToast('Enter a preset name'); return; }
   if (!_editingPresetDir) { showToast('Choose a turn direction (Step 2)'); return; }
-  // Step 1 is always profile — pulled at save time is fine, but preset's Step 2/3 are explicitly chosen here
+  const playerName = document.getElementById('voice-preset-player-name').value.trim() || '';
   const preset = {
     id: _editingVoicePresetId || ('vp_' + Date.now().toString(36) + Math.random().toString(36).slice(2,5)),
     name: name,
     phrase: normalizePhrase(name),
     gameName: name,
     voiceEnabled: false,
-    profile: { name: getSavedName()||'', color: getSavedColor()||'', avatar: getSavedAvatar()||'👤' },
+    profile: { name: playerName || getSavedName()||'', color: _editingPresetColor || getSavedColor()||'', avatar: _editingPresetAvatar || getSavedAvatar()||'👤' },
     turn: { turnMode: _editingPresetDir === 'both' ? 'classic' : 'classic', passDirection: _editingPresetDir, speedMode: '' },
     features: {
       nudge: !!_editingPresetFeatures.nudge,
@@ -9143,17 +9221,17 @@ async function createRoomFromPreset(preset) {
     if (preset.turn.passDirection) passDirection = preset.turn.passDirection;
     if (preset.turn.speedMode) speedMode = preset.turn.speedMode;
   }
-  // Apply features
+  // Apply features via setFeatureEnabled to sync window mirrors (isFeatureEnabled reads from window)
   if (preset.features) {
-    if (typeof featureNudgeEnabled !== 'undefined') featureNudgeEnabled = !!preset.features.nudge;
-    if (typeof featureTimersEnabled !== 'undefined') featureTimersEnabled = !!preset.features.timers;
-    if (typeof featureAwardsEnabled !== 'undefined') featureAwardsEnabled = !!preset.features.awards;
-    if (typeof featureVPEnabled !== 'undefined') featureVPEnabled = !!preset.features.vp;
-    if (typeof featureStatusEffectsEnabled !== 'undefined') featureStatusEffectsEnabled = !!preset.features.statusEffects;
-    if (typeof featureDndEnabled !== 'undefined') featureDndEnabled = !!preset.features.dnd;
-    if (typeof featureRoundsEnabled !== 'undefined') featureRoundsEnabled = !!preset.features.rounds;
-    if (typeof featureUndoEnabled !== 'undefined') featureUndoEnabled = !!preset.features.undo;
-    if (typeof featurePlayerSkipEnabled !== 'undefined') featurePlayerSkipEnabled = !!preset.features.playerSkip;
+    setFeatureEnabled('nudge', !!preset.features.nudge);
+    setFeatureEnabled('timers', !!preset.features.timers);
+    setFeatureEnabled('awards', !!preset.features.awards);
+    setFeatureEnabled('vp', !!preset.features.vp);
+    setFeatureEnabled('status', !!preset.features.statusEffects);
+    setFeatureEnabled('dnd', !!preset.features.dnd);
+    setFeatureEnabled('rounds', !!preset.features.rounds);
+    setFeatureEnabled('undo', !!preset.features.undo);
+    setFeatureEnabled('playerSkip', !!preset.features.playerSkip);
   }
   // Use existing create-room flow but skip wizard — directly create lobby
   // Reuse the same logic as showCreateRoom's final step: generate code and set room
@@ -9690,10 +9768,15 @@ let editProfileColorSelection = '';
 let editProfileAvatarSelection = '';
 let pendingEditAvatar = null;
 
-window.openRoomAvatarOverlay = function() {
-  const current = roomAvatarSelection || getSavedAvatar();
+window.openRoomAvatarOverlay = function(context) {
+  _avatarPickerContext = context || '';
+  const current = context === 'preset' ? (_editingPresetAvatar || '') : (roomAvatarSelection || getSavedAvatar());
   renderAvatarPicker('room-avatar', current, avatar => {
-    roomAvatarSelection = avatar;
+    if (_avatarPickerContext === 'preset') {
+      _editingPresetAvatar = avatar;
+    } else {
+      roomAvatarSelection = avatar;
+    }
     document.querySelectorAll('#room-avatar-grid .avatar-option').forEach(s => s.classList.remove('selected'));
     const active = document.querySelector(`#room-avatar-grid .avatar-option[data-avatar="${CSS.escape(avatar)}"]`);
     if (active) active.classList.add('selected');
@@ -9703,6 +9786,13 @@ window.openRoomAvatarOverlay = function() {
 };
 
 window.confirmRoomAvatar = function() {
+  if (_avatarPickerContext === 'preset') {
+    updatePresetEditAvatarBtn();
+    closeRoomAvatarOverlay();
+    _avatarPickerContext = '';
+    haptic(5);
+    return;
+  }
   if (!roomAvatarSelection) {
     const saved = getSavedAvatar();
     if (saved) roomAvatarSelection = saved;
@@ -11906,9 +11996,9 @@ window.goHome = function() {
   joinStep = 1;
   // Reset color picker button
   const colorLabel = document.getElementById('host-color-label');
-  if (colorLabel) colorLabel.textContent = 'Choose\nColor';
+  if (colorLabel) { colorLabel.textContent = 'Choose\nColor'; colorLabel.style.color = ''; }
   const joinColorLabel = document.getElementById('join-color-label');
-  if (joinColorLabel) joinColorLabel.textContent = 'Choose\nColor';
+  if (joinColorLabel) { joinColorLabel.textContent = 'Choose\nColor'; joinColorLabel.style.color = ''; }
   const colorBtn = document.getElementById('host-color-btn');
   if (colorBtn) { colorBtn.style.background = ''; colorBtn.style.borderColor = ''; colorBtn.classList.remove('light-fill'); }
   const joinColorBtn = document.getElementById('join-color-btn');
@@ -13826,7 +13916,7 @@ let tempSelectedColor = '#cc0000';
 
 window.openColorPicker = function(context) {
   colorPickerContext = context;
-  tempSelectedColor = myColor;
+  tempSelectedColor = context === 'preset' ? _editingPresetColor : myColor;
   const grid = document.getElementById('color-grid');
   grid.innerHTML = '';
   PLAYER_COLORS.forEach(c => {
@@ -13847,20 +13937,25 @@ window.openColorPicker = function(context) {
 };
 
 window.confirmColor = function() {
-  myColor = tempSelectedColor;
-  const colorName = PLAYER_COLORS.find(c => c.hex === myColor)?.name || 'Custom';
-  const isLight = ['#FFFFFF','#ffffff','#F5F5F5','#f5f5f5','#fffb05','#6effac'].includes(myColor);
-  ['host','join'].forEach(ctx => {
-    const btn = document.getElementById(ctx + '-color-btn');
-    const label  = document.getElementById(ctx + '-color-label');
-    if (btn) {
-      btn.style.background = myColor; btn.style.borderColor = myColor;
-      btn.classList.toggle('light-fill', isLightColor(myColor));
-    }
-    if (label)  { label.textContent = colorName; label.style.color = isLight ? '#000' : '#fff'; }
-  });
-  const colorNote = document.getElementById('color-required-note');
-  if (colorNote) colorNote.style.display = 'none';
+  const colorName = PLAYER_COLORS.find(c => c.hex === tempSelectedColor)?.name || 'Custom';
+  const isLight = ['#FFFFFF','#ffffff','#F5F5F5','#f5f5f5','#fffb05','#6effac'].includes(tempSelectedColor);
+  if (colorPickerContext === 'preset') {
+    _editingPresetColor = tempSelectedColor;
+    updatePresetEditColorBtn();
+  } else {
+    myColor = tempSelectedColor;
+    ['host','join'].forEach(ctx => {
+      const btn = document.getElementById(ctx + '-color-btn');
+      const label  = document.getElementById(ctx + '-color-label');
+      if (btn) {
+        btn.style.background = myColor; btn.style.borderColor = myColor;
+        btn.classList.toggle('light-fill', isLightColor(myColor));
+      }
+      if (label)  { label.textContent = colorName; label.style.color = isLight ? '#000' : '#fff'; }
+    });
+    const colorNote = document.getElementById('color-required-note');
+    if (colorNote) colorNote.style.display = 'none';
+  }
   document.getElementById('color-picker-overlay').classList.remove('show');
   updateJoinCollapseSummary();
 };
