@@ -6578,6 +6578,7 @@
         <div class="feature-card" data-feature="rounds" onclick="togglePresetFeature('rounds')"><span class="fc-name">Rounds</span></div>
         <div class="feature-card" data-feature="dnd" onclick="togglePresetFeature('dnd')"><span class="fc-name">D&D</span></div>
         <div class="feature-card" data-feature="undo" onclick="togglePresetFeature('undo')"><span class="fc-name">Undo Pass</span></div>
+        <div class="feature-card" data-feature="playerSkip" onclick="togglePresetFeature('playerSkip')"><span class="fc-name">Player Skip</span></div>
       </div>
     </div>
     <div style="display:flex;gap:0.5rem;">
@@ -9007,6 +9008,7 @@ let _editingPresetFeatures = {};
 let _editingPresetColor = '';
 let _editingPresetAvatar = '';
 let _avatarPickerContext = '';
+let _editProfileDirectEntry = false;
 window.selectPresetDir = function(dir) {
   _editingPresetDir = dir;
   document.querySelectorAll('#preset-dir-cw, #preset-dir-ccw, #preset-dir-both').forEach(el => el.classList.remove('selected'));
@@ -9105,12 +9107,12 @@ window.openVoicePresetEdit = function(id) {
     _editingPresetDir = '';
   }
   if (preset && preset.features) {
-    _editingPresetFeatures = { nudge: !!preset.features.nudge, awards: !!preset.features.awards, timers: !!preset.features.timers, vp: !!preset.features.vp, status: !!preset.features.statusEffects, rounds: !!preset.features.rounds, dnd: !!preset.features.dnd, undo: !!preset.features.undo };
+    _editingPresetFeatures = { nudge: !!preset.features.nudge, awards: !!preset.features.awards, timers: !!preset.features.timers, vp: !!preset.features.vp, status: !!preset.features.statusEffects, rounds: !!preset.features.rounds, dnd: !!preset.features.dnd, undo: !!preset.features.undo, playerSkip: !!preset.features.playerSkip };
   } else if (preset) {
-    _editingPresetFeatures = { nudge: false, awards: false, timers: false, vp: false, status: false, rounds: false, dnd: false, undo: false };
+    _editingPresetFeatures = { nudge: false, awards: false, timers: false, vp: false, status: false, rounds: false, dnd: false, undo: false, playerSkip: false };
   } else {
     // New preset — start with no features selected
-    _editingPresetFeatures = { nudge: false, awards: false, timers: false, vp: false, status: false, rounds: false, dnd: false, undo: false };
+    _editingPresetFeatures = { nudge: false, awards: false, timers: false, vp: false, status: false, rounds: false, dnd: false, undo: false, playerSkip: false };
   }
   document.getElementById('voice-preset-edit-overlay').classList.add('show');
   setTimeout(updatePresetEditUI, 50);
@@ -9221,17 +9223,18 @@ async function createRoomFromPreset(preset) {
     if (preset.turn.passDirection) passDirection = preset.turn.passDirection;
     if (preset.turn.speedMode) speedMode = preset.turn.speedMode;
   }
-  // Apply features via setFeatureEnabled to sync window mirrors (isFeatureEnabled reads from window)
+  // Apply features — set window mirrors directly (isFeatureEnabled reads from window)
+  // Do NOT use setFeatureEnabled() here — it triggers onNudgeToggle/onRoundsToggle which open overlays
   if (preset.features) {
-    setFeatureEnabled('nudge', !!preset.features.nudge);
-    setFeatureEnabled('timers', !!preset.features.timers);
-    setFeatureEnabled('awards', !!preset.features.awards);
-    setFeatureEnabled('vp', !!preset.features.vp);
-    setFeatureEnabled('status', !!preset.features.statusEffects);
-    setFeatureEnabled('dnd', !!preset.features.dnd);
-    setFeatureEnabled('rounds', !!preset.features.rounds);
-    setFeatureEnabled('undo', !!preset.features.undo);
-    setFeatureEnabled('playerSkip', !!preset.features.playerSkip);
+    window.featureNudgeEnabled = !!preset.features.nudge;
+    window.featureTimersEnabled = !!preset.features.timers;
+    window.featureAwardsEnabled = !!preset.features.awards;
+    window.featureVPEnabled = !!preset.features.vp;
+    window.featureStatusEffectsEnabled = !!preset.features.statusEffects;
+    window.featureDndEnabled = !!preset.features.dnd;
+    window.featureRoundsEnabled = !!preset.features.rounds;
+    window.featureUndoEnabled = !!preset.features.undo;
+    window.featurePlayerSkipEnabled = !!preset.features.playerSkip;
   }
   // Use existing create-room flow but skip wizard — directly create lobby
   // Reuse the same logic as showCreateRoom's final step: generate code and set room
@@ -9645,6 +9648,7 @@ window.confirmEditProfileAvatar = function() {
   closeEditProfileAvatarOverlay();
 };
 window.openEditProfileOverlay = function() {
+  _editProfileDirectEntry = true;
   const current = getSavedAvatar();
   editProfileAvatarSelection = current || '';
   editProfileColorSelection = getSavedColor() || '';
@@ -9719,6 +9723,7 @@ window.closeEditProfileMenuOverlay = function() {
 };
 window.openEditProfilePrefs = function() {
   window.openEditProfileOverlay();
+  _editProfileDirectEntry = false;
 };
 
 window.saveEditProfile = function() {
@@ -9739,9 +9744,14 @@ window.saveEditProfile = function() {
   const profileNameEl = document.getElementById('profile-name');
   if (profileNameEl) profileNameEl.textContent = name || 'User';
   document.getElementById('edit-profile-overlay').classList.remove('show');
-  // Go back to the Edit Profile menu
-  const menu = document.getElementById('edit-profile-menu-overlay');
-  if (menu) menu.classList.add('show');
+  if (_editProfileDirectEntry) {
+    // Came from tapping avatar/name on profile page — go back to profile
+    _editProfileDirectEntry = false;
+  } else {
+    // Came from Edit Profile menu — go back to the menu
+    const menu = document.getElementById('edit-profile-menu-overlay');
+    if (menu) menu.classList.add('show');
+  }
 };
 
 window.openAccountSettingsOverlay = function() {
