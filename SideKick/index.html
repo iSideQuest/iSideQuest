@@ -825,7 +825,7 @@
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.75);
-    z-index: 9000;
+    z-index: 9800;
     align-items: center;
     justify-content: center;
    
@@ -1621,7 +1621,7 @@
   /* ── FEATURE SETTINGS OVERLAY (modal style) ── */
   .feature-settings-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.82); z-index: 9600;
+    background: rgba(0,0,0,0.82); z-index: 9800;
     align-items: center; justify-content: center;
     padding: 1rem;
   }
@@ -5201,7 +5201,7 @@
         <button class="btn-primary" id="create-next-btn" onclick="createNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm <span class="play-tri">▶</span></button>
       </div>
       <button class="step-collapse-btn" onclick="expandCreateStep(1)">
-        <span class="step-collapse-label"><span data-i18n="step">Step</span> 1:</span>
+        <span class="step-collapse-label"><span data-i18n="step">Step</span>&nbsp;1:</span>
         <div class="step-collapse-main">
           <span class="step-collapse-detail step-collapse-name" id="create-collapse-name" data-i18n="player">Player</span>
           <div class="step-collapse-row">
@@ -5333,7 +5333,7 @@
         <button class="btn-primary" id="join-next-btn" onclick="joinNextStep()" style="width:100%;margin-top:0.75rem;" data-i18n="confirm">Confirm <span class="play-tri">▶</span></button>
       </div>
       <button class="step-collapse-btn" onclick="expandJoinStep(1)">
-        <span class="step-collapse-label"><span data-i18n="step">Step</span> 1:</span>
+        <span class="step-collapse-label"><span data-i18n="step">Step</span>&nbsp;1:</span>
         <div class="step-collapse-main">
           <span class="step-collapse-detail step-collapse-name" id="join-collapse-name">Player</span>
           <div class="step-collapse-row">
@@ -9082,7 +9082,7 @@ window.openVoicePresetEdit = function(id) {
   const preset = id ? getVoicePresets().find(p=>p.id===id) : null;
   document.getElementById('voice-preset-edit-title').textContent = preset ? 'Edit Preset' : 'New Preset';
   document.getElementById('voice-preset-name').value = preset ? preset.name : '';
-  // Step 1: Player Identity
+  // Step 1: Player Settings
   if (preset && preset.profile) {
     _editingPresetColor = preset.profile.color || '';
     _editingPresetAvatar = preset.profile.avatar || '';
