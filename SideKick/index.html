@@ -9021,9 +9021,9 @@ window.togglePresetFeature = function(key) {
   haptic(5);
   // Open settings for features that have them, mirroring the main Create Room flow
   if (_editingPresetFeatures[key]) {
-    if (key === 'nudge') { try { openNudgeSettingsOverlay(); } catch {} }
-    else if (key === 'timers') { try { openTimersSettingsOverlay(); } catch {} }
-    else if (key === 'rounds') { try { openRoundsSettingsOverlay(); } catch {} }
+    if (key === 'nudge') { try { openFeatureSettings('nudge'); } catch {} }
+    else if (key === 'timers') { try { openFeatureSettings('timers'); } catch {} }
+    else if (key === 'rounds') { try { openFeatureSettings('rounds'); } catch {} }
   }
 };
 function updatePresetEditUI() {
@@ -9209,11 +9209,11 @@ window.createRoomFromPresetId = async function(id) {
 
 async function createRoomFromPreset(preset) {
   if (!requireHostAccount()) return;
-  // Apply preset profile to current session
+  // Apply preset profile to current session (do NOT persist to user profile)
   if (preset.profile) {
-    if (preset.profile.name) saveName(preset.profile.name);
-    if (preset.profile.color) { myColor = preset.profile.color; saveColor(preset.profile.color); }
-    if (preset.profile.avatar) { roomAvatarSelection = preset.profile.avatar; saveAvatar(preset.profile.avatar); }
+    if (preset.profile.name) myName = preset.profile.name;
+    if (preset.profile.color) myColor = preset.profile.color;
+    if (preset.profile.avatar) roomAvatarSelection = preset.profile.avatar;
   }
   // Apply turn mode if preset has it
   if (preset.turn && preset.turn.turnMode) {
