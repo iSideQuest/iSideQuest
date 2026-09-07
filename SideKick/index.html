@@ -4041,6 +4041,9 @@
   .avatar-option { display:flex; align-items:center; justify-content:center; width:100%; aspect-ratio:1/1; border-radius:0.75rem; border:0.1875rem solid transparent; font-size:1.6rem; cursor:pointer; transition:transform 0.15s,border-color 0.15s,background 0.15s; background:#1e1e2e; overflow:hidden; contain:paint; position:relative; }
   .avatar-option:hover { transform:scale(1.1); }
   .avatar-option.selected { border-color:var(--accent-light); background:rgba(124,92,191,0.2); transform:scale(1.1); box-shadow:0 0 0 0.125rem rgba(124,92,191,0.3); }
+  .avatar-option.locked { opacity:0.55; }
+  .avatar-option.locked:hover { transform:none; }
+  .avatar-option.locked::after { content:'🔒'; position:absolute; bottom:0.05rem; right:0.2rem; font-size:0.85rem; }
   .avatar-option img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:0.5625rem; }
   body.light-mode:not(.in-game) .avatar-option { background:#f0f0fb; }
   body.light-mode:not(.in-game) .avatar-option.selected { background:rgba(124,92,191,0.15); border-color:var(--accent); }
@@ -4204,6 +4207,7 @@
     color: var(--accent-light);
   }
   .feature-card .fc-settings { font-size: 0.6rem; color: var(--muted); line-height: 1.1; }
+  .feature-card.locked { opacity: 0.55; }
 
   .features-help-btn {
     position: absolute;
@@ -6342,7 +6346,7 @@
       <label class="theme-option selected" id="theme-opt-default" onclick="selectTheme('default')">
         <input type="radio" name="sk-theme-choice" value="default" checked style="display:none;">
         <div class="theme-preview preview-default"></div>
-        <div class="theme-option-name">Default</div>
+        <div class="theme-option-name">Original</div>
       </label>
       <label class="theme-option" id="theme-opt-8bit" onclick="selectTheme('8bit')">
         <input type="radio" name="sk-theme-choice" value="8bit" style="display:none;">
@@ -8526,6 +8530,16 @@ const CREATOR_UIDS = [
   'VD8hwPkOLTUN2Dsn1KsIBvUD65p1',
 ];
 let isCreator = false;
+// ── ACCOUNT TIERS ──────────────────────────────
+// guest   = not signed in ("SideKick") — limited features, no account needed
+// pro     = signed-in non-creator ("SideKick Pro") — full features minus Creator stuff
+// creator = signed-in creator UID ("SideKick Creator") — everything
+function accountTier() {
+  if (isCreator) return 'creator';
+  if (currentUser) return 'pro';
+  return 'guest';
+}
+function isGuestUser() { return !currentUser; }
 
 // ── SESSION PERSISTENCE (silent auto-resume) ────
 // Remembers which room/player this device was last part of, so closing
@@ -8546,9 +8560,9 @@ function clearSession() {
 }
 
 // ── HOST IDENTITY ──────────────────────────────
-// Hosting requires a signed-in account. Saved games are filed under the
-// real Firebase Auth UID. Call requireHostAccount() before any host-only
-// action to make sure someone's actually logged in first.
+// Guests (SideKick tier) can host rooms without an account. Presets and
+// saved games still require a signed-in account (filed under the real
+// Firebase Auth UID). Call requireHostAccount() before those actions.
 function getHostId() {
   return currentUser ? currentUser.uid : null;
 }
@@ -9412,9 +9426,9 @@ function getCategoryAvatars(key) {
 }
 
 // Render a single avatar option button
-function makeAvatarOption(avatar, isSelected, onClick) {
+function makeAvatarOption(avatar, isSelected, onClick, locked) {
   const btn = document.createElement('button');
-  btn.className = 'avatar-option' + (isSelected ? ' selected' : '');
+  btn.className = 'avatar-option' + (isSelected ? ' selected' : '') + (locked ? ' locked' : '');
   if (isImageAvatar(avatar)) {
     var img = document.createElement('img');
     img.src = avatar; img.alt = 'avatar';
@@ -9450,10 +9464,20 @@ function renderAvatarPicker(pickerId, current, onPick) {
     tabsEl.appendChild(tab);
   });
 
-  // Grid
+  // Grid — guests (SideKick tier) can view all avatars but only pick from Free
   gridEl.innerHTML = '';
+  const guestLock = !currentUser;
+  const freeSet = guestLock ? new Set(getCategoryAvatars('free')) : null;
   getCategoryAvatars(activeKey).forEach(avatar => {
-    gridEl.appendChild(makeAvatarOption(avatar, avatar === current, () => onPick(avatar)));
+    const locked = guestLock && !freeSet.has(avatar);
+    if (locked) {
+      gridEl.appendChild(makeAvatarOption(avatar, false, () => {
+        showToast('🔒 Sign up to unlock all avatars');
+        haptic(3);
+      }, true));
+    } else {
+      gridEl.appendChild(makeAvatarOption(avatar, avatar === current, () => onPick(avatar), false));
+    }
   });
 }
 
@@ -9864,8 +9888,8 @@ window.openProfileScreen = function() {
   const badge = document.getElementById('profile-role-badge');
   const roleText = document.getElementById('profile-role-text');
   if (badge && roleText) {
-    badge.style.display = isHost ? 'inline-flex' : 'none';
-    roleText.textContent = isHost ? 'Creator' : 'Player Account';
+    badge.style.display = 'inline-flex';
+    roleText.textContent = isHost ? 'SideKick Creator' : 'SideKick Pro';
   }
 
   updateProfileTrophy();
@@ -11036,12 +11060,13 @@ function resetCreateWizardState() {
 }
 
 window.showCreateRoom = function() {
-  if (!requireHostAccount()) return;
+  // Guests (SideKick tier) can host — no login required. Limits apply to
+  // avatars (Free tab only) and Step 3 features (Nudge only).
   editingRoom = false;
   startingNewGame = false;
-  // Auto-fill color from profile (host is always logged in)
+  // Auto-fill color from profile (blank for guests)
   myColor = getSavedColor() || '';
-  // Auto-fill avatar from profile (host is always logged in)
+  // Auto-fill avatar from profile (blank for guests)
   const profileAv = getSavedAvatar();
   roomAvatarSelection = profileAv || '';
   const colorLabel = document.getElementById('host-color-label');
@@ -12779,6 +12804,7 @@ function setFeatureEnabled(key, enabled) {
 window.toggleFeature = function(key) {
   const def = FEATURE_DEFS_GRID.find(f => f.key === key);
   if (!def) return;
+  if (!currentUser && key !== 'nudge') { showToast('🔒 Sign up to unlock this feature'); haptic(3); return; }
   const wasEnabled = isFeatureEnabled(key);
   if (!wasEnabled) {
     // Enable and move to added
@@ -12804,11 +12830,20 @@ function renderFeatureGrid() {
   if (!avail) return;
   avail.innerHTML = '';
   const visibleDefs = FEATURE_DEFS_GRID.filter(f => !f.creatorOnly || isCreator);
+  const guestLockAll = !currentUser;
   visibleDefs.forEach(def => {
-    const enabled = isFeatureEnabled(def.key);
+    // Guests (SideKick tier) can see all features but only use Nudge
+    const locked = guestLockAll && def.key !== 'nudge';
+    const enabled = locked ? false : isFeatureEnabled(def.key);
     const card = document.createElement('div');
-    card.className = 'feature-card' + (enabled ? ' added' : '');
+    card.className = 'feature-card' + (enabled ? ' added' : '') + (locked ? ' locked' : '');
     card.setAttribute('data-feature', def.key);
+    if (locked) {
+      card.onclick = () => { showToast('🔒 Sign up to unlock this feature'); haptic(3); };
+      card.innerHTML = '<span class="fc-name">🔒 ' + t(featT(def.key)) + '</span>';
+      avail.appendChild(card);
+      return;
+    }
     card.onclick = () => toggleFeature(def.key);
     if (enabled && def.hasSettings) {
       let detail = '⚙ Settings';
