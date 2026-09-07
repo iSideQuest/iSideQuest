@@ -5139,9 +5139,10 @@
   <div class="tagline" data-i18n="tagline">Pass the turn. Keep the vibe.</div>
   <div class="card">
     <div class="btn-group">
-      <button class="btn-primary" onclick="showCreateRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999rem;" data-i18n="hostRoom">Host Room</button>
+      <button class="btn-primary" onclick="showCreateRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999rem;" data-i18n="hostNewRoom">Host New Room</button>
       <button class="btn-secondary" onclick="showJoinRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999rem;" data-i18n="joinRoom">Join Room</button>
     </div>
+    <button class="btn-secondary" onclick="openHostPresetGame()" style="width:66%;margin:0.6rem auto 0;display:block;font-size:1.05rem;padding:0.85rem 1.2rem;border-radius:999rem;" data-i18n="hostPresetGame">Host Preset Game</button>
   </div>
   <p id="home-status" class="status"></p>
 
@@ -6497,7 +6498,6 @@
   <div class="tools-modal" style="max-width:21.25rem;">
     <div class="tools-modal-title" data-i18n="editProfile">Edit Profile</div>
     <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openEditProfilePrefs()"><span data-i18n="editProfile">Edit Profile</span></button>
-    <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openVoicePresetsOverlay()">Host Room Presets</button>
     <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openThemesOverlay()"><span data-i18n="themes">Themes</span></button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeEditProfileMenuOverlay()" data-i18n="close">Close</button>
   </div>
@@ -6525,6 +6525,17 @@
     </div>
     <button class="btn-primary btn-sm" style="width:100%;" onclick="confirmChangePassword()" data-i18n="changePassword">Change Password</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="document.getElementById('account-settings-overlay').classList.remove('show')" data-i18n="close">Close</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  UPGRADE TO PRO OVERLAY (guests)             -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tools-overlay" id="upgrade-pro-overlay">
+  <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
+    <div class="tools-modal-title">SideKick Pro</div>
+    <div style="font-size:0.95rem;color:var(--text);margin:0.5rem 0;" data-i18n="upgradeToProMsg">Go here to upgrade to SideKick Pro</div>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeUpgradeProOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
 
@@ -7383,6 +7394,9 @@ const I18N_STRINGS = {
     tagline: 'Pass the turn. Keep the vibe.',
     hey: 'Hey',
     hostRoom: 'Host Room',
+    hostNewRoom: 'Host New Room',
+    hostPresetGame: 'Host Preset Game',
+    upgradeToProMsg: 'Go here to upgrade to SideKick Pro',
     joinRoom: 'Join Room',
     tools: 'Tools',
     rng: 'RNG',
@@ -7518,6 +7532,9 @@ const I18N_STRINGS = {
     tagline: 'Pasa el turno. Mantén la energía.',
     hey: 'Hola',
     hostRoom: 'Crear Sala',
+    hostNewRoom: 'Crear Nueva Sala',
+    hostPresetGame: 'Juego Preestablecido',
+    upgradeToProMsg: 'Ve aquí para mejorar a SideKick Pro',
     joinRoom: 'Unirse a Sala',
     tools: 'Herramientas',
     rng: 'RNG',
@@ -7654,6 +7671,9 @@ const I18N_STRINGS = {
     tagline: '传递回合。保持气氛。',
     hey: '嗨',
     hostRoom: '创建房间',
+    hostNewRoom: '创建新房间',
+    hostPresetGame: '预设游戏',
+    upgradeToProMsg: '前往此处升级到 SideKick Pro',
     joinRoom: '加入房间',
     tools: '工具',
     rng: 'RNG',
@@ -7790,6 +7810,9 @@ const I18N_STRINGS = {
     tagline: 'Gib den Zug weiter. Bleib in der Stimmung.',
     hey: 'Hallo',
     hostRoom: 'Raum erstellen',
+    hostNewRoom: 'Neuen Raum erstellen',
+    hostPresetGame: 'Preset-Spiel',
+    upgradeToProMsg: 'Gehe hier, um auf SideKick Pro zu upgraden',
     joinRoom: 'Raum beitreten',
     tools: 'Werkzeuge',
     rng: 'RNG',
@@ -7926,6 +7949,9 @@ const I18N_STRINGS = {
     tagline: 'Passez le tour. Gardez le rythme.',
     hey: 'Salut',
     hostRoom: 'Créer une salle',
+    hostNewRoom: 'Créer une nouvelle salle',
+    hostPresetGame: 'Partie Prédéfinie',
+    upgradeToProMsg: 'Allez ici pour passer à SideKick Pro',
     joinRoom: 'Rejoindre une salle',
     tools: 'Outils',
     rng: 'RNG',
@@ -8062,6 +8088,9 @@ const I18N_STRINGS = {
     tagline: 'ターンを回そう。雰囲気を保とう。',
     hey: 'こんにちは',
     hostRoom: 'ルームを作成',
+    hostNewRoom: '新しいルームを作成',
+    hostPresetGame: 'プリセットゲーム',
+    upgradeToProMsg: 'こちらからSideKick Proにアップグレード',
     joinRoom: 'ルームに参加',
     tools: 'ツール',
     rng: 'RNG',
@@ -8198,6 +8227,9 @@ const I18N_STRINGS = {
     tagline: 'Passa il turno. Mantieni l\'atmosfera.',
     hey: 'Ciao',
     hostRoom: 'Crea Sala',
+    hostNewRoom: 'Crea Nuova Sala',
+    hostPresetGame: 'Gioco Preimpostato',
+    upgradeToProMsg: 'Vai qui per passare a SideKick Pro',
     joinRoom: 'Entra in Sala',
     tools: 'Strumenti',
     rng: 'RNG',
@@ -8334,6 +8366,9 @@ const I18N_STRINGS = {
     tagline: 'Passe o turno. Mantenha a energia.',
     hey: 'Olá',
     hostRoom: 'Criar Sala',
+    hostNewRoom: 'Criar Nova Sala',
+    hostPresetGame: 'Jogo Predefinido',
+    upgradeToProMsg: 'Vá aqui para atualizar para o SideKick Pro',
     joinRoom: 'Entrar na Sala',
     tools: 'Ferramentas',
     rng: 'RNG',
@@ -9062,6 +9097,19 @@ function updatePresetEditUI() {
     el.classList.toggle('added', !!_editingPresetFeatures[k]);
   });
 }
+window.openHostPresetGame = function() {
+  // SideKick Pro (and Creator) accounts get the presets overlay;
+  // guests (SideKick tier) get the upgrade prompt instead.
+  if (!currentUser) {
+    document.getElementById('upgrade-pro-overlay').classList.add('show');
+    haptic(5);
+    return;
+  }
+  openVoicePresetsOverlay();
+};
+window.closeUpgradeProOverlay = function() {
+  document.getElementById('upgrade-pro-overlay').classList.remove('show');
+};
 window.openVoicePresetsOverlay = function() {
   renderVoicePresets();
   document.getElementById('voice-presets-overlay').classList.add('show');
