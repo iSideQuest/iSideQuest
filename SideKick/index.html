@@ -4208,6 +4208,9 @@
   }
   .feature-card .fc-settings { font-size: 0.6rem; color: var(--muted); line-height: 1.1; }
   .feature-card.locked { opacity: 0.55; }
+  /* Preset editor grid — compact so the whole overlay fits without scrolling */
+  #preset-features-grid .feature-card { height: 2.5rem; }
+  #preset-features-grid .feature-card .fc-name { font-size: 0.8rem; }
 
   .features-help-btn {
     position: absolute;
@@ -5140,9 +5143,9 @@
   <div class="card">
     <div class="btn-group">
       <button class="btn-primary" onclick="showCreateRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999rem;" data-i18n="hostNewRoom">Host New Room</button>
+      <button class="btn-secondary" onclick="openHostPresetGame()" style="width:66%;margin:0 auto;display:block;font-size:1.05rem;padding:0.85rem 1.2rem;border-radius:999rem;" data-i18n="hostPresetGame">Host Preset Room</button>
       <button class="btn-secondary" onclick="showJoinRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999rem;" data-i18n="joinRoom">Join Room</button>
     </div>
-    <button class="btn-secondary" onclick="openHostPresetGame()" style="width:66%;margin:0.6rem auto 0;display:block;font-size:1.05rem;padding:0.85rem 1.2rem;border-radius:999rem;" data-i18n="hostPresetGame">Host Preset Game</button>
   </div>
   <p id="home-status" class="status"></p>
 
@@ -6544,27 +6547,27 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="voice-presets-overlay">
   <div class="tools-modal" style="max-width:23.75rem; max-height:85vh; overflow-y:auto;">
-    <div class="tools-modal-title">🏠 Host Room Presets</div>
+    <div class="tools-modal-title">Preset Rooms</div>
     <div id="voice-presets-list" style="display:flex; flex-direction:column; gap:0.6rem; margin:0.5rem 0;"></div>
     <button class="btn-primary btn-sm" style="width:100%; margin-top:0.6rem;" onclick="openVoicePresetEdit()">+ New Preset</button>
     <button class="btn-secondary btn-sm" style="width:100%; margin-top:0.4rem;" onclick="closeVoicePresetsOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
 <div class="tools-overlay" id="voice-preset-edit-overlay">
-  <div class="tools-modal" style="max-width:23.75rem; max-height:88vh; overflow-y:auto;">
-    <div class="tools-modal-title" id="voice-preset-edit-title">New Preset</div>
-    <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.35rem;">Preset Name</div>
-    <input type="text" id="voice-preset-name" placeholder="Type Preset Name" maxlength="40" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:0.625rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.6rem;">
-    <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;padding:0.6rem;margin-bottom:0.6rem;">
-      <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.4rem;">Step 1: Player Identity</div>
-      <div style="display:flex;gap:0.6rem;align-items:flex-start;">
+  <div class="tools-modal" style="max-width:23.75rem; max-height:94dvh; overflow-y:auto; padding:1rem; gap:0.45rem;">
+    <div class="tools-modal-title" id="voice-preset-edit-title" style="margin-bottom:0.1rem;">New Preset</div>
+    <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.25rem;">Preset Name</div>
+    <input type="text" id="voice-preset-name" placeholder="Type Preset Name" maxlength="40" style="width:100%;padding:0.45rem 0.6rem;font-size:0.88rem;border-radius:0.625rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.45rem;">
+    <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;padding:0.45rem;margin-bottom:0.45rem;">
+      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">Step 1: Player Identity</div>
+      <div style="display:flex;gap:0.45rem;align-items:flex-start;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;">
-          <button class="color-picker-btn" onclick="openColorPicker('preset')" id="preset-color-btn" style="width:4rem;height:4rem;flex:0 0 4rem;">
+          <button class="color-picker-btn" onclick="openColorPicker('preset')" id="preset-color-btn" style="width:3rem;height:3rem;flex:0 0 3rem;">
             <span id="preset-color-label" style="font-size:0.7rem;line-height:1.2;">Choose<br>Color</span>
           </button>
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;">
-          <button class="color-picker-btn" onclick="openRoomAvatarOverlay('preset')" id="preset-avatar-btn" style="width:4rem;height:4rem;flex:0 0 4rem;">
+          <button class="color-picker-btn" onclick="openRoomAvatarOverlay('preset')" id="preset-avatar-btn" style="width:3rem;height:3rem;flex:0 0 3rem;">
             <span id="preset-avatar-label" style="font-size:0.7rem;line-height:1.2;">Choose<br>Avatar</span>
           </button>
         </div>
@@ -6574,17 +6577,17 @@
         </div>
       </div>
     </div>
-    <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;padding:0.6rem;margin-bottom:0.6rem;">
-      <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.4rem;">Step 2: Turn Direction</div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;padding:0.45rem;margin-bottom:0.45rem;">
+      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">Step 2: Turn Direction</div>
       <div style="display:flex;gap:0.4rem;">
-        <button class="dir-option" data-preset-dir="cw" onclick="selectPresetDir('cw')" id="preset-dir-cw" style="flex:1;padding:0.6rem 0.4rem;flex-direction:column;gap:0.15rem;"><span class="dir-name" style="font-size:0.82rem;">Left</span><span class="dir-desc" style="font-size:0.65rem;">Clockwise</span></button>
-        <button class="dir-option" data-preset-dir="ccw" onclick="selectPresetDir('ccw')" id="preset-dir-ccw" style="flex:1;padding:0.6rem 0.4rem;flex-direction:column;gap:0.15rem;"><span class="dir-name" style="font-size:0.82rem;">Right</span><span class="dir-desc" style="font-size:0.65rem;">Counter</span></button>
-        <button class="dir-option" data-preset-dir="both" onclick="selectPresetDir('both')" id="preset-dir-both" style="flex:1;padding:0.6rem 0.4rem;flex-direction:column;gap:0.15rem;"><span class="dir-name" style="font-size:0.82rem;">Both</span><span class="dir-desc" style="font-size:0.65rem;">Left & Right</span></button>
+        <button class="dir-option" data-preset-dir="cw" onclick="selectPresetDir('cw')" id="preset-dir-cw" style="flex:1;padding:0.4rem 0.25rem;flex-direction:column;gap:0.1rem;"><span class="dir-name" style="font-size:0.82rem;">Left</span><span class="dir-desc" style="font-size:0.65rem;">Clockwise</span></button>
+        <button class="dir-option" data-preset-dir="ccw" onclick="selectPresetDir('ccw')" id="preset-dir-ccw" style="flex:1;padding:0.4rem 0.25rem;flex-direction:column;gap:0.1rem;"><span class="dir-name" style="font-size:0.82rem;">Right</span><span class="dir-desc" style="font-size:0.65rem;">Counter</span></button>
+        <button class="dir-option" data-preset-dir="both" onclick="selectPresetDir('both')" id="preset-dir-both" style="flex:1;padding:0.4rem 0.25rem;flex-direction:column;gap:0.1rem;"><span class="dir-name" style="font-size:0.82rem;">Both</span><span class="dir-desc" style="font-size:0.65rem;">Left & Right</span></button>
       </div>
     </div>
-    <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;padding:0.6rem;margin-bottom:0.6rem;">
-      <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.4rem;">Step 3: Game Features</div>
-      <div class="feature-grid" id="preset-features-grid" style="grid-template-columns:1fr 1fr; gap:0.4rem;">
+    <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;padding:0.45rem;margin-bottom:0.45rem;">
+      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">Step 3: Game Features</div>
+      <div class="feature-grid" id="preset-features-grid" style="grid-template-columns:1fr 1fr; gap:0.3rem;">
         <div class="feature-card" data-feature="nudge" onclick="togglePresetFeature('nudge')"><span class="fc-name">Nudge</span></div>
         <div class="feature-card" data-feature="awards" onclick="togglePresetFeature('awards')"><span class="fc-name">Awards</span></div>
         <div class="feature-card" data-feature="timers" onclick="togglePresetFeature('timers')"><span class="fc-name">Timers</span></div>
@@ -7395,7 +7398,7 @@ const I18N_STRINGS = {
     hey: 'Hey',
     hostRoom: 'Host Room',
     hostNewRoom: 'Host New Room',
-    hostPresetGame: 'Host Preset Game',
+    hostPresetGame: 'Host Preset Room',
     upgradeToProMsg: 'Go here to upgrade to SideKick Pro',
     joinRoom: 'Join Room',
     tools: 'Tools',
@@ -7533,7 +7536,7 @@ const I18N_STRINGS = {
     hey: 'Hola',
     hostRoom: 'Crear Sala',
     hostNewRoom: 'Crear Nueva Sala',
-    hostPresetGame: 'Juego Preestablecido',
+    hostPresetGame: 'Sala Preestablecida',
     upgradeToProMsg: 'Ve aquí para mejorar a SideKick Pro',
     joinRoom: 'Unirse a Sala',
     tools: 'Herramientas',
@@ -7672,7 +7675,7 @@ const I18N_STRINGS = {
     hey: '嗨',
     hostRoom: '创建房间',
     hostNewRoom: '创建新房间',
-    hostPresetGame: '预设游戏',
+    hostPresetGame: '预设房间',
     upgradeToProMsg: '前往此处升级到 SideKick Pro',
     joinRoom: '加入房间',
     tools: '工具',
@@ -7811,7 +7814,7 @@ const I18N_STRINGS = {
     hey: 'Hallo',
     hostRoom: 'Raum erstellen',
     hostNewRoom: 'Neuen Raum erstellen',
-    hostPresetGame: 'Preset-Spiel',
+    hostPresetGame: 'Preset-Raum',
     upgradeToProMsg: 'Gehe hier, um auf SideKick Pro zu upgraden',
     joinRoom: 'Raum beitreten',
     tools: 'Werkzeuge',
@@ -7950,7 +7953,7 @@ const I18N_STRINGS = {
     hey: 'Salut',
     hostRoom: 'Créer une salle',
     hostNewRoom: 'Créer une nouvelle salle',
-    hostPresetGame: 'Partie Prédéfinie',
+    hostPresetGame: 'Salle Prédéfinie',
     upgradeToProMsg: 'Allez ici pour passer à SideKick Pro',
     joinRoom: 'Rejoindre une salle',
     tools: 'Outils',
@@ -8089,7 +8092,7 @@ const I18N_STRINGS = {
     hey: 'こんにちは',
     hostRoom: 'ルームを作成',
     hostNewRoom: '新しいルームを作成',
-    hostPresetGame: 'プリセットゲーム',
+    hostPresetGame: 'プリセットルーム',
     upgradeToProMsg: 'こちらからSideKick Proにアップグレード',
     joinRoom: 'ルームに参加',
     tools: 'ツール',
@@ -8228,7 +8231,7 @@ const I18N_STRINGS = {
     hey: 'Ciao',
     hostRoom: 'Crea Sala',
     hostNewRoom: 'Crea Nuova Sala',
-    hostPresetGame: 'Gioco Preimpostato',
+    hostPresetGame: 'Stanza Preimpostata',
     upgradeToProMsg: 'Vai qui per passare a SideKick Pro',
     joinRoom: 'Entra in Sala',
     tools: 'Strumenti',
@@ -8367,7 +8370,7 @@ const I18N_STRINGS = {
     hey: 'Olá',
     hostRoom: 'Criar Sala',
     hostNewRoom: 'Criar Nova Sala',
-    hostPresetGame: 'Jogo Predefinido',
+    hostPresetGame: 'Sala Predefinida',
     upgradeToProMsg: 'Vá aqui para atualizar para o SideKick Pro',
     joinRoom: 'Entrar na Sala',
     tools: 'Ferramentas',
