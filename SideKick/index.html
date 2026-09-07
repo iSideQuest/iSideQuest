@@ -14625,15 +14625,21 @@ window.createRoom = async function() {
   renderInviteFriendsList();
 
   let roomRef = ref(db, `rooms/${roomCode}`);
-  const existing = await get(roomRef);
-  if (existing.exists()) {
-    roomCode = genCode();
-    roomRef = ref(db, `rooms/${roomCode}`);
+  try {
+    const existing = await get(roomRef);
+    if (existing.exists()) {
+      roomCode = genCode();
+      roomRef = ref(db, `rooms/${roomCode}`);
+    }
+  } catch (err) {
+    status('create-status', 'Could not reach the game server. Check your connection and try again.', 'error');
+    return;
   }
 
-  await set(roomRef, {
-    host: myId,
-    hostAuthUid: currentUser ? currentUser.uid : null,
+  try {
+    await set(roomRef, {
+      host: myId,
+      hostAuthUid: currentUser ? currentUser.uid : null,
     status: 'lobby',
     activePlayerIndex: 0,
     lastActivity: Date.now(),
@@ -14674,7 +14680,11 @@ window.createRoom = async function() {
     players: {
       [myId]: { name, order: 0, joinedAt: Date.now(), color: myColor, avatar: roomAvatarSelection || '👤', authUid: currentUser ? currentUser.uid : null }
     }
-  });
+    });
+  } catch (err) {
+    status('create-status', 'Could not create the room. Check your connection and try again.', 'error');
+    return;
+  }
   haptic(20);
 
   document.getElementById('display-code').textContent = roomCode;
