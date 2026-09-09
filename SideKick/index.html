@@ -5143,7 +5143,7 @@
   <div class="card">
     <div class="btn-group">
       <button class="btn-primary" onclick="showCreateRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999rem;" data-i18n="hostNewRoom">Host New Room</button>
-      <button class="btn-secondary" onclick="openHostPresetGame()" style="width:66%;margin:0 auto;display:block;font-size:1.05rem;padding:0.85rem 1.2rem;border-radius:999rem;" data-i18n="hostPresetGame">Host Preset Room</button>
+      <button class="btn-secondary" id="host-preset-room-btn" onclick="openHostPresetGame()" style="width:66%;margin:0 auto;display:block;font-size:1.05rem;padding:0.85rem 1.2rem;border-radius:999rem;" data-i18n="hostPresetGame">Host Preset Room</button>
       <button class="btn-secondary" onclick="showJoinRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999rem;" data-i18n="joinRoom">Join Room</button>
     </div>
   </div>
@@ -9962,6 +9962,9 @@ function updateAccountButtonUI() {
     btn.textContent = t('login');
     btn.onclick = () => openAccountOverlay('login');
   }
+  // Host Preset Room is a Pro-only home button — hide it for Free (guest) users
+  const presetBtn = document.getElementById('host-preset-room-btn');
+  if (presetBtn) presetBtn.style.display = currentUser ? '' : 'none';
 }
 
 // ── TURN MODE SELECTION ─────────────────────────
