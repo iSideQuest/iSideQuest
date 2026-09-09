@@ -6543,6 +6543,21 @@
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
+<!--  RESUME PROMPT (reopen into live session)    -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tools-overlay" id="resume-overlay">
+  <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
+    <div class="tools-modal-title" data-i18n="welcomeBack">Welcome Back</div>
+    <div style="font-size:0.95rem;color:var(--text);margin:0.5rem 0;" data-i18n="resumePrompt">You have a game in progress. Would you like to continue where you left off?</div>
+    <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.6rem;">Room <span id="resume-room-code" style="font-weight:800;color:var(--text);">----</span></div>
+    <div style="display:flex;gap:0.5rem;">
+      <button class="btn-secondary btn-sm" style="flex:1;" onclick="resumeGoHome()" data-i18n="home">◀ Home</button>
+      <button class="btn-primary btn-sm" style="flex:1;" onclick="resumeContinue()" data-i18n="resumeContinue">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
 <!--  VOICE PRESETS OVERLAYS                      -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="voice-presets-overlay">
@@ -7400,6 +7415,9 @@ const I18N_STRINGS = {
     hostNewRoom: 'Host New Room',
     hostPresetGame: 'Host Preset Room',
     upgradeToProMsg: 'Go here to upgrade to SideKick Pro',
+    welcomeBack: 'Welcome Back',
+    resumePrompt: 'You have a game in progress. Would you like to continue where you left off?',
+    resumeContinue: 'Continue',
     joinRoom: 'Join Room',
     tools: 'Tools',
     rng: 'RNG',
@@ -7538,6 +7556,9 @@ const I18N_STRINGS = {
     hostNewRoom: 'Crear Nueva Sala',
     hostPresetGame: 'Sala Preestablecida',
     upgradeToProMsg: 'Ve aquí para mejorar a SideKick Pro',
+    welcomeBack: 'Bienvenido de nuevo',
+    resumePrompt: 'Tienes una partida en curso. ¿Quieres continuar donde la dejaste?',
+    resumeContinue: 'Continuar',
     joinRoom: 'Unirse a Sala',
     tools: 'Herramientas',
     rng: 'RNG',
@@ -7677,6 +7698,9 @@ const I18N_STRINGS = {
     hostNewRoom: '创建新房间',
     hostPresetGame: '预设房间',
     upgradeToProMsg: '前往此处升级到 SideKick Pro',
+    welcomeBack: '欢迎回来',
+    resumePrompt: '您有正在进行的游戏。是否继续？',
+    resumeContinue: '继续',
     joinRoom: '加入房间',
     tools: '工具',
     rng: 'RNG',
@@ -7816,6 +7840,9 @@ const I18N_STRINGS = {
     hostNewRoom: 'Neuen Raum erstellen',
     hostPresetGame: 'Preset-Raum',
     upgradeToProMsg: 'Gehe hier, um auf SideKick Pro zu upgraden',
+    welcomeBack: 'Willkommen zurück',
+    resumePrompt: 'Du hast ein laufendes Spiel. Möchtest du fortfahren?',
+    resumeContinue: 'Fortfahren',
     joinRoom: 'Raum beitreten',
     tools: 'Werkzeuge',
     rng: 'RNG',
@@ -7955,6 +7982,9 @@ const I18N_STRINGS = {
     hostNewRoom: 'Créer une nouvelle salle',
     hostPresetGame: 'Salle Prédéfinie',
     upgradeToProMsg: 'Allez ici pour passer à SideKick Pro',
+    welcomeBack: 'Bon retour',
+    resumePrompt: 'Une partie est en cours. Voulez-vous continuer ?',
+    resumeContinue: 'Continuer',
     joinRoom: 'Rejoindre une salle',
     tools: 'Outils',
     rng: 'RNG',
@@ -8094,6 +8124,9 @@ const I18N_STRINGS = {
     hostNewRoom: '新しいルームを作成',
     hostPresetGame: 'プリセットルーム',
     upgradeToProMsg: 'こちらからSideKick Proにアップグレード',
+    welcomeBack: 'おかえりなさい',
+    resumePrompt: '進行中のゲームがあります。続けますか？',
+    resumeContinue: '続ける',
     joinRoom: 'ルームに参加',
     tools: 'ツール',
     rng: 'RNG',
@@ -8233,6 +8266,9 @@ const I18N_STRINGS = {
     hostNewRoom: 'Crea Nuova Sala',
     hostPresetGame: 'Stanza Preimpostata',
     upgradeToProMsg: 'Vai qui per passare a SideKick Pro',
+    welcomeBack: 'Bentornato',
+    resumePrompt: 'Hai una partita in corso. Vuoi continuare?',
+    resumeContinue: 'Continua',
     joinRoom: 'Entra in Sala',
     tools: 'Strumenti',
     rng: 'RNG',
@@ -8372,6 +8408,9 @@ const I18N_STRINGS = {
     hostNewRoom: 'Criar Nova Sala',
     hostPresetGame: 'Sala Predefinida',
     upgradeToProMsg: 'Vá aqui para atualizar para o SideKick Pro',
+    welcomeBack: 'Bem-vindo de volta',
+    resumePrompt: 'Você tem um jogo em andamento. Deseja continuar?',
+    resumeContinue: 'Continuar',
     joinRoom: 'Entrar na Sala',
     tools: 'Ferramentas',
     rng: 'RNG',
@@ -10999,11 +11038,11 @@ function requireDb() {
   return true;
 }
 
-// ── SILENT AUTO-RESUME ──────────────────────────
+// ── AUTO-RESUME WITH PROMPT ─────────────────────
 // If this device has a saved session (it created/joined a room before),
-// and the room + player still exist in Firebase, drop straight back in
-// instead of showing the home screen. Handles "we stepped out for food"
-// automatically — no code to remember, nothing to tap.
+// and the room + player still exist in Firebase, show a "continue or go
+// home" prompt instead of silently dropping back in — reopening the app
+// should never look like a closed game mysteriously resumed itself.
 async function tryAutoResume() {
   if (autoJoinCode) return;           // explicit QR join link always wins
   let session = loadSession();
@@ -11024,46 +11063,73 @@ async function tryAutoResume() {
     const players = room.players || {};
     if (!players[session.myId]) { clearSession(); return; } // player isn't in this room (e.g. resumed as someone else)
 
-    // Restore identity
-    roomCode = session.roomCode;
-    myId = session.myId;
-    myName = session.myName || players[session.myId].name || '';
-    isHost = !!session.isHost;
-
-    if (room.status === 'lobby') {
-      if (isHost) {
-        document.getElementById('display-code').textContent = roomCode;
-        showScreen('lobby');
-        generateLobbyQR();
-        listenLobby();
-      } else {
-        document.getElementById('wl-code').textContent = roomCode;
-        showScreen('waiting-lobby');
-        listenWaitingLobby();
-      }
-    } else if (room.status === 'playing' || room.status === 'ceremony' || room.status === 'vp-entry' || room.status === 'vp-ceremony') {
-      listenGameState();
-    } else if (room.status === 'gameover') {
-      showGameOver();
-    } else if (room.status === 'saved') {
-      document.getElementById('saved-screen-code').textContent = roomCode;
-      document.getElementById('saved-screen-name').textContent = '';
-      if (isHost) {
-        document.getElementById('saved-screen-host-view').style.display = 'block';
-        document.getElementById('saved-screen-player-view').style.display = 'none';
-        document.getElementById('saved-screen').classList.add('show');
-      } else {
-        showSavedScreenForPlayer(room.savedAction || null);
-      }
-    } else {
+    if (room.status === 'closed' || !['lobby','playing','ceremony','vp-entry','vp-ceremony','gameover','saved'].includes(room.status)) {
       // 'closed' or unrecognized — nothing to resume into
       clearSession();
+      return;
     }
+
+    // Valid resumable session — ask before dropping in so reopening the app
+    // never looks like it silently resumed a "closed" game.
+    _pendingResume = { session, room };
+    document.getElementById('resume-room-code').textContent = session.roomCode;
+    document.getElementById('resume-overlay').classList.add('show');
   } catch {
     // Network hiccup etc. — fall through to normal home screen, don't clear session
   }
 }
+// Holds a validated resumable session while the resume prompt is up.
+let _pendingResume = null;
 tryAutoResume();
+window.resumeContinue = function() {
+  document.getElementById('resume-overlay').classList.remove('show');
+  const pending = _pendingResume;
+  _pendingResume = null;
+  if (!pending) return;
+  haptic(5);
+  const session = pending.session;
+  const room = pending.room;
+  const players = room.players || {};
+  // Restore identity
+  roomCode = session.roomCode;
+  myId = session.myId;
+  myName = session.myName || (players[session.myId] && players[session.myId].name) || '';
+  isHost = !!session.isHost;
+
+  if (room.status === 'lobby') {
+    if (isHost) {
+      document.getElementById('display-code').textContent = roomCode;
+      showScreen('lobby');
+      generateLobbyQR();
+      listenLobby();
+    } else {
+      document.getElementById('wl-code').textContent = roomCode;
+      showScreen('waiting-lobby');
+      listenWaitingLobby();
+    }
+  } else if (room.status === 'playing' || room.status === 'ceremony' || room.status === 'vp-entry' || room.status === 'vp-ceremony') {
+    listenGameState();
+  } else if (room.status === 'gameover') {
+    showGameOver();
+  } else if (room.status === 'saved') {
+    document.getElementById('saved-screen-code').textContent = roomCode;
+    document.getElementById('saved-screen-name').textContent = '';
+    if (isHost) {
+      document.getElementById('saved-screen-host-view').style.display = 'block';
+      document.getElementById('saved-screen-player-view').style.display = 'none';
+      document.getElementById('saved-screen').classList.add('show');
+    } else {
+      showSavedScreenForPlayer(room.savedAction || null);
+    }
+  }
+};
+window.resumeGoHome = function() {
+  document.getElementById('resume-overlay').classList.remove('show');
+  _pendingResume = null;
+  haptic(5);
+  clearSession();
+  goHome();
+};
 
 // ── NAV ──────────────────────────────────────
 // Fully resets all create-wizard state (turn mode, direction/speed overlays, features).
