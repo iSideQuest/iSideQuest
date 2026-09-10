@@ -4216,6 +4216,10 @@
   .pwa-step { display: flex; gap: 0.6rem; align-items: flex-start; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 0.625rem; padding: 0.5rem 0.6rem; }
   .pwa-step-num { flex: 0 0 1.5rem; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; }
   .pwa-step-text { font-size: 0.85rem; color: var(--text); line-height: 1.4; }
+  .pwa-step-tap { cursor: pointer; }
+  .pwa-step-tap:active { background: rgba(124,92,191,0.15); }
+  .pwa-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--border); }
+  .pwa-dot.active { background: var(--accent); }
 
   .features-help-btn {
     position: absolute;
@@ -6565,10 +6569,18 @@
       <div id="pwa-install-now-wrap" style="display:none;">
         <button class="btn-primary btn-sm" style="width:100%;margin-bottom:0.5rem;" onclick="pwaInstallNow()" data-i18n="pwaInstallNow">Install Now</button>
       </div>
-      <div class="pwa-steps" id="pwa-steps-list"></div>
+      <div id="pwa-steps-wrap">
+        <div id="pwa-step-counter" style="font-size:0.75rem;color:var(--muted);font-weight:700;margin-bottom:0.4rem;">Step 1 / 3</div>
+        <div class="pwa-step pwa-step-tap" id="pwa-step-card" onclick="pwaGuideNext()" role="button">
+          <div class="pwa-step-num" id="pwa-step-num">1</div>
+          <div class="pwa-step-text" id="pwa-step-text"></div>
+        </div>
+        <div id="pwa-step-dots" style="display:flex;gap:0.35rem;justify-content:center;margin-top:0.5rem;"></div>
+        <div style="font-size:0.75rem;color:var(--muted);margin-top:0.4rem;" data-i18n="pwaTapNext">Tap to continue</div>
+      </div>
       <div style="display:flex;gap:0.5rem;margin-top:0.6rem;">
-        <button class="btn-secondary btn-sm" style="flex:1;" onclick="pwaBackToIntro()" data-i18n="pwaBack">Back</button>
-        <button class="btn-primary btn-sm" style="flex:1;" onclick="closePwaPrompt()" data-i18n="pwaGotIt">Got It</button>
+        <button class="btn-secondary btn-sm" style="flex:1;" onclick="pwaGuideBack()" data-i18n="pwaBack">Back</button>
+        <button class="btn-primary btn-sm" style="flex:1;" id="pwa-guide-primary" onclick="pwaGuideNext()">Next</button>
       </div>
     </div>
   </div>
@@ -7459,9 +7471,12 @@ const I18N_STRINGS = {
     pwaIos1: "Tap the Share button in Safari's toolbar",
     pwaIos2: "Scroll down and tap 'Add to Home Screen'",
     pwaIos3: "Tap 'Add' in the top-right corner",
-    pwaAnd1: "Tap 'Install Now' above — or open the ⋮ menu and tap 'Add to Home screen'",
+    pwaAnd1: "Open the ⋮ menu and tap 'Add to Home screen'",
     pwaAnd2: "Tap 'Install' in the confirmation dialog",
     pwaAnd3: 'Open SideKick from your new home-screen icon',
+    pwaNext: 'Next',
+    pwaStep: 'Step',
+    pwaTapNext: 'Tap to continue',
     joinRoom: 'Join Room',
     tools: 'Tools',
     rng: 'RNG',
@@ -7612,9 +7627,12 @@ const I18N_STRINGS = {
     pwaIos1: 'Toca el botón Compartir en la barra de Safari',
     pwaIos2: "Desliza hacia abajo y toca 'Añadir a pantalla de inicio'",
     pwaIos3: "Toca 'Añadir' en la esquina superior derecha",
-    pwaAnd1: "Toca 'Instalar ahora' arriba — o abre el menú ⋮ y toca 'Añadir a pantalla de inicio'",
+    pwaAnd1: "Abre el menú ⋮ y toca 'Añadir a pantalla de inicio'",
     pwaAnd2: "Toca 'Instalar' en el diálogo de confirmación",
     pwaAnd3: 'Abre SideKick desde tu nuevo icono',
+    pwaNext: 'Siguiente',
+    pwaStep: 'Paso',
+    pwaTapNext: 'Toca para continuar',
     joinRoom: 'Unirse a Sala',
     tools: 'Herramientas',
     rng: 'RNG',
@@ -7766,9 +7784,12 @@ const I18N_STRINGS = {
     pwaIos1: '点击 Safari 工具栏中的“分享”按钮',
     pwaIos2: "向下滚动并点击“添加到主屏幕”",
     pwaIos3: "点击右上角的“添加”",
-    pwaAnd1: "点击上方的“立即安装”——或打开 ⋮ 菜单并点击“添加到主屏幕”",
+    pwaAnd1: "打开 ⋮ 菜单并点击“添加到主屏幕”",
     pwaAnd2: "在确认对话框中点击“安装”",
     pwaAnd3: '从新的主屏幕图标打开 SideKick',
+    pwaNext: '下一步',
+    pwaStep: '步骤',
+    pwaTapNext: '点击继续',
     joinRoom: '加入房间',
     tools: '工具',
     rng: 'RNG',
@@ -7920,9 +7941,12 @@ const I18N_STRINGS = {
     pwaIos1: 'Tippe auf Teilen in der Safari-Symbolleiste',
     pwaIos2: "Scrolle nach unten und tippe auf 'Zum Home-Bildschirm'",
     pwaIos3: "Tippe oben rechts auf 'Hinzufügen'",
-    pwaAnd1: "Tippe oben auf 'Jetzt installieren' — oder öffne das ⋮-Menü und tippe auf 'Zum Startbildschirm hinzufügen'",
+    pwaAnd1: "Öffne das ⋮-Menü und tippe auf 'Zum Startbildschirm hinzufügen'",
     pwaAnd2: "Tippe im Bestätigungsdialog auf 'Installieren'",
     pwaAnd3: 'Öffne SideKick über dein neues Startbildschirm-Symbol',
+    pwaNext: 'Weiter',
+    pwaStep: 'Schritt',
+    pwaTapNext: 'Tippen zum Fortfahren',
     joinRoom: 'Raum beitreten',
     tools: 'Werkzeuge',
     rng: 'RNG',
@@ -8074,9 +8098,12 @@ const I18N_STRINGS = {
     pwaIos1: 'Touchez le bouton Partager dans la barre Safari',
     pwaIos2: "Faites défiler et touchez 'Sur l'écran d'accueil'",
     pwaIos3: "Touchez 'Ajouter' en haut à droite",
-    pwaAnd1: "Touchez 'Installer' ci-dessus — ou ouvrez le menu ⋮ puis 'Ajouter à l'écran d'accueil'",
+    pwaAnd1: "Ouvrez le menu ⋮ puis touchez 'Ajouter à l'écran d'accueil'",
     pwaAnd2: "Touchez 'Installer' dans la confirmation",
     pwaAnd3: 'Ouvrez SideKick depuis votre nouvelle icône',
+    pwaNext: 'Suivant',
+    pwaStep: 'Étape',
+    pwaTapNext: 'Touchez pour continuer',
     joinRoom: 'Rejoindre une salle',
     tools: 'Outils',
     rng: 'RNG',
@@ -8228,9 +8255,12 @@ const I18N_STRINGS = {
     pwaIos1: 'Safariのツールバーで共有ボタンをタップ',
     pwaIos2: "下にスクロールして「ホーム画面に追加」をタップ",
     pwaIos3: "右上の「追加」をタップ",
-    pwaAnd1: "上の「今すぐインストール」をタップ——または⋮メニューから「ホーム画面に追加」をタップ",
+    pwaAnd1: "⋮メニューから「ホーム画面に追加」をタップ",
     pwaAnd2: "確認ダイアログで「インストール」をタップ",
     pwaAnd3: '新しいホーム画面アイコンからSideKickを開く',
+    pwaNext: '次へ',
+    pwaStep: 'ステップ',
+    pwaTapNext: 'タップして続ける',
     joinRoom: 'ルームに参加',
     tools: 'ツール',
     rng: 'RNG',
@@ -8382,9 +8412,12 @@ const I18N_STRINGS = {
     pwaIos1: 'Tocca Condividi nella barra di Safari',
     pwaIos2: "Scorri in basso e tocca 'Aggiungi a Home'",
     pwaIos3: "Tocca 'Aggiungi' in alto a destra",
-    pwaAnd1: "Tocca 'Installa ora' qui sopra — oppure apri il menu ⋮ e tocca 'Aggiungi a schermata Home'",
+    pwaAnd1: "Apri il menu ⋮ e tocca 'Aggiungi a schermata Home'",
     pwaAnd2: "Tocca 'Installa' nella conferma",
     pwaAnd3: 'Apri SideKick dalla nuova icona',
+    pwaNext: 'Avanti',
+    pwaStep: 'Passaggio',
+    pwaTapNext: 'Tocca per continuare',
     joinRoom: 'Entra in Sala',
     tools: 'Strumenti',
     rng: 'RNG',
@@ -8536,9 +8569,12 @@ const I18N_STRINGS = {
     pwaIos1: 'Toque em Compartilhar na barra do Safari',
     pwaIos2: "Role para baixo e toque em 'Adicionar à Tela de Início'",
     pwaIos3: "Toque em 'Adicionar' no canto superior direito",
-    pwaAnd1: "Toque em 'Instalar agora' acima — ou abra o menu ⋮ e toque em 'Adicionar à tela inicial'",
+    pwaAnd1: "Abra o menu ⋮ e toque em 'Adicionar à tela inicial'",
     pwaAnd2: "Toque em 'Instalar' na confirmação",
     pwaAnd3: 'Abra o SideKick pelo novo ícone',
+    pwaNext: 'Avançar',
+    pwaStep: 'Etapa',
+    pwaTapNext: 'Toque para continuar',
     joinRoom: 'Entrar na Sala',
     tools: 'Ferramentas',
     rng: 'RNG',
@@ -19382,29 +19418,51 @@ function maybeShowPwaPrompt() {
   }
   openPwaIntro();
 }
-function renderPwaSteps() {
-  const plat = getMobilePlatform();
-  const keys = plat === 'ios' ? ['pwaIos1', 'pwaIos2', 'pwaIos3'] : ['pwaAnd1', 'pwaAnd2', 'pwaAnd3'];
-  const list = document.getElementById('pwa-steps-list');
-  if (!list) return;
-  list.innerHTML = '';
-  keys.forEach((k, i) => {
-    const row = document.createElement('div');
-    row.className = 'pwa-step';
-    const num = document.createElement('div');
-    num.className = 'pwa-step-num';
-    num.textContent = String(i + 1);
-    const txt = document.createElement('div');
-    txt.className = 'pwa-step-text';
-    txt.textContent = t(k);
-    row.appendChild(num);
-    row.appendChild(txt);
-    list.appendChild(row);
-  });
-  // Android one-tap install when the browser offers it
-  const wrap = document.getElementById('pwa-install-now-wrap');
-  if (wrap) wrap.style.display = (plat === 'android' && deferredPrompt) ? '' : 'none';
+let _pwaGuideStep = 0;
+let _pwaGuideMode = 'steps'; // 'install' (Android one-tap) or 'steps' (tap-through guide)
+const PWA_GUIDE_TOTAL = 3;
+function pwaGuideKeys() {
+  return getMobilePlatform() === 'ios' ? ['pwaIos1', 'pwaIos2', 'pwaIos3'] : ['pwaAnd1', 'pwaAnd2', 'pwaAnd3'];
 }
+function renderPwaGuide() {
+  const useInstall = (getMobilePlatform() === 'android' && !!deferredPrompt && _pwaGuideMode === 'install');
+  document.getElementById('pwa-install-now-wrap').style.display = useInstall ? '' : 'none';
+  document.getElementById('pwa-steps-wrap').style.display = useInstall ? 'none' : '';
+  if (!useInstall) renderPwaStep();
+}
+function renderPwaStep() {
+  const keys = pwaGuideKeys();
+  document.getElementById('pwa-step-num').textContent = String(_pwaGuideStep + 1);
+  document.getElementById('pwa-step-text').textContent = t(keys[_pwaGuideStep]);
+  document.getElementById('pwa-step-counter').textContent = t('pwaStep') + ' ' + (_pwaGuideStep + 1) + ' / ' + PWA_GUIDE_TOTAL;
+  const dots = document.getElementById('pwa-step-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < PWA_GUIDE_TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'pwa-dot' + (i === _pwaGuideStep ? ' active' : '');
+    dots.appendChild(d);
+  }
+  document.getElementById('pwa-guide-primary').textContent = (_pwaGuideStep >= PWA_GUIDE_TOTAL - 1) ? t('pwaGotIt') : t('pwaNext');
+}
+window.pwaGuideNext = function() {
+  if (_pwaGuideStep < PWA_GUIDE_TOTAL - 1) {
+    _pwaGuideStep++;
+    haptic(5);
+    renderPwaStep();
+  } else {
+    closePwaPrompt();
+  }
+};
+window.pwaGuideBack = function() {
+  const stepsVisible = document.getElementById('pwa-steps-wrap').style.display !== 'none';
+  if (stepsVisible && _pwaGuideStep > 0) {
+    _pwaGuideStep--;
+    haptic(3);
+    renderPwaStep();
+  } else {
+    pwaBackToIntro();
+  }
+};
 window.openPwaIntro = function() {
   document.getElementById('pwa-intro-view').style.display = '';
   document.getElementById('pwa-guide-view').style.display = 'none';
@@ -19412,7 +19470,11 @@ window.openPwaIntro = function() {
   haptic(5);
 };
 window.openPwaGuide = function() {
-  renderPwaSteps();
+  _pwaGuideStep = 0;
+  // Android with a native install offer goes straight to one-tap Install;
+  // iOS (and Android without an offer) gets the tap-through steps.
+  _pwaGuideMode = (getMobilePlatform() === 'android' && !!deferredPrompt) ? 'install' : 'steps';
+  renderPwaGuide();
   document.getElementById('pwa-intro-view').style.display = 'none';
   document.getElementById('pwa-guide-view').style.display = '';
   haptic(5);
@@ -19430,15 +19492,24 @@ window.closePwaPrompt = function() {
 window.pwaInstallNow = function() {
   if (!deferredPrompt) return;
   deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(() => {
+  deferredPrompt.userChoice.then((choice) => {
     deferredPrompt = null;
-    document.getElementById('pwa-install-overlay').classList.remove('show');
+    if (choice && choice.outcome === 'accepted') {
+      document.getElementById('pwa-install-overlay').classList.remove('show');
+    } else {
+      // Native dialog dismissed — fall back to the manual tap-through steps
+      _pwaGuideMode = 'steps';
+      _pwaGuideStep = 0;
+      renderPwaGuide();
+    }
   }).catch(() => {});
 };
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  maybeShowPwaPrompt();
+  const ov = document.getElementById('pwa-install-overlay');
+  if (ov && ov.classList.contains('show')) renderPwaGuide();
+  else maybeShowPwaPrompt();
 });
 window.addEventListener('appinstalled', () => {
   try { localStorage.setItem('sk_install_dismissed', '1'); } catch {}
