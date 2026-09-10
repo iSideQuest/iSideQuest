@@ -4211,6 +4211,11 @@
   /* Preset editor grid — compact so the whole overlay fits without scrolling */
   #preset-features-grid .feature-card { height: 2.5rem; }
   #preset-features-grid .feature-card .fc-name { font-size: 0.8rem; }
+  /* PWA install guide steps */
+  .pwa-steps { display: flex; flex-direction: column; gap: 0.5rem; text-align: left; margin: 0.5rem 0; }
+  .pwa-step { display: flex; gap: 0.6rem; align-items: flex-start; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 0.625rem; padding: 0.5rem 0.6rem; }
+  .pwa-step-num { flex: 0 0 1.5rem; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .pwa-step-text { font-size: 0.85rem; color: var(--text); line-height: 1.4; }
 
   .features-help-btn {
     position: absolute;
@@ -6543,6 +6548,33 @@
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
+<!--  PWA INSTALL PROMPT (intro + guided steps)   -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tools-overlay" id="pwa-install-overlay">
+  <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
+    <div id="pwa-intro-view">
+      <div class="tools-modal-title" data-i18n="pwaTitle">Install SideKick</div>
+      <div style="font-size:0.9rem;color:var(--text);margin:0.5rem 0;line-height:1.45;" data-i18n="pwaWhy">Add SideKick to your home screen for fullscreen, faster game nights. Safe: no app-store download, no extra permissions — just this site, saved as an app, with automatic updates.</div>
+      <div style="display:flex;gap:0.5rem;margin-top:0.6rem;">
+        <button class="btn-secondary btn-sm" style="flex:1;" onclick="closePwaPrompt()" data-i18n="close">Close</button>
+        <button class="btn-primary btn-sm" style="flex:1;" onclick="openPwaGuide()" data-i18n="pwaShowHow">Show Me How</button>
+      </div>
+    </div>
+    <div id="pwa-guide-view" style="display:none;">
+      <div class="tools-modal-title" data-i18n="pwaTitle">Install SideKick</div>
+      <div id="pwa-install-now-wrap" style="display:none;">
+        <button class="btn-primary btn-sm" style="width:100%;margin-bottom:0.5rem;" onclick="pwaInstallNow()" data-i18n="pwaInstallNow">Install Now</button>
+      </div>
+      <div class="pwa-steps" id="pwa-steps-list"></div>
+      <div style="display:flex;gap:0.5rem;margin-top:0.6rem;">
+        <button class="btn-secondary btn-sm" style="flex:1;" onclick="pwaBackToIntro()" data-i18n="pwaBack">Back</button>
+        <button class="btn-primary btn-sm" style="flex:1;" onclick="closePwaPrompt()" data-i18n="pwaGotIt">Got It</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
 <!--  RESUME PROMPT (reopen into live session)    -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="resume-overlay">
@@ -7418,6 +7450,18 @@ const I18N_STRINGS = {
     welcomeBack: 'Welcome Back',
     resumePrompt: 'You have a game in progress. Would you like to continue where you left off?',
     resumeContinue: 'Continue',
+    pwaTitle: 'Install SideKick',
+    pwaWhy: 'Add SideKick to your home screen for fullscreen, faster game nights. Safe: no app-store download, no extra permissions — just this site, saved as an app, with automatic updates.',
+    pwaShowHow: 'Show Me How',
+    pwaInstallNow: 'Install Now',
+    pwaGotIt: 'Got It',
+    pwaBack: 'Back',
+    pwaIos1: "Tap the Share button in Safari's toolbar",
+    pwaIos2: "Scroll down and tap 'Add to Home Screen'",
+    pwaIos3: "Tap 'Add' in the top-right corner",
+    pwaAnd1: "Tap 'Install Now' above — or open the ⋮ menu and tap 'Add to Home screen'",
+    pwaAnd2: "Tap 'Install' in the confirmation dialog",
+    pwaAnd3: 'Open SideKick from your new home-screen icon',
     joinRoom: 'Join Room',
     tools: 'Tools',
     rng: 'RNG',
@@ -7559,6 +7603,18 @@ const I18N_STRINGS = {
     welcomeBack: 'Bienvenido de nuevo',
     resumePrompt: 'Tienes una partida en curso. ¿Quieres continuar donde la dejaste?',
     resumeContinue: 'Continuar',
+    pwaTitle: 'Instalar SideKick',
+    pwaWhy: 'Añade SideKick a tu pantalla de inicio para noches de juego a pantalla completa y más rápidas. Seguro: sin descarga de tienda, sin permisos extra — solo este sitio, guardado como app, con actualizaciones automáticas.',
+    pwaShowHow: 'Muéstrame cómo',
+    pwaInstallNow: 'Instalar ahora',
+    pwaGotIt: 'Entendido',
+    pwaBack: 'Atrás',
+    pwaIos1: 'Toca el botón Compartir en la barra de Safari',
+    pwaIos2: "Desliza hacia abajo y toca 'Añadir a pantalla de inicio'",
+    pwaIos3: "Toca 'Añadir' en la esquina superior derecha",
+    pwaAnd1: "Toca 'Instalar ahora' arriba — o abre el menú ⋮ y toca 'Añadir a pantalla de inicio'",
+    pwaAnd2: "Toca 'Instalar' en el diálogo de confirmación",
+    pwaAnd3: 'Abre SideKick desde tu nuevo icono',
     joinRoom: 'Unirse a Sala',
     tools: 'Herramientas',
     rng: 'RNG',
@@ -7701,6 +7757,18 @@ const I18N_STRINGS = {
     welcomeBack: '欢迎回来',
     resumePrompt: '您有正在进行的游戏。是否继续？',
     resumeContinue: '继续',
+    pwaTitle: '安装 SideKick',
+    pwaWhy: '将 SideKick 添加到主屏幕，全屏畅玩游戏之夜，加载更快。安全：无需应用商店下载，无需额外权限——只是把本站保存为应用，并自动更新。',
+    pwaShowHow: '查看方法',
+    pwaInstallNow: '立即安装',
+    pwaGotIt: '知道了',
+    pwaBack: '返回',
+    pwaIos1: '点击 Safari 工具栏中的“分享”按钮',
+    pwaIos2: "向下滚动并点击“添加到主屏幕”",
+    pwaIos3: "点击右上角的“添加”",
+    pwaAnd1: "点击上方的“立即安装”——或打开 ⋮ 菜单并点击“添加到主屏幕”",
+    pwaAnd2: "在确认对话框中点击“安装”",
+    pwaAnd3: '从新的主屏幕图标打开 SideKick',
     joinRoom: '加入房间',
     tools: '工具',
     rng: 'RNG',
@@ -7843,6 +7911,18 @@ const I18N_STRINGS = {
     welcomeBack: 'Willkommen zurück',
     resumePrompt: 'Du hast ein laufendes Spiel. Möchtest du fortfahren?',
     resumeContinue: 'Fortfahren',
+    pwaTitle: 'SideKick installieren',
+    pwaWhy: 'Füge SideKick zu deinem Startbildschirm hinzu für Vollbild und schnellere Spieleabende. Sicher: kein App-Store-Download, keine extra Berechtigungen — nur diese Seite, als App gespeichert, mit automatischen Updates.',
+    pwaShowHow: 'Zeig mir wie',
+    pwaInstallNow: 'Jetzt installieren',
+    pwaGotIt: 'Verstanden',
+    pwaBack: 'Zurück',
+    pwaIos1: 'Tippe auf Teilen in der Safari-Symbolleiste',
+    pwaIos2: "Scrolle nach unten und tippe auf 'Zum Home-Bildschirm'",
+    pwaIos3: "Tippe oben rechts auf 'Hinzufügen'",
+    pwaAnd1: "Tippe oben auf 'Jetzt installieren' — oder öffne das ⋮-Menü und tippe auf 'Zum Startbildschirm hinzufügen'",
+    pwaAnd2: "Tippe im Bestätigungsdialog auf 'Installieren'",
+    pwaAnd3: 'Öffne SideKick über dein neues Startbildschirm-Symbol',
     joinRoom: 'Raum beitreten',
     tools: 'Werkzeuge',
     rng: 'RNG',
@@ -7985,6 +8065,18 @@ const I18N_STRINGS = {
     welcomeBack: 'Bon retour',
     resumePrompt: 'Une partie est en cours. Voulez-vous continuer ?',
     resumeContinue: 'Continuer',
+    pwaTitle: 'Installer SideKick',
+    pwaWhy: "Ajoutez SideKick à votre écran d'accueil pour des soirées jeux en plein écran et plus rapides. Sûr : aucun téléchargement, aucune autorisation supplémentaire — juste ce site, enregistré comme app, avec mises à jour automatiques.",
+    pwaShowHow: 'Montrez-moi',
+    pwaInstallNow: 'Installer',
+    pwaGotIt: 'Compris',
+    pwaBack: 'Retour',
+    pwaIos1: 'Touchez le bouton Partager dans la barre Safari',
+    pwaIos2: "Faites défiler et touchez 'Sur l'écran d'accueil'",
+    pwaIos3: "Touchez 'Ajouter' en haut à droite",
+    pwaAnd1: "Touchez 'Installer' ci-dessus — ou ouvrez le menu ⋮ puis 'Ajouter à l'écran d'accueil'",
+    pwaAnd2: "Touchez 'Installer' dans la confirmation",
+    pwaAnd3: 'Ouvrez SideKick depuis votre nouvelle icône',
     joinRoom: 'Rejoindre une salle',
     tools: 'Outils',
     rng: 'RNG',
@@ -8127,6 +8219,18 @@ const I18N_STRINGS = {
     welcomeBack: 'おかえりなさい',
     resumePrompt: '進行中のゲームがあります。続けますか？',
     resumeContinue: '続ける',
+    pwaTitle: 'SideKickをインストール',
+    pwaWhy: 'SideKickをホーム画面に追加して、全画面・高速なゲームナイトを。安全：ストアのダウンロード不要、余分な権限不要——このサイトをアプリとして保存するだけ。アップデートは自動です。',
+    pwaShowHow: '方法を見る',
+    pwaInstallNow: '今すぐインストール',
+    pwaGotIt: 'わかった',
+    pwaBack: '戻る',
+    pwaIos1: 'Safariのツールバーで共有ボタンをタップ',
+    pwaIos2: "下にスクロールして「ホーム画面に追加」をタップ",
+    pwaIos3: "右上の「追加」をタップ",
+    pwaAnd1: "上の「今すぐインストール」をタップ——または⋮メニューから「ホーム画面に追加」をタップ",
+    pwaAnd2: "確認ダイアログで「インストール」をタップ",
+    pwaAnd3: '新しいホーム画面アイコンからSideKickを開く',
     joinRoom: 'ルームに参加',
     tools: 'ツール',
     rng: 'RNG',
@@ -8269,6 +8373,18 @@ const I18N_STRINGS = {
     welcomeBack: 'Bentornato',
     resumePrompt: 'Hai una partita in corso. Vuoi continuare?',
     resumeContinue: 'Continua',
+    pwaTitle: 'Installa SideKick',
+    pwaWhy: 'Aggiungi SideKick alla schermata home per serate di gioco a tutto schermo e più veloci. Sicuro: nessun download dallo store, nessun permesso extra — solo questo sito, salvato come app, con aggiornamenti automatici.',
+    pwaShowHow: 'Mostrami come',
+    pwaInstallNow: 'Installa ora',
+    pwaGotIt: 'Capito',
+    pwaBack: 'Indietro',
+    pwaIos1: 'Tocca Condividi nella barra di Safari',
+    pwaIos2: "Scorri in basso e tocca 'Aggiungi a Home'",
+    pwaIos3: "Tocca 'Aggiungi' in alto a destra",
+    pwaAnd1: "Tocca 'Installa ora' qui sopra — oppure apri il menu ⋮ e tocca 'Aggiungi a schermata Home'",
+    pwaAnd2: "Tocca 'Installa' nella conferma",
+    pwaAnd3: 'Apri SideKick dalla nuova icona',
     joinRoom: 'Entra in Sala',
     tools: 'Strumenti',
     rng: 'RNG',
@@ -8411,6 +8527,18 @@ const I18N_STRINGS = {
     welcomeBack: 'Bem-vindo de volta',
     resumePrompt: 'Você tem um jogo em andamento. Deseja continuar?',
     resumeContinue: 'Continuar',
+    pwaTitle: 'Instalar SideKick',
+    pwaWhy: 'Adicione o SideKick à tela inicial para noites de jogo em tela cheia e mais rápidas. Seguro: sem download de loja, sem permissões extras — só este site, salvo como app, com atualizações automáticas.',
+    pwaShowHow: 'Mostre-me como',
+    pwaInstallNow: 'Instalar agora',
+    pwaGotIt: 'Entendi',
+    pwaBack: 'Voltar',
+    pwaIos1: 'Toque em Compartilhar na barra do Safari',
+    pwaIos2: "Role para baixo e toque em 'Adicionar à Tela de Início'",
+    pwaIos3: "Toque em 'Adicionar' no canto superior direito",
+    pwaAnd1: "Toque em 'Instalar agora' acima — ou abra o menu ⋮ e toque em 'Adicionar à tela inicial'",
+    pwaAnd2: "Toque em 'Instalar' na confirmação",
+    pwaAnd3: 'Abra o SideKick pelo novo ícone',
     joinRoom: 'Entrar na Sala',
     tools: 'Ferramentas',
     rng: 'RNG',
@@ -19208,28 +19336,117 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// PWA install prompt
+// PWA install prompt (intro + guided steps, iOS/Android versions)
 let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  try { if (localStorage.getItem('sk_install_dismissed') === '1') return; } catch {}
-  document.getElementById('install-banner').style.display = 'flex';
-});
-
-window.installPWA = function() {
+let _pwaPromptTries = 0;
+const PWA_SNOOZE_DAYS = 14;
+function isPwaInstalled() {
+  try {
+    if (window.matchMedia && (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.matchMedia('(display-mode: fullscreen)').matches ||
+      window.matchMedia('(display-mode: minimal-ui)').matches)) return true;
+  } catch {}
+  if (window.navigator && window.navigator.standalone === true) return true; // iOS home-screen launch
+  return false;
+}
+function getMobilePlatform() {
+  const ua = navigator.userAgent || '';
+  if (/iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return 'ios';
+  if (/Android/.test(ua)) return 'android';
+  return 'other';
+}
+function pwaPromptSnoozed() {
+  try {
+    if (localStorage.getItem('sk_install_dismissed') === '1') return true; // legacy banner dismissal
+    const v = parseInt(localStorage.getItem('sk_pwa_prompt_snooze') || '0', 10);
+    if (v && Date.now() < v) return true;
+  } catch {}
+  return false;
+}
+function snoozePwaPrompt() {
+  try { localStorage.setItem('sk_pwa_prompt_snooze', String(Date.now() + PWA_SNOOZE_DAYS * 24 * 60 * 60 * 1000)); } catch {}
+}
+function anyBlockingOverlayShowing() {
+  return !!document.querySelector('.tools-overlay.show, .avatar-overlay.show, .color-picker-overlay.show');
+}
+function maybeShowPwaPrompt() {
+  if (isPwaInstalled()) return; // already installed — never prompt
+  const plat = getMobilePlatform();
+  if (plat !== 'ios' && plat !== 'android') return; // phone-only prompt
+  if (pwaPromptSnoozed()) return;
+  if (anyBlockingOverlayShowing()) {
+    // Don't fight the resume prompt or other overlays — retry shortly
+    if (_pwaPromptTries < 4) { _pwaPromptTries++; setTimeout(maybeShowPwaPrompt, 4000); }
+    return;
+  }
+  openPwaIntro();
+}
+function renderPwaSteps() {
+  const plat = getMobilePlatform();
+  const keys = plat === 'ios' ? ['pwaIos1', 'pwaIos2', 'pwaIos3'] : ['pwaAnd1', 'pwaAnd2', 'pwaAnd3'];
+  const list = document.getElementById('pwa-steps-list');
+  if (!list) return;
+  list.innerHTML = '';
+  keys.forEach((k, i) => {
+    const row = document.createElement('div');
+    row.className = 'pwa-step';
+    const num = document.createElement('div');
+    num.className = 'pwa-step-num';
+    num.textContent = String(i + 1);
+    const txt = document.createElement('div');
+    txt.className = 'pwa-step-text';
+    txt.textContent = t(k);
+    row.appendChild(num);
+    row.appendChild(txt);
+    list.appendChild(row);
+  });
+  // Android one-tap install when the browser offers it
+  const wrap = document.getElementById('pwa-install-now-wrap');
+  if (wrap) wrap.style.display = (plat === 'android' && deferredPrompt) ? '' : 'none';
+}
+window.openPwaIntro = function() {
+  document.getElementById('pwa-intro-view').style.display = '';
+  document.getElementById('pwa-guide-view').style.display = 'none';
+  document.getElementById('pwa-install-overlay').classList.add('show');
+  haptic(5);
+};
+window.openPwaGuide = function() {
+  renderPwaSteps();
+  document.getElementById('pwa-intro-view').style.display = 'none';
+  document.getElementById('pwa-guide-view').style.display = '';
+  haptic(5);
+};
+window.pwaBackToIntro = function() {
+  document.getElementById('pwa-guide-view').style.display = 'none';
+  document.getElementById('pwa-intro-view').style.display = '';
+  haptic(3);
+};
+window.closePwaPrompt = function() {
+  document.getElementById('pwa-install-overlay').classList.remove('show');
+  snoozePwaPrompt();
+  haptic(3);
+};
+window.pwaInstallNow = function() {
   if (!deferredPrompt) return;
   deferredPrompt.prompt();
   deferredPrompt.userChoice.then(() => {
     deferredPrompt = null;
-    document.getElementById('install-banner').style.display = 'none';
-  });
+    document.getElementById('pwa-install-overlay').classList.remove('show');
+  }).catch(() => {});
 };
-
-window.dismissInstall = function() {
-  document.getElementById('install-banner').style.display = 'none';
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  maybeShowPwaPrompt();
+});
+window.addEventListener('appinstalled', () => {
   try { localStorage.setItem('sk_install_dismissed', '1'); } catch {}
-};
+  const ov = document.getElementById('pwa-install-overlay');
+  if (ov) ov.classList.remove('show');
+  deferredPrompt = null;
+});
+setTimeout(maybeShowPwaPrompt, 2500);
 
 </script>
 
@@ -19356,18 +19573,6 @@ window.dismissInstall = function() {
       <button class="btn-secondary btn-sm" id="app-dialog-cancel" onclick="appDialogResolve(false)">Cancel</button>
       <button class="btn-primary btn-sm" id="app-dialog-ok" onclick="appDialogResolve(true)">OK</button>
     </div>
-  </div>
-</div>
-
-<!-- PWA INSTALL BANNER -->
-<div id="install-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#1a1a2e; border-top:1px solid #2a2a3a; padding:0.85rem 1.25rem; align-items:center; justify-content:space-between; gap:1rem; z-index:500;">
-  <div>
-    <div style="font-size:0.9rem; font-weight:600; color:#f0eeff;">Add to Home Screen</div>
-    <div style="font-size:0.75rem; color:#7a7a9a;">Install SideKick for quick access</div>
-  </div>
-  <div style="display:flex; gap:0.5rem; flex-shrink:0;">
-    <button onclick="dismissInstall()" style="width:auto; padding:0.4rem 0.8rem; font-size:0.8rem; background:transparent; border:1px solid #2a2a3a; border-radius:0.5rem; color:#7a7a9a;">Not now</button>
-    <button onclick="installPWA()" style="width:auto; padding:0.4rem 0.9rem; font-size:0.8rem; background:#7c5cbf; border:none; border-radius:0.5rem; color:#fff; font-weight:600;">Install</button>
   </div>
 </div>
 
