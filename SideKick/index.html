@@ -4211,6 +4211,14 @@
   /* Preset editor grid — compact so the whole overlay fits without scrolling */
   #preset-features-grid .feature-card { height: 2.5rem; }
   #preset-features-grid .feature-card .fc-name { font-size: 0.8rem; }
+  /* Custom inline keyboard (Step 1 name fields) */
+  .custom-kb-row { display: flex; gap: 0.3rem; justify-content: center; margin-bottom: 0.3rem; }
+  .custom-kb-row:last-child { margin-bottom: 0; }
+  .kb-key { flex: 1 1 0; min-width: 0; padding: 0.55rem 0; font-size: 1rem; font-weight: 700; border-radius: 0.5rem; border: 1px solid var(--border); background: rgba(255,255,255,0.06); color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .kb-key:active { background: rgba(124,92,191,0.35); }
+  .kb-wide { flex: 1.8 1 0; font-size: 0.85rem; }
+  .kb-space { flex: 5 1 0; }
+  .kb-on { background: rgba(124,92,191,0.4); border-color: var(--accent); }
 
 
   .features-help-btn {
@@ -5178,6 +5186,8 @@
   </div><!-- end scaler-home -->
   <!-- What Is SideKick? button (outside scaler, fixed at bottom) -->
     <button onclick="openTutorial()" style="position:absolute;bottom:calc(1.2rem + env(safe-area-inset-bottom, 0));left:50%;transform:translateX(-50%);width:auto;padding:0.5rem 1rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--muted);font-size:0.82rem;cursor:pointer;transition:color 0.2s,border-color 0.2s;z-index:5;max-width:90vw;">What Is SideKick?</button>
+  <!-- Custom keyboard toggle (outside scaler, fixed at bottom left) -->
+    <button id="kb-toggle-btn" onclick="toggleCustomKb()" title="Toggle custom keyboard" style="position:absolute;bottom:calc(1.2rem + env(safe-area-inset-bottom, 0));left:1rem;width:auto;padding:0.5rem 0.8rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--muted);font-size:0.82rem;cursor:pointer;z-index:5;">⌨️ <span style="font-weight:800;">OFF</span></button>
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
@@ -5305,6 +5315,9 @@
 
     </div><!-- end cards area -->
 
+    <!-- Custom inline keyboard (Step 1 name field) -->
+    <div id="create-kb" class="custom-kb" style="display:none;width:100%;max-width:23.75rem;margin:0 auto;padding:0.25rem 1rem 0.5rem;flex-shrink:0;"></div>
+
     <!-- Bottom buttons -->
     <div id="create-wizard-btns" style="width:100%;max-width:23.75rem;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
       <p id="create-status" class="status"></p>
@@ -5383,6 +5396,9 @@
     </div>
 
     </div><!-- end cards area -->
+
+    <!-- Custom inline keyboard (Step 1 name field) -->
+    <div id="join-kb" class="custom-kb" style="display:none;width:100%;max-width:23.75rem;margin:0 auto;padding:0.25rem 1rem 0.5rem;flex-shrink:0;"></div>
 
     <!-- Wizard buttons (outside cards area, pinned to bottom) -->
     <div id="join-wizard-btns" style="width:100%;max-width:23.75rem;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
@@ -10724,6 +10740,172 @@ document.addEventListener('focusin', (e) => {
     try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch {}
   }, 350);
 });
+
+// ── CUSTOM INLINE KEYBOARD (Step 1 name fields) ──
+// Opt-in via the homepage toggle. When on, the native keyboard is suppressed
+// (readonly + inputmode=none) and typing happens on the inline key grid.
+const CUSTOM_KB_KEY = 'sk_custom_kb';
+let kbShift = false;
+let kbSyms = false;
+let kbActiveInput = null;
+let kbActiveCtx = null;
+const KB_ALPHA_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
+const KB_SYM_ROWS = ['1234567890', '-/:;()$&@', '.,?!\'"_*'];
+function isCustomKbEnabled() {
+  try { return localStorage.getItem(CUSTOM_KB_KEY) === '1'; } catch { return false; }
+}
+function setCustomKbEnabled(on) {
+  try { localStorage.setItem(CUSTOM_KB_KEY, on ? '1' : '0'); } catch {}
+  applyCustomKbMode();
+}
+window.toggleCustomKb = function() {
+  setCustomKbEnabled(!isCustomKbEnabled());
+  haptic(10);
+};
+function updateKbToggleBtn() {
+  const btn = document.getElementById('kb-toggle-btn');
+  if (!btn) return;
+  const on = isCustomKbEnabled();
+  btn.innerHTML = '⌨️ <span style="font-weight:800;">' + (on ? 'ON' : 'OFF') + '</span>';
+  btn.style.borderColor = on ? 'var(--accent)' : 'var(--border)';
+  btn.style.color = on ? 'var(--text)' : 'var(--muted)';
+}
+function applyCustomKbMode() {
+  const on = isCustomKbEnabled();
+  ['host-name', 'join-name'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (on) { el.setAttribute('readonly', 'readonly'); el.setAttribute('inputmode', 'none'); }
+    else { el.removeAttribute('readonly'); el.removeAttribute('inputmode'); }
+  });
+  updateKbToggleBtn();
+  if (!on) { hideKb('create'); hideKb('join'); }
+}
+function showKb(ctx) {
+  const box = document.getElementById(ctx + '-kb');
+  if (box) box.style.display = 'block';
+}
+function hideKb(ctx) {
+  const box = document.getElementById(ctx + '-kb');
+  if (box) box.style.display = 'none';
+  if (kbActiveCtx === ctx) { kbActiveInput = null; kbActiveCtx = null; }
+}
+function kbInputBlurred(ctx) {
+  setTimeout(() => {
+    const box = document.getElementById(ctx + '-kb');
+    const ae = document.activeElement;
+    if (box && ae && box.contains(ae)) {
+      const inp = document.getElementById(ctx === 'create' ? 'host-name' : 'join-name');
+      if (inp) { try { inp.focus({ preventScroll: true }); } catch { try { inp.focus(); } catch {} } }
+      return;
+    }
+    hideKb(ctx);
+  }, 60);
+}
+function kbEsc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+function kbKeyHTML(label, key, cls) {
+  return '<button type="button" tabindex="-1" class="kb-key' + (cls ? ' ' + cls : '') + '" data-k="' + kbEsc(key) + '" onpointerdown="event.preventDefault()">' + label + '</button>';
+}
+function kbActHTML(label, act, cls) {
+  return '<button type="button" tabindex="-1" class="kb-key' + (cls ? ' ' + cls : '') + '" data-act="' + act + '" onpointerdown="event.preventDefault()">' + label + '</button>';
+}
+function renderKb() {
+  [['create'], ['join']].forEach(([ctx]) => {
+    const box = document.getElementById(ctx + '-kb');
+    if (!box) return;
+    let html = '';
+    if (!kbSyms) {
+      html += '<div class="custom-kb-row">' + KB_ALPHA_ROWS[0].split('').map((ch) => kbKeyHTML(kbShift ? ch.toUpperCase() : ch, ch)).join('') + '</div>';
+      html += '<div class="custom-kb-row">' + KB_ALPHA_ROWS[1].split('').map((ch) => kbKeyHTML(kbShift ? ch.toUpperCase() : ch, ch)).join('') + '</div>';
+      html += '<div class="custom-kb-row">' + kbActHTML('⇧', 'shift', 'kb-wide' + (kbShift ? ' kb-on' : '')) + KB_ALPHA_ROWS[2].split('').map((ch) => kbKeyHTML(kbShift ? ch.toUpperCase() : ch, ch)).join('') + kbActHTML('⌫', 'back', 'kb-wide') + '</div>';
+      html += '<div class="custom-kb-row">' + kbActHTML('123', 'syms', 'kb-wide') + kbKeyHTML('&nbsp;', ' ', 'kb-space') + kbActHTML('Done', 'done', 'kb-wide') + '</div>';
+    } else {
+      html += '<div class="custom-kb-row">' + KB_SYM_ROWS[0].split('').map((ch) => kbKeyHTML(kbEsc(ch), ch)).join('') + '</div>';
+      html += '<div class="custom-kb-row">' + KB_SYM_ROWS[1].split('').map((ch) => kbKeyHTML(kbEsc(ch), ch)).join('') + '</div>';
+      html += '<div class="custom-kb-row">' + kbActHTML('ABC', 'syms', 'kb-wide') + KB_SYM_ROWS[2].split('').map((ch) => kbKeyHTML(kbEsc(ch), ch)).join('') + kbActHTML('⌫', 'back', 'kb-wide') + '</div>';
+      html += '<div class="custom-kb-row">' + kbActHTML('ABC', 'syms', 'kb-wide') + kbKeyHTML('&nbsp;', ' ', 'kb-space') + kbActHTML('Done', 'done', 'kb-wide') + '</div>';
+    }
+    box.innerHTML = html;
+    box.querySelectorAll('[data-k]').forEach((b) => b.addEventListener('click', () => kbPress(b.getAttribute('data-k'))));
+    box.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', () => {
+      const a = b.getAttribute('data-act');
+      if (a === 'shift') kbShiftToggle();
+      else if (a === 'syms') kbSymsToggle();
+      else if (a === 'back') kbBackspace();
+      else if (a === 'done') kbDone();
+    }));
+  });
+}
+function kbInsert(ch) {
+  const el = kbActiveInput;
+  if (!el) return;
+  const max = el.maxLength > 0 ? el.maxLength : 20;
+  let s = el.selectionStart, e = el.selectionEnd;
+  if (s == null) { s = e = el.value.length; }
+  const v = el.value.slice(0, s) + ch + el.value.slice(e);
+  if (v.length > max) return;
+  el.value = v;
+  const pos = s + ch.length;
+  try { el.setSelectionRange(pos, pos); } catch {}
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+}
+function kbBackspace() {
+  const el = kbActiveInput;
+  if (!el || !el.value) return;
+  let s = el.selectionStart, e = el.selectionEnd;
+  if (s == null) { s = e = el.value.length; }
+  if (s !== e) {
+    el.value = el.value.slice(0, s) + el.value.slice(e);
+    try { el.setSelectionRange(s, s); } catch {}
+  } else if (s > 0) {
+    el.value = el.value.slice(0, s - 1) + el.value.slice(s);
+    try { el.setSelectionRange(s - 1, s - 1); } catch {}
+  }
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+  haptic(5);
+}
+function kbPress(ch) {
+  if (kbShift && /^[a-z]$/.test(ch)) { ch = ch.toUpperCase(); kbShift = false; renderKb(); }
+  kbInsert(ch);
+  haptic(5);
+}
+function kbShiftToggle() {
+  kbShift = !kbShift;
+  kbSyms = false;
+  renderKb();
+  haptic(5);
+}
+function kbSymsToggle() {
+  kbSyms = !kbSyms;
+  kbShift = false;
+  renderKb();
+  haptic(5);
+}
+function kbDone() {
+  const el = kbActiveInput;
+  const ctx = kbActiveCtx;
+  if (el) el.blur();
+  if (ctx) hideKb(ctx);
+  haptic(5);
+}
+[['host-name', 'create'], ['join-name', 'join']].forEach(([id, ctx]) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('focus', () => {
+    if (!isCustomKbEnabled()) return;
+    kbActiveInput = el;
+    kbActiveCtx = ctx;
+    kbShift = false;
+    kbSyms = false;
+    renderKb();
+    showKb(ctx);
+  });
+  el.addEventListener('blur', () => kbInputBlurred(ctx));
+});
+renderKb();
+applyCustomKbMode();
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
   document.documentElement.style.setProperty('--app-height', h + 'px');
