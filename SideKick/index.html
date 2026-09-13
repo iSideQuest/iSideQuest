@@ -4214,6 +4214,7 @@
   /* Visible blinking caret in custom-keyboard fields */
   input, textarea { caret-color: var(--accent-light); }
   #host-name, #join-name, #join-code { caret-color: transparent; }
+  #host-name, #join-name { font-size: 1.2rem; }
   #kb-fake-caret { animation: kbCaretBlink 1.1s ease-in-out infinite; }
   @keyframes kbCaretBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
   /* Custom inline keyboard (Step 1 name fields) */
@@ -5325,7 +5326,7 @@
     </div><!-- end cards area -->
 
     <!-- Custom inline keyboard (Step 1 name field) -->
-    <div id="create-kb" class="custom-kb" style="display:none;width:100%;max-width:23.75rem;margin:0 auto;padding:0.5rem 0.2rem 0.5rem;flex-shrink:0;align-self:center;box-sizing:border-box;"></div>
+    <div id="create-kb" class="custom-kb" onpointerdown="event.preventDefault()" style="display:none;width:100%;max-width:23.75rem;margin:0 auto;padding:0.5rem 0.2rem 0.5rem;flex-shrink:0;align-self:center;box-sizing:border-box;"></div>
 
     <!-- Bottom buttons -->
     <div id="create-wizard-btns" style="width:100%;max-width:23.75rem;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
@@ -5407,7 +5408,7 @@
     </div><!-- end cards area -->
 
     <!-- Custom inline keyboard (Step 1 name field) -->
-    <div id="join-kb" class="custom-kb" style="display:none;width:100%;max-width:23.75rem;margin:0 auto;padding:0.5rem 0.2rem 0.5rem;flex-shrink:0;align-self:center;box-sizing:border-box;"></div>
+    <div id="join-kb" class="custom-kb" onpointerdown="event.preventDefault()" style="display:none;width:100%;max-width:23.75rem;margin:0 auto;padding:0.5rem 0.2rem 0.5rem;flex-shrink:0;align-self:center;box-sizing:border-box;"></div>
 
     <!-- Wizard buttons (outside cards area, pinned to bottom) -->
     <div id="join-wizard-btns" style="width:100%;max-width:23.75rem;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
@@ -10799,6 +10800,8 @@ function applyCustomKbMode() {
 function showKb(ctx) {
   const box = document.getElementById(ctx + '-kb');
   if (!box) return;
+  box._kbState = 'shown';
+  try { box.getAnimations().forEach((a) => { try { a.cancel(); } catch {} }); } catch {}
   box.style.display = 'block';
   box.style.visibility = 'visible';
   // Rise-and-grow pop, same motion language as the Step cards
@@ -10815,10 +10818,27 @@ function hideKb(ctx) {
   if (kbActiveCtx === ctx) { kbActiveInput = null; kbActiveCtx = null; }
   const box = document.getElementById(ctx + '-kb');
   if (!box) return;
-  box.classList.remove('kb-enter');
-  // Restage (keep the reserved space so the card never moves) or hide fully
-  if (kbShouldStage(ctx)) { box.style.display = 'block'; box.style.visibility = 'hidden'; }
-  else { box.style.display = 'none'; box.style.visibility = ''; }
+  const applyEndState = () => {
+    box._kbState = 'hidden';
+    // Restage (keep the reserved space so the card never moves) or hide fully
+    if (kbShouldStage(ctx)) { box.style.display = 'block'; box.style.visibility = 'hidden'; }
+    else { box.style.display = 'none'; box.style.visibility = ''; }
+  };
+  const finish = () => {
+    if (box._kbState !== 'hiding') return;
+    applyEndState();
+  };
+  if (box._kbState !== 'shown') { applyEndState(); return; }
+  box._kbState = 'hiding';
+  // Reverse of the entrance: sink and fade out
+  try {
+    const anim = box.animate(
+      [{ transform: 'translateY(0) scale(1)', opacity: '1' }, { transform: 'translateY(2rem) scale(0.95)', opacity: '0' }],
+      { duration: 180, easing: 'ease-in' }
+    );
+    anim.onfinish = finish;
+    setTimeout(finish, 250); // fallback if finish never fires
+  } catch { finish(); }
 }
 // Step number, TDZ-safe (syncKbStaging also runs during boot before these lets exist)
 function kbStepOf(ctx) {
