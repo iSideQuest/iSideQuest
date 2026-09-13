@@ -10827,11 +10827,15 @@ function kbShouldStage(ctx) {
 // only fades the keys in — the card never moves. Also collapses the flex
 // gap so the keyboard sits right under the card. Steps 2/3 untouched.
 function syncKbStaging() {
-  ['create', 'join'].forEach((ctx) => {
+  [['create', 'create-cards-area'], ['join', 'join-cards-area']].forEach(([ctx, areaId]) => {
     const box = document.getElementById(ctx + '-kb');
+    const area = document.getElementById(areaId);
+    const stage = kbShouldStage(ctx);
+    // Bottom-pack the Step 1 card right above the keyboard while staged
+    if (area) area.style.justifyContent = stage ? 'flex-end' : '';
     if (!box || kbActiveCtx === ctx) return;
     box.classList.remove('kb-enter');
-    if (kbShouldStage(ctx)) { box.style.display = 'block'; box.style.visibility = 'hidden'; }
+    if (stage) { box.style.display = 'block'; box.style.visibility = 'hidden'; }
     else { box.style.display = 'none'; box.style.visibility = ''; }
   });
 }
