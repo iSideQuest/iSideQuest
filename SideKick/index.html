@@ -5198,9 +5198,21 @@
     </button>
   </div>
   </div><!-- end scaler-home -->
-  <!-- What Is SideKick? button (outside scaler, fixed at bottom) -->
+  <!-- TEMP-HIDDEN: What Is SideKick? button (kept for reference — uncomment to restore)
     <button onclick="openTutorial()" style="position:absolute;bottom:calc(1.2rem + env(safe-area-inset-bottom, 0));left:50%;transform:translateX(-50%);width:auto;padding:0.5rem 1rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.82rem;cursor:pointer;transition:color 0.2s,border-color 0.2s;z-index:5;max-width:90vw;">What Is SideKick?</button>
-
+  -->
+  <!-- Start Here: tier entry points (outside scaler, fixed at bottom) -->
+  <div style="position:absolute;bottom:calc(0.9rem + env(safe-area-inset-bottom, 0));left:1rem;right:1rem;z-index:5;">
+    <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;">
+      <div style="flex:1;height:2px;background:linear-gradient(to right,transparent,var(--accent));border-radius:1px;"></div>
+      <span style="font-size:0.8rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-light);white-space:nowrap;" data-i18n="startHere">Start Here</span>
+      <div style="flex:1;height:2px;background:linear-gradient(to left,transparent,var(--accent));border-radius:1px;"></div>
+    </div>
+    <div style="display:flex;gap:0.6rem;">
+      <button onclick="openSidekickInfo()" style="flex:1;width:auto;padding:0.55rem 0.5rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.9rem;font-weight:700;cursor:pointer;">SideKick</button>
+      <button onclick="openLegendaryInfo()" style="flex:1;width:auto;padding:0.55rem 0.5rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.9rem;font-weight:700;cursor:pointer;">Legendary SideKick</button>
+    </div>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
@@ -6580,6 +6592,35 @@
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
+<!--  TIER INFO OVERLAYS (SideKick / Legendary)   -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tools-overlay" id="sidekick-info-overlay">
+  <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
+    <div class="tools-modal-title">SideKick</div>
+    <div style="font-size:0.85rem;font-weight:800;letter-spacing:0.06em;color:var(--accent-light);margin:0.4rem 0 0;" data-i18n="freeNoSignup">100% FREE - No Sign Up</div>
+    <div style="font-size:0.9rem;color:var(--text);margin:0.5rem 0 0;" data-i18n="watchVideoHowTo">Watch Video For How To Use SideKick</div>
+    <div style="width:100%;aspect-ratio:16/9;border-radius:0.625rem;border:1px solid var(--border);background:rgba(0,0,0,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;margin:0.6rem 0;">
+      <div style="font-size:1.6rem;">▶️</div>
+      <div style="font-size:0.75rem;color:var(--muted);" data-i18n="videoComingSoon">Video coming soon</div>
+    </div>
+    <button class="btn-primary btn-sm" style="width:100%;" onclick="upgradeToLegendary()" data-i18n="upgradeToLegendary">Upgrade To Legendary</button>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeSidekickInfo()" data-i18n="close">Close</button>
+  </div>
+</div>
+<div class="tools-overlay" id="legendary-info-overlay">
+  <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
+    <div class="tools-modal-title">Legendary SideKick</div>
+    <div style="font-size:0.9rem;color:var(--text);margin:0.5rem 0 0;" data-i18n="watchVideoHowTo">Watch Video For How To Use SideKick</div>
+    <div style="width:100%;aspect-ratio:16/9;border-radius:0.625rem;border:1px solid var(--border);background:rgba(0,0,0,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;margin:0.6rem 0;">
+      <div style="font-size:1.6rem;">▶️</div>
+      <div style="font-size:0.75rem;color:var(--muted);" data-i18n="videoComingSoon">Video coming soon</div>
+    </div>
+    <button class="btn-primary btn-sm" style="width:100%;" onclick="buyLegendary()" data-i18n="buyNow">Buy Now</button>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeLegendaryInfo()" data-i18n="close">Close</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
 <!--  RESUME PROMPT (reopen into live session)    -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="resume-overlay">
@@ -7454,6 +7495,13 @@ const I18N_STRINGS = {
     hostPresetGame: 'Host Preset Room',
     upgradeToProMsg: 'Go here to upgrade to SideKick Pro',
     upgradeLockMsg: 'Upgrade To Pro SideKick To Unlock',
+    startHere: 'Start Here',
+    freeNoSignup: '100% FREE - No Sign Up',
+    watchVideoHowTo: 'Watch Video For How To Use SideKick',
+    videoComingSoon: 'Video coming soon',
+    upgradeToLegendary: 'Upgrade To Legendary',
+    buyNow: 'Buy Now',
+    comingSoon: 'Coming soon',
     welcomeBack: 'Welcome Back',
     resumePrompt: 'You have a game in progress. Would you like to continue where you left off?',
     resumeContinue: 'Continue',
@@ -7597,6 +7645,13 @@ const I18N_STRINGS = {
     hostPresetGame: 'Sala Preestablecida',
     upgradeToProMsg: 'Ve aquí para mejorar a SideKick Pro',
     upgradeLockMsg: 'Mejora a SideKick Pro para desbloquear',
+    startHere: 'Empieza aquí',
+    freeNoSignup: '100% GRATIS - Sin registro',
+    watchVideoHowTo: 'Mira el video para usar SideKick',
+    videoComingSoon: 'Video próximamente',
+    upgradeToLegendary: 'Mejora a Legendary',
+    buyNow: 'Comprar ahora',
+    comingSoon: 'Próximamente',
     welcomeBack: 'Bienvenido de nuevo',
     resumePrompt: 'Tienes una partida en curso. ¿Quieres continuar donde la dejaste?',
     resumeContinue: 'Continuar',
@@ -7741,6 +7796,13 @@ const I18N_STRINGS = {
     hostPresetGame: '预设房间',
     upgradeToProMsg: '前往此处升级到 SideKick Pro',
     upgradeLockMsg: '升级到 SideKick Pro 以解锁',
+    startHere: '从这里开始',
+    freeNoSignup: '100% 免费 - 无需注册',
+    watchVideoHowTo: '观看视频了解如何使用 SideKick',
+    videoComingSoon: '视频即将上线',
+    upgradeToLegendary: '升级到 Legendary',
+    buyNow: '立即购买',
+    comingSoon: '即将上线',
     welcomeBack: '欢迎回来',
     resumePrompt: '您有正在进行的游戏。是否继续？',
     resumeContinue: '继续',
@@ -7885,6 +7947,13 @@ const I18N_STRINGS = {
     hostPresetGame: 'Preset-Raum',
     upgradeToProMsg: 'Gehe hier, um auf SideKick Pro zu upgraden',
     upgradeLockMsg: 'Upgrade auf SideKick Pro zum Freischalten',
+    startHere: 'Starte hier',
+    freeNoSignup: '100% KOSTENLOS - Keine Anmeldung',
+    watchVideoHowTo: 'Sieh dir das Video zur Nutzung von SideKick an',
+    videoComingSoon: 'Video kommt bald',
+    upgradeToLegendary: 'Auf Legendary upgraden',
+    buyNow: 'Jetzt kaufen',
+    comingSoon: 'Bald verfügbar',
     welcomeBack: 'Willkommen zurück',
     resumePrompt: 'Du hast ein laufendes Spiel. Möchtest du fortfahren?',
     resumeContinue: 'Fortfahren',
@@ -8029,6 +8098,13 @@ const I18N_STRINGS = {
     hostPresetGame: 'Salle Prédéfinie',
     upgradeToProMsg: 'Allez ici pour passer à SideKick Pro',
     upgradeLockMsg: 'Passez à SideKick Pro pour débloquer',
+    startHere: 'Commencez ici',
+    freeNoSignup: '100% GRATUIT - Sans inscription',
+    watchVideoHowTo: 'Regardez la vidéo pour utiliser SideKick',
+    videoComingSoon: 'Vidéo bientôt disponible',
+    upgradeToLegendary: 'Passer à Legendary',
+    buyNow: 'Acheter',
+    comingSoon: 'Bientôt disponible',
     welcomeBack: 'Bon retour',
     resumePrompt: 'Une partie est en cours. Voulez-vous continuer ?',
     resumeContinue: 'Continuer',
@@ -8173,6 +8249,13 @@ const I18N_STRINGS = {
     hostPresetGame: 'プリセットルーム',
     upgradeToProMsg: 'こちらからSideKick Proにアップグレード',
     upgradeLockMsg: 'SideKick Proにアップグレードして解除',
+    startHere: 'ここから始める',
+    freeNoSignup: '100%無料 - 登録不要',
+    watchVideoHowTo: 'SideKickの使い方動画を見る',
+    videoComingSoon: '動画は近日公開',
+    upgradeToLegendary: 'Legendaryにアップグレード',
+    buyNow: '今すぐ購入',
+    comingSoon: '近日公開',
     welcomeBack: 'おかえりなさい',
     resumePrompt: '進行中のゲームがあります。続けますか？',
     resumeContinue: '続ける',
@@ -8317,6 +8400,13 @@ const I18N_STRINGS = {
     hostPresetGame: 'Stanza Preimpostata',
     upgradeToProMsg: 'Vai qui per passare a SideKick Pro',
     upgradeLockMsg: 'Passa a SideKick Pro per sbloccare',
+    startHere: 'Inizia qui',
+    freeNoSignup: '100% GRATIS - Nessuna registrazione',
+    watchVideoHowTo: 'Guarda il video per usare SideKick',
+    videoComingSoon: 'Video in arrivo',
+    upgradeToLegendary: 'Passa a Legendary',
+    buyNow: 'Acquista ora',
+    comingSoon: 'In arrivo',
     welcomeBack: 'Bentornato',
     resumePrompt: 'Hai una partita in corso. Vuoi continuare?',
     resumeContinue: 'Continua',
@@ -8461,6 +8551,13 @@ const I18N_STRINGS = {
     hostPresetGame: 'Sala Predefinida',
     upgradeToProMsg: 'Vá aqui para atualizar para o SideKick Pro',
     upgradeLockMsg: 'Atualize para o SideKick Pro para desbloquear',
+    startHere: 'Comece aqui',
+    freeNoSignup: '100% GRÁTIS - Sem cadastro',
+    watchVideoHowTo: 'Assista ao vídeo para usar o SideKick',
+    videoComingSoon: 'Vídeo em breve',
+    upgradeToLegendary: 'Atualizar para Legendary',
+    buyNow: 'Comprar agora',
+    comingSoon: 'Em breve',
     welcomeBack: 'Bem-vindo de volta',
     resumePrompt: 'Você tem um jogo em andamento. Deseja continuar?',
     resumeContinue: 'Continuar',
@@ -9213,6 +9310,26 @@ window.openUpgradeLockOverlay = function() {
 };
 window.closeUpgradeLockOverlay = function() {
   document.getElementById('locked-feature-overlay').classList.remove('show');
+};
+window.openSidekickInfo = function() {
+  document.getElementById('sidekick-info-overlay').classList.add('show');
+  haptic(5);
+};
+window.closeSidekickInfo = function() {
+  document.getElementById('sidekick-info-overlay').classList.remove('show');
+};
+window.openLegendaryInfo = function() {
+  document.getElementById('legendary-info-overlay').classList.add('show');
+  haptic(5);
+};
+window.closeLegendaryInfo = function() {
+  document.getElementById('legendary-info-overlay').classList.remove('show');
+};
+window.upgradeToLegendary = function() {
+  showToast(t('comingSoon'));
+};
+window.buyLegendary = function() {
+  showToast(t('comingSoon'));
 };
 window.openVoicePresetsOverlay = function() {
   renderVoicePresets();
@@ -17448,6 +17565,13 @@ function clearAccountState() {
   stopHostInviteListener();
   stopFriendRequestListener();
   stopRoomInviteListener();
+  resetThemeToDefault();
+}
+// Back to the Original theme on logout so the next session (including
+// guests) doesn't inherit the previous account's custom theme.
+function resetThemeToDefault() {
+  try { localStorage.setItem('sk_named_theme', 'default'); } catch {}
+  applyFullTheme('default', document.body.classList.contains('light-mode'));
 }
 
 function genFriendCode() {
