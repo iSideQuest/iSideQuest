@@ -4038,7 +4038,8 @@
   .avatar-grid::-webkit-scrollbar { width:0.3125rem; }
   .avatar-grid::-webkit-scrollbar-track { background:transparent; }
   .avatar-grid::-webkit-scrollbar-thumb { background:var(--border); border-radius:0.25rem; }
-  .avatar-option { display:flex; align-items:center; justify-content:center; width:100%; aspect-ratio:1/1; border-radius:0.75rem; border:0.1875rem solid transparent; font-size:1.6rem; cursor:pointer; transition:transform 0.15s,border-color 0.15s,background 0.15s; background:#1e1e2e; overflow:hidden; contain:paint; position:relative; }
+  .avatar-option { display:flex; align-items:center; justify-content:center; width:100%; aspect-ratio:1/1; border-radius:0.75rem; border:0.1875rem solid transparent; font-size:2rem; cursor:pointer; transition:transform 0.15s,border-color 0.15s,background 0.15s; background:#1e1e2e; overflow:hidden; contain:paint; position:relative; }
+  #host-avatar-btn.avatar-filled > span, #join-avatar-btn.avatar-filled > span { font-size: 2.5rem; }
   .avatar-option:hover { transform:scale(1.1); }
   .avatar-option.selected { border-color:var(--accent-light); background:rgba(124,92,191,0.2); transform:scale(1.1); box-shadow:0 0 0 0.125rem rgba(124,92,191,0.3); }
   .avatar-option.locked { opacity:0.55; }
@@ -4961,7 +4962,7 @@
   #password-gate-card .pw-submit {
     width: 100%;
     padding: 0.7rem;
-    border-radius: 50%;
+    border-radius: 0.625rem;
     border: none;
     background: var(--accent);
     color: #fff;
@@ -5198,7 +5199,7 @@
   </div>
   </div><!-- end scaler-home -->
   <!-- What Is SideKick? button (outside scaler, fixed at bottom) -->
-    <button onclick="openTutorial()" style="position:absolute;bottom:calc(1.2rem + env(safe-area-inset-bottom, 0));left:50%;transform:translateX(-50%);width:auto;padding:0.5rem 1rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--muted);font-size:0.82rem;cursor:pointer;transition:color 0.2s,border-color 0.2s;z-index:5;max-width:90vw;">What Is SideKick?</button>
+    <button onclick="openTutorial()" style="position:absolute;bottom:calc(1.2rem + env(safe-area-inset-bottom, 0));left:50%;transform:translateX(-50%);width:auto;padding:0.5rem 1rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.82rem;cursor:pointer;transition:color 0.2s,border-color 0.2s;z-index:5;max-width:90vw;">What Is SideKick?</button>
 
 </div>
 
@@ -7419,6 +7420,7 @@ function haptic(ms, el) {
   const handler = (e) => {
     const t = e.target.closest(sel);
     if (!t || t.disabled || t.closest('[disabled]')) return;
+    if (t.closest('.custom-kb')) return; // custom keyboard vibrates explicitly per key
     window._lastHapticTarget = t;
     // Respect vibrate mode
     if (!shouldVibrateForElement(t)) return;
@@ -10765,8 +10767,16 @@ let kbActiveInput = null;
 let kbActiveCtx = null;
 const KB_ALPHA_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
 const KB_SYM_ROWS = ['1234567890', '-/:;()$&@', '.,?!\'"_*'];
+function kbDeviceAllowed() {
+  // Custom keyboard is a phone feature — PCs keep native typing.
+  // Touchscreen laptops stay native too (they have a physical keyboard).
+  const ua = navigator.userAgent || '';
+  const hasTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+  return hasTouch && isMobile;
+}
 function isCustomKbEnabled() {
-  return true; // custom keyboard is the default for all users
+  return kbDeviceAllowed(); // custom keyboard is the default on phones
 }
 function setCustomKbEnabled(on) {
   try { localStorage.setItem(CUSTOM_KB_KEY, on ? '1' : '0'); } catch {}
