@@ -6542,6 +6542,13 @@
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeUpgradeProOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
+<div class="tools-overlay" id="locked-feature-overlay" style="z-index:9900;">
+  <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
+    <div class="tools-modal-title">🔒 SideKick Pro</div>
+    <div style="font-size:0.95rem;color:var(--text);margin:0.5rem 0;" data-i18n="upgradeLockMsg">Upgrade To Pro SideKick To Unlock</div>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeUpgradeLockOverlay()" data-i18n="close">Close</button>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════ -->
 <!--  RESUME PROMPT (reopen into live session)    -->
@@ -7416,6 +7423,7 @@ const I18N_STRINGS = {
     hostNewRoom: 'Host New Room',
     hostPresetGame: 'Host Preset Room',
     upgradeToProMsg: 'Go here to upgrade to SideKick Pro',
+    upgradeLockMsg: 'Upgrade To Pro SideKick To Unlock',
     welcomeBack: 'Welcome Back',
     resumePrompt: 'You have a game in progress. Would you like to continue where you left off?',
     resumeContinue: 'Continue',
@@ -7558,6 +7566,7 @@ const I18N_STRINGS = {
     hostNewRoom: 'Crear Nueva Sala',
     hostPresetGame: 'Sala Preestablecida',
     upgradeToProMsg: 'Ve aquí para mejorar a SideKick Pro',
+    upgradeLockMsg: 'Mejora a SideKick Pro para desbloquear',
     welcomeBack: 'Bienvenido de nuevo',
     resumePrompt: 'Tienes una partida en curso. ¿Quieres continuar donde la dejaste?',
     resumeContinue: 'Continuar',
@@ -7701,6 +7710,7 @@ const I18N_STRINGS = {
     hostNewRoom: '创建新房间',
     hostPresetGame: '预设房间',
     upgradeToProMsg: '前往此处升级到 SideKick Pro',
+    upgradeLockMsg: '升级到 SideKick Pro 以解锁',
     welcomeBack: '欢迎回来',
     resumePrompt: '您有正在进行的游戏。是否继续？',
     resumeContinue: '继续',
@@ -7844,6 +7854,7 @@ const I18N_STRINGS = {
     hostNewRoom: 'Neuen Raum erstellen',
     hostPresetGame: 'Preset-Raum',
     upgradeToProMsg: 'Gehe hier, um auf SideKick Pro zu upgraden',
+    upgradeLockMsg: 'Upgrade auf SideKick Pro zum Freischalten',
     welcomeBack: 'Willkommen zurück',
     resumePrompt: 'Du hast ein laufendes Spiel. Möchtest du fortfahren?',
     resumeContinue: 'Fortfahren',
@@ -7987,6 +7998,7 @@ const I18N_STRINGS = {
     hostNewRoom: 'Créer une nouvelle salle',
     hostPresetGame: 'Salle Prédéfinie',
     upgradeToProMsg: 'Allez ici pour passer à SideKick Pro',
+    upgradeLockMsg: 'Passez à SideKick Pro pour débloquer',
     welcomeBack: 'Bon retour',
     resumePrompt: 'Une partie est en cours. Voulez-vous continuer ?',
     resumeContinue: 'Continuer',
@@ -8130,6 +8142,7 @@ const I18N_STRINGS = {
     hostNewRoom: '新しいルームを作成',
     hostPresetGame: 'プリセットルーム',
     upgradeToProMsg: 'こちらからSideKick Proにアップグレード',
+    upgradeLockMsg: 'SideKick Proにアップグレードして解除',
     welcomeBack: 'おかえりなさい',
     resumePrompt: '進行中のゲームがあります。続けますか？',
     resumeContinue: '続ける',
@@ -8273,6 +8286,7 @@ const I18N_STRINGS = {
     hostNewRoom: 'Crea Nuova Sala',
     hostPresetGame: 'Stanza Preimpostata',
     upgradeToProMsg: 'Vai qui per passare a SideKick Pro',
+    upgradeLockMsg: 'Passa a SideKick Pro per sbloccare',
     welcomeBack: 'Bentornato',
     resumePrompt: 'Hai una partita in corso. Vuoi continuare?',
     resumeContinue: 'Continua',
@@ -8416,6 +8430,7 @@ const I18N_STRINGS = {
     hostNewRoom: 'Criar Nova Sala',
     hostPresetGame: 'Sala Predefinida',
     upgradeToProMsg: 'Vá aqui para atualizar para o SideKick Pro',
+    upgradeLockMsg: 'Atualize para o SideKick Pro para desbloquear',
     welcomeBack: 'Bem-vindo de volta',
     resumePrompt: 'Você tem um jogo em andamento. Deseja continuar?',
     resumeContinue: 'Continuar',
@@ -9161,6 +9176,13 @@ window.openHostPresetGame = function() {
 window.closeUpgradeProOverlay = function() {
   document.getElementById('upgrade-pro-overlay').classList.remove('show');
 };
+window.openUpgradeLockOverlay = function() {
+  document.getElementById('locked-feature-overlay').classList.add('show');
+  haptic(5);
+};
+window.closeUpgradeLockOverlay = function() {
+  document.getElementById('locked-feature-overlay').classList.remove('show');
+};
 window.openVoicePresetsOverlay = function() {
   renderVoicePresets();
   document.getElementById('voice-presets-overlay').classList.add('show');
@@ -9420,29 +9442,25 @@ const AVATAR_CATEGORIES = [
   {
     key: 'fantasy', label: 'Fantasy',
     avatars: [
-      '🧙', '🧝', '🧛', '🧜', '🧞', '🐉', '🦄', '🐺', '⚔️', '🛡️', '🏹', '🔮', '🗡️', '👑',
-      ...AVATAR_IMG_SET
+      '🧙', '🧝', '🧛', '🧜', '🧞', '🐉', '🦄', '🐺', '⚔️', '🛡️', '🏹', '🔮', '🗡️', '👑'
     ]
   },
   {
     key: 'scifi', label: 'Sci-Fi',
     avatars: [
-      '👽', '🤖', '🛸', '🚀', '👾', '🧬', '⚙️', '💫', '🌌',
-      ...AVATAR_IMG_SET
+      '👽', '🤖', '🛸', '🚀', '👾', '🧬', '⚙️', '💫', '🌌'
     ]
   },
   {
     key: 'nature', label: 'Nature',
     avatars: [
-      '🌲', '🌳', '🌵', '🍄', '🌸', '🌻', '🍀', '🐻', '🦅', '🦉', '🐸', '🦋', '🌊', '⛰️',
-      ...AVATAR_IMG_SET
+      '🌲', '🌳', '🌵', '🍄', '🌸', '🌻', '🍀', '🐻', '🦅', '🦉', '🐸', '🦋', '🌊', '⛰️'
     ]
   },
   {
     key: 'modern', label: 'Modern',
     avatars: [
-      '😎', '🧢', '🕶️', '💼', '📱', '💻', '🎧', '⌚', '🏃', '🚗',
-      ...AVATAR_IMG_SET
+      '😎', '🧢', '🕶️', '💼', '📱', '💻', '🎧', '⌚', '🏃', '🚗'
     ]
   },
   {
@@ -9456,8 +9474,7 @@ const AVATAR_CATEGORIES = [
     key: 'emoji', label: 'Emoji',
     avatars: [
       '😀', '😃', '😄', '😁', '😆', '😊', '😍', '🤩', '😎', '🥳', '😜', '🤪', '😈', '👻', '💀', '🤡',
-      '🙂', '😇', '🤠', '🤑', '🤗', '😺', '🙈', '💩',
-      ...AVATAR_IMG_SET
+      '🙂', '😇', '🤠', '🤑', '🤗', '😺', '🙈', '💩'
     ]
   }
 ];
@@ -9571,7 +9588,7 @@ function renderAvatarPicker(pickerId, current, onPick) {
     const locked = guestLock && !freeSet.has(avatar);
     if (locked) {
       gridEl.appendChild(makeAvatarOption(avatar, false, () => {
-        showToast('🔒 Sign up to unlock all avatars');
+        openUpgradeLockOverlay();
         haptic(3);
       }, true));
     } else {
@@ -12933,7 +12950,7 @@ function setFeatureEnabled(key, enabled) {
 window.toggleFeature = function(key) {
   const def = FEATURE_DEFS_GRID.find(f => f.key === key);
   if (!def) return;
-  if (!currentUser && key !== 'nudge' && key !== 'playerSkip') { showToast('🔒 Sign up to unlock this feature'); haptic(3); return; }
+  if (!currentUser && key !== 'nudge' && key !== 'playerSkip') { openUpgradeLockOverlay(); return; }
   const wasEnabled = isFeatureEnabled(key);
   if (!wasEnabled) {
     // Enable and move to added
@@ -12968,7 +12985,7 @@ function renderFeatureGrid() {
     card.className = 'feature-card' + (enabled ? ' added' : '') + (locked ? ' locked' : '');
     card.setAttribute('data-feature', def.key);
     if (locked) {
-      card.onclick = () => { showToast('🔒 Sign up to unlock this feature'); haptic(3); };
+      card.onclick = () => { openUpgradeLockOverlay(); };
       card.innerHTML = '<span class="fc-name">🔒 ' + t(featT(def.key)) + '</span>';
       avail.appendChild(card);
       return;
