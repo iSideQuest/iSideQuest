@@ -4211,6 +4211,8 @@
   /* Preset editor grid — compact so the whole overlay fits without scrolling */
   #preset-features-grid .feature-card { height: 2.5rem; }
   #preset-features-grid .feature-card .fc-name { font-size: 0.8rem; }
+  /* Visible blinking caret in custom-keyboard fields */
+  input, textarea { caret-color: var(--accent-light); }
   /* Custom inline keyboard (Step 1 name fields) */
   /* Phones: break the keyboard out of the padded column to true edge-to-edge */
   @media (max-width: 30rem) {
@@ -5191,8 +5193,7 @@
   </div><!-- end scaler-home -->
   <!-- What Is SideKick? button (outside scaler, fixed at bottom) -->
     <button onclick="openTutorial()" style="position:absolute;bottom:calc(1.2rem + env(safe-area-inset-bottom, 0));left:50%;transform:translateX(-50%);width:auto;padding:0.5rem 1rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--muted);font-size:0.82rem;cursor:pointer;transition:color 0.2s,border-color 0.2s;z-index:5;max-width:90vw;">What Is SideKick?</button>
-  <!-- Custom keyboard toggle (outside scaler, fixed at bottom left) -->
-    <button id="kb-toggle-btn" onclick="toggleCustomKb()" title="Toggle custom keyboard" style="position:absolute;bottom:calc(1.2rem + env(safe-area-inset-bottom, 0));left:1rem;width:auto;padding:0.5rem 0.8rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--muted);font-size:0.82rem;cursor:pointer;z-index:5;">⌨️ <span style="font-weight:800;">OFF</span></button>
+
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
@@ -10758,7 +10759,7 @@ let kbActiveCtx = null;
 const KB_ALPHA_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
 const KB_SYM_ROWS = ['1234567890', '-/:;()$&@', '.,?!\'"_*'];
 function isCustomKbEnabled() {
-  try { return localStorage.getItem(CUSTOM_KB_KEY) === '1'; } catch { return false; }
+  return true; // custom keyboard is the default for all users
 }
 function setCustomKbEnabled(on) {
   try { localStorage.setItem(CUSTOM_KB_KEY, on ? '1' : '0'); } catch {}
@@ -10778,11 +10779,13 @@ function updateKbToggleBtn() {
 }
 function applyCustomKbMode() {
   const on = isCustomKbEnabled();
-  ['host-name', 'join-name'].forEach((id) => {
+  ['host-name', 'join-name', 'join-code'].forEach((id) => {
     const el = document.getElementById(id);
     if (!el) return;
-    if (on) { el.setAttribute('readonly', 'readonly'); el.setAttribute('inputmode', 'none'); }
-    else { el.removeAttribute('readonly'); el.removeAttribute('inputmode'); }
+    // inputmode=none keeps the native keyboard shut; the field stays editable
+    // so the blinking caret and tap/drag selection keep working natively
+    if (on) el.setAttribute('inputmode', 'none');
+    else el.removeAttribute('inputmode');
   });
   updateKbToggleBtn();
   if (kbActiveInput) { try { kbActiveInput.blur(); } catch {} }
@@ -10824,6 +10827,8 @@ function kbShouldStage(ctx) {
   if (!isCustomKbEnabled()) return false;
   const screen = document.getElementById(ctx === 'create' ? 'screen-create' : 'screen-join');
   if (!screen || !screen.classList.contains('active')) return false;
+  // Join uses the keyboard on Step 1 (name) and Step 2 (room code)
+  if (ctx === 'join') return kbStepOf(ctx) === 1 || kbStepOf(ctx) === 2;
   return kbStepOf(ctx) === 1;
 }
 // Reserve the keyboard's space on Step 1 (invisible) so tapping the field
@@ -10847,8 +10852,7 @@ function kbInputBlurred(ctx) {
     const box = document.getElementById(ctx + '-kb');
     const ae = document.activeElement;
     if (box && ae && box.contains(ae)) {
-      const inp = document.getElementById(ctx === 'create' ? 'host-name' : 'join-name');
-      if (inp) { try { inp.focus({ preventScroll: true }); } catch { try { inp.focus(); } catch {} } }
+      if (kbActiveInput) { try { kbActiveInput.focus({ preventScroll: true }); } catch { try { kbActiveInput.focus(); } catch {} } }
       return;
     }
     hideKb(ctx);
@@ -10964,7 +10968,7 @@ function kbDone() {
   if (ctx) hideKb(ctx);
   haptic(5);
 }
-[['host-name', 'create'], ['join-name', 'join']].forEach(([id, ctx]) => {
+[['host-name', 'create'], ['join-name', 'join'], ['join-code', 'join']].forEach(([id, ctx]) => {
   const el = document.getElementById(id);
   if (!el) return;
   el.addEventListener('focus', () => {
