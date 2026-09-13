@@ -5318,7 +5318,7 @@
     </div><!-- end cards area -->
 
     <!-- Custom inline keyboard (Step 1 name field) -->
-    <div id="create-kb" class="custom-kb" style="display:none;width:100%;margin:0;padding:0.25rem 0.2rem 0.5rem;flex-shrink:0;"></div>
+    <div id="create-kb" class="custom-kb" style="display:none;width:auto;margin:0 -2rem;padding:0 0.2rem 0.5rem;flex-shrink:0;"></div>
 
     <!-- Bottom buttons -->
     <div id="create-wizard-btns" style="width:100%;max-width:23.75rem;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
@@ -5400,7 +5400,7 @@
     </div><!-- end cards area -->
 
     <!-- Custom inline keyboard (Step 1 name field) -->
-    <div id="join-kb" class="custom-kb" style="display:none;width:100%;margin:0;padding:0.25rem 0.2rem 0.5rem;flex-shrink:0;"></div>
+    <div id="join-kb" class="custom-kb" style="display:none;width:auto;margin:0 -2rem;padding:0 0.2rem 0.5rem;flex-shrink:0;"></div>
 
     <!-- Wizard buttons (outside cards area, pinned to bottom) -->
     <div id="join-wizard-btns" style="width:100%;max-width:23.75rem;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
@@ -10671,6 +10671,7 @@ function showScreen(id) {
     const buzzComplete = document.getElementById('buzz-complete');
     if (buzzComplete) buzzComplete.classList.remove('show');
   }
+  syncKbStaging();
 }
 
 // ── AUTO-SCALE TO FIT (no scrolling) ────────────
@@ -10781,20 +10782,56 @@ function applyCustomKbMode() {
     else { el.removeAttribute('readonly'); el.removeAttribute('inputmode'); }
   });
   updateKbToggleBtn();
-  if (!on) { hideKb('create'); hideKb('join'); }
+  if (kbActiveInput) { try { kbActiveInput.blur(); } catch {} }
+  kbActiveInput = null;
+  kbActiveCtx = null;
+  syncKbStaging();
 }
 function showKb(ctx) {
   const box = document.getElementById(ctx + '-kb');
   if (!box) return;
   box.style.display = 'block';
+  box.style.visibility = 'visible';
   box.classList.add('kb-enter');
   void box.offsetWidth;
   requestAnimationFrame(() => box.classList.remove('kb-enter'));
 }
 function hideKb(ctx) {
-  const box = document.getElementById(ctx + '-kb');
-  if (box) { box.style.display = 'none'; box.classList.remove('kb-enter'); }
   if (kbActiveCtx === ctx) { kbActiveInput = null; kbActiveCtx = null; }
+  const box = document.getElementById(ctx + '-kb');
+  if (!box) return;
+  box.classList.remove('kb-enter');
+  // Restage (keep the reserved space so the card never moves) or hide fully
+  if (kbShouldStage(ctx)) { box.style.display = 'block'; box.style.visibility = 'hidden'; }
+  else { box.style.display = 'none'; box.style.visibility = ''; }
+}
+// Step number, TDZ-safe (syncKbStaging also runs during boot before these lets exist)
+function kbStepOf(ctx) {
+  try {
+    if (ctx === 'create') return (typeof createStep === 'undefined') ? 1 : createStep;
+    return (typeof joinStep === 'undefined') ? 1 : joinStep;
+  } catch { return 1; }
+}
+function kbShouldStage(ctx) {
+  if (!isCustomKbEnabled()) return false;
+  const screen = document.getElementById(ctx === 'create' ? 'screen-create' : 'screen-join');
+  if (!screen || !screen.classList.contains('active')) return false;
+  return kbStepOf(ctx) === 1;
+}
+// Reserve the keyboard's space on Step 1 (invisible) so tapping the field
+// only fades the keys in — the card never moves. Also collapses the flex
+// gap so the keyboard sits right under the card. Steps 2/3 untouched.
+function syncKbStaging() {
+  [['create', 'create-cards-area'], ['join', 'join-cards-area']].forEach(([ctx, areaId]) => {
+    const box = document.getElementById(ctx + '-kb');
+    const area = document.getElementById(areaId);
+    const stage = kbShouldStage(ctx);
+    if (area) area.style.flex = stage ? 'none' : '1 1 0%';
+    if (!box || kbActiveCtx === ctx) return;
+    box.classList.remove('kb-enter');
+    if (stage) { box.style.display = 'block'; box.style.visibility = 'hidden'; }
+    else { box.style.display = 'none'; box.style.visibility = ''; }
+  });
 }
 function kbInputBlurred(ctx) {
   setTimeout(() => {
@@ -11559,6 +11596,7 @@ function renderJoinStep() {
   } else {
     area.className = 'stack-mode';
   }
+  syncKbStaging();
 }
 
 window.expandJoinStep = function(step) {
@@ -11676,6 +11714,7 @@ function renderCreateStep() {
   }
   if (createStep === 3) renderFeatureGrid();
   renderEditRoomButtons();
+  syncKbStaging();
   requestAnimationFrame(rescaleCurrentScreen);
 }
 
