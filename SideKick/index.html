@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
 <title>SideKick — Board Game Turn Tracker</title>
 <meta name="description" content="Pass the turn. Keep the vibe. SideKick is a real-time turn tracker for tabletop game nights with timers, nudge, victory points, and more.">
 <meta name="theme-color" content="#0a0a0f">
@@ -10713,6 +10713,17 @@ window.addEventListener('orientationchange', () => {
 });
 window.addEventListener('focusin', () => setTimeout(rescaleCurrentScreen, 150));
 window.addEventListener('focusout', () => setTimeout(rescaleCurrentScreen, 150));
+// Player-name fields inside overlays (preset editor, edit profile) live outside
+// the scaler, so after the keyboard finishes opening, scroll the field into view.
+const OVERLAY_NAME_FIELD_IDS = ['voice-preset-player-name', 'edit-profile-name-input'];
+document.addEventListener('focusin', (e) => {
+  const el = e.target;
+  if (!el || !el.id || OVERLAY_NAME_FIELD_IDS.indexOf(el.id) === -1) return;
+  if (!el.closest('.tools-overlay, .avatar-overlay')) return;
+  setTimeout(() => {
+    try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch {}
+  }, 350);
+});
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
   document.documentElement.style.setProperty('--app-height', h + 'px');
