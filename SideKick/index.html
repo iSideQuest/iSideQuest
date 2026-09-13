@@ -8914,6 +8914,7 @@ window.doSignOut = async function() {
       } catch {}
     }
     window._stopSessionEnforcement && window._stopSessionEnforcement();
+    clearAccountState();
     await signOut(auth);
     showScreen('home');
   } catch (err) {
@@ -11291,6 +11292,7 @@ function initFirebase(cfg) {
         startSessionEnforcement(user.uid);
       } else {
         stopSessionEnforcement();
+        clearAccountState();
       }
     });
     // Handle email link verification for new device takeover
@@ -17428,6 +17430,15 @@ const FRIEND_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const MAX_FRIENDS = 50;
 let friendsData = {}; // { friendUid: { status, addedAt, addedBy } }
 let friendRequestUnsub = null;
+// Wipe per-account state on sign-out so the next session (including guests)
+// never sees the previous account's friends, invites, or listeners.
+function clearAccountState() {
+  friendsData = {};
+  _inviteStatus.clear();
+  stopHostInviteListener();
+  stopFriendRequestListener();
+  stopRoomInviteListener();
+}
 
 function genFriendCode() {
   let code = '';
@@ -17499,6 +17510,7 @@ window.closeFriendsOverlay = function() {
 // ── INVITE FRIENDS OVERLAY (Lobby) ──────────────────────
 window.openInviteFriendsOverlay = async function() {
   if (!requireDb()) return;
+  if (!currentUser) return; // guests have no friends list — tile is hidden for them
   document.getElementById('invite-friends-overlay').classList.add('show');
   await loadFriendsData();
   renderInviteFriendsList();
@@ -18168,7 +18180,7 @@ function renderLobbyList(players) {
     }
     el.appendChild(div);
   });
-  if (isHost) {
+  if (isHost && currentUser) {
     const inviteDiv = document.createElement('div');
     inviteDiv.className = 'player-item';
     inviteDiv.style.cursor = 'pointer';
