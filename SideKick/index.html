@@ -4218,10 +4218,7 @@
   @media (max-width: 30rem) {
     #create-kb, #join-kb { width: 100vw !important; max-width: 100vw !important; margin-left: calc(-50vw + 50%) !important; margin-right: calc(-50vw + 50%) !important; }
   }
-  /* Keyboard fill mode: container takes all leftover space, rows split it evenly */
-  #create-kb.kb-fill, #join-kb.kb-fill { flex: 1 1 auto; min-height: 0; flex-direction: column; }
-  #create-kb.kb-fill .custom-kb-row, #join-kb.kb-fill .custom-kb-row { flex: 1 1 0; min-height: 0; }
-  #create-kb.kb-fill .kb-key, #join-kb.kb-fill .kb-key { height: 100%; padding-top: 0; padding-bottom: 0; display: flex; align-items: center; justify-content: center; }
+
   .custom-kb-row { display: flex; gap: 0.15rem; justify-content: center; margin-bottom: 0.25rem; }
   .custom-kb-row:last-child { margin-bottom: 0; }
   .kb-key { flex: 1 1 0; min-width: 0; padding: 0.9rem 0; font-size: 1.15rem; font-weight: 700; border-radius: 0.5rem; border: 1px solid var(--accent); background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; box-shadow: 0 0.125rem 0.375rem rgba(124,92,191,0.4); }
@@ -5326,7 +5323,7 @@
     </div><!-- end cards area -->
 
     <!-- Custom inline keyboard (Step 1 name field) -->
-    <div id="create-kb" class="custom-kb kb-fill" style="display:none;width:100%;max-width:23.75rem;margin:0 auto;padding:0 0.2rem 0.5rem;flex-shrink:0;align-self:center;box-sizing:border-box;"></div>
+    <div id="create-kb" class="custom-kb" style="display:none;width:100%;max-width:23.75rem;margin:0 auto;padding:0 0.2rem 0.5rem;flex-shrink:0;align-self:center;box-sizing:border-box;"></div>
 
     <!-- Bottom buttons -->
     <div id="create-wizard-btns" style="width:100%;max-width:23.75rem;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
@@ -5408,7 +5405,7 @@
     </div><!-- end cards area -->
 
     <!-- Custom inline keyboard (Step 1 name field) -->
-    <div id="join-kb" class="custom-kb kb-fill" style="display:none;width:100%;max-width:23.75rem;margin:0 auto;padding:0 0.2rem 0.5rem;flex-shrink:0;align-self:center;box-sizing:border-box;"></div>
+    <div id="join-kb" class="custom-kb" style="display:none;width:100%;max-width:23.75rem;margin:0 auto;padding:0 0.2rem 0.5rem;flex-shrink:0;align-self:center;box-sizing:border-box;"></div>
 
     <!-- Wizard buttons (outside cards area, pinned to bottom) -->
     <div id="join-wizard-btns" style="width:100%;max-width:23.75rem;margin:0 auto;padding:0.5rem 1rem env(safe-area-inset-bottom, 0.5rem);flex-shrink:0;">
@@ -10798,7 +10795,7 @@ function applyCustomKbMode() {
 function showKb(ctx) {
   const box = document.getElementById(ctx + '-kb');
   if (!box) return;
-  box.style.display = 'flex';
+  box.style.display = 'block';
   box.style.visibility = 'visible';
   box.classList.add('kb-enter');
   void box.offsetWidth;
@@ -10810,7 +10807,7 @@ function hideKb(ctx) {
   if (!box) return;
   box.classList.remove('kb-enter');
   // Restage (keep the reserved space so the card never moves) or hide fully
-  if (kbShouldStage(ctx)) { box.style.display = 'flex'; box.style.visibility = 'hidden'; }
+  if (kbShouldStage(ctx)) { box.style.display = 'block'; box.style.visibility = 'hidden'; }
   else { box.style.display = 'none'; box.style.visibility = ''; }
 }
 // Step number, TDZ-safe (syncKbStaging also runs during boot before these lets exist)
@@ -10830,15 +10827,11 @@ function kbShouldStage(ctx) {
 // only fades the keys in — the card never moves. Also collapses the flex
 // gap so the keyboard sits right under the card. Steps 2/3 untouched.
 function syncKbStaging() {
-  [['create', 'create-cards-area'], ['join', 'join-cards-area']].forEach(([ctx, areaId]) => {
+  ['create', 'join'].forEach((ctx) => {
     const box = document.getElementById(ctx + '-kb');
-    const area = document.getElementById(areaId);
-    const stage = kbShouldStage(ctx);
-    // Center the Step 1 card in its zone while staged; restore after
-    if (area) area.style.justifyContent = stage ? 'center' : '';
     if (!box || kbActiveCtx === ctx) return;
     box.classList.remove('kb-enter');
-    if (stage) { box.style.display = 'flex'; box.style.visibility = 'hidden'; }
+    if (kbShouldStage(ctx)) { box.style.display = 'block'; box.style.visibility = 'hidden'; }
     else { box.style.display = 'none'; box.style.visibility = ''; }
   });
 }
