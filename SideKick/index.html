@@ -4214,7 +4214,7 @@
   /* Visible blinking caret in custom-keyboard fields */
   input, textarea { caret-color: var(--accent-light); }
   #host-name, #join-name, #join-code { caret-color: transparent; }
-  #host-name, #join-name { font-size: 1.2rem; }
+  #host-name, #join-name { font-size: 1.35rem; }
   #kb-fake-caret { animation: kbCaretBlink 1.1s ease-in-out infinite; }
   @keyframes kbCaretBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
   /* Custom inline keyboard (Step 1 name fields) */
@@ -11032,10 +11032,10 @@ function kbSymsToggle() {
 }
 function kbDone() {
   kbStopRepeat();
-  const el = kbActiveInput;
-  const ctx = kbActiveCtx;
-  if (el) el.blur();
-  if (ctx) hideKb(ctx);
+  // Single dismiss path via blur so the shrink animation always plays;
+  // calling hideKb here too would race the blur timer and cut it short.
+  if (kbActiveInput) { try { kbActiveInput.blur(); } catch {} }
+  else if (kbActiveCtx) hideKb(kbActiveCtx);
   haptic(5);
 }
 [['host-name', 'create'], ['join-name', 'join'], ['join-code', 'join']].forEach(([id, ctx]) => {
@@ -14482,6 +14482,23 @@ window.openColorPicker = function(context) {
 };
 
 window.confirmColor = function() {
+  if (!tempSelectedColor) {
+    // Nothing picked — keep the Choose Color placeholder, never "Custom"
+    if (colorPickerContext === 'preset') {
+      _editingPresetColor = '';
+      updatePresetEditColorBtn();
+    } else {
+      myColor = '';
+      ['host','join'].forEach(ctx => {
+        const btn = document.getElementById(ctx + '-color-btn');
+        const label = document.getElementById(ctx + '-color-label');
+        if (btn) { btn.style.background = ''; btn.style.borderColor = ''; btn.classList.remove('light-fill'); }
+        if (label) { label.textContent = 'Choose\nColor'; label.style.color = ''; }
+      });
+    }
+    document.getElementById('color-picker-overlay').classList.remove('show');
+    return;
+  }
   const colorName = PLAYER_COLORS.find(c => c.hex === tempSelectedColor)?.name || 'Custom';
   const isLight = ['#FFFFFF','#ffffff','#F5F5F5','#f5f5f5','#fffb05','#6effac'].includes(tempSelectedColor);
   if (colorPickerContext === 'preset') {
