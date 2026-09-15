@@ -335,6 +335,12 @@
   }
   .join-step.collapsed .step-collapse-btn { display: flex; }
   .step-collapse-label { font-size: 0.95rem; color: var(--muted); font-weight: 700; flex-shrink: 0; }
+  .step-dots { display: flex; gap: 0.35rem; justify-content: center; margin: 0.35rem 0 0.75rem; }
+  .step-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--border); }
+  .step-dot.done { background: var(--accent); }
+  .step-dots.tight { margin: 0.2rem 0 0.4rem; }
+  .step-dots.tight .step-dot { width: 0.4rem; height: 0.4rem; }
+  .step-of { font-size: 1.1rem; opacity: 0.7; }
   .step-collapse-detail { font-size: 1.05rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; }
   .step-collapse-sep { color: var(--muted); font-size: 0.95rem; flex-shrink: 0; }
   .step-collapse-swatch-inline { width: 0.875rem; height: 0.875rem; border-radius: 0.25rem; flex-shrink: 0; border: 0.09375rem solid rgba(255,255,255,0.2); }
@@ -2461,6 +2467,19 @@
     z-index: 5;
     pointer-events: all;
   }
+  /* ── LOBBY WHEEL (circular table) ── */
+  #lobby-wheel-wrap { position: relative; width: min(20rem, 84vw); aspect-ratio: 1/1; margin: 0 auto; flex: none; touch-action: none; user-select: none; -webkit-user-select: none; }
+  #lobby-wheel-wrap svg { width: 100%; height: 100%; display: block; }
+  #lobby-wheel-wrap text { user-select: none; -webkit-user-select: none; }
+  .lobby-seg { cursor: grab; }
+  .lobby-seg:active { cursor: grabbing; }
+  .lobby-seg-drag { opacity: 0.35; }
+  .lobby-seg-target { filter: brightness(1.6); }
+  .lobby-wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background: var(--surface); border: 0.15rem solid var(--border); display: flex; align-items: center; justify-content: center; z-index: 3; }
+  .lobby-invite-btn { width: 100%; height: 100%; border-radius: 50%; border: none; background: transparent; color: var(--text); font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1rem; font-size: 0.72rem; padding: 0; }
+  .lobby-invite-btn:active { background: rgba(124,92,191,0.25); }
+  #lobby-wheel-kicks { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
+  .lobby-kick-btn { position: absolute; width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 1px solid var(--border); background: rgba(0,0,0,0.65); color: #ff6b6b; font-size: 0.95rem; font-weight: 800; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transform: translate(-50%, -50%); pointer-events: all; }
 
   .active-room-code {
     font-weight: 700;
@@ -5230,7 +5249,8 @@
     <!-- Card 1: Enter Player Name & Color (Step 1) -->
     <div class="create-step revealed" data-step="1">
       <div class="card" style="padding-top: 1rem; padding-bottom: 1rem;">
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;"><span data-i18n="step">Step</span> 1</div>
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 1 <span class="step-of"><span data-i18n="stepOf">of</span> 3</span></div>
+        <div class="step-dots"><div class="step-dot done"></div><div class="step-dot"></div><div class="step-dot"></div></div>
         <input id="host-name" placeholder="Type Player Or Team Name" maxlength="20" style="margin-bottom: 0.75rem;" data-i18n-ph="playerNamePh">
         <div style="display:flex;gap:2rem;justify-content:center;">
           <button class="color-picker-btn" onclick="openColorPicker('host')" id="host-color-btn">
@@ -5261,7 +5281,8 @@
     <!-- Card 2: Turn Mode (Step 2) -->
     <div class="create-step" data-step="2">
       <div class="card" style="padding-top:1rem; padding-bottom:1rem;">
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 2</div>
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 2 <span class="step-of"><span data-i18n="stepOf">of</span> 3</span></div>
+        <div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot"></div></div>
         <div style="font-size:.9rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;" data-i18n="turnDirTitle">Choose the turn direction for your game</div>
         <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:stretch;">
           <div class="dir-row" style="justify-content:center;">
@@ -5297,7 +5318,8 @@
     <div class="create-step" data-step="3">
       <div class="card" style="padding-top: 1rem; padding-bottom: 1rem; position:relative;">
         <button class="features-help-btn" onclick="openFeaturesHelpOverlay()" title="What are the game features?">?</button>
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;"><span data-i18n="step">Step</span> 3</div>
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;"><span data-i18n="step">Step</span> 3 <span class="step-of"><span data-i18n="stepOf">of</span> 3</span></div>
+        <div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div></div>
         <div style="font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;" data-i18n="tapToAdd">Tap To Add Game Feature(s)</div>
 
         <div class="feature-grid" id="features-available-grid">
@@ -5367,7 +5389,8 @@
     <!-- Step 1: Player name & color -->
     <div class="join-step revealed" data-step="1">
       <div class="card">
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;"><span data-i18n="step">Step</span> 1</div>
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 1 <span class="step-of"><span data-i18n="stepOf">of</span> 2</span></div>
+        <div class="step-dots"><div class="step-dot done"></div><div class="step-dot"></div></div>
         <input id="join-name" placeholder="Type Player Or Team Name" maxlength="20" style="margin-bottom:0.75rem;" oninput="updateJoinCollapseSummary()" data-i18n-ph="playerNamePh">
         <div style="display:flex;gap:2rem;justify-content:center;">
           <button class="color-picker-btn" onclick="openColorPicker('join')" id="join-color-btn">
@@ -5396,7 +5419,8 @@
     <!-- Step 2: Room Code -->
     <div class="join-step" data-step="2">
       <div class="card">
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.75rem;"><span data-i18n="step">Step</span> 2</div>
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 2 <span class="step-of"><span data-i18n="stepOf">of</span> 2</span></div>
+        <div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div></div>
         <div style="display:flex;align-items:stretch;gap:0.5rem;margin-bottom:0.75rem;">
           <button class="turn-mode-btn" onclick="openQRScanner()" style="flex:1;min-width:0;padding:1.5rem 0.5rem;">
             <span class="tm-icon" style="font-size:1.8rem;">📷</span>
@@ -5503,19 +5527,10 @@
         <span style="font-size:0.85rem;font-weight:700;color:var(--text);" data-i18n="playerListDrag">Player List (Drag to Reorder)</span>
       </div>
     </div>
-    <div id="lobby-scroll-wrapper" style="max-width:30rem;width:100%;flex:none;margin:0 auto;display:flex;align-items:stretch;max-height:65vh;">
-      <!-- Left custom scrollbar -->
-      <div id="scroll-track-left" class="custom-scroll-track" style="display:none;">
-        <div class="custom-scroll-thumb" id="scroll-thumb-left"></div>
-      </div>
-      <!-- Player grid -->
-      <div style="flex:1;min-height:0;overflow:hidden;border-radius:0 0 0.625rem 0.625rem;border:1px solid var(--border);border-top:none;background:var(--lobby-list-bg);">
-        <div class="player-list" id="lobby-player-list" style="overflow-y:auto;scrollbar-width:none;"></div>
-      </div>
-      <!-- Right custom scrollbar -->
-      <div id="scroll-track-right" class="custom-scroll-track" style="display:none;">
-        <div class="custom-scroll-thumb" id="scroll-thumb-right"></div>
-      </div>
+    <div id="lobby-wheel-wrap">
+      <svg id="lobby-wheel-svg" viewBox="0 0 400 400"></svg>
+      <div class="lobby-wheel-center" id="lobby-wheel-center"></div>
+      <div id="lobby-wheel-kicks"></div>
     </div>
 
     <!-- Fixed bottom bar -->
@@ -6485,7 +6500,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="avatar-overlay" id="avatar-overlay">
   <div class="avatar-modal">
-    <div class="avatar-modal-title">🖼️ Choose Your Avatar</div>
+    <div class="avatar-modal-title">Choose Your Avatar</div>
     <div class="avatar-tabs" id="avatar-tabs"></div>
     <div class="avatar-grid" id="avatar-grid"></div>
     <button class="btn-primary" style="width:100%;margin-top:0.25rem;" onclick="confirmAvatarOverlay()">Confirm</button>
@@ -6585,8 +6600,8 @@
 </div>
 <div class="tools-overlay" id="locked-feature-overlay" style="z-index:9900;">
   <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
-    <div class="tools-modal-title">🔒 SideKick Pro</div>
-    <div style="font-size:0.95rem;color:var(--text);margin:0.5rem 0;" data-i18n="upgradeLockMsg">Upgrade To Pro SideKick To Unlock</div>
+    <div class="tools-modal-title">🔒 Legendary SideKick</div>
+    <div style="font-size:0.95rem;color:var(--text);margin:0.5rem 0;" data-i18n="upgradeLockMsg">Upgrade To Legendary SideKick To Unlock</div>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeUpgradeLockOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -6653,7 +6668,8 @@
     <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.25rem;">Preset Name</div>
     <input type="text" id="voice-preset-name" placeholder="Type Preset Name" maxlength="40" style="width:100%;padding:0.45rem 0.6rem;font-size:0.88rem;border-radius:0.625rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.45rem;">
     <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;padding:0.45rem;margin-bottom:0.45rem;">
-      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">Step 1: Player Identity</div>
+      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.2rem;">Step 1 of 3: Player Identity</div>
+      <div class="step-dots tight"><div class="step-dot done"></div><div class="step-dot"></div><div class="step-dot"></div></div>
       <div style="display:flex;gap:0.45rem;align-items:flex-start;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;">
           <button class="color-picker-btn" onclick="openColorPicker('preset')" id="preset-color-btn" style="width:3rem;height:3rem;flex:0 0 3rem;">
@@ -6672,7 +6688,8 @@
       </div>
     </div>
     <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;padding:0.45rem;margin-bottom:0.45rem;">
-      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">Step 2: Turn Direction</div>
+      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.2rem;">Step 2 of 3: Turn Direction</div>
+      <div class="step-dots tight"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot"></div></div>
       <div style="display:flex;gap:0.4rem;">
         <button class="dir-option" data-preset-dir="cw" onclick="selectPresetDir('cw')" id="preset-dir-cw" style="flex:1;padding:0.4rem 0.25rem;flex-direction:column;gap:0.1rem;"><span class="dir-name" style="font-size:0.82rem;">Left</span><span class="dir-desc" style="font-size:0.65rem;">Clockwise</span></button>
         <button class="dir-option" data-preset-dir="ccw" onclick="selectPresetDir('ccw')" id="preset-dir-ccw" style="flex:1;padding:0.4rem 0.25rem;flex-direction:column;gap:0.1rem;"><span class="dir-name" style="font-size:0.82rem;">Right</span><span class="dir-desc" style="font-size:0.65rem;">Counter</span></button>
@@ -6680,7 +6697,8 @@
       </div>
     </div>
     <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;padding:0.45rem;margin-bottom:0.45rem;">
-      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">Step 3: Game Features</div>
+      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.2rem;">Step 3 of 3: Game Features</div>
+      <div class="step-dots tight"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div></div>
       <div class="feature-grid" id="preset-features-grid" style="grid-template-columns:1fr 1fr; gap:0.3rem;">
         <div class="feature-card" data-feature="nudge" onclick="togglePresetFeature('nudge')"><span class="fc-name">Nudge</span></div>
         <div class="feature-card" data-feature="awards" onclick="togglePresetFeature('awards')"><span class="fc-name">Awards</span></div>
@@ -6705,7 +6723,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="avatar-overlay" id="room-avatar-overlay">
   <div class="avatar-modal">
-    <div class="avatar-modal-title">🖼️ Choose Your Avatar</div>
+    <div class="avatar-modal-title">Choose Your Avatar</div>
     <div class="avatar-tabs" id="room-avatar-tabs"></div>
     <div class="avatar-grid" id="room-avatar-grid"></div>
     <button class="btn-primary" style="width:100%;margin-top:0.25rem;" onclick="confirmRoomAvatar()">Confirm</button>
@@ -7495,7 +7513,8 @@ const I18N_STRINGS = {
     hostNewRoom: 'Host New Room',
     hostPresetGame: 'Host Preset Room',
     upgradeToProMsg: 'Go here to upgrade to SideKick Pro',
-    upgradeLockMsg: 'Upgrade To Pro SideKick To Unlock',
+    upgradeLockMsg: 'Upgrade To Legendary SideKick To Unlock',
+    needSecondPlayer: '2nd Player Needed To Start Game',
     startHere: 'Start Here',
     freeNoSignup: '100% FREE - No Sign Up',
     currentlyUsingSidekick: 'You are currently using SideKick',
@@ -7518,6 +7537,7 @@ const I18N_STRINGS = {
     login: 'Login',
     roomSettings: 'Room Settings',
     step: 'Step',
+    stepOf: 'of',
     playerNamePh: 'Type Player Or Team Name',
     chooseColor: 'Choose<br>Color',
     chooseAvatar: 'Choose<br>Avatar',
@@ -7647,7 +7667,8 @@ const I18N_STRINGS = {
     hostNewRoom: 'Crear Nueva Sala',
     hostPresetGame: 'Sala Preestablecida',
     upgradeToProMsg: 'Ve aquí para mejorar a SideKick Pro',
-    upgradeLockMsg: 'Mejora a SideKick Pro para desbloquear',
+    upgradeLockMsg: 'Mejora a Legendary SideKick para desbloquear',
+    needSecondPlayer: 'Se necesita un segundo jugador para empezar',
     startHere: 'Empieza aquí',
     freeNoSignup: '100% GRATIS - Sin registro',
     currentlyUsingSidekick: 'Actualmente usas SideKick',
@@ -7670,6 +7691,7 @@ const I18N_STRINGS = {
     login: 'Iniciar Sesión',
     roomSettings: 'Configuración de Sala',
     step: 'Paso',
+    stepOf: 'de',
     playerNamePh: 'Escribe el nombre del jugador o equipo',
     chooseColor: 'Elegir<br>Color',
     chooseAvatar: 'Elegir<br>Avatar',
@@ -7800,7 +7822,8 @@ const I18N_STRINGS = {
     hostNewRoom: '创建新房间',
     hostPresetGame: '预设房间',
     upgradeToProMsg: '前往此处升级到 SideKick Pro',
-    upgradeLockMsg: '升级到 SideKick Pro 以解锁',
+    upgradeLockMsg: '升级到 Legendary SideKick 以解锁',
+    needSecondPlayer: '需要第二位玩家才能开始游戏',
     startHere: '从这里开始',
     freeNoSignup: '100% 免费 - 无需注册',
     currentlyUsingSidekick: '您当前正在使用 SideKick',
@@ -7823,6 +7846,7 @@ const I18N_STRINGS = {
     login: '登录',
     roomSettings: '房间设置',
     step: '步骤',
+    stepOf: '/',
     playerNamePh: '输入玩家或团队名称',
     chooseColor: '选择<br>颜色',
     chooseAvatar: '选择<br>头像',
@@ -7953,7 +7977,8 @@ const I18N_STRINGS = {
     hostNewRoom: 'Neuen Raum erstellen',
     hostPresetGame: 'Preset-Raum',
     upgradeToProMsg: 'Gehe hier, um auf SideKick Pro zu upgraden',
-    upgradeLockMsg: 'Upgrade auf SideKick Pro zum Freischalten',
+    upgradeLockMsg: 'Upgrade auf Legendary SideKick zum Freischalten',
+    needSecondPlayer: '2. Spieler zum Starten benötigt',
     startHere: 'Starte hier',
     freeNoSignup: '100% KOSTENLOS - Keine Anmeldung',
     currentlyUsingSidekick: 'Du nutzt gerade SideKick',
@@ -7976,6 +8001,7 @@ const I18N_STRINGS = {
     login: 'Anmelden',
     roomSettings: 'Raumeinstellungen',
     step: 'Schritt',
+    stepOf: 'von',
     playerNamePh: 'Spieler- oder Teamname eingeben',
     chooseColor: 'Farbe<br>wählen',
     chooseAvatar: 'Avatar<br>wählen',
@@ -8106,7 +8132,8 @@ const I18N_STRINGS = {
     hostNewRoom: 'Créer une nouvelle salle',
     hostPresetGame: 'Salle Prédéfinie',
     upgradeToProMsg: 'Allez ici pour passer à SideKick Pro',
-    upgradeLockMsg: 'Passez à SideKick Pro pour débloquer',
+    upgradeLockMsg: 'Passez à Legendary SideKick pour débloquer',
+    needSecondPlayer: '2e joueur requis pour commencer',
     startHere: 'Commencez ici',
     freeNoSignup: '100% GRATUIT - Sans inscription',
     currentlyUsingSidekick: 'Vous utilisez actuellement SideKick',
@@ -8129,6 +8156,7 @@ const I18N_STRINGS = {
     login: 'Connexion',
     roomSettings: 'Paramètres de la salle',
     step: 'Étape',
+    stepOf: 'sur',
     playerNamePh: 'Saisissez le nom du joueur ou de l\'équipe',
     chooseColor: 'Choisir<br>la couleur',
     chooseAvatar: 'Choisir<br>un avatar',
@@ -8259,7 +8287,8 @@ const I18N_STRINGS = {
     hostNewRoom: '新しいルームを作成',
     hostPresetGame: 'プリセットルーム',
     upgradeToProMsg: 'こちらからSideKick Proにアップグレード',
-    upgradeLockMsg: 'SideKick Proにアップグレードして解除',
+    upgradeLockMsg: 'Legendary SideKickにアップグレードして解除',
+    needSecondPlayer: '開始には2人目のプレイヤー必要',
     startHere: 'ここから始める',
     freeNoSignup: '100%無料 - 登録不要',
     currentlyUsingSidekick: '現在SideKickを使用中',
@@ -8282,6 +8311,7 @@ const I18N_STRINGS = {
     login: 'ログイン',
     roomSettings: 'ルーム設定',
     step: 'ステップ',
+    stepOf: '/',
     playerNamePh: 'プレイヤー名またはチーム名を入力',
     chooseColor: '色を<br>選択',
     chooseAvatar: 'アバターを<br>選択',
@@ -8412,7 +8442,8 @@ const I18N_STRINGS = {
     hostNewRoom: 'Crea Nuova Sala',
     hostPresetGame: 'Stanza Preimpostata',
     upgradeToProMsg: 'Vai qui per passare a SideKick Pro',
-    upgradeLockMsg: 'Passa a SideKick Pro per sbloccare',
+    upgradeLockMsg: 'Passa a Legendary SideKick per sbloccare',
+    needSecondPlayer: 'Serve un secondo giocatore per iniziare',
     startHere: 'Inizia qui',
     freeNoSignup: '100% GRATIS - Nessuna registrazione',
     currentlyUsingSidekick: 'Stai usando SideKick',
@@ -8435,6 +8466,7 @@ const I18N_STRINGS = {
     login: 'Accedi',
     roomSettings: 'Impostazioni Sala',
     step: 'Passo',
+    stepOf: 'di',
     playerNamePh: 'Inserisci il nome del giocatore o della squadra',
     chooseColor: 'Scegli<br>Colore',
     chooseAvatar: 'Scegli<br>Avatar',
@@ -8565,7 +8597,8 @@ const I18N_STRINGS = {
     hostNewRoom: 'Criar Nova Sala',
     hostPresetGame: 'Sala Predefinida',
     upgradeToProMsg: 'Vá aqui para atualizar para o SideKick Pro',
-    upgradeLockMsg: 'Atualize para o SideKick Pro para desbloquear',
+    upgradeLockMsg: 'Atualize para o Legendary SideKick para desbloquear',
+    needSecondPlayer: '2º jogador necessário para começar',
     startHere: 'Comece aqui',
     freeNoSignup: '100% GRÁTIS - Sem cadastro',
     currentlyUsingSidekick: 'Você está usando o SideKick',
@@ -8588,6 +8621,7 @@ const I18N_STRINGS = {
     login: 'Entrar',
     roomSettings: 'Configurações da Sala',
     step: 'Etapa',
+    stepOf: 'de',
     playerNamePh: 'Digite o nome do jogador ou da equipe',
     chooseColor: 'Escolher<br>Cor',
     chooseAvatar: 'Escolher<br>Avatar',
@@ -18299,72 +18333,156 @@ function buildOrderedPlayers(players) {
 
 
 function renderLobbyList(players) {
-  const el = document.getElementById('lobby-player-list');
-  el.innerHTML = '';
-  players.forEach((p, i) => {
-    const dotColor = p.color || 'var(--accent)';
-    const dotText  = p.color && isLightColor(p.color) ? '#000' : '#fff';
-    const avatarDotStyle = p.color ? `style="border-color:${p.color};"` : '';
-    const isDuelWinner = firstPlayerOption === 'duel' && duelWinnerId && p.id === duelWinnerId;
-    const isSpot1First = firstPlayerOption === 'spot1' && i === 0;
-    const hasCrown = isDuelWinner || isSpot1First;
-    const div = document.createElement('div');
-    div.className = 'player-item';
-    div.setAttribute('draggable', 'false');
-    div.dataset.dragId = p.id;
-    div.innerHTML = `
-      <div class="player-tile-top">
-        <div class="player-num" style="background:${dotColor};color:${dotText};">${i+1}</div>
-        <div class="player-avatar-wrap">
-          <div class="player-avatar" ${avatarDotStyle}>${avatarHTML(p.avatar || '👤', 24)}</div>
-          ${hasCrown ? '<span style="position:absolute;top:-0.2rem;right:-0.2rem;font-size:0.7rem;line-height:1;">👑</span>' : ''}
-          ${p.id === myId ? '<span class="player-badge host">Host</span>' : ''}
-        </div>
-      </div>
-      <div class="player-name">${esc(p.name)}</div>`;
-    // Add kick button for host (can't kick self)
-    if (isHost && p.id !== myId) {
-      const kickBtn = document.createElement('button');
-      kickBtn.className = 'lobby-kick-btn';
-      kickBtn.textContent = '×';
-      kickBtn.title = 'Remove ' + p.name;
-      kickBtn.addEventListener('click', (e) => { e.stopPropagation(); kickPlayerLobby(p.id, p.name); });
-      div.appendChild(kickBtn);
-    }
-    el.appendChild(div);
-  });
-  if (isHost && currentUser) {
-    const inviteDiv = document.createElement('div');
-    inviteDiv.className = 'player-item';
-    inviteDiv.style.cursor = 'pointer';
-    inviteDiv.style.opacity = '0.7';
-    inviteDiv.innerHTML = `
-      <div class="player-tile-top">
-        <div class="player-num" style="background:var(--accent);color:#fff;">+</div>
-        <div class="player-avatar-wrap">
-          <div class="player-avatar" style="font-size:1.2rem;">👥</div>
-        </div>
-      </div>
-      <div class="player-name" style="color:var(--accent);">Invite Friend</div>`;
-    inviteDiv.addEventListener('click', () => { openInviteFriendsOverlay(); });
-    el.appendChild(inviteDiv);
-  }
-  makeDraggable(el, async (srcId, destId) => {
-    const snap = await get(ref(db, `rooms/${roomCode}/players`));
-    if (!snap.exists()) return;
-    const ps = buildOrderedPlayers(snap.val());
-    const srcIdx  = ps.findIndex(p => p.id === srcId);
-    const destIdx = ps.findIndex(p => p.id === destId);
-    if (srcIdx < 0 || destIdx < 0) return;
-    const updates = {};
-    // Simple swap: exchange orders of just these two players
-    updates[`rooms/${roomCode}/players/${ps[srcIdx].id}/order`] = destIdx;
-    updates[`rooms/${roomCode}/players/${ps[destIdx].id}/order`] = srcIdx;
-    await update(ref(db), updates);
-  });
+  renderLobbyWheel(players || []);
   requestAnimationFrame(rescaleCurrentScreen);
-  // Sync custom side scrollbars
-  requestAnimationFrame(() => initCustomScrollbars());
+}
+
+async function lobbySwapOrder(srcId, destId) {
+  const snap = await get(ref(db, `rooms/${roomCode}/players`));
+  if (!snap.exists()) return;
+  const ps = buildOrderedPlayers(snap.val());
+  const srcIdx = ps.findIndex(p => p.id === srcId);
+  const destIdx = ps.findIndex(p => p.id === destId);
+  if (srcIdx < 0 || destIdx < 0) return;
+  const updates = {};
+  // Simple swap: exchange orders of just these two players
+  updates[`rooms/${roomCode}/players/${ps[srcIdx].id}/order`] = destIdx;
+  updates[`rooms/${roomCode}/players/${ps[destIdx].id}/order`] = srcIdx;
+  await update(ref(db), updates);
+}
+
+function wrapSvgLines(str, max) {
+  const words = String(str || '').split(' ');
+  const lines = [];
+  let cur = '';
+  words.forEach(w => {
+    if ((cur + ' ' + w).trim().length > max && cur) { lines.push(cur.trim()); cur = w; }
+    else cur = cur + ' ' + w;
+  });
+  if (cur.trim()) lines.push(cur.trim());
+  return lines.slice(0, 3);
+}
+
+// Circular lobby table: host wedge always at the bottom, more wedges as
+// players join, placeholder halves until a 2nd player arrives, invite in
+// the center, drag wedges to swap spots (same swap as the old tile list).
+function renderLobbyWheel(players) {
+  const wrap = document.getElementById('lobby-wheel-wrap');
+  const svg = document.getElementById('lobby-wheel-svg');
+  const center = document.getElementById('lobby-wheel-center');
+  const kicks = document.getElementById('lobby-wheel-kicks');
+  if (!wrap || !svg || !center) return;
+  const list = (players || []).slice();
+  const hostIdx = list.findIndex(p => p.id === myId);
+  const ordered = hostIdx >= 0 ? [list[hostIdx]].concat(list.slice(0, hostIdx), list.slice(hostIdx + 1)) : list;
+  const real = ordered.length;
+  const segs = Math.max(real, 2);
+  const SEG = 360 / segs;
+  const off = 90 - SEG / 2;
+  const CX = 200, CY = 200, R_OUT = 192, R_IN = 64;
+  let html = '<circle cx="200" cy="200" r="192" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="2"/>';
+  for (let i = 0; i < segs; i++) {
+    const p = i < real ? ordered[i] : null;
+    const s = off + i * SEG, e = off + (i + 1) * SEG;
+    const path = wheelArcPath(CX, CY, R_IN, R_OUT, s, e);
+    const mid = (s + e) / 2 * Math.PI / 180;
+    const lr = (R_IN + R_OUT) / 2;
+    const lx = (CX + lr * Math.cos(mid)).toFixed(1);
+    const ly = (CY + lr * Math.sin(mid)).toFixed(1);
+    if (p) {
+      const col = p.color || '#7c5cbf';
+      const isDuelWinner = firstPlayerOption === 'duel' && duelWinnerId && p.id === duelWinnerId;
+      const isSpot1First = firstPlayerOption === 'spot1' && list.indexOf(p) === 0;
+      const crowned = isDuelWinner || isSpot1First;
+      let nm = p.name || 'Player';
+      if (nm.length > 12) nm = nm.substring(0, 11) + '…';
+      const tcol = isLightColor(col) ? '#000' : '#fff';
+      const fs = segs > 6 ? 14 : 17;
+      html += '<g class="lobby-seg" data-lobby-seg="' + p.id + '">';
+      html += '<path d="' + path + '" fill="' + col + '" fill-opacity="0.16" stroke="' + col + '" stroke-width="2"/>';
+      html += '<text x="' + lx + '" y="' + ly + '" text-anchor="middle" dominant-baseline="central" font-size="' + fs + '" font-weight="800" fill="' + tcol + '">' + esc(nm) + (crowned ? ' 👑' : '') + '</text>';
+      html += '</g>';
+    } else {
+      const lines = wrapSvgLines(t('needSecondPlayer'), 13);
+      html += '<path d="' + path + '" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2" stroke-dasharray="7 6"/>';
+      lines.forEach((ln, li) => {
+        const yy = (parseFloat(ly) + (li - (lines.length - 1) / 2) * 20).toFixed(1);
+        html += '<text x="' + lx + '" y="' + yy + '" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="rgba(255,255,255,0.55)">' + esc(ln) + '</text>';
+      });
+    }
+  }
+  svg.innerHTML = html;
+  // Center: invite button for signed-in hosts, plain ring otherwise
+  if (isHost && currentUser) {
+    center.innerHTML = '<button class="lobby-invite-btn" id="lobby-invite-center"><div style="font-size:1.5rem;line-height:1;">👥</div><div>' + esc(t('inviteToRoom')) + '</div></button>';
+    document.getElementById('lobby-invite-center').addEventListener('click', () => { openInviteFriendsOverlay(); });
+  } else {
+    center.innerHTML = '';
+  }
+  // Kick buttons for host (not self), pinned to each wedge rim
+  if (kicks) {
+    kicks.innerHTML = '';
+    if (isHost) {
+      ordered.forEach((p, i) => {
+        if (p.id === myId) return;
+        const mid = (off + (i + 0.5) * SEG) * Math.PI / 180;
+        const rr = 44;
+        const x = (50 + rr * Math.cos(mid)).toFixed(2);
+        const y = (50 + rr * Math.sin(mid)).toFixed(2);
+        const b = document.createElement('button');
+        b.className = 'lobby-kick-btn';
+        b.style.left = x + '%';
+        b.style.top = y + '%';
+        b.textContent = '×';
+        b.title = 'Remove ' + (p.name || 'Player');
+        b.addEventListener('click', (ev) => { ev.stopPropagation(); kickPlayerLobby(p.id, p.name); });
+        b.addEventListener('pointerdown', (ev) => ev.stopPropagation());
+        kicks.appendChild(b);
+      });
+    }
+  }
+  // Host-only drag: press a wedge, release on another to swap spots
+  if (isHost) {
+    svg.querySelectorAll('.lobby-seg').forEach(g => {
+      g.addEventListener('pointerdown', () => {
+        svg._dragId = g.getAttribute('data-lobby-seg');
+        g.classList.add('lobby-seg-drag');
+        haptic(5);
+      });
+    });
+    if (!svg._lobbyDragBound) {
+      svg._lobbyDragBound = true;
+      const clearHi = () => { try { svg.querySelectorAll('.lobby-seg-target').forEach(el => el.classList.remove('lobby-seg-target')); } catch {} };
+      const clearDrag = () => { try { svg.querySelectorAll('.lobby-seg-drag').forEach(el => el.classList.remove('lobby-seg-drag')); } catch {} };
+      svg.addEventListener('pointermove', (e) => {
+        if (!svg._dragId) return;
+        clearHi();
+        try {
+          const el = document.elementFromPoint(e.clientX, e.clientY);
+          const tgt = el && el.closest ? el.closest('[data-lobby-seg]') : null;
+          if (tgt && tgt.getAttribute('data-lobby-seg') !== svg._dragId) tgt.classList.add('lobby-seg-target');
+        } catch {}
+      });
+      const endDrag = (e) => {
+        const src = svg._dragId;
+        if (!src) return;
+        svg._dragId = null;
+        clearDrag();
+        clearHi();
+        try {
+          const pt = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : e;
+          const el = document.elementFromPoint(pt.clientX, pt.clientY);
+          const tgt = el && el.closest ? el.closest('[data-lobby-seg]') : null;
+          if (tgt) {
+            const dest = tgt.getAttribute('data-lobby-seg');
+            if (dest && dest !== src) lobbySwapOrder(src, dest);
+          }
+        } catch {}
+      };
+      svg.addEventListener('pointerup', endDrag);
+      svg.addEventListener('pointercancel', () => { svg._dragId = null; clearDrag(); clearHi(); });
+    }
+  }
 }
 
 // ── CUSTOM SIDE SCROLLBARS ──────────────────────
