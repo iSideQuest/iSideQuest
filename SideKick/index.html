@@ -340,7 +340,6 @@
   .step-dot.done { background: var(--accent); }
   .step-dots.tight { margin: 0.2rem 0 0.4rem; }
   .step-dots.tight .step-dot { width: 0.4rem; height: 0.4rem; }
-  .step-of { font-size: 1.1rem; opacity: 0.7; }
   .step-collapse-detail { font-size: 1.05rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; }
   .step-collapse-sep { color: var(--muted); font-size: 0.95rem; flex-shrink: 0; }
   .step-collapse-swatch-inline { width: 0.875rem; height: 0.875rem; border-radius: 0.25rem; flex-shrink: 0; border: 0.09375rem solid rgba(255,255,255,0.2); }
@@ -2468,9 +2467,12 @@
     pointer-events: all;
   }
   /* ── LOBBY WHEEL (circular table) ── */
-  #lobby-wheel-wrap { position: relative; width: min(20rem, 84vw); aspect-ratio: 1/1; margin: 0 auto; flex: none; touch-action: none; user-select: none; -webkit-user-select: none; }
-  #lobby-wheel-wrap svg { width: 100%; height: 100%; display: block; }
-  #lobby-wheel-wrap text { user-select: none; -webkit-user-select: none; }
+  .lobby-wheel-wrap { position: relative; width: min(20rem, 84vw); aspect-ratio: 1/1; margin: 0 auto; flex: none; align-self: center; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .lobby-wheel-wrap svg { width: 100%; height: 100%; display: block; }
+  .lobby-wheel-wrap text { user-select: none; -webkit-user-select: none; }
+  @media (max-width: 30rem) {
+    .lobby-wheel-wrap { width: 100vw; max-width: 100vw; margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); }
+  }
   .lobby-seg { cursor: grab; }
   .lobby-seg:active { cursor: grabbing; }
   .lobby-seg-drag { opacity: 0.35; }
@@ -2478,7 +2480,7 @@
   .lobby-wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background: var(--surface); border: 0.15rem solid var(--border); display: flex; align-items: center; justify-content: center; z-index: 3; }
   .lobby-invite-btn { width: 100%; height: 100%; border-radius: 50%; border: none; background: transparent; color: var(--text); font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1rem; font-size: 0.72rem; padding: 0; }
   .lobby-invite-btn:active { background: rgba(124,92,191,0.25); }
-  #lobby-wheel-kicks { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
+  #lobby-wheel-kicks, #wl-wheel-kicks { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
   .lobby-kick-btn { position: absolute; width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 1px solid var(--border); background: rgba(0,0,0,0.65); color: #ff6b6b; font-size: 0.95rem; font-weight: 800; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transform: translate(-50%, -50%); pointer-events: all; }
 
   .active-room-code {
@@ -5249,7 +5251,7 @@
     <!-- Card 1: Enter Player Name & Color (Step 1) -->
     <div class="create-step revealed" data-step="1">
       <div class="card" style="padding-top: 1rem; padding-bottom: 1rem;">
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 1 <span class="step-of"><span data-i18n="stepOf">of</span> 3</span></div>
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 1</div>
         <div class="step-dots"><div class="step-dot done"></div><div class="step-dot"></div><div class="step-dot"></div></div>
         <input id="host-name" placeholder="Type Player Or Team Name" maxlength="20" style="margin-bottom: 0.75rem;" data-i18n-ph="playerNamePh">
         <div style="display:flex;gap:2rem;justify-content:center;">
@@ -5281,7 +5283,7 @@
     <!-- Card 2: Turn Mode (Step 2) -->
     <div class="create-step" data-step="2">
       <div class="card" style="padding-top:1rem; padding-bottom:1rem;">
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 2 <span class="step-of"><span data-i18n="stepOf">of</span> 3</span></div>
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 2</div>
         <div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot"></div></div>
         <div style="font-size:.9rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;" data-i18n="turnDirTitle">Choose the turn direction for your game</div>
         <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:stretch;">
@@ -5318,7 +5320,7 @@
     <div class="create-step" data-step="3">
       <div class="card" style="padding-top: 1rem; padding-bottom: 1rem; position:relative;">
         <button class="features-help-btn" onclick="openFeaturesHelpOverlay()" title="What are the game features?">?</button>
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;"><span data-i18n="step">Step</span> 3 <span class="step-of"><span data-i18n="stepOf">of</span> 3</span></div>
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.15rem;"><span data-i18n="step">Step</span> 3</div>
         <div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div></div>
         <div style="font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;" data-i18n="tapToAdd">Tap To Add Game Feature(s)</div>
 
@@ -5389,7 +5391,7 @@
     <!-- Step 1: Player name & color -->
     <div class="join-step revealed" data-step="1">
       <div class="card">
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 1 <span class="step-of"><span data-i18n="stepOf">of</span> 2</span></div>
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 1</div>
         <div class="step-dots"><div class="step-dot done"></div><div class="step-dot"></div></div>
         <input id="join-name" placeholder="Type Player Or Team Name" maxlength="20" style="margin-bottom:0.75rem;" oninput="updateJoinCollapseSummary()" data-i18n-ph="playerNamePh">
         <div style="display:flex;gap:2rem;justify-content:center;">
@@ -5419,7 +5421,7 @@
     <!-- Step 2: Room Code -->
     <div class="join-step" data-step="2">
       <div class="card">
-        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 2 <span class="step-of"><span data-i18n="stepOf">of</span> 2</span></div>
+        <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 2</div>
         <div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div></div>
         <div style="display:flex;align-items:stretch;gap:0.5rem;margin-bottom:0.75rem;">
           <button class="turn-mode-btn" onclick="openQRScanner()" style="flex:1;min-width:0;padding:1.5rem 0.5rem;">
@@ -5521,13 +5523,10 @@
       </div>
     </div>
 
-    <!-- Card 2: Player list with custom side scrollbars -->
-    <div id="lobby-player-card" class="card" style="max-width:30rem;margin-bottom:0; padding: 0.5rem 0.6rem 0.3rem; border-radius:0.625rem 0.625rem 0 0;">
-      <div style="text-align:center;">
-        <span style="font-size:0.85rem;font-weight:700;color:var(--text);" data-i18n="playerListDrag">Player List (Drag to Reorder)</span>
-      </div>
+    <div style="text-align:center;margin-bottom:0.3rem;">
+      <span style="font-size:0.85rem;font-weight:700;color:var(--text);" data-i18n="playerListDrag">Player List (Drag to Reorder)</span>
     </div>
-    <div id="lobby-wheel-wrap">
+    <div id="lobby-wheel-wrap" class="lobby-wheel-wrap">
       <svg id="lobby-wheel-svg" viewBox="0 0 400 400"></svg>
       <div class="lobby-wheel-center" id="lobby-wheel-center"></div>
       <div id="lobby-wheel-kicks"></div>
@@ -5536,7 +5535,7 @@
     <!-- Fixed bottom bar -->
     <div style="width:100%;max-width:30rem;margin:0 auto;padding:0.3rem 0.5rem calc(3.4rem + env(safe-area-inset-bottom, 0.3rem));flex-shrink:0;">
       <div id="first-opt-card" class="card" style="max-width:30rem;margin:0 auto 0.6rem;padding:0.6rem 0.7rem;border-radius:0.625rem;background:var(--lobby-list-bg);">
-        <div style="text-align:center;font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;" data-i18n="chooseFirst">Choose Option For First Player</div>
+        <div style="position:relative;text-align:center;font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;"><span data-i18n="chooseFirst">Choose Option For First Player</span><span style="position:absolute;right:0;top:50%;transform:translateY(-50%);">👑</span></div>
         <div style="display:flex;gap:0.5rem;">
           <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-spot1" onclick="selectFirstPlayerOption('spot1')" style="flex:1;font-size:0.82rem;" data-i18n="spot1Opt">Tap Player</button>
           <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-random" onclick="selectFirstPlayerOption('random')" style="flex:1;font-size:0.82rem;" data-i18n="randomOpt">Random</button>
@@ -5561,7 +5560,11 @@
     <div class="room-code" id="wl-code">----</div>
     <div class="spinner"></div>
     <p style="color:var(--muted); font-size:0.9rem;" data-i18n="waitingHost">Waiting for host to start…</p>
-    <div class="player-list" id="wl-player-list" style="margin-top:1.5rem; max-width:23.75rem; margin-left:auto; margin-right:auto;"></div>
+    <div id="wl-wheel-wrap" class="lobby-wheel-wrap" style="margin-top:1rem;">
+      <svg id="wl-wheel-svg" viewBox="0 0 400 400"></svg>
+      <div class="lobby-wheel-center" id="wl-wheel-center"></div>
+      <div id="wl-wheel-kicks"></div>
+    </div>
     <button class="btn-secondary btn-sm" onclick="leaveRoom()" style="margin-top:1.5rem;" data-i18n="leave">Leave</button>
   </div>
   </div>
@@ -6668,7 +6671,7 @@
     <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.25rem;">Preset Name</div>
     <input type="text" id="voice-preset-name" placeholder="Type Preset Name" maxlength="40" style="width:100%;padding:0.45rem 0.6rem;font-size:0.88rem;border-radius:0.625rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.45rem;">
     <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;padding:0.45rem;margin-bottom:0.45rem;">
-      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.2rem;">Step 1 of 3: Player Identity</div>
+      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.2rem;">Step 1: Player Identity</div>
       <div class="step-dots tight"><div class="step-dot done"></div><div class="step-dot"></div><div class="step-dot"></div></div>
       <div style="display:flex;gap:0.45rem;align-items:flex-start;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;">
@@ -6688,7 +6691,7 @@
       </div>
     </div>
     <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;padding:0.45rem;margin-bottom:0.45rem;">
-      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.2rem;">Step 2 of 3: Turn Direction</div>
+      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.2rem;">Step 2: Turn Direction</div>
       <div class="step-dots tight"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot"></div></div>
       <div style="display:flex;gap:0.4rem;">
         <button class="dir-option" data-preset-dir="cw" onclick="selectPresetDir('cw')" id="preset-dir-cw" style="flex:1;padding:0.4rem 0.25rem;flex-direction:column;gap:0.1rem;"><span class="dir-name" style="font-size:0.82rem;">Left</span><span class="dir-desc" style="font-size:0.65rem;">Clockwise</span></button>
@@ -6697,7 +6700,7 @@
       </div>
     </div>
     <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:0.625rem;padding:0.45rem;margin-bottom:0.45rem;">
-      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.2rem;">Step 3 of 3: Game Features</div>
+      <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.2rem;">Step 3: Game Features</div>
       <div class="step-dots tight"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div></div>
       <div class="feature-grid" id="preset-features-grid" style="grid-template-columns:1fr 1fr; gap:0.3rem;">
         <div class="feature-card" data-feature="nudge" onclick="togglePresetFeature('nudge')"><span class="fc-name">Nudge</span></div>
@@ -9513,8 +9516,8 @@ function updatePresetEditAvatarBtn() {
 }
 window.saveCurrentVoicePreset = async function() {
   const name = document.getElementById('voice-preset-name').value.trim();
-  if (!name) { showToast('Enter a preset name'); return; }
-  if (!_editingPresetDir) { showToast('Choose a turn direction (Step 2)'); return; }
+  if (!name) { showToast('Enter a preset name', true); return; }
+  if (!_editingPresetDir) { showToast('Choose a turn direction (Step 2)', true); return; }
   const playerName = document.getElementById('voice-preset-player-name').value.trim() || '';
   const preset = {
     id: _editingVoicePresetId || ('vp_' + Date.now().toString(36) + Math.random().toString(36).slice(2,5)),
@@ -11278,6 +11281,17 @@ updateAppHeight();
 // Re-apply after SW update reload when viewport stabilizes
 window.addEventListener('pageshow', () => { updateAppHeight(); setTimeout(rescaleCurrentScreen, 300); });
 
+let _toastTimer = null;
+window.showToast = function(msg, isError) {
+  const el = document.getElementById('error-toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.background = isError ? '#c0392b' : 'var(--accent)';
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+  haptic(5);
+};
 function status(id, msg, type='') {
   const el = document.getElementById(id);
   if (!el) return;
@@ -18387,11 +18401,12 @@ function wrapSvgLines(str, max) {
 // Circular lobby table: host wedge always at the bottom, more wedges as
 // players join, placeholder halves until a 2nd player arrives, invite in
 // the center, drag wedges to swap spots (same swap as the old tile list).
-function renderLobbyWheel(players) {
-  const wrap = document.getElementById('lobby-wheel-wrap');
-  const svg = document.getElementById('lobby-wheel-svg');
-  const center = document.getElementById('lobby-wheel-center');
-  const kicks = document.getElementById('lobby-wheel-kicks');
+function renderLobbyWheel(players, ids) {
+  ids = ids || {};
+  const wrap = document.getElementById(ids.wrap || 'lobby-wheel-wrap');
+  const svg = document.getElementById(ids.svg || 'lobby-wheel-svg');
+  const center = document.getElementById(ids.center || 'lobby-wheel-center');
+  const kicks = document.getElementById(ids.kicks || 'lobby-wheel-kicks');
   if (!wrap || !svg || !center) return;
   const list = (players || []).slice();
   const hostIdx = list.findIndex(p => p.id === myId);
@@ -18635,27 +18650,8 @@ function initCustomScrollbars() {
 }
 
 function renderWaitingLobbyList(players) {
-  const el = document.getElementById('wl-player-list');
-  el.innerHTML = '';
-  players.forEach((p, i) => {
-    const dotColor = p.color || 'var(--accent)';
-    const dotText  = p.color && isLightColor(p.color) ? '#000' : '#fff';
-    const avatarDotStyle = p.color ? `style="border-color:${p.color};"` : '';
-    const isDuelWinner = duelWinnerId && p.id === duelWinnerId;
-    const div = document.createElement('div');
-    div.className = 'player-item';
-    div.innerHTML = `
-      <div class="player-tile-top">
-        <div class="player-num" style="background:${dotColor};color:${dotText};">${i+1}</div>
-        <div class="player-avatar-wrap">
-          <div class="player-avatar" ${avatarDotStyle}>${avatarHTML(p.avatar || '👤', 24)}</div>
-          ${isDuelWinner ? '<span style="position:absolute;top:-0.2rem;right:-0.2rem;font-size:0.7rem;line-height:1;">👑</span>' : ''}
-          ${p.id === myId ? '<span class="player-badge host">You</span>' : ''}
-        </div>
-      </div>
-      <div class="player-name">${esc(p.name)}</div>`;
-    el.appendChild(div);
-  });
+  // Guests get the same circular table, rotated so their own name is at the bottom
+  renderLobbyWheel(players || [], { wrap: 'wl-wheel-wrap', svg: 'wl-wheel-svg', center: 'wl-wheel-center', kicks: 'wl-wheel-kicks' });
   requestAnimationFrame(rescaleCurrentScreen);
 }
 
