@@ -5538,7 +5538,7 @@
       <div id="first-opt-card" class="card" style="max-width:30rem;margin:0 auto 0.6rem;padding:0.6rem 0.7rem;border-radius:0.625rem;background:var(--lobby-list-bg);">
         <div style="text-align:center;font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;" data-i18n="chooseFirst">Choose Option For First Player</div>
         <div style="display:flex;gap:0.5rem;">
-          <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-spot1" onclick="selectFirstPlayerOption('spot1')" style="flex:1;font-size:0.82rem;" data-i18n="spot1Opt">Spot 1</button>
+          <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-spot1" onclick="selectFirstPlayerOption('spot1')" style="flex:1;font-size:0.82rem;" data-i18n="spot1Opt">Tap Player</button>
           <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-random" onclick="selectFirstPlayerOption('random')" style="flex:1;font-size:0.82rem;" data-i18n="randomOpt">Random</button>
           <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-duel" onclick="selectFirstPlayerOption('duel')" style="flex:1;font-size:0.82rem;" data-i18n="duelOpt">Duel</button>
         </div>
@@ -7586,7 +7586,8 @@ const I18N_STRINGS = {
     startGame: 'Start Game <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> Back To Room Settings',
     chooseFirst: 'Choose Option For First Player',
-    spot1Opt: 'Spot 1',
+    spot1Opt: 'Tap Player',
+    tapPlayerHint: 'Tap a player to make them go first',
     randomOpt: 'Random',
     duelOpt: 'Duel',
     joinedRoom: 'Joined room',
@@ -7740,7 +7741,8 @@ const I18N_STRINGS = {
     startGame: 'Iniciar Juego <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> Volver a la Configuración de la Sala',
     chooseFirst: 'Elige Opción Para el Primer Jugador',
-    spot1Opt: 'Puesto 1',
+    spot1Opt: 'Tocar jugador',
+    tapPlayerHint: 'Toca un jugador para que empiece',
     randomOpt: 'Aleatorio',
     duelOpt: 'Duelo',
     joinedRoom: 'Sala unida',
@@ -7895,7 +7897,8 @@ const I18N_STRINGS = {
     startGame: '开始游戏 <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> 返回房间设置',
     chooseFirst: '为第一位玩家选择选项',
-    spot1Opt: '位置 1',
+    spot1Opt: '点选玩家',
+    tapPlayerHint: '点击一位玩家使其先手',
     randomOpt: '随机',
     duelOpt: '决斗',
     joinedRoom: '已加入房间',
@@ -8050,7 +8053,8 @@ const I18N_STRINGS = {
     startGame: 'Spiel starten <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> Zurück zu den Raumeinstellungen',
     chooseFirst: 'Option für den ersten Spieler wählen',
-    spot1Opt: 'Platz 1',
+    spot1Opt: 'Spieler wählen',
+    tapPlayerHint: 'Tippe auf einen Spieler als Ersten',
     randomOpt: 'Zufällig',
     duelOpt: 'Duell',
     joinedRoom: 'Raum beigetreten',
@@ -8205,7 +8209,8 @@ const I18N_STRINGS = {
     startGame: 'Démarrer le jeu <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> Retour aux paramètres de la salle',
     chooseFirst: 'Choisissez une option pour le premier joueur',
-    spot1Opt: 'Place 1',
+    spot1Opt: 'Choisir joueur',
+    tapPlayerHint: 'Touchez un joueur pour commencer',
     randomOpt: 'Aléatoire',
     duelOpt: 'Duel',
     joinedRoom: 'Salle rejointe',
@@ -8360,7 +8365,8 @@ const I18N_STRINGS = {
     startGame: 'ゲーム開始 <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> ルーム設定に戻る',
     chooseFirst: '最初のプレイヤーのオプションを選択',
-    spot1Opt: 'スポット 1',
+    spot1Opt: 'プレイヤー選択',
+    tapPlayerHint: 'プレイヤーをタップして先手に',
     randomOpt: 'ランダム',
     duelOpt: '決闘',
     joinedRoom: 'ルームに参加しました',
@@ -8515,7 +8521,8 @@ const I18N_STRINGS = {
     startGame: 'Inizia Gioco <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> Torna alle Impostazioni della Sala',
     chooseFirst: 'Scegli un\'opzione per il Primo Giocatore',
-    spot1Opt: 'Posto 1',
+    spot1Opt: 'Scegli giocatore',
+    tapPlayerHint: 'Tocca un giocatore per iniziare',
     randomOpt: 'Casuale',
     duelOpt: 'Duello',
     joinedRoom: 'Sala a cui ti sei unito',
@@ -8670,7 +8677,8 @@ const I18N_STRINGS = {
     startGame: 'Iniciar Jogo <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> Voltar às Configurações da Sala',
     chooseFirst: 'Escolha uma opção para o Primeiro Jogador',
-    spot1Opt: 'Lugar 1',
+    spot1Opt: 'Escolher jogador',
+    tapPlayerHint: 'Toque em um jogador para começar',
     randomOpt: 'Aleatório',
     duelOpt: 'Duelo',
     joinedRoom: 'Sala ingressada',
@@ -12983,8 +12991,11 @@ function handleScannedQR(value) {
   if (code) {
     const joinInput = document.getElementById('join-code');
     if (joinInput) joinInput.value = code;
-    status('join-status', 'Code scanned: ' + code, '');
+    updateJoinCollapseSummary();
     closeQRScanner();
+    // Name already entered on Step 1 → go straight into the Player Lobby
+    if (document.getElementById('join-name').value.trim()) window.joinRoom();
+    else status('join-status', 'Code scanned: ' + code, '');
   } else {
     document.getElementById('scanner-status').textContent = 'Invalid QR code. Try again.';
     if (scannerStream) {
@@ -15635,8 +15646,11 @@ function listenWaitingLobby() {
 
 // ── FIRST PLAYER OPTION SELECTION ──────────────
 let firstPlayerOption = null; // 'spot1' | 'random' | 'duel'
+let tapFirstId = null; // tap-player mode: id of the tapped first player
 window.selectFirstPlayerOption = function(opt) {
   firstPlayerOption = opt;
+  tapFirstId = null;
+  if (opt === 'spot1') showToast(t('tapPlayerHint'));
   ['spot1', 'random', 'duel'].forEach(o => {
     const b = document.getElementById('first-opt-' + o);
     if (b) b.classList.toggle('selected', o === opt);
@@ -15652,8 +15666,10 @@ function updateStartButton() {
   const count = localPlayers.length;
   let allowed = count >= 2;
   if (allowed) {
-    if (firstPlayerOption === 'spot1' || firstPlayerOption === 'random') {
+    if (firstPlayerOption === 'random') {
       allowed = true;
+    } else if (firstPlayerOption === 'spot1') {
+      allowed = !!tapFirstId;
     } else if (firstPlayerOption === 'duel') {
       allowed = !!duelWinnerId;
     } else {
@@ -15666,6 +15682,7 @@ function updateStartButton() {
 function resetFirstPlayerOption() {
   firstPlayerOption = null;
   duelWinnerId = null;
+  tapFirstId = null;
   ['spot1', 'random', 'duel'].forEach(o => {
     const b = document.getElementById('first-opt-' + o);
     if (b) b.classList.remove('selected');
@@ -15694,6 +15711,10 @@ window.startGame = async function() {
   if (firstPlayerOption === 'duel' && duelWinnerId) {
     const winnerIdx = localPlayers.findIndex(p => p.id === duelWinnerId);
     if (winnerIdx >= 0) actualFirstIdx = winnerIdx;
+  }
+  if (firstPlayerOption === 'spot1' && tapFirstId) {
+    const tapIdx = localPlayers.findIndex(p => p.id === tapFirstId);
+    if (tapIdx >= 0) actualFirstIdx = tapIdx;
   }
 
   const roomFeatures = roomData.features || {};
@@ -18380,6 +18401,7 @@ function renderLobbyWheel(players) {
   const SEG = 360 / segs;
   const off = 90 - SEG / 2;
   const CX = 200, CY = 200, R_OUT = 192, R_IN = 64;
+  let defs = '';
   let html = '<circle cx="200" cy="200" r="192" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="2"/>';
   for (let i = 0; i < segs; i++) {
     const p = i < real ? ordered[i] : null;
@@ -18392,15 +18414,26 @@ function renderLobbyWheel(players) {
     if (p) {
       const col = p.color || '#7c5cbf';
       const isDuelWinner = firstPlayerOption === 'duel' && duelWinnerId && p.id === duelWinnerId;
-      const isSpot1First = firstPlayerOption === 'spot1' && list.indexOf(p) === 0;
-      const crowned = isDuelWinner || isSpot1First;
+      const isTapFirst = firstPlayerOption === 'spot1' && tapFirstId && p.id === tapFirstId;
+      const crowned = isDuelWinner || isTapFirst;
       let nm = p.name || 'Player';
       if (nm.length > 12) nm = nm.substring(0, 11) + '…';
+      const strokeCol = col.toLowerCase() === '#000000' ? '#ffffff' : col;
       const tcol = isLightColor(col) ? '#000' : '#fff';
       const fs = segs > 6 ? 14 : 17;
+      const av = p.avatar || '👤';
+      const ny = (parseFloat(ly) - 12).toFixed(1);
+      const ay = (parseFloat(ly) + 16).toFixed(1);
       html += '<g class="lobby-seg" data-lobby-seg="' + p.id + '">';
-      html += '<path d="' + path + '" fill="' + col + '" fill-opacity="0.16" stroke="' + col + '" stroke-width="2"/>';
-      html += '<text x="' + lx + '" y="' + ly + '" text-anchor="middle" dominant-baseline="central" font-size="' + fs + '" font-weight="800" fill="' + tcol + '">' + esc(nm) + (crowned ? ' 👑' : '') + '</text>';
+      html += '<path d="' + path + '" fill="' + col + '" stroke="' + strokeCol + '" stroke-width="2"/>';
+      html += '<text x="' + lx + '" y="' + ny + '" text-anchor="middle" dominant-baseline="central" font-size="' + fs + '" font-weight="800" fill="' + tcol + '">' + esc(nm) + (crowned ? ' 👑' : '') + '</text>';
+      if (isImageAvatar(av)) {
+        const cid = 'cliplobby' + String(p.id).replace(/[^a-zA-Z0-9]/g, '');
+        defs += '<clipPath id="' + cid + '"><circle cx="' + lx + '" cy="' + ay + '" r="17"/></clipPath>';
+        html += '<image x="' + (parseFloat(lx) - 17).toFixed(1) + '" y="' + (parseFloat(ay) - 17).toFixed(1) + '" width="34" height="34" href="' + esc(av) + '" clip-path="url(#' + cid + ')" preserveAspectRatio="xMidYMid slice"/>';
+      } else {
+        html += '<text x="' + lx + '" y="' + ay + '" text-anchor="middle" dominant-baseline="central" font-size="22" fill="' + tcol + '">' + esc(av) + '</text>';
+      }
       html += '</g>';
     } else {
       const lines = wrapSvgLines(t('needSecondPlayer'), 13);
@@ -18411,6 +18444,7 @@ function renderLobbyWheel(players) {
       });
     }
   }
+  if (defs) html = html.replace('stroke-width="2"/>', 'stroke-width="2"/><defs>' + defs + '</defs>');
   svg.innerHTML = html;
   // Center: invite button for signed-in hosts, plain ring otherwise
   if (isHost && currentUser) {
@@ -18444,8 +18478,10 @@ function renderLobbyWheel(players) {
   // Host-only drag: press a wedge, release on another to swap spots
   if (isHost) {
     svg.querySelectorAll('.lobby-seg').forEach(g => {
-      g.addEventListener('pointerdown', () => {
+      g.addEventListener('pointerdown', (e) => {
         svg._dragId = g.getAttribute('data-lobby-seg');
+        svg._downX = e.clientX || 0;
+        svg._downY = e.clientY || 0;
         g.classList.add('lobby-seg-drag');
         haptic(5);
       });
@@ -18473,10 +18509,20 @@ function renderLobbyWheel(players) {
           const pt = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : e;
           const el = document.elementFromPoint(pt.clientX, pt.clientY);
           const tgt = el && el.closest ? el.closest('[data-lobby-seg]') : null;
-          if (tgt) {
-            const dest = tgt.getAttribute('data-lobby-seg');
-            if (dest && dest !== src) lobbySwapOrder(src, dest);
+          if (!tgt) return;
+          const dest = tgt.getAttribute('data-lobby-seg');
+          if (!dest) return;
+          const moved = Math.hypot((pt.clientX || 0) - (svg._downX || 0), (pt.clientY || 0) - (svg._downY || 0));
+          if (moved < 12 && dest === src && firstPlayerOption === 'spot1') {
+            // Tap Player mode: crown the tapped wedge as first player
+            tapFirstId = src;
+            haptic(10);
+            showToast(t('tapPlayerHint'));
+            renderLobbyWheel(localPlayers);
+            updateStartButton();
+            return;
           }
+          if (dest !== src) lobbySwapOrder(src, dest);
         } catch {}
       };
       svg.addEventListener('pointerup', endDrag);
