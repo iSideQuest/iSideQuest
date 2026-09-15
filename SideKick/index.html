@@ -5534,8 +5534,9 @@
 
     <!-- Fixed bottom bar -->
     <div style="width:100%;max-width:30rem;margin:0 auto;padding:0.3rem 0.5rem calc(3.4rem + env(safe-area-inset-bottom, 0.3rem));flex-shrink:0;">
-      <div id="first-opt-card" class="card" style="max-width:30rem;margin:0 auto 0.6rem;padding:0.6rem 0.7rem;border-radius:0.625rem;background:var(--lobby-list-bg);">
-        <div style="position:relative;text-align:center;font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;"><span data-i18n="chooseFirst">Choose Option For First Player</span><span style="position:absolute;right:0;top:50%;transform:translateY(-50%);">👑</span></div>
+      <div id="first-opt-hint" style="display:none;max-width:30rem;margin:0 auto 0.5rem;padding:0.55rem 0.75rem;border-radius:0.625rem;border:1px solid var(--accent);background:rgba(124,92,191,0.15);font-size:0.82rem;font-weight:700;color:var(--text);text-align:center;"></div>
+    <div id="first-opt-card" class="card" style="max-width:30rem;margin:0 auto 0.6rem;padding:0.6rem 0.7rem;border-radius:0.625rem;background:var(--lobby-list-bg);">
+        <div style="position:relative;text-align:center;font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;"><span data-i18n="chooseFirst">Choose Option For 1st Player</span><span style="position:absolute;right:0;top:50%;transform:translateY(-50%);">👑</span></div>
         <div style="display:flex;gap:0.5rem;">
           <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-spot1" onclick="selectFirstPlayerOption('spot1')" style="flex:1;font-size:0.82rem;" data-i18n="spot1Opt">Tap Player</button>
           <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-random" onclick="selectFirstPlayerOption('random')" style="flex:1;font-size:0.82rem;" data-i18n="randomOpt">Random</button>
@@ -5565,7 +5566,7 @@
       <div class="lobby-wheel-center" id="wl-wheel-center"></div>
       <div id="wl-wheel-kicks"></div>
     </div>
-    <button class="btn-secondary btn-sm" onclick="leaveRoom()" style="margin-top:1.5rem;" data-i18n="leave">Leave</button>
+    <button class="btn-secondary btn-sm" onclick="confirmLeaveRoom()" style="margin-top:1.5rem;" data-i18n="leave">Leave</button>
   </div>
   </div>
 </div>
@@ -6596,8 +6597,8 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="upgrade-pro-overlay">
   <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
-    <div class="tools-modal-title">SideKick Pro</div>
-    <div style="font-size:0.95rem;color:var(--text);margin:0.5rem 0;" data-i18n="upgradeToProMsg">Go here to upgrade to SideKick Pro</div>
+    <div class="tools-modal-title">Legendary SideKick</div>
+    <div style="font-size:0.95rem;color:var(--text);margin:0.5rem 0;" data-i18n="upgradeToProMsg">Go here to upgrade to Legendary SideKick</div>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeUpgradeProOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -7515,7 +7516,7 @@ const I18N_STRINGS = {
     hostRoom: 'Host Room',
     hostNewRoom: 'Host New Room',
     hostPresetGame: 'Host Preset Room',
-    upgradeToProMsg: 'Go here to upgrade to SideKick Pro',
+    upgradeToProMsg: 'Go here to upgrade to Legendary SideKick',
     upgradeLockMsg: 'Upgrade To Legendary SideKick To Unlock',
     needSecondPlayer: '2nd Player Needed To Start Game',
     startHere: 'Start Here',
@@ -7588,9 +7589,10 @@ const I18N_STRINGS = {
     duel1st: 'Duel For 1st Player',
     startGame: 'Start Game <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> Back To Room Settings',
-    chooseFirst: 'Choose Option For First Player',
+    chooseFirst: 'Choose Option For 1st Player',
     spot1Opt: 'Tap Player',
-    tapPlayerHint: 'Tap a player to make them go first',
+    tapPlayerHint: 'Tap a player to make them 1st Player and begin the game',
+    randomFirstHint: 'Randomly chooses a 1st player at the start of game',
     randomOpt: 'Random',
     duelOpt: 'Duel',
     joinedRoom: 'Joined room',
@@ -7670,7 +7672,7 @@ const I18N_STRINGS = {
     hostRoom: 'Crear Sala',
     hostNewRoom: 'Crear Nueva Sala',
     hostPresetGame: 'Sala Preestablecida',
-    upgradeToProMsg: 'Ve aquí para mejorar a SideKick Pro',
+    upgradeToProMsg: 'Ve aquí para mejorar a Legendary SideKick',
     upgradeLockMsg: 'Mejora a Legendary SideKick para desbloquear',
     needSecondPlayer: 'Se necesita un segundo jugador para empezar',
     startHere: 'Empieza aquí',
@@ -7743,9 +7745,10 @@ const I18N_STRINGS = {
     duel1st: 'Duelo por el 1er Jugador',
     startGame: 'Iniciar Juego <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> Volver a la Configuración de la Sala',
-    chooseFirst: 'Elige Opción Para el Primer Jugador',
+    chooseFirst: 'Elige Opción Para El 1er Jugador',
     spot1Opt: 'Tocar jugador',
-    tapPlayerHint: 'Toca un jugador para que empiece',
+    tapPlayerHint: 'Toca un jugador para hacerlo 1.º y empezar el juego',
+    randomFirstHint: 'Elige un 1.º al azar al empezar el juego',
     randomOpt: 'Aleatorio',
     duelOpt: 'Duelo',
     joinedRoom: 'Sala unida',
@@ -7826,7 +7829,7 @@ const I18N_STRINGS = {
     hostRoom: '创建房间',
     hostNewRoom: '创建新房间',
     hostPresetGame: '预设房间',
-    upgradeToProMsg: '前往此处升级到 SideKick Pro',
+    upgradeToProMsg: '前往此处升级到 Legendary SideKick',
     upgradeLockMsg: '升级到 Legendary SideKick 以解锁',
     needSecondPlayer: '需要第二位玩家才能开始游戏',
     startHere: '从这里开始',
@@ -7899,9 +7902,10 @@ const I18N_STRINGS = {
     duel1st: '争夺第一位玩家',
     startGame: '开始游戏 <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> 返回房间设置',
-    chooseFirst: '为第一位玩家选择选项',
+    chooseFirst: '为第1位玩家选择选项',
     spot1Opt: '点选玩家',
-    tapPlayerHint: '点击一位玩家使其先手',
+    tapPlayerHint: '点击一位玩家使其成为首位玩家并开始游戏',
+    randomFirstHint: '游戏开始时随机选择首位玩家',
     randomOpt: '随机',
     duelOpt: '决斗',
     joinedRoom: '已加入房间',
@@ -7982,7 +7986,7 @@ const I18N_STRINGS = {
     hostRoom: 'Raum erstellen',
     hostNewRoom: 'Neuen Raum erstellen',
     hostPresetGame: 'Preset-Raum',
-    upgradeToProMsg: 'Gehe hier, um auf SideKick Pro zu upgraden',
+    upgradeToProMsg: 'Gehe hier, um auf Legendary SideKick zu upgraden',
     upgradeLockMsg: 'Upgrade auf Legendary SideKick zum Freischalten',
     needSecondPlayer: '2. Spieler zum Starten benötigt',
     startHere: 'Starte hier',
@@ -8055,9 +8059,10 @@ const I18N_STRINGS = {
     duel1st: 'Duell um den 1. Spieler',
     startGame: 'Spiel starten <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> Zurück zu den Raumeinstellungen',
-    chooseFirst: 'Option für den ersten Spieler wählen',
+    chooseFirst: 'Option für den 1. Spieler wählen',
     spot1Opt: 'Spieler wählen',
-    tapPlayerHint: 'Tippe auf einen Spieler als Ersten',
+    tapPlayerHint: 'Tippe auf einen Spieler als 1. Spieler, um zu beginnen',
+    randomFirstHint: 'Wählt zufällig einen 1. Spieler bei Spielstart',
     randomOpt: 'Zufällig',
     duelOpt: 'Duell',
     joinedRoom: 'Raum beigetreten',
@@ -8138,7 +8143,7 @@ const I18N_STRINGS = {
     hostRoom: 'Créer une salle',
     hostNewRoom: 'Créer une nouvelle salle',
     hostPresetGame: 'Salle Prédéfinie',
-    upgradeToProMsg: 'Allez ici pour passer à SideKick Pro',
+    upgradeToProMsg: 'Allez ici pour passer à Legendary SideKick',
     upgradeLockMsg: 'Passez à Legendary SideKick pour débloquer',
     needSecondPlayer: '2e joueur requis pour commencer',
     startHere: 'Commencez ici',
@@ -8211,9 +8216,10 @@ const I18N_STRINGS = {
     duel1st: 'Duel pour le 1er joueur',
     startGame: 'Démarrer le jeu <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> Retour aux paramètres de la salle',
-    chooseFirst: 'Choisissez une option pour le premier joueur',
+    chooseFirst: 'Choisissez une option pour le 1er joueur',
     spot1Opt: 'Choisir joueur',
-    tapPlayerHint: 'Touchez un joueur pour commencer',
+    tapPlayerHint: 'Touchez un joueur pour en faire le 1er et commencer',
+    randomFirstHint: 'Choisit un 1er joueur au hasard au début',
     randomOpt: 'Aléatoire',
     duelOpt: 'Duel',
     joinedRoom: 'Salle rejointe',
@@ -8294,7 +8300,7 @@ const I18N_STRINGS = {
     hostRoom: 'ルームを作成',
     hostNewRoom: '新しいルームを作成',
     hostPresetGame: 'プリセットルーム',
-    upgradeToProMsg: 'こちらからSideKick Proにアップグレード',
+    upgradeToProMsg: 'こちらからLegendary SideKickにアップグレード',
     upgradeLockMsg: 'Legendary SideKickにアップグレードして解除',
     needSecondPlayer: '開始には2人目のプレイヤー必要',
     startHere: 'ここから始める',
@@ -8367,9 +8373,10 @@ const I18N_STRINGS = {
     duel1st: '最初のプレイヤーを決めるデュエル',
     startGame: 'ゲーム開始 <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> ルーム設定に戻る',
-    chooseFirst: '最初のプレイヤーのオプションを選択',
+    chooseFirst: '1人目のプレイヤーのオプションを選択',
     spot1Opt: 'プレイヤー選択',
-    tapPlayerHint: 'プレイヤーをタップして先手に',
+    tapPlayerHint: 'プレイヤーをタップして1番手にして開始',
+    randomFirstHint: '開始時にランダムで1番手を決定',
     randomOpt: 'ランダム',
     duelOpt: '決闘',
     joinedRoom: 'ルームに参加しました',
@@ -8450,7 +8457,7 @@ const I18N_STRINGS = {
     hostRoom: 'Crea Sala',
     hostNewRoom: 'Crea Nuova Sala',
     hostPresetGame: 'Stanza Preimpostata',
-    upgradeToProMsg: 'Vai qui per passare a SideKick Pro',
+    upgradeToProMsg: 'Vai qui per passare a Legendary SideKick',
     upgradeLockMsg: 'Passa a Legendary SideKick per sbloccare',
     needSecondPlayer: 'Serve un secondo giocatore per iniziare',
     startHere: 'Inizia qui',
@@ -8523,9 +8530,10 @@ const I18N_STRINGS = {
     duel1st: 'Duello per il 1° Giocatore',
     startGame: 'Inizia Gioco <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> Torna alle Impostazioni della Sala',
-    chooseFirst: 'Scegli un\'opzione per il Primo Giocatore',
+    chooseFirst: 'Scegli un\'opzione per il 1º Giocatore',
     spot1Opt: 'Scegli giocatore',
-    tapPlayerHint: 'Tocca un giocatore per iniziare',
+    tapPlayerHint: 'Tocca un giocatore per farlo 1º e iniziare',
+    randomFirstHint: 'Sceglie un 1º a caso a inizio partita',
     randomOpt: 'Casuale',
     duelOpt: 'Duello',
     joinedRoom: 'Sala a cui ti sei unito',
@@ -8606,7 +8614,7 @@ const I18N_STRINGS = {
     hostRoom: 'Criar Sala',
     hostNewRoom: 'Criar Nova Sala',
     hostPresetGame: 'Sala Predefinida',
-    upgradeToProMsg: 'Vá aqui para atualizar para o SideKick Pro',
+    upgradeToProMsg: 'Vá aqui para atualizar para o Legendary SideKick',
     upgradeLockMsg: 'Atualize para o Legendary SideKick para desbloquear',
     needSecondPlayer: '2º jogador necessário para começar',
     startHere: 'Comece aqui',
@@ -8679,9 +8687,10 @@ const I18N_STRINGS = {
     duel1st: 'Duelo pelo 1º Jogador',
     startGame: 'Iniciar Jogo <span class="play-tri">▶</span>',
     backToRoomSet: '<span class="play-tri">◀</span> Voltar às Configurações da Sala',
-    chooseFirst: 'Escolha uma opção para o Primeiro Jogador',
+    chooseFirst: 'Escolha uma opção para o 1º Jogador',
     spot1Opt: 'Escolher jogador',
-    tapPlayerHint: 'Toque em um jogador para começar',
+    tapPlayerHint: 'Toque em um jogador para ser o 1º e começar',
+    randomFirstHint: 'Escolhe um 1º aleatório no início do jogo',
     randomOpt: 'Aleatório',
     duelOpt: 'Duelo',
     joinedRoom: 'Sala ingressada',
@@ -8822,7 +8831,7 @@ const CREATOR_UIDS = [
 let isCreator = false;
 // ── ACCOUNT TIERS ──────────────────────────────
 // guest   = not signed in ("SideKick") — limited features, no account needed
-// pro     = signed-in non-creator ("SideKick Pro") — full features minus Creator stuff
+// pro     = signed-in non-creator ("Legendary SideKick") — full features minus Creator stuff
 // creator = signed-in creator UID ("SideKick Creator") — everything
 function accountTier() {
   if (isCreator) return 'creator';
@@ -9354,7 +9363,7 @@ function updatePresetEditUI() {
   });
 }
 window.openHostPresetGame = function() {
-  // SideKick Pro (and Creator) accounts get the presets overlay;
+  // Legendary SideKick (and Creator) accounts get the presets overlay;
   // guests (SideKick tier) get the upgrade prompt instead.
   if (!currentUser) {
     document.getElementById('upgrade-pro-overlay').classList.add('show');
@@ -10217,7 +10226,7 @@ window.openProfileScreen = function() {
   const roleText = document.getElementById('profile-role-text');
   if (badge && roleText) {
     badge.style.display = 'inline-flex';
-    roleText.textContent = isHost ? 'SideKick Creator' : 'SideKick Pro';
+    roleText.textContent = isHost ? 'SideKick Creator' : 'Legendary SideKick';
   }
 
   updateProfileTrophy();
@@ -15682,12 +15691,27 @@ function listenWaitingLobby() {
 // ── FIRST PLAYER OPTION SELECTION ──────────────
 let firstPlayerOption = null; // 'spot1' | 'random' | 'duel'
 let tapFirstId = null; // tap-player mode: id of the tapped first player
+let tapArmed = false; // tap-player mode: true only between tapping the option and tapping a segment
 let roomTapFirstId = null; // tap-first pick synced from Firebase (visible to all clients)
+function updateFirstOptHint() {
+  const el = document.getElementById('first-opt-hint');
+  if (!el) return;
+  if (firstPlayerOption === 'spot1' && tapArmed) {
+    el.textContent = t('tapPlayerHint');
+    el.style.display = '';
+  } else if (firstPlayerOption === 'random') {
+    el.textContent = t('randomFirstHint');
+    el.style.display = '';
+  } else {
+    el.style.display = 'none';
+  }
+}
 window.selectFirstPlayerOption = function(opt) {
   firstPlayerOption = opt;
   tapFirstId = null;
+  tapArmed = (opt === 'spot1');
   try { if (db && roomCode) remove(ref(db, `rooms/${roomCode}/tapFirstId`)).catch(() => {}); } catch {}
-  if (opt === 'spot1') showToast(t('tapPlayerHint'));
+  updateFirstOptHint();
   ['spot1', 'random', 'duel'].forEach(o => {
     const b = document.getElementById('first-opt-' + o);
     if (b) b.classList.toggle('selected', o === opt);
@@ -15721,7 +15745,9 @@ function resetFirstPlayerOption() {
   duelWinnerId = null;
   tapFirstId = null;
   roomTapFirstId = null;
+  tapArmed = false;
   try { if (db && roomCode) remove(ref(db, `rooms/${roomCode}/tapFirstId`)).catch(() => {}); } catch {}
+  updateFirstOptHint();
   ['spot1', 'random', 'duel'].forEach(o => {
     const b = document.getElementById('first-opt-' + o);
     if (b) b.classList.remove('selected');
@@ -18356,6 +18382,9 @@ window.closeResumeOverlay = function() {
   document.getElementById('resume-overlay').classList.remove('show');
 };
 
+window.confirmLeaveRoom = async function() {
+  if (await showConfirm('Leave the Player Lobby?')) leaveRoom();
+};
 window.leaveRoom = async function() {
   if (!db || !roomCode || !myId) { showScreen('home'); return; }
   releaseWakeLock();
@@ -18481,7 +18510,8 @@ function renderLobbyWheel(players, ids) {
       const ay = (parseFloat(ly) + 16).toFixed(1);
       html += '<g class="lobby-seg" data-lobby-seg="' + p.id + '">';
       html += '<path d="' + path + '" fill="' + col + '" stroke="' + strokeCol + '" stroke-width="2"/>';
-      html += '<text x="' + lx + '" y="' + ny + '" text-anchor="middle" dominant-baseline="central" font-size="' + fs + '" font-weight="800" fill="' + tcol + '">' + esc(nm) + (crowned ? ' 👑' : '') + '</text>';
+      if (crowned) html += '<text x="' + lx + '" y="' + (parseFloat(ny) - 20).toFixed(1) + '" text-anchor="middle" dominant-baseline="central" font-size="14" fill="' + tcol + '">👑</text>';
+      html += '<text x="' + lx + '" y="' + ny + '" text-anchor="middle" dominant-baseline="central" font-size="' + fs + '" font-weight="800" fill="' + tcol + '">' + esc(nm) + '</text>';
       if (isImageAvatar(av)) {
         const cid = 'cliplobby' + String(p.id).replace(/[^a-zA-Z0-9]/g, '');
         defs += '<clipPath id="' + cid + '"><circle cx="' + lx + '" cy="' + ay + '" r="17"/></clipPath>';
@@ -18504,7 +18534,7 @@ function renderLobbyWheel(players, ids) {
   svg.innerHTML = html;
   // Center: invite button for signed-in hosts, plain ring otherwise
   if (isHost && currentUser) {
-    center.innerHTML = '<button class="lobby-invite-btn" id="lobby-invite-center"><div style="font-size:1.5rem;line-height:1;">👥</div><div>' + esc(t('inviteToRoom')) + '</div></button>';
+    center.innerHTML = '<button class="lobby-invite-btn" id="lobby-invite-center"><div style="font-size:1.5rem;line-height:1;">👥</div><div>Invite Friend(s)</div></button>';
     document.getElementById('lobby-invite-center').addEventListener('click', () => { openInviteFriendsOverlay(); });
   } else {
     center.innerHTML = '';
@@ -18569,12 +18599,14 @@ function renderLobbyWheel(players, ids) {
           const dest = tgt.getAttribute('data-lobby-seg');
           if (!dest) return;
           const moved = Math.hypot((pt.clientX || 0) - (svg._downX || 0), (pt.clientY || 0) - (svg._downY || 0));
-          if (moved < 12 && dest === src && firstPlayerOption === 'spot1') {
-            // Tap Player mode: crown the tapped wedge as first player
+          if (moved < 12 && dest === src && firstPlayerOption === 'spot1' && tapArmed) {
+            // Tap Player mode (one-shot): crown the tapped wedge, then disarm
+            // so later drags can't accidentally switch the pick
             tapFirstId = src;
+            tapArmed = false;
             try { if (db && roomCode) set(ref(db, `rooms/${roomCode}/tapFirstId`), src).catch(() => {}); } catch {}
             haptic(10);
-            showToast(t('tapPlayerHint'));
+            updateFirstOptHint();
             renderLobbyWheel(localPlayers);
             updateStartButton();
             return;
