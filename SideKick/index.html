@@ -5423,18 +5423,18 @@
       <div class="card">
         <div style="font-size:2rem;font-weight:800;color:var(--accent-light);text-align:center;margin-bottom:0.25rem;"><span data-i18n="step">Step</span> 2</div>
         <div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div></div>
-        <div style="display:flex;align-items:stretch;gap:0.5rem;margin-bottom:0.75rem;">
-          <button class="turn-mode-btn" onclick="openQRScanner()" style="flex:1;min-width:0;padding:1.5rem 0.5rem;">
-            <span class="tm-icon" style="font-size:1.8rem;">📷</span>
+        <div style="display:flex;align-items:stretch;gap:0.5rem;margin-bottom:0.5rem;">
+          <button class="turn-mode-btn" onclick="openQRScanner()" style="flex:1;min-width:0;padding:0.9rem 0.5rem;">
+            <span class="tm-icon" style="font-size:1.4rem;">📷</span>
             <span style="font-size:0.95rem;" data-i18n="scanRoom">Scan Room</span>
             <span style="font-size:0.95rem;" data-i18n="qrCode">QR Code</span>
           </button>
           <span style="font-size:0.85rem;color:var(--muted);font-weight:700;align-self:center;flex-shrink:0;" data-i18n="or">Or</span>
-          <div class="turn-mode-btn" style="flex:1;min-width:0;cursor:default;padding:1.5rem 0.5rem;gap:0;">
+          <div class="turn-mode-btn" style="flex:1;min-width:0;cursor:default;padding:0.9rem 0.5rem;gap:0;">
             <div style="flex:1;display:flex;align-items:center;justify-content:center;">
               <span style="font-size:1.05rem;font-weight:700;color:#fff;" data-i18n="typeCode">Type Code</span>
             </div>
-            <input id="join-code" placeholder="----" maxlength="4" oninput="updateJoinCollapseSummary()" style="width:100%;background:transparent;border:none;color:var(--text);font-family:monospace;font-size:1.5rem;letter-spacing:0.4em;text-align:center;text-transform:uppercase;outline:none;padding:0;">
+            <input id="join-code" placeholder="----" maxlength="4" oninput="updateJoinCollapseSummary()" style="width:100%;background:transparent;border:none;color:var(--text);font-family:monospace;font-size:1.3rem;letter-spacing:0.4em;text-align:center;text-transform:uppercase;outline:none;padding:0;">
           </div>
         </div>
         <button class="btn-primary" id="join-final-btn" onclick="joinRoom()" style="width:100%;" data-i18n="joinRoom">Join Room</button>
@@ -11102,7 +11102,10 @@ function renderKb() {
       html += '<div class="custom-kb-row">' + kbActHTML('ABC', 'syms', 'kb-wide') + kbKeyHTML('&nbsp;', ' ', 'kb-space') + kbActHTML('Done', 'done', 'kb-wide') + '</div>';
     }
     box.innerHTML = html;
-    box.querySelectorAll('[data-k]').forEach((b) => b.addEventListener('click', () => kbPress(b.getAttribute('data-k'))));
+    // Pointer-event activation only (no click handlers): with touchstart
+    // cancelled below, iOS never synthesizes click — and on mouse, pointerup
+    // covers activation without double-firing.
+    box.querySelectorAll('[data-k]').forEach((b) => b.addEventListener('pointerup', (ev) => { ev.preventDefault(); kbPress(b.getAttribute('data-k')); }));
     box.querySelectorAll('[data-act]').forEach((b) => {
       const a = b.getAttribute('data-act');
       if (a === 'back') {
@@ -11113,7 +11116,8 @@ function renderKb() {
         b.addEventListener('pointerleave', kbStopRepeat);
         return;
       }
-      b.addEventListener('click', () => {
+      b.addEventListener('pointerup', (ev) => {
+        ev.preventDefault();
         if (a === 'shift') kbShiftToggle();
         else if (a === 'syms') kbSymsToggle();
         else if (a === 'done') kbDone();
@@ -11253,6 +11257,12 @@ function kbDone() {
   el.addEventListener('touchend', () => setTimeout(kbCaretUpdate, 60));
   el.addEventListener('scroll', kbCaretUpdate);
   el.addEventListener('select', kbCaretUpdate);
+});
+// Cancel touchstart on the keyboard so iOS never shifts focus (which would
+// blur the field and dismiss the keyboard); pointer events still fire.
+['create-kb', 'join-kb'].forEach((bid) => {
+  const box = document.getElementById(bid);
+  if (box) box.addEventListener('touchstart', (ev) => { ev.preventDefault(); }, { passive: false });
 });
 window.addEventListener('pointerup', kbStopRepeat);
 window.addEventListener('pointercancel', kbStopRepeat);
@@ -13007,8 +13017,17 @@ function handleScannedQR(value) {
     if (joinInput) joinInput.value = code;
     updateJoinCollapseSummary();
     closeQRScanner();
+    joinStep = 2;
+    renderJoinStep();
     // Name already entered on Step 1 → go straight into the Player Lobby
-    if (document.getElementById('join-name').value.trim()) window.joinRoom();
+    if (document.getElementById('join-name').value.trim()) {
+      try {
+        const r = window.joinRoom();
+        if (r && r.catch) r.catch(() => status('join-status', 'Could not join. Tap Join Room.', 'error'));
+      } catch {
+        status('join-status', 'Could not join. Tap Join Room.', 'error');
+      }
+    }
     else status('join-status', 'Code scanned: ' + code, '');
   } else {
     document.getElementById('scanner-status').textContent = 'Invalid QR code. Try again.';
@@ -15560,6 +15579,7 @@ function listenLobby() {
 
     const players = room.players || {};
     localPlayers = buildOrderedPlayers(players);
+    roomTapFirstId = room.tapFirstId || null;
 
     // One-time sync: push avatar to Firebase if missing
     if (players[myId] && !players[myId].avatar) {
@@ -15634,6 +15654,7 @@ function listenWaitingLobby() {
       set(ref(db, `rooms/${roomCode}/players/${myId}/avatar`), myAvatar).catch(() => {});
     }
 
+    roomTapFirstId = room.tapFirstId || null;
     renderWaitingLobbyList(localPlayers);
 
     // Listen for duel in lobby
@@ -15661,9 +15682,11 @@ function listenWaitingLobby() {
 // ── FIRST PLAYER OPTION SELECTION ──────────────
 let firstPlayerOption = null; // 'spot1' | 'random' | 'duel'
 let tapFirstId = null; // tap-player mode: id of the tapped first player
+let roomTapFirstId = null; // tap-first pick synced from Firebase (visible to all clients)
 window.selectFirstPlayerOption = function(opt) {
   firstPlayerOption = opt;
   tapFirstId = null;
+  try { if (db && roomCode) remove(ref(db, `rooms/${roomCode}/tapFirstId`)).catch(() => {}); } catch {}
   if (opt === 'spot1') showToast(t('tapPlayerHint'));
   ['spot1', 'random', 'duel'].forEach(o => {
     const b = document.getElementById('first-opt-' + o);
@@ -15697,6 +15720,8 @@ function resetFirstPlayerOption() {
   firstPlayerOption = null;
   duelWinnerId = null;
   tapFirstId = null;
+  roomTapFirstId = null;
+  try { if (db && roomCode) remove(ref(db, `rooms/${roomCode}/tapFirstId`)).catch(() => {}); } catch {}
   ['spot1', 'random', 'duel'].forEach(o => {
     const b = document.getElementById('first-opt-' + o);
     if (b) b.classList.remove('selected');
@@ -15726,8 +15751,9 @@ window.startGame = async function() {
     const winnerIdx = localPlayers.findIndex(p => p.id === duelWinnerId);
     if (winnerIdx >= 0) actualFirstIdx = winnerIdx;
   }
-  if (firstPlayerOption === 'spot1' && tapFirstId) {
-    const tapIdx = localPlayers.findIndex(p => p.id === tapFirstId);
+  const tapId = tapFirstId || roomTapFirstId;
+  if (firstPlayerOption === 'spot1' && tapId) {
+    const tapIdx = localPlayers.findIndex(p => p.id === tapId);
     if (tapIdx >= 0) actualFirstIdx = tapIdx;
   }
 
@@ -18429,7 +18455,8 @@ function renderLobbyWheel(players, ids) {
     if (p) {
       const col = p.color || '#7c5cbf';
       const isDuelWinner = firstPlayerOption === 'duel' && duelWinnerId && p.id === duelWinnerId;
-      const isTapFirst = firstPlayerOption === 'spot1' && tapFirstId && p.id === tapFirstId;
+      const tapId = tapFirstId || roomTapFirstId;
+      const isTapFirst = tapId && p.id === tapId;
       const crowned = isDuelWinner || isTapFirst;
       let nm = p.name || 'Player';
       if (nm.length > 12) nm = nm.substring(0, 11) + '…';
@@ -18531,6 +18558,7 @@ function renderLobbyWheel(players, ids) {
           if (moved < 12 && dest === src && firstPlayerOption === 'spot1') {
             // Tap Player mode: crown the tapped wedge as first player
             tapFirstId = src;
+            try { if (db && roomCode) set(ref(db, `rooms/${roomCode}/tapFirstId`), src).catch(() => {}); } catch {}
             haptic(10);
             showToast(t('tapPlayerHint'));
             renderLobbyWheel(localPlayers);
