@@ -18435,15 +18435,28 @@ function renderLobbyWheel(players, ids) {
   const kicks = document.getElementById(ids.kicks || 'lobby-wheel-kicks');
   if (!wrap || !svg || !center) return;
   const list = (players || []).slice();
-  const hostIdx = list.findIndex(p => p.id === myId);
-  const ordered = hostIdx >= 0 ? [list[hostIdx]].concat(list.slice(0, hostIdx), list.slice(hostIdx + 1)) : list;
+  // Cyclic rotation: viewer at the bottom, everyone else follows in table
+  // order — so left/right neighbors agree on every screen and turns always
+  // advance bottom -> left -> top -> right for all viewers.
+  const selfIdx = list.findIndex(p => p.id === myId);
+  const ordered = selfIdx >= 0 ? list.slice(selfIdx).concat(list.slice(0, selfIdx)) : list;
   const real = ordered.length;
   const segs = Math.max(real, 2);
   const SEG = 360 / segs;
   const off = 90 - SEG / 2;
   const CX = 200, CY = 200, R_OUT = 192, R_IN = 64;
+  let cardBorder = '#44445f';
+  try {
+    const bv = getComputedStyle(document.body).getPropertyValue('--border');
+    if (bv && bv.trim()) cardBorder = bv.trim();
+  } catch {}
   let defs = '';
-  let html = '<circle cx="200" cy="200" r="192" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="2"/>';
+  let html = '<circle cx="200" cy="200" r="192" fill="none" stroke="' + cardBorder + '" stroke-width="2"/>';
+  let spokes = '';
+  for (let b = 0; b < segs; b++) {
+    const ba = (off + b * SEG) * Math.PI / 180;
+    spokes += '<line x1="' + (CX + R_IN * Math.cos(ba)).toFixed(1) + '" y1="' + (CY + R_IN * Math.sin(ba)).toFixed(1) + '" x2="' + (CX + R_OUT * Math.cos(ba)).toFixed(1) + '" y2="' + (CY + R_OUT * Math.sin(ba)).toFixed(1) + '" stroke="' + cardBorder + '" stroke-width="2"/>';
+  }
   for (let i = 0; i < segs; i++) {
     const p = i < real ? ordered[i] : null;
     const s = off + i * SEG, e = off + (i + 1) * SEG;
@@ -18486,6 +18499,7 @@ function renderLobbyWheel(players, ids) {
       });
     }
   }
+  html += spokes;
   if (defs) html = html.replace('stroke-width="2"/>', 'stroke-width="2"/><defs>' + defs + '</defs>');
   svg.innerHTML = html;
   // Center: invite button for signed-in hosts, plain ring otherwise
