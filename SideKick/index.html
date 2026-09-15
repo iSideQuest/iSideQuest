@@ -5533,8 +5533,8 @@
     </div>
 
     <!-- Fixed bottom bar -->
-    <div style="width:100%;max-width:30rem;margin:0 auto;padding:0.3rem 0.5rem calc(3.4rem + env(safe-area-inset-bottom, 0.3rem));flex-shrink:0;">
-      <div id="first-opt-hint" style="display:none;max-width:30rem;margin:0 auto 0.5rem;padding:0.55rem 0.75rem;border-radius:0.625rem;border:1px solid var(--accent);background:rgba(124,92,191,0.15);font-size:0.82rem;font-weight:700;color:var(--text);text-align:center;"></div>
+    <div style="position:relative;width:100%;max-width:30rem;margin:0 auto;padding:0.3rem 0.5rem calc(3.4rem + env(safe-area-inset-bottom, 0.3rem));flex-shrink:0;">
+      <div id="first-opt-hint" style="display:none;position:absolute;bottom:100%;left:0;right:0;margin-bottom:0.5rem;padding:0.55rem 0.75rem;border-radius:0.625rem;border:1px solid var(--accent);background:rgba(20,20,32,0.95);box-shadow:0 0.25rem 1.25rem rgba(0,0,0,0.5);font-size:0.82rem;font-weight:700;color:var(--text);text-align:center;z-index:5;pointer-events:none;"></div>
     <div id="first-opt-card" class="card" style="max-width:30rem;margin:0 auto 0.6rem;padding:0.6rem 0.7rem;border-radius:0.625rem;background:var(--lobby-list-bg);">
         <div style="position:relative;text-align:center;font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;"><span data-i18n="chooseFirst">Choose Option For 1st Player</span><span style="position:absolute;right:0;top:50%;transform:translateY(-50%);">👑</span></div>
         <div style="display:flex;gap:0.5rem;">
@@ -7593,6 +7593,7 @@ const I18N_STRINGS = {
     spot1Opt: 'Tap Player',
     tapPlayerHint: 'Tap a player to make them 1st Player and begin the game',
     randomFirstHint: 'Randomly chooses a 1st player at the start of game',
+    duelFirstHint: 'Duel to decide the 1st player',
     randomOpt: 'Random',
     duelOpt: 'Duel',
     joinedRoom: 'Joined room',
@@ -7749,6 +7750,7 @@ const I18N_STRINGS = {
     spot1Opt: 'Tocar jugador',
     tapPlayerHint: 'Toca un jugador para hacerlo 1.º y empezar el juego',
     randomFirstHint: 'Elige un 1.º al azar al empezar el juego',
+    duelFirstHint: 'Duelo para decidir el 1.º',
     randomOpt: 'Aleatorio',
     duelOpt: 'Duelo',
     joinedRoom: 'Sala unida',
@@ -7906,6 +7908,7 @@ const I18N_STRINGS = {
     spot1Opt: '点选玩家',
     tapPlayerHint: '点击一位玩家使其成为首位玩家并开始游戏',
     randomFirstHint: '游戏开始时随机选择首位玩家',
+    duelFirstHint: '对决决定首位玩家',
     randomOpt: '随机',
     duelOpt: '决斗',
     joinedRoom: '已加入房间',
@@ -8063,6 +8066,7 @@ const I18N_STRINGS = {
     spot1Opt: 'Spieler wählen',
     tapPlayerHint: 'Tippe auf einen Spieler als 1. Spieler, um zu beginnen',
     randomFirstHint: 'Wählt zufällig einen 1. Spieler bei Spielstart',
+    duelFirstHint: 'Duell um den 1. Spieler',
     randomOpt: 'Zufällig',
     duelOpt: 'Duell',
     joinedRoom: 'Raum beigetreten',
@@ -8220,6 +8224,7 @@ const I18N_STRINGS = {
     spot1Opt: 'Choisir joueur',
     tapPlayerHint: 'Touchez un joueur pour en faire le 1er et commencer',
     randomFirstHint: 'Choisit un 1er joueur au hasard au début',
+    duelFirstHint: 'Duel pour le 1er joueur',
     randomOpt: 'Aléatoire',
     duelOpt: 'Duel',
     joinedRoom: 'Salle rejointe',
@@ -8377,6 +8382,7 @@ const I18N_STRINGS = {
     spot1Opt: 'プレイヤー選択',
     tapPlayerHint: 'プレイヤーをタップして1番手にして開始',
     randomFirstHint: '開始時にランダムで1番手を決定',
+    duelFirstHint: '決闘で1番手を決定',
     randomOpt: 'ランダム',
     duelOpt: '決闘',
     joinedRoom: 'ルームに参加しました',
@@ -8534,6 +8540,7 @@ const I18N_STRINGS = {
     spot1Opt: 'Scegli giocatore',
     tapPlayerHint: 'Tocca un giocatore per farlo 1º e iniziare',
     randomFirstHint: 'Sceglie un 1º a caso a inizio partita',
+    duelFirstHint: 'Duello per il 1º',
     randomOpt: 'Casuale',
     duelOpt: 'Duello',
     joinedRoom: 'Sala a cui ti sei unito',
@@ -8691,6 +8698,7 @@ const I18N_STRINGS = {
     spot1Opt: 'Escolher jogador',
     tapPlayerHint: 'Toque em um jogador para ser o 1º e começar',
     randomFirstHint: 'Escolhe um 1º aleatório no início do jogo',
+    duelFirstHint: 'Duelo para o 1º',
     randomOpt: 'Aleatório',
     duelOpt: 'Duelo',
     joinedRoom: 'Sala ingressada',
@@ -15693,25 +15701,28 @@ let firstPlayerOption = null; // 'spot1' | 'random' | 'duel'
 let tapFirstId = null; // tap-player mode: id of the tapped first player
 let tapArmed = false; // tap-player mode: true only between tapping the option and tapping a segment
 let roomTapFirstId = null; // tap-first pick synced from Firebase (visible to all clients)
-function updateFirstOptHint() {
+let _firstOptHintTimer = null;
+function showFirstOptHint(msg) {
   const el = document.getElementById('first-opt-hint');
   if (!el) return;
-  if (firstPlayerOption === 'spot1' && tapArmed) {
-    el.textContent = t('tapPlayerHint');
-    el.style.display = '';
-  } else if (firstPlayerOption === 'random') {
-    el.textContent = t('randomFirstHint');
-    el.style.display = '';
-  } else {
-    el.style.display = 'none';
-  }
+  el.textContent = msg;
+  el.style.display = '';
+  clearTimeout(_firstOptHintTimer);
+  _firstOptHintTimer = setTimeout(() => { el.style.display = 'none'; }, 2600);
+}
+function hideFirstOptHint() {
+  clearTimeout(_firstOptHintTimer);
+  const el = document.getElementById('first-opt-hint');
+  if (el) el.style.display = 'none';
 }
 window.selectFirstPlayerOption = function(opt) {
   firstPlayerOption = opt;
   tapFirstId = null;
   tapArmed = (opt === 'spot1');
   try { if (db && roomCode) remove(ref(db, `rooms/${roomCode}/tapFirstId`)).catch(() => {}); } catch {}
-  updateFirstOptHint();
+  if (opt === 'spot1') showFirstOptHint(t('tapPlayerHint'));
+  else if (opt === 'random') showFirstOptHint(t('randomFirstHint'));
+  else if (opt === 'duel') showFirstOptHint(t('duelFirstHint'));
   ['spot1', 'random', 'duel'].forEach(o => {
     const b = document.getElementById('first-opt-' + o);
     if (b) b.classList.toggle('selected', o === opt);
@@ -15747,7 +15758,7 @@ function resetFirstPlayerOption() {
   roomTapFirstId = null;
   tapArmed = false;
   try { if (db && roomCode) remove(ref(db, `rooms/${roomCode}/tapFirstId`)).catch(() => {}); } catch {}
-  updateFirstOptHint();
+  hideFirstOptHint();
   ['spot1', 'random', 'duel'].forEach(o => {
     const b = document.getElementById('first-opt-' + o);
     if (b) b.classList.remove('selected');
@@ -18606,7 +18617,7 @@ function renderLobbyWheel(players, ids) {
             tapArmed = false;
             try { if (db && roomCode) set(ref(db, `rooms/${roomCode}/tapFirstId`), src).catch(() => {}); } catch {}
             haptic(10);
-            updateFirstOptHint();
+            hideFirstOptHint();
             renderLobbyWheel(localPlayers);
             updateStartButton();
             return;
