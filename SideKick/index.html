@@ -2501,9 +2501,11 @@
   .lobby-seg:active { cursor: grabbing; }
   .lobby-seg-drag { opacity: 0.35; }
   .lobby-seg-target { filter: brightness(1.6); }
-  .lobby-wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background: var(--surface); border: 0.15rem solid var(--border); display: flex; align-items: center; justify-content: center; z-index: 3; }
+  .lobby-wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background: var(--surface); border: 0.15rem solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; z-index: 3; }
   .lobby-invite-btn { width: 100%; height: 100%; border-radius: 50%; border: none; background: transparent; color: var(--text); font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1rem; font-size: 0.72rem; padding: 0; }
   .lobby-invite-btn:active { background: rgba(124,92,191,0.25); }
+  .lobby-center-half { flex: 1; width: 100%; border: none; background: transparent; color: var(--text); font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; font-size: 0.62rem; padding: 0; line-height: 1.2; }
+  .lobby-center-half:active { background: rgba(124,92,191,0.25); }
   #lobby-wheel-kicks, #wl-wheel-kicks { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
   .lobby-kick-btn { position: absolute; width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 1px solid var(--border); background: rgba(0,0,0,0.65); color: #ff6b6b; font-size: 0.95rem; font-weight: 800; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transform: translate(-50%, -50%); pointer-events: all; }
 
@@ -5568,7 +5570,6 @@
         </div>
       </div>
       <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;" data-i18n="startGame">Start Game &#9654;</button>
-      <button class="btn-secondary" id="create-player-btn" onclick="openStandinOverlay()" style="width:100%;margin-top:0.5rem;" data-i18n="createPlayer">+ Create Player</button>
     </div>
 
   </div>
@@ -12527,6 +12528,19 @@ window.stCustom = function(id, sign) {
   renderScoreTracker();
   haptic(5);
 };
+window.stSetTotal = function(id) {
+  const p = stPlayers.find(x => x.id === id);
+  if (!p) return;
+  const input = document.getElementById('st-amt-' + id);
+  const val = parseInt(input ? input.value : '', 10);
+  if (isNaN(val)) return;
+  const delta = val - stTotal(p);
+  if (delta === 0) return;
+  p.entries.push({ d: delta, at: Date.now() });
+  stSave();
+  renderScoreTracker();
+  haptic(5);
+};
 function renderScoreTracker() {
   const list = document.getElementById('st-player-list');
   if (!list) return;
@@ -12555,6 +12569,7 @@ function renderScoreTracker() {
         + '<input type="number" id="st-amt-' + p.id + '" placeholder="Amount">'
         + '<button class="btn-primary btn-sm" style="width:auto;flex-shrink:0;" onclick="stCustom(\'' + p.id + '\',1)">Add</button>'
         + '<button class="btn-secondary btn-sm" style="width:auto;flex-shrink:0;" onclick="stCustom(\'' + p.id + '\',-1)">Sub</button>'
+        + '<button class="btn-secondary btn-sm" style="width:auto;flex-shrink:0;" onclick="stSetTotal(\'' + p.id + '\')">Set</button>'
         + '</div>'
         + '<button class="st-hist-toggle" onclick="stToggleHist(\'' + p.id + '\')">' + (histOpen ? '▼' : '▲') + ' History</button>';
       if (histOpen) {
@@ -15907,8 +15922,10 @@ function listenLobby() {
       set(ref(db, `rooms/${roomCode}/players/${myId}/avatar`), myAvatar).catch(() => {});
     }
 
-    // Track duel winner for crown display in lobby
-    if (room.duel && room.duel.winnerId) {
+    // Track duel winner for crown display in lobby (a tap pick overrides it)
+    if (room.tapFirstId) {
+      duelWinnerId = null;
+    } else if (room.duel && room.duel.winnerId) {
       duelWinnerId = room.duel.winnerId;
     } else if (room.duel && room.duel.status === 'countdown') {
       duelWinnerId = null;
@@ -15981,6 +15998,8 @@ function listenWaitingLobby() {
     if (room.duel && room.duel.status && room.duel.status !== 'finished') {
       if (room.duel.status === 'countdown') duelWinnerId = null;
       handleDuelState(room.duel);
+    } else if (room.tapFirstId) {
+      duelWinnerId = null;
     } else if (room.duel && room.duel.winnerId) {
       duelWinnerId = room.duel.winnerId;
     } else if (!room.duel || !room.duel.status) {
@@ -16021,6 +16040,7 @@ function hideFirstOptHint() {
 window.selectFirstPlayerOption = function(opt) {
   firstPlayerOption = opt;
   tapFirstId = null;
+  duelWinnerId = null;
   tapArmed = (opt === 'spot1');
   try { if (db && roomCode) remove(ref(db, `rooms/${roomCode}/tapFirstId`)).catch(() => {}); } catch {}
   if (opt === 'spot1') showFirstOptHint(t('tapPlayerHint'));
@@ -16287,6 +16307,9 @@ window.startDuelFromSetup = async function() {
   const duration = Math.max(5, Math.min(60, parseInt(document.getElementById('duel-duration-input').value) || 10));
   closeDuelSetup();
   duelWinnerId = null;
+  tapFirstId = null;
+  roomTapFirstId = null;
+  try { if (db && roomCode) remove(ref(db, `rooms/${roomCode}/tapFirstId`)).catch(() => {}); } catch {}
   duelFinalized = false;
   duelLatestResults = null;
   duelStateVersion = 0;
@@ -18885,8 +18908,8 @@ function renderLobbyWheel(players, ids) {
     const ly = (CY + lr * Math.sin(mid)).toFixed(1);
     if (p) {
       const col = p.color || '#7c5cbf';
-      const isDuelWinner = duelWinnerId && p.id === duelWinnerId;
       const tapId = tapFirstId || roomTapFirstId;
+      const isDuelWinner = !tapId && duelWinnerId && p.id === duelWinnerId;
       const isTapFirst = tapId && p.id === tapId;
       const crowned = isDuelWinner || isTapFirst;
       let nm = p.name || 'Player';
@@ -18921,10 +18944,13 @@ function renderLobbyWheel(players, ids) {
   html += spokes;
   if (defs) html = html.replace('stroke-width="2"/>', 'stroke-width="2"/><defs>' + defs + '</defs>');
   svg.innerHTML = html;
-  // Center: invite button for signed-in hosts, plain ring otherwise
+  // Center: Invite top half + Create Player bottom half for signed-in hosts
   if (isHost && currentUser) {
-    center.innerHTML = '<button class="lobby-invite-btn" id="lobby-invite-center"><div style="font-size:1.5rem;line-height:1;">👥</div><div>Invite Friend(s)</div></button>';
+    center.innerHTML = '<button class="lobby-center-half" id="lobby-invite-center"><span style="font-size:1.1rem;line-height:1;">👥</span><span>Invite Friends</span></button>'
+      + '<div style="width:70%;height:1px;background:var(--border);flex-shrink:0;"></div>'
+      + '<button class="lobby-center-half" id="lobby-create-center"><span style="font-size:1.1rem;line-height:1;">＋</span><span>Create Player</span></button>';
     document.getElementById('lobby-invite-center').addEventListener('click', () => { openInviteFriendsOverlay(); });
+    document.getElementById('lobby-create-center').addEventListener('click', () => { openStandinOverlay(); });
   } else {
     center.innerHTML = '';
   }
