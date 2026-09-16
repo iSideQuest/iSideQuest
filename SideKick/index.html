@@ -1974,6 +1974,30 @@
   }
   .timer-preset-btn:hover { border-color: var(--accent); }
   .lap-list { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.4rem; max-height: 8.75rem; overflow-y: auto; }
+  .score-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9650; align-items: center; justify-content: center; padding: 1rem; }
+  .score-overlay.show { display: flex; }
+  .score-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 1.125rem; padding: 1.25rem 1rem; width: min(23.75rem, 92vw); max-height: 88vh; overflow-y: auto; box-shadow: 0 0.5rem 2.5rem rgba(0,0,0,0.7); display: flex; flex-direction: column; gap: 0.6rem; }
+  .score-modal-title { font-size: 1.05rem; font-weight: 800; color: var(--text); text-align: center; }
+  .st-add-row { display: flex; gap: 0.5rem; }
+  .st-add-row input { flex: 1; min-width: 0; margin-bottom: 0; }
+  .st-player { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 0.625rem; padding: 0.55rem 0.65rem; }
+  .st-head { display: flex; align-items: center; gap: 0.5rem; width: 100%; background: none; border: none; color: var(--text); cursor: pointer; padding: 0.15rem 0; text-align: left; }
+  .st-name { flex: 1; min-width: 0; font-weight: 700; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .st-total { font-weight: 800; font-size: 1.05rem; color: var(--accent-light); }
+  .st-del { background: none; border: none; color: var(--muted); font-size: 1.1rem; font-weight: 800; cursor: pointer; padding: 0 0.2rem; line-height: 1; }
+  .st-body { margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .st-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .st-chip { flex: 1 1 28%; padding: 0.45rem 0; border-radius: 0.5rem; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--text); font-weight: 700; font-size: 0.85rem; cursor: pointer; }
+  .st-chip:active { background: rgba(124,92,191,0.3); }
+  .st-custom { display: flex; gap: 0.4rem; }
+  .st-custom input { flex: 1; min-width: 0; margin-bottom: 0; }
+  .st-hist-toggle { background: none; border: none; color: var(--accent-light); font-size: 0.8rem; font-weight: 700; cursor: pointer; padding: 0.1rem 0; }
+  .st-hist { display: flex; flex-direction: column; gap: 0.2rem; max-height: 9rem; overflow-y: auto; }
+  .st-hist-row { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text); padding: 0.15rem 0.1rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .st-hist-time { color: var(--muted); font-size: 0.72rem; }
+  .st-hist-empty { font-size: 0.78rem; color: var(--muted); text-align: center; padding: 0.3rem; }
+  .st-foot-total { text-align: right; font-size: 0.9rem; font-weight: 800; color: var(--text); }
+  .st-empty { font-size: 0.85rem; color: var(--muted); text-align: center; padding: 0.6rem; }
   .lap-row {
     display: flex; justify-content: space-between; font-size: 0.8rem;
     padding: 0.35rem 0.6rem; background: #1e1e2e; border-radius: 0.5rem; color: var(--text);
@@ -7090,6 +7114,21 @@
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
+<!--  SCORE TRACKER TOOL                          -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="score-overlay" id="score-overlay">
+  <div class="score-modal">
+    <div class="score-modal-title">Score Tracker</div>
+    <div class="st-add-row">
+      <input type="text" id="st-name-input" placeholder="Player name" maxlength="20">
+      <button class="btn-primary btn-sm" style="width:auto;flex-shrink:0;" onclick="stAddPlayer()">+ Add</button>
+    </div>
+    <div id="st-player-list"></div>
+    <button class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="closeScoreOverlay()">Close</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
 <!--  TOOLS OVERLAY (list of tools)              -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="tools-overlay">
@@ -7100,6 +7139,7 @@
     <button class="tool-list-btn" onclick="openTool('picker')">Player Picker</button>
     <button class="tool-list-btn" onclick="openTool('status')">Status Effects</button>
     <button class="tool-list-btn" onclick="openSpeedRoundFromTool()">Speed Round</button>
+    <button class="tool-list-btn" onclick="openTool('score')">Score Tracker</button>
 
     <button class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="closeToolsOverlay()">Close</button>
   </div>
@@ -7218,7 +7258,7 @@
         <span>Tap</span>
       </button>
     </div>
-    <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeDuelModeSelect()">Cancel</button>
+      <button class="btn-secondary btn-sm" style="width:100%;" onclick="cancelDuelSetup()">Cancel</button>
   </div>
 </div>
 
@@ -7244,7 +7284,7 @@
     </div>
     <input type="hidden" id="duel-duration-input" value="10">
     <button class="btn-primary" style="width:100%;" onclick="startDuelFromSetup()">⚔️ Duel!</button>
-    <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeDuelSetup()">Cancel</button>
+      <button class="btn-secondary btn-sm" style="width:100%;" onclick="cancelDuelSetup()">Cancel</button>
   </div>
 </div>
 
@@ -12248,7 +12288,8 @@ window.toggleTools = function() {
 const TOOL_LABELS = {
   timers: 'Timers',
   picker: 'Random Player Picker',
-  status: 'Status Effects'
+  status: 'Status Effects',
+  score: 'Score Tracker'
 };
 
 let toolsSource = 'host'; // 'host' or 'home'
@@ -12356,6 +12397,10 @@ window.openTool = function(toolId, fromHome) {
     openStatusMenu();
     return;
   }
+  if (toolId === 'score') {
+    openScoreOverlay();
+    return;
+  }
 
   const label = TOOL_LABELS[toolId] || toolId;
   showAlert(label + ' is coming soon!');
@@ -12401,6 +12446,136 @@ window.openTimerOverlay = function() {
 window.closeTimerOverlay = function() {
   document.getElementById('timer-overlay').classList.remove('show');
 };
+
+// ── SCORE TRACKER TOOL ─────────────────────────
+// Device-local scoreboard: host (or anyone) adds player names, taps a name
+// to add/subtract scores, and expands per-player history (oldest first).
+const ST_LS_KEY = 'sk_score_tracker';
+let stPlayers = [];
+let stOpenId = null;
+const stHistOpen = {};
+function stLoad() {
+  try { stPlayers = JSON.parse(localStorage.getItem(ST_LS_KEY) || '[]'); } catch { stPlayers = []; }
+  if (!Array.isArray(stPlayers)) stPlayers = [];
+}
+function stSave() {
+  try { localStorage.setItem(ST_LS_KEY, JSON.stringify(stPlayers)); } catch {}
+}
+function stTotal(p) {
+  return p.entries.reduce((a, e) => a + (e.d || 0), 0);
+}
+function stFmtTime(at) {
+  try { return new Date(at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); } catch { return ''; }
+}
+window.openScoreOverlay = function() {
+  stLoad();
+  stOpenId = null;
+  document.getElementById('st-name-input').value = '';
+  renderScoreTracker();
+  document.getElementById('score-overlay').classList.add('show');
+};
+window.closeScoreOverlay = function() {
+  document.getElementById('score-overlay').classList.remove('show');
+};
+window.stAddPlayer = function() {
+  const input = document.getElementById('st-name-input');
+  const name = (input.value || '').trim();
+  if (!name) return;
+  stPlayers.push({ id: 'stp_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name, entries: [] });
+  input.value = '';
+  stSave();
+  renderScoreTracker();
+  haptic(5);
+};
+window.stDeletePlayer = async function(id) {
+  const p = stPlayers.find(x => x.id === id);
+  if (!p) return;
+  if (await showConfirm('Remove ' + p.name + ' from Score Tracker?')) {
+    stPlayers = stPlayers.filter(x => x.id !== id);
+    if (stOpenId === id) stOpenId = null;
+    delete stHistOpen[id];
+    stSave();
+    renderScoreTracker();
+  }
+};
+window.stToggleOpen = function(id) {
+  stOpenId = (stOpenId === id) ? null : id;
+  renderScoreTracker();
+  haptic(3);
+};
+window.stToggleHist = function(id) {
+  stHistOpen[id] = !stHistOpen[id];
+  renderScoreTracker();
+  haptic(3);
+};
+window.stAddDelta = function(id, delta) {
+  const p = stPlayers.find(x => x.id === id);
+  if (!p) return;
+  p.entries.push({ d: delta, at: Date.now() });
+  stSave();
+  renderScoreTracker();
+  haptic(5);
+};
+window.stCustom = function(id, sign) {
+  const p = stPlayers.find(x => x.id === id);
+  if (!p) return;
+  const input = document.getElementById('st-amt-' + id);
+  const val = parseInt(input ? input.value : '', 10);
+  if (isNaN(val) || val === 0) return;
+  p.entries.push({ d: sign * Math.abs(val), at: Date.now() });
+  stSave();
+  renderScoreTracker();
+  haptic(5);
+};
+function renderScoreTracker() {
+  const list = document.getElementById('st-player-list');
+  if (!list) return;
+  if (!stPlayers.length) {
+    list.innerHTML = '<div class="st-empty">No players yet — add one above!</div>';
+    return;
+  }
+  list.innerHTML = '';
+  stPlayers.forEach(p => {
+    const total = stTotal(p);
+    const open = stOpenId === p.id;
+    const histOpen = !!stHistOpen[p.id];
+    const card = document.createElement('div');
+    card.className = 'st-player';
+    let html = '<button class="st-head" onclick="stToggleOpen(\'' + p.id + '\')">'
+      + '<span class="st-name">' + esc(p.name) + '</span>'
+      + '<span class="st-total">' + total + '</span>'
+      + '<span class="st-del" role="button" onclick="event.stopPropagation(); stDeletePlayer(\'' + p.id + '\')">×</span>'
+      + '</button>';
+    if (open) {
+      html += '<div class="st-body">'
+        + '<div class="st-chips">'
+        + [1, 5, 10, -1, -5, -10].map(n => '<button class="st-chip" onclick="stAddDelta(\'' + p.id + '\',' + n + ')">' + (n > 0 ? '+' + n : n) + '</button>').join('')
+        + '</div>'
+        + '<div class="st-custom">'
+        + '<input type="number" id="st-amt-' + p.id + '" placeholder="Amount">'
+        + '<button class="btn-primary btn-sm" style="width:auto;flex-shrink:0;" onclick="stCustom(\'' + p.id + '\',1)">Add</button>'
+        + '<button class="btn-secondary btn-sm" style="width:auto;flex-shrink:0;" onclick="stCustom(\'' + p.id + '\',-1)">Sub</button>'
+        + '</div>'
+        + '<button class="st-hist-toggle" onclick="stToggleHist(\'' + p.id + '\')">' + (histOpen ? '▼' : '▲') + ' History</button>';
+      if (histOpen) {
+        html += '<div class="st-hist">';
+        if (!p.entries.length) {
+          html += '<div class="st-hist-empty">No scores yet</div>';
+        } else {
+          p.entries.forEach(e => {
+            const d = e.d || 0;
+            html += '<div class="st-hist-row"><span>' + (d > 0 ? '+' + d : '' + d) + '</span><span class="st-hist-time">' + esc(stFmtTime(e.at)) + '</span></div>';
+          });
+        }
+        html += '</div>';
+      }
+      html += '<div class="st-foot-total">Total: ' + total + '</div>';
+      html += '</div>';
+    }
+    card.innerHTML = html;
+    list.appendChild(card);
+  });
+}
 
 window.switchTimerTab = function(tab) {
   ['countdown','stopwatch','lap'].forEach(t => {
@@ -15953,6 +16128,44 @@ window.startGame = async function() {
 
 // ── DUEL FOR 1ST PLAYER ──────────────────────────
 let duelWinnerId = null;
+let duelFinalized = false; // winner already written for this duel run
+let duelResultsDeadline = 0; // fallback finalize time if stragglers never submit
+let duelLatestResults = null; // { data, names, mode } — latest seen results
+// Fallback: crown whoever submitted if some players never do (closed tab,
+// dropped connection). Runs on the host a few seconds after the deadline.
+async function finalizeDuelFallback() {
+  if (duelFinalized || !isHost || !db || !roomCode) return;
+  const R = duelLatestResults;
+  if (!R || !R.data || Object.keys(R.data).length === 0) return;
+  duelFinalized = true;
+  let winner = null;
+  if (R.mode === 'timetap') {
+    const sorted = Object.entries(R.data)
+      .map(([id, ms]) => ({ id, name: (R.names || {})[id] || 'Player', tapMs: ms }))
+      .sort((a, b) => Math.abs(a.tapMs - duelTargetTime * 1000) - Math.abs(b.tapMs - duelTargetTime * 1000));
+    if (sorted.length > 0) {
+      const dqThresh = (duelTargetTime + 4.5) * 1000;
+      const real = sorted.filter(p => p.tapMs < dqThresh);
+      winner = real.length > 0 ? real[0] : null;
+    }
+  } else {
+    const sorted = Object.entries(R.data)
+      .map(([id, taps]) => ({ id, name: (R.names || {})[id] || 'Player', taps }))
+      .sort((a, b) => b.taps - a.taps);
+    if (sorted.length > 0) winner = sorted[0];
+  }
+  if (!winner) return; // nobody valid (all DQ) — leave un-crowned as before
+  duelWinnerId = winner.id;
+  try {
+    await update(ref(db), {
+      [`rooms/${roomCode}/duel/status`]: 'finished',
+      [`rooms/${roomCode}/duel/winnerId`]: winner.id,
+      [`rooms/${roomCode}/duel/winnerName`]: winner.name
+    });
+  } catch {}
+  renderLobbyList(localPlayers);
+  updateStartButton();
+}
 let duelTapCount = 0;
 let duelTapActive = false;
 let duelCountdownInterval = null;
@@ -16074,6 +16287,8 @@ window.startDuelFromSetup = async function() {
   const duration = Math.max(5, Math.min(60, parseInt(document.getElementById('duel-duration-input').value) || 10));
   closeDuelSetup();
   duelWinnerId = null;
+  duelFinalized = false;
+  duelLatestResults = null;
   duelStateVersion = 0;
   duelHostStartedActive = false;
 
@@ -16274,6 +16489,8 @@ function handleDuelState(d) {
         document.getElementById('duel-continue-btn').style.display = isHost ? '' : 'none';
         document.getElementById('duel-waiting-text').style.display = isHost ? 'none' : '';
         document.getElementById('duel-score-overlay').classList.add('show');
+        renderLobbyList(localPlayers);
+        updateStartButton();
       }
     } else {
       const sorted = Object.entries(results)
@@ -16285,6 +16502,8 @@ function handleDuelState(d) {
         document.getElementById('duel-continue-btn').style.display = isHost ? '' : 'none';
         document.getElementById('duel-waiting-text').style.display = isHost ? 'none' : '';
         document.getElementById('duel-score-overlay').classList.add('show');
+        renderLobbyList(localPlayers);
+        updateStartButton();
       }
     }
   }
@@ -16341,6 +16560,12 @@ function submitDuelScore(count) {
   document.getElementById('duel-waiting-text').style.display = isHost ? 'none' : '';
   document.getElementById('duel-score-overlay').classList.add('show');
 
+  // Fallback: if stragglers never submit, crown whoever did a few seconds in
+  if (isHost) {
+    duelResultsDeadline = Date.now() + 8000;
+    setTimeout(() => finalizeDuelFallback(), 8500);
+  }
+
   // Fire-and-forget: write score to Firebase
   if (db && roomCode && myId) {
     update(ref(db), {
@@ -16374,18 +16599,22 @@ function submitDuelScore(count) {
         .map(([id, taps]) => ({ id, name: namesData[id] || 'Player', taps }))
         .sort((a, b) => b.taps - a.taps);
       if (sorted.length > 0) renderDuelScoreboard(sorted);
+      duelLatestResults = { data: resultsData, names: namesData, mode: 'fastest' };
 
       // If host and all submitted, write finished + set winner
-      if (isHost) {
+      if (isHost && !duelFinalized) {
         const activeCount = localPlayers.length;
         if (Object.keys(resultsData).length >= activeCount) {
           const winner = sorted[0];
           duelWinnerId = winner.id;
+          duelFinalized = true;
           update(ref(db), {
             [`rooms/${roomCode}/duel/status`]: 'finished',
             [`rooms/${roomCode}/duel/winnerId`]: winner.id,
             [`rooms/${roomCode}/duel/winnerName`]: winner.name
           }).catch(() => {});
+          renderLobbyList(localPlayers);
+          updateStartButton();
         }
       }
     }
@@ -16440,6 +16669,11 @@ function submitTimeTapScore(tapTimeMs) {
   document.getElementById('duel-waiting-text').style.display = isHost ? 'none' : '';
   document.getElementById('duel-score-overlay').classList.add('show');
 
+  if (isHost) {
+    duelResultsDeadline = Date.now() + 8000;
+    setTimeout(() => finalizeDuelFallback(), 8500);
+  }
+
   if (db && roomCode && myId) {
     update(ref(db), {
       [`rooms/${roomCode}/duel/results/${myId}`]: tapTimeMs,
@@ -16470,17 +16704,21 @@ function submitTimeTapScore(tapTimeMs) {
         .map(([id, ms]) => ({ id, name: namesData[id] || 'Player', tapMs: ms }))
         .sort((a, b) => Math.abs(a.tapMs - duelTargetTime * 1000) - Math.abs(b.tapMs - duelTargetTime * 1000));
       if (sorted.length > 0) renderTimeTapScoreboard(sorted);
+      duelLatestResults = { data: resultsData, names: namesData, mode: 'timetap' };
 
-      if (isHost) {
+      if (isHost && !duelFinalized) {
         const activeCount = localPlayers.length;
         if (Object.keys(resultsData).length >= activeCount) {
           const winner = sorted[0];
           duelWinnerId = winner.id;
+          duelFinalized = true;
           update(ref(db), {
             [`rooms/${roomCode}/duel/status`]: 'finished',
             [`rooms/${roomCode}/duel/winnerId`]: winner.id,
             [`rooms/${roomCode}/duel/winnerName`]: winner.name
           }).catch(() => {});
+          renderLobbyList(localPlayers);
+          updateStartButton();
         }
       }
     }
@@ -16546,8 +16784,10 @@ function renderTimeTapScoreboard(sorted) {
   setTimeout(() => { continueBtn.disabled = false; continueBtn.style.opacity = '1'; }, 3000);
 }
 
-window.duelContinue = function() {
+window.duelContinue = async function() {
   closeDuelScore();
+  // If no winner was ever finalized (stragglers), crown whoever submitted first
+  if (isHost && !duelWinnerId) await finalizeDuelFallback();
   // Clean up duel node in Firebase — non-host players listen for removal
   if (db && roomCode) {
     remove(ref(db, `rooms/${roomCode}/duel`)).catch(() => {});
@@ -16555,6 +16795,16 @@ window.duelContinue = function() {
   if (duelListenUnsub) { duelListenUnsub(); duelListenUnsub = null; }
   if (duelResultsUnsub) { duelResultsUnsub(); duelResultsUnsub = null; }
   duelStateVersion = 0;
+  renderLobbyList(localPlayers);
+  updateStartButton();
+};
+window.cancelDuelSetup = function() {
+  closeDuelSetup();
+  document.getElementById('duel-mode-overlay').classList.remove('show');
+  firstPlayerOption = null;
+  duelWinnerId = null;
+  updateStartButton();
+  renderLobbyList(localPlayers);
 };
 
 window.closeDuelScore = function() {
@@ -18635,7 +18885,7 @@ function renderLobbyWheel(players, ids) {
     const ly = (CY + lr * Math.sin(mid)).toFixed(1);
     if (p) {
       const col = p.color || '#7c5cbf';
-      const isDuelWinner = firstPlayerOption === 'duel' && duelWinnerId && p.id === duelWinnerId;
+      const isDuelWinner = duelWinnerId && p.id === duelWinnerId;
       const tapId = tapFirstId || roomTapFirstId;
       const isTapFirst = tapId && p.id === tapId;
       const crowned = isDuelWinner || isTapFirst;
