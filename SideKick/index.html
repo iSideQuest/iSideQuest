@@ -2506,7 +2506,7 @@
   .lobby-invite-btn:active { background: rgba(124,92,191,0.25); }
   .lobby-center-half { flex: 1; width: 100%; border: none; background: transparent; color: var(--text); font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; font-size: 0.62rem; padding: 0; line-height: 1.2; }
   .lobby-center-half:active { background: rgba(124,92,191,0.25); }
-  #lobby-wheel-kicks, #wl-wheel-kicks { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
+  #lobby-wheel-kicks, #wl-wheel-kicks, #mg-wheel-kicks { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
   .lobby-kick-btn { position: absolute; width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 1px solid var(--border); background: rgba(0,0,0,0.65); color: #ff6b6b; font-size: 0.95rem; font-weight: 800; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transform: translate(-50%, -50%); pointer-events: all; }
 
   .active-room-code {
@@ -15508,7 +15508,8 @@ window.openManagePanel = function() {
   const playersRef = ref(db, `rooms/${roomCode}/players`);
   manageUnsub = onValue(playersRef, snap => {
     if (!snap.exists()) return;
-    renderManageList(buildOrderedPlayers(snap.val()), snap.val());
+    renderLobbyWheel(buildOrderedPlayers(snap.val()), { wrap: 'mg-wheel-wrap', svg: 'mg-wheel-svg', center: 'mg-wheel-center', kicks: 'mg-wheel-kicks' }, { kick: kickPlayer, allowTap: false, minSegs: 1, crowns: false, knockedX: true });
+    renderManageSkipList(buildOrderedPlayers(snap.val()));
   });
 };
 
@@ -15518,7 +15519,28 @@ window.closeManagePanel = function() {
   if (isHost) openHostCrownMenu();
 };
 
-function renderManageList(players, rawPlayers) {
+function renderManageSkipList(players) {
+  const el = document.getElementById('mg-skip-list');
+  if (!el) return;
+  el.innerHTML = '';
+  (players || []).forEach(p => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:0.5rem;padding:0.35rem 0.1rem;border-bottom:1px solid var(--border);';
+    const nm = document.createElement('div');
+    nm.style.cssText = 'flex:1;min-width:0;font-weight:700;font-size:0.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' + (p.knockedOut ? 'text-decoration:line-through;opacity:0.5;' : '');
+    nm.textContent = (p.knockedOut ? '⏭ ' : '') + (p.name || 'Player');
+    const sb = document.createElement('button');
+    sb.className = 'btn-secondary btn-sm';
+    sb.style.cssText = 'width:auto;flex-shrink:0;padding:0.3rem 0.7rem;font-size:0.75rem;';
+    sb.textContent = p.knockedOut ? 'Unskip' : 'Skip';
+    sb.addEventListener('click', () => togglePlayerSkip(p.id, p.name, p.knockedOut));
+    row.appendChild(nm);
+    row.appendChild(sb);
+    el.appendChild(row);
+  });
+}
+// Superseded by renderLobbyWheel + renderManageSkipList above (kept unused for reference)
+function renderManageListUnused(players, rawPlayers) {
   const el = document.getElementById('manage-player-list');
   el.innerHTML = '';
   players.forEach((p, i) => {
@@ -18868,8 +18890,9 @@ function wrapSvgLines(str, max) {
 // Circular lobby table: host wedge always at the bottom, more wedges as
 // players join, placeholder halves until a 2nd player arrives, invite in
 // the center, drag wedges to swap spots (same swap as the old tile list).
-function renderLobbyWheel(players, ids) {
+function renderLobbyWheel(players, ids, opts) {
   ids = ids || {};
+  opts = opts || {};
   const wrap = document.getElementById(ids.wrap || 'lobby-wheel-wrap');
   const svg = document.getElementById(ids.svg || 'lobby-wheel-svg');
   const center = document.getElementById(ids.center || 'lobby-wheel-center');
@@ -18882,7 +18905,7 @@ function renderLobbyWheel(players, ids) {
   const selfIdx = list.findIndex(p => p.id === myId);
   const ordered = selfIdx >= 0 ? list.slice(selfIdx).concat(list.slice(0, selfIdx)) : list;
   const real = ordered.length;
-  const segs = Math.max(real, 2);
+  const segs = Math.max(real, opts.minSegs || 2);
   const SEG = 360 / segs;
   const off = 90 - SEG / 2;
   const CX = 200, CY = 200, R_OUT = 192, R_IN = 64;
@@ -18911,7 +18934,7 @@ function renderLobbyWheel(players, ids) {
       const tapId = tapFirstId || roomTapFirstId;
       const isDuelWinner = !tapId && duelWinnerId && p.id === duelWinnerId;
       const isTapFirst = tapId && p.id === tapId;
-      const crowned = isDuelWinner || isTapFirst;
+      const crowned = opts.crowns === false ? false : (isDuelWinner || isTapFirst);
       let nm = p.name || 'Player';
       if (nm.length > 12) nm = nm.substring(0, 11) + '…';
       const strokeCol = col.toLowerCase() === '#000000' ? '#ffffff' : col;
@@ -18931,6 +18954,11 @@ function renderLobbyWheel(players, ids) {
       } else {
         html += '<text x="' + lx + '" y="' + ay + '" text-anchor="middle" dominant-baseline="central" font-size="22" fill="' + tcol + '">' + esc(av) + '</text>';
       }
+      if (opts.knockedX && p.knockedOut) {
+        const kx = parseFloat(lx), ky = parseFloat(ly);
+        html += '<line x1="' + (kx - 13).toFixed(1) + '" y1="' + (ky - 13).toFixed(1) + '" x2="' + (kx + 13).toFixed(1) + '" y2="' + (ky + 13).toFixed(1) + '" stroke="#ef4444" stroke-width="3"/>';
+        html += '<line x1="' + (kx + 13).toFixed(1) + '" y1="' + (ky - 13).toFixed(1) + '" x2="' + (kx - 13).toFixed(1) + '" y2="' + (ky + 13).toFixed(1) + '" stroke="#ef4444" stroke-width="3"/>';
+      }
       html += '</g>';
     } else {
       const lines = wrapSvgLines(t('needSecondPlayer'), 13);
@@ -18944,13 +18972,19 @@ function renderLobbyWheel(players, ids) {
   html += spokes;
   if (defs) html = html.replace('stroke-width="2"/>', 'stroke-width="2"/><defs>' + defs + '</defs>');
   svg.innerHTML = html;
-  // Center: Invite top half + Create Player bottom half for signed-in hosts
-  if (isHost && currentUser) {
-    center.innerHTML = '<button class="lobby-center-half" id="lobby-invite-center"><span style="font-size:1.1rem;line-height:1;">👥</span><span>Invite Friends</span></button>'
-      + '<div style="width:70%;height:1px;background:var(--border);flex-shrink:0;"></div>'
-      + '<button class="lobby-center-half" id="lobby-create-center"><span style="font-size:1.1rem;line-height:1;">＋</span><span>Create Player</span></button>';
-    document.getElementById('lobby-invite-center').addEventListener('click', () => { openInviteFriendsOverlay(); });
-    document.getElementById('lobby-create-center').addEventListener('click', () => { openStandinOverlay(); });
+  // Center: Invite half (signed-in) and/or Create half (host)
+  const canInvite = isHost && currentUser;
+  const canCreate = isHost;
+  if (canInvite || canCreate) {
+    let ch = '';
+    if (canInvite) ch += '<button class="lobby-center-half" data-act="invite"><span style="font-size:1.1rem;line-height:1;">👥</span><span>Invite Friends</span></button>';
+    if (canInvite && canCreate) ch += '<div style="width:70%;height:1px;background:var(--border);flex-shrink:0;"></div>';
+    if (canCreate) ch += '<button class="lobby-center-half" data-act="create"><span style="font-size:1.1rem;line-height:1;">＋</span><span>Create Player</span></button>';
+    center.innerHTML = ch;
+    const invBtn = center.querySelector('[data-act="invite"]');
+    if (invBtn) invBtn.addEventListener('click', () => { openInviteFriendsOverlay(); });
+    const creBtn = center.querySelector('[data-act="create"]');
+    if (creBtn) creBtn.addEventListener('click', () => { openStandinOverlay(); });
   } else {
     center.innerHTML = '';
   }
@@ -18970,7 +19004,7 @@ function renderLobbyWheel(players, ids) {
         b.style.top = y + '%';
         b.textContent = '×';
         b.title = 'Remove ' + (p.name || 'Player');
-        b.addEventListener('click', (ev) => { ev.stopPropagation(); kickPlayerLobby(p.id, p.name); });
+        b.addEventListener('click', (ev) => { ev.stopPropagation(); (opts.kick || kickPlayerLobby)(p.id, p.name); });
         b.addEventListener('pointerdown', (ev) => ev.stopPropagation());
         kicks.appendChild(b);
       });
@@ -19014,7 +19048,7 @@ function renderLobbyWheel(players, ids) {
           const dest = tgt.getAttribute('data-lobby-seg');
           if (!dest) return;
           const moved = Math.hypot((pt.clientX || 0) - (svg._downX || 0), (pt.clientY || 0) - (svg._downY || 0));
-          if (moved < 12 && dest === src && firstPlayerOption === 'spot1' && tapArmed) {
+          if (opts.allowTap !== false && moved < 12 && dest === src && firstPlayerOption === 'spot1' && tapArmed) {
             // Tap Player mode (one-shot): crown the tapped wedge, then disarm
             // so later drags can't accidentally switch the pick
             tapFirstId = src;
@@ -20458,11 +20492,16 @@ if ('serviceWorker' in navigator) {
 </div>
 
 <div class="manage-overlay" id="manage-overlay">
-  <div class="manage-card" style="max-width:30rem; padding:1.25rem;">
+  <div class="manage-card" style="max-width:30rem; padding:1.25rem; max-height:92vh; overflow-y:auto;">
     <div style="text-align:center; margin-bottom:0.75rem;">
       <div style="font-size:1.05rem; font-weight:800; color:var(--text);">👥 Manage Players</div>
     </div>
-    <div id="manage-player-list" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(7.1875rem, 1fr)); gap:0.5rem;"></div>
+    <div id="mg-wheel-wrap" class="lobby-wheel-wrap">
+      <svg id="mg-wheel-svg" viewBox="0 0 400 400"></svg>
+      <div class="lobby-wheel-center" id="mg-wheel-center"></div>
+      <div id="mg-wheel-kicks"></div>
+    </div>
+    <div id="mg-skip-list" style="margin-top:0.75rem;"></div>
     <div style="margin-top:1rem;">
       <button class="btn-secondary btn-sm" onclick="closeManagePanel()" style="width:100%;">Done</button>
     </div>
