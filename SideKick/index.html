@@ -5544,6 +5544,7 @@
         </div>
       </div>
       <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;" data-i18n="startGame">Start Game &#9654;</button>
+      <button class="btn-secondary" id="create-player-btn" onclick="openStandinOverlay()" style="width:100%;margin-top:0.5rem;" data-i18n="createPlayer">+ Create Player</button>
     </div>
 
   </div>
@@ -6658,6 +6659,23 @@
 <!-- ═══════════════════════════════════════════ -->
 <!--  VOICE PRESETS OVERLAYS                      -->
 <!-- ═══════════════════════════════════════════ -->
+<div class="tools-overlay" id="standin-player-overlay">
+  <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
+    <div class="tools-modal-title" data-i18n="createPlayer">Create Player</div>
+    <input type="text" id="standin-name" placeholder="Type Player Or Team Name" maxlength="20" data-i18n-ph="playerNamePh" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:0.625rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.6rem;">
+    <div style="display:flex;gap:0.6rem;justify-content:center;margin-bottom:0.6rem;">
+      <button class="color-picker-btn" onclick="openColorPicker('standin')" id="standin-color-btn" style="width:4rem;height:4rem;flex:0 0 4rem;">
+        <span id="standin-color-label" style="font-size:0.7rem;line-height:1.2;" data-i18n="chooseColor">Choose<br>Color</span>
+      </button>
+      <button class="color-picker-btn" onclick="openRoomAvatarOverlay('standin')" id="standin-avatar-btn" style="width:4rem;height:4rem;flex:0 0 4rem;">
+        <span id="standin-avatar-label" style="font-size:0.7rem;line-height:1.2;" data-i18n="chooseAvatar">Choose<br>Avatar</span>
+      </button>
+    </div>
+    <div id="standin-error" style="display:none;color:#e74c3c;font-size:0.8rem;margin-bottom:0.5rem;"></div>
+    <button class="btn-primary btn-sm" style="width:100%;" onclick="createStandinPlayer()" data-i18n="createAction">Create</button>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeStandinOverlay()" data-i18n="close">Close</button>
+  </div>
+</div>
 <div class="tools-overlay" id="voice-presets-overlay">
   <div class="tools-modal" style="max-width:23.75rem; max-height:85vh; overflow-y:auto;">
     <div class="tools-modal-title">Preset Rooms</div>
@@ -7518,6 +7536,8 @@ const I18N_STRINGS = {
     hostPresetGame: 'Host Preset Room',
     upgradeToProMsg: 'Go here to upgrade to Legendary SideKick',
     upgradeLockMsg: 'Upgrade To Legendary SideKick To Unlock',
+    createPlayer: 'Create Player',
+    createAction: 'Create',
     needSecondPlayer: '2nd Player Needed To Start Game',
     startHere: 'Start Here',
     freeNoSignup: '100% FREE - No Sign Up',
@@ -7675,6 +7695,8 @@ const I18N_STRINGS = {
     hostPresetGame: 'Sala Preestablecida',
     upgradeToProMsg: 'Ve aquí para mejorar a Legendary SideKick',
     upgradeLockMsg: 'Mejora a Legendary SideKick para desbloquear',
+    createPlayer: 'Crear jugador',
+    createAction: 'Crear',
     needSecondPlayer: 'Se necesita un segundo jugador para empezar',
     startHere: 'Empieza aquí',
     freeNoSignup: '100% GRATIS - Sin registro',
@@ -7833,6 +7855,8 @@ const I18N_STRINGS = {
     hostPresetGame: '预设房间',
     upgradeToProMsg: '前往此处升级到 Legendary SideKick',
     upgradeLockMsg: '升级到 Legendary SideKick 以解锁',
+    createPlayer: '创建玩家',
+    createAction: '创建',
     needSecondPlayer: '需要第二位玩家才能开始游戏',
     startHere: '从这里开始',
     freeNoSignup: '100% 免费 - 无需注册',
@@ -7991,6 +8015,8 @@ const I18N_STRINGS = {
     hostPresetGame: 'Preset-Raum',
     upgradeToProMsg: 'Gehe hier, um auf Legendary SideKick zu upgraden',
     upgradeLockMsg: 'Upgrade auf Legendary SideKick zum Freischalten',
+    createPlayer: 'Spieler erstellen',
+    createAction: 'Erstellen',
     needSecondPlayer: '2. Spieler zum Starten benötigt',
     startHere: 'Starte hier',
     freeNoSignup: '100% KOSTENLOS - Keine Anmeldung',
@@ -8149,6 +8175,8 @@ const I18N_STRINGS = {
     hostPresetGame: 'Salle Prédéfinie',
     upgradeToProMsg: 'Allez ici pour passer à Legendary SideKick',
     upgradeLockMsg: 'Passez à Legendary SideKick pour débloquer',
+    createPlayer: 'Créer un joueur',
+    createAction: 'Créer',
     needSecondPlayer: '2e joueur requis pour commencer',
     startHere: 'Commencez ici',
     freeNoSignup: '100% GRATUIT - Sans inscription',
@@ -8307,6 +8335,8 @@ const I18N_STRINGS = {
     hostPresetGame: 'プリセットルーム',
     upgradeToProMsg: 'こちらからLegendary SideKickにアップグレード',
     upgradeLockMsg: 'Legendary SideKickにアップグレードして解除',
+    createPlayer: 'プレイヤーを作成',
+    createAction: '作成',
     needSecondPlayer: '開始には2人目のプレイヤー必要',
     startHere: 'ここから始める',
     freeNoSignup: '100%無料 - 登録不要',
@@ -8465,6 +8495,8 @@ const I18N_STRINGS = {
     hostPresetGame: 'Stanza Preimpostata',
     upgradeToProMsg: 'Vai qui per passare a Legendary SideKick',
     upgradeLockMsg: 'Passa a Legendary SideKick per sbloccare',
+    createPlayer: 'Crea giocatore',
+    createAction: 'Crea',
     needSecondPlayer: 'Serve un secondo giocatore per iniziare',
     startHere: 'Inizia qui',
     freeNoSignup: '100% GRATIS - Nessuna registrazione',
@@ -8623,6 +8655,8 @@ const I18N_STRINGS = {
     hostPresetGame: 'Sala Predefinida',
     upgradeToProMsg: 'Vá aqui para atualizar para o Legendary SideKick',
     upgradeLockMsg: 'Atualize para o Legendary SideKick para desbloquear',
+    createPlayer: 'Criar jogador',
+    createAction: 'Criar',
     needSecondPlayer: '2º jogador necessário para começar',
     startHere: 'Comece aqui',
     freeNoSignup: '100% GRÁTIS - Sem cadastro',
@@ -9330,6 +9364,8 @@ let _editingPresetFeatures = {};
 let _editingPresetColor = '';
 let _editingPresetAvatar = '';
 let _avatarPickerContext = '';
+let _standinColor = '';
+let _standinAvatar = '';
 let _editProfileDirectEntry = false;
 window.selectPresetDir = function(dir) {
   _editingPresetDir = dir;
@@ -9411,6 +9447,82 @@ window.upgradeToLegendary = function() {
 };
 window.buyLegendary = function() {
   showToast(t('comingSoon'));
+};
+function updateStandinColorBtn() {
+  const btn = document.getElementById('standin-color-btn');
+  const label = document.getElementById('standin-color-label');
+  if (!btn || !label) return;
+  if (_standinColor) {
+    const colorName = PLAYER_COLORS.find(c => c.hex === _standinColor)?.name || 'Custom';
+    btn.style.background = _standinColor;
+    btn.style.borderColor = _standinColor;
+    btn.classList.toggle('light-fill', isLightColor(_standinColor));
+    label.textContent = colorName;
+    label.style.color = isLightColor(_standinColor) ? '#000' : '#fff';
+  } else {
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.classList.remove('light-fill');
+    label.textContent = 'Choose\nColor';
+    label.style.color = '';
+  }
+}
+function updateStandinAvatarBtn() {
+  const btn = document.getElementById('standin-avatar-btn');
+  const label = document.getElementById('standin-avatar-label');
+  if (!btn || !label) return;
+  const avatar = _standinAvatar;
+  if (avatar) {
+    btn.classList.add('avatar-filled');
+    if (isImageAvatar(avatar)) {
+      label.textContent = '';
+      const img = document.createElement('img');
+      img.src = avatar; img.alt = 'avatar';
+      img.className = 'avatar-btn-preview';
+      label.appendChild(img);
+    } else {
+      label.textContent = avatar;
+      label.style.color = '';
+    }
+  } else {
+    btn.classList.remove('avatar-filled');
+    label.textContent = 'Choose\nAvatar';
+    label.style.color = '';
+  }
+}
+window.openStandinOverlay = function() {
+  document.getElementById('standin-name').value = '';
+  _standinColor = '';
+  _standinAvatar = '';
+  updateStandinColorBtn();
+  updateStandinAvatarBtn();
+  document.getElementById('standin-error').style.display = 'none';
+  document.getElementById('standin-player-overlay').classList.add('show');
+  haptic(5);
+};
+window.closeStandinOverlay = function() {
+  document.getElementById('standin-player-overlay').classList.remove('show');
+};
+window.createStandinPlayer = async function() {
+  const err = document.getElementById('standin-error');
+  const showErr = (m) => { err.textContent = m; err.style.display = ''; };
+  err.style.display = 'none';
+  const name = document.getElementById('standin-name').value.trim();
+  if (!name) { showErr('Enter a player name'); return; }
+  if (localPlayers.some(p => (p.name || '').trim().toLowerCase() === name.toLowerCase())) { showErr('That name is already in the room'); return; }
+  if (!db || !roomCode) { showErr('No active room'); return; }
+  const roomSnap = await get(ref(db, `rooms/${roomCode}`));
+  if (!roomSnap.exists()) { showErr('Room not found'); return; }
+  const order = Object.keys(roomSnap.val().players || {}).length;
+  await set(ref(db, `rooms/${roomCode}/players/${uid()}`), {
+    name, order, joinedAt: Date.now(), knockedOut: false,
+    color: _standinColor || null, avatar: _standinAvatar || '👤',
+    authUid: null, standin: true
+  });
+  _standinColor = '';
+  _standinAvatar = '';
+  closeStandinOverlay();
+  haptic(15);
 };
 window.openVoicePresetsOverlay = function() {
   renderVoicePresets();
@@ -10149,10 +10261,13 @@ let pendingEditAvatar = null;
 
 window.openRoomAvatarOverlay = function(context) {
   _avatarPickerContext = context || '';
-  const current = context === 'preset' ? (_editingPresetAvatar || '') : (roomAvatarSelection || getSavedAvatar());
+  const current = context === 'preset' ? (_editingPresetAvatar || '') : (context === 'standin' ? (_standinAvatar || '') : (roomAvatarSelection || getSavedAvatar()));
   renderAvatarPicker('room-avatar', current, avatar => {
     if (_avatarPickerContext === 'preset') {
       _editingPresetAvatar = avatar;
+    } else if (_avatarPickerContext === 'standin') {
+      _standinAvatar = avatar;
+      updateStandinAvatarBtn();
     } else {
       roomAvatarSelection = avatar;
     }
@@ -10165,6 +10280,13 @@ window.openRoomAvatarOverlay = function(context) {
 };
 
 window.confirmRoomAvatar = function() {
+  if (_avatarPickerContext === 'standin') {
+    updateStandinAvatarBtn();
+    closeRoomAvatarOverlay();
+    _avatarPickerContext = '';
+    haptic(5);
+    return;
+  }
   if (_avatarPickerContext === 'preset') {
     updatePresetEditAvatarBtn();
     closeRoomAvatarOverlay();
@@ -13852,7 +13974,7 @@ function syncNudgeToActiveScreen(room) {
   // Always use the player whose turn it actually is right now
   const activeIdx = room.activePlayerIndex ?? 0;
   const player = localPlayers[activeIdx];
-  if (!player || player.id !== myId) return; // Only run on the actual active player's device
+  if (!player || (player.id !== myId && !(isHost && player.standin))) return; // Only run on the active player's device (or host's, for stand-ins)
 
   const newCount = (room.nudges && room.nudges[player.id]) ? room.nudges[player.id] : 0;
   if (newCount > activeNudgeCount) {
@@ -14709,7 +14831,7 @@ let tempSelectedColor = '#cc0000';
 
 window.openColorPicker = function(context) {
   colorPickerContext = context;
-  tempSelectedColor = context === 'preset' ? _editingPresetColor : myColor;
+  tempSelectedColor = context === 'preset' ? _editingPresetColor : (context === 'standin' ? _standinColor : myColor);
   const grid = document.getElementById('color-grid');
   grid.innerHTML = '';
   PLAYER_COLORS.forEach(c => {
@@ -14735,6 +14857,9 @@ window.confirmColor = function() {
     if (colorPickerContext === 'preset') {
       _editingPresetColor = '';
       updatePresetEditColorBtn();
+    } else if (colorPickerContext === 'standin') {
+      _standinColor = '';
+      updateStandinColorBtn();
     } else {
       myColor = '';
       ['host','join'].forEach(ctx => {
@@ -14752,6 +14877,9 @@ window.confirmColor = function() {
   if (colorPickerContext === 'preset') {
     _editingPresetColor = tempSelectedColor;
     updatePresetEditColorBtn();
+  } else if (colorPickerContext === 'standin') {
+    _standinColor = tempSelectedColor;
+    updateStandinColorBtn();
   } else {
     myColor = tempSelectedColor;
     ['host','join'].forEach(ctx => {
@@ -16719,7 +16847,7 @@ function listenGameState() {
     }
     lastActivePlayerId = activePlayer.id;
 
-    const isMe = activePlayer.id === myId;
+    const isMe = activePlayer.id === myId || (isHost && !!activePlayer.standin);
 
     // Show/hide host manage button and host game menu
     const hmb = document.getElementById('host-manage-btn');
@@ -18428,7 +18556,7 @@ window.closeRoom = async function() {
 // ── HELPERS ──────────────────────────────────────
 function buildOrderedPlayers(players) {
   return Object.entries(players)
-    .map(([id, p]) => ({ id, name: p.name, order: p.order ?? 999, joinedAt: p.joinedAt ?? 0, knockedOut: p.knockedOut ?? false, color: p.color ?? null, avatar: p.avatar || '👤' }))
+    .map(([id, p]) => ({ id, name: p.name, order: p.order ?? 999, joinedAt: p.joinedAt ?? 0, knockedOut: p.knockedOut ?? false, color: p.color ?? null, avatar: p.avatar || '👤', standin: !!p.standin }))
     .sort((a, b) => a.order - b.order || a.joinedAt - b.joinedAt);
 }
 
