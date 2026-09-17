@@ -4264,8 +4264,8 @@
   input, textarea { caret-color: var(--accent-light); }
   #host-name, #join-name, #join-code { caret-color: transparent; }
   #host-name, #join-name { font-size: 1.35rem; }
-  #host-name::placeholder, #join-name::placeholder { font-size: 0.95rem; }
-  #host-color-label, #join-color-label, #host-avatar-label, #join-avatar-label { font-size: 1.05rem; }
+  #host-name::placeholder, #join-name::placeholder, #standin-name::placeholder { font-size: 0.95rem; }
+  #host-color-label, #join-color-label, #host-avatar-label, #join-avatar-label, #standin-color-label, #standin-avatar-label { font-size: 1.05rem; }
   #kb-fake-caret { animation: kbCaretBlink 1.1s ease-in-out infinite; }
   @keyframes kbCaretBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
   /* Custom inline keyboard (Step 1 name fields) */
@@ -6688,13 +6688,13 @@
 <div class="tools-overlay" id="standin-player-overlay">
   <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
     <div class="tools-modal-title" data-i18n="createPlayer">Create Player</div>
-    <input type="text" id="standin-name" placeholder="Type Player Or Team Name" maxlength="20" data-i18n-ph="playerNamePh" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:0.625rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.6rem;">
-    <div style="display:flex;gap:0.6rem;justify-content:center;margin-bottom:0.6rem;">
-      <button class="color-picker-btn" onclick="openColorPicker('standin')" id="standin-color-btn" style="width:4rem;height:4rem;flex:0 0 4rem;">
-        <span id="standin-color-label" style="font-size:0.7rem;line-height:1.2;" data-i18n="chooseColor">Choose<br>Color</span>
+    <input type="text" id="standin-name" placeholder="Type Player Or Team Name" maxlength="20" data-i18n-ph="playerNamePh" style="width:100%;padding:0.9rem 1.1rem;font-size:1.35rem;border-radius:0.625rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.75rem;">
+    <div style="display:flex;gap:2rem;justify-content:center;margin-bottom:0.6rem;">
+      <button class="color-picker-btn" onclick="openColorPicker('standin')" id="standin-color-btn">
+        <span id="standin-color-label" data-i18n="chooseColor">Choose<br>Color</span>
       </button>
-      <button class="color-picker-btn" onclick="openRoomAvatarOverlay('standin')" id="standin-avatar-btn" style="width:4rem;height:4rem;flex:0 0 4rem;">
-        <span id="standin-avatar-label" style="font-size:0.7rem;line-height:1.2;" data-i18n="chooseAvatar">Choose<br>Avatar</span>
+      <button class="color-picker-btn" onclick="openRoomAvatarOverlay('standin')" id="standin-avatar-btn">
+        <span id="standin-avatar-label" data-i18n="chooseAvatar">Choose<br>Avatar</span>
       </button>
     </div>
     <div id="standin-error" style="display:none;color:#e74c3c;font-size:0.8rem;margin-bottom:0.5rem;"></div>
@@ -6702,6 +6702,7 @@
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeStandinOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
+<div id="overlay-kb" class="custom-kb" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:9750;padding:0.25rem 0.2rem calc(0.5rem + env(safe-area-inset-bottom, 0));background:rgba(10,10,15,0.97);border-top:1px solid var(--border);box-sizing:border-box;"></div>
 <div class="tools-overlay" id="voice-presets-overlay">
   <div class="tools-modal" style="max-width:23.75rem; max-height:85vh; overflow-y:auto;">
     <div class="tools-modal-title">Preset Rooms</div>
@@ -11119,9 +11120,19 @@ document.addEventListener('focusin', (e) => {
   }, 350);
 });
 
-// ── CUSTOM INLINE KEYBOARD (Step 1 name fields) ──
-// Opt-in via the homepage toggle. When on, the native keyboard is suppressed
-// (readonly + inputmode=none) and typing happens on the inline key grid.
+// ── CUSTOM KEYBOARD (all text fields on phones) ──
+// On phones the native keyboard is suppressed (readonly + inputmode=none)
+// and typing happens on the key grid: inline grids on Step 1 screens,
+// a fixed bottom panel for every other overlay/menu field.
+const KB_OVERLAY_IDS = ['account-email', 'account-password', 'collection-search', 'collection-db-input',
+  'ce-name', 'ce-min', 'ce-max', 'ce-time', 'ce-notes',
+  'preferred-name-input', 'edit-profile-name-input', 'standin-name',
+  'voice-preset-name', 'voice-preset-player-name', 'resume-code',
+  'game-notes-textarea', 'friends-add-input', 'st-name-input',
+  'rng-min', 'rng-max', 'cd-min', 'cd-sec', 'picker-names',
+  'picker-pick-count', 'picker-team-count', 'poison-hp-input',
+  'app-dialog-input', 'timer-countdown-min', 'timer-countdown-sec'];
+const KB_DYNAMIC_PREFIXES = ['st-amt-'];
 const CUSTOM_KB_KEY = 'sk_custom_kb';
 let kbShift = false;
 let kbSyms = false;
@@ -11158,7 +11169,7 @@ function updateKbToggleBtn() {
 }
 function applyCustomKbMode() {
   const on = isCustomKbEnabled();
-  ['host-name', 'join-name', 'join-code'].forEach((id) => {
+  ['host-name', 'join-name', 'join-code'].concat(KB_OVERLAY_IDS).forEach((id) => {
     const el = document.getElementById(id);
     if (!el) return;
     // readonly + inputmode=none keeps every phone keyboard shut (including
@@ -11224,6 +11235,7 @@ function kbStepOf(ctx) {
 }
 function kbShouldStage(ctx) {
   if (!isCustomKbEnabled()) return false;
+  if (ctx !== 'create' && ctx !== 'join') return false;
   const screen = document.getElementById(ctx === 'create' ? 'screen-create' : 'screen-join');
   if (!screen || !screen.classList.contains('active')) return false;
   // Join uses the keyboard on Step 1 (name) and Step 2 (room code)
@@ -11267,7 +11279,7 @@ function kbActHTML(label, act, cls) {
   return '<button type="button" tabindex="-1" class="kb-key' + (cls ? ' ' + cls : '') + '" data-act="' + act + '" onpointerdown="event.preventDefault()">' + label + '</button>';
 }
 function renderKb() {
-  [['create'], ['join']].forEach(([ctx]) => {
+  [['create'], ['join'], ['overlay']].forEach(([ctx]) => {
     const box = document.getElementById(ctx + '-kb');
     if (!box) return;
     let html = '';
@@ -11419,26 +11431,34 @@ function kbDone() {
   else if (kbActiveCtx) hideKb(kbActiveCtx);
   haptic(5);
 }
-[['host-name', 'create'], ['join-name', 'join'], ['join-code', 'join']].forEach(([id, ctx]) => {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.addEventListener('focus', () => {
-    if (!isCustomKbEnabled()) return;
-    kbActiveInput = el;
-    kbActiveCtx = ctx;
-    // Auto-caps like a native keyboard: shift on for a fresh name field
-    kbShift = (id !== 'join-code' && el.value.length === 0);
-    kbSyms = false;
-    renderKb();
-    showKb(ctx);
-    setTimeout(kbCaretUpdate, 60);
-  });
-  el.addEventListener('blur', () => kbInputBlurred(ctx));
-  el.addEventListener('click', kbCaretUpdate);
-  el.addEventListener('touchend', () => setTimeout(kbCaretUpdate, 60));
-  el.addEventListener('scroll', kbCaretUpdate);
-  el.addEventListener('select', kbCaretUpdate);
+function kbCtxFor(el) {
+  if (!el || !el.id) return null;
+  if (el.id === 'host-name') return 'create';
+  if (el.id === 'join-name' || el.id === 'join-code') return 'join';
+  if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') return null;
+  if (KB_OVERLAY_IDS.indexOf(el.id) !== -1) return 'overlay';
+  if (el.tagName === 'INPUT' && KB_DYNAMIC_PREFIXES.some(p => el.id.indexOf(p) === 0)) return 'overlay';
+  return null;
+}
+document.addEventListener('focusin', (e) => {
+  const ctx = kbCtxFor(e.target);
+  if (!ctx || !isCustomKbEnabled()) return;
+  const el = e.target;
+  kbActiveInput = el;
+  kbActiveCtx = ctx;
+  // Auto-caps like a native keyboard: shift on for a fresh field
+  kbShift = (el.id !== 'join-code' && el.value.length === 0);
+  kbSyms = false;
+  renderKb();
+  showKb(ctx);
+  setTimeout(kbCaretUpdate, 60);
 });
+document.addEventListener('focusout', (e) => {
+  const ctx = kbCtxFor(e.target);
+  if (ctx) kbInputBlurred(ctx);
+});
+['click', 'scroll', 'select'].forEach((ev) => document.addEventListener(ev, (e) => { if (kbCtxFor(e.target)) kbCaretUpdate(); }, true));
+document.addEventListener('touchend', (e) => { if (kbCtxFor(e.target)) setTimeout(kbCaretUpdate, 60); }, true);
 // Cancel touchstart on the keyboard so iOS never shifts focus (which would
 // blur the field and dismiss the keyboard); pointer events still fire.
 ['create-kb', 'join-kb'].forEach((bid) => {
@@ -12567,7 +12587,7 @@ function renderScoreTracker() {
         + [1, 5, 10, -1, -5, -10].map(n => '<button class="st-chip" onclick="stAddDelta(\'' + p.id + '\',' + n + ')">' + (n > 0 ? '+' + n : n) + '</button>').join('')
         + '</div>'
         + '<div class="st-custom">'
-        + '<input type="number" id="st-amt-' + p.id + '" placeholder="Amount">'
+        + '<input type="number" id="st-amt-' + p.id + '" placeholder="Amount"' + (isCustomKbEnabled() ? ' readonly inputmode="none"' : '') + '>'
         + '<button class="btn-primary btn-sm" style="width:auto;flex-shrink:0;" onclick="stCustom(\'' + p.id + '\',1)">Add</button>'
         + '<button class="btn-secondary btn-sm" style="width:auto;flex-shrink:0;" onclick="stCustom(\'' + p.id + '\',-1)">Sub</button>'
         + '<button class="btn-secondary btn-sm" style="width:auto;flex-shrink:0;" onclick="stSetTotal(\'' + p.id + '\')">Set</button>'
