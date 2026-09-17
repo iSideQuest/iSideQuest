@@ -735,7 +735,7 @@
     background:#c0392b; color:#fff; padding:0.75rem 1.25rem;
     border-radius:0.75rem; font-size:0.88rem; font-weight:600;
     box-shadow:0 0.25rem 1.25rem rgba(0,0,0,0.5);
-    z-index:99999; opacity:0; transition:opacity 0.3s;
+    z-index:100001; opacity:0; transition:opacity 0.3s;
     pointer-events:none; max-width:90vw; text-align:center;
   }
   #error-toast.show { opacity:1; }
@@ -2505,7 +2505,7 @@
   .lobby-wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background: var(--surface); border: 0.15rem solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; z-index: 3; }
   .lobby-invite-btn { width: 100%; height: 100%; border-radius: 50%; border: none; background: transparent; color: var(--text); font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1rem; font-size: 0.72rem; padding: 0; }
   .lobby-invite-btn:active { background: rgba(124,92,191,0.25); }
-  .lobby-center-half { flex: 1; width: 100%; border: none; background: transparent; color: var(--text); font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; font-size: 0.62rem; padding: 0; line-height: 1.2; }
+  .lobby-center-half { flex: 1; width: 100%; border: none; background: transparent; color: var(--text); font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1rem; font-size: 0.8rem; padding: 0; line-height: 1.25; }
   .lobby-center-half:active { background: rgba(124,92,191,0.25); }
   #lobby-wheel-kicks, #wl-wheel-kicks, #mg-wheel-kicks { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
   .lobby-kick-btn { position: absolute; width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 1px solid var(--border); background: rgba(0,0,0,0.65); color: #ff6b6b; font-size: 0.95rem; font-weight: 800; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transform: translate(-50%, -50%); pointer-events: all; }
@@ -5258,7 +5258,7 @@
     </div>
     <div style="display:flex;gap:0.6rem;">
       <button onclick="openSidekickInfo()" style="flex:1;width:auto;padding:0.55rem 0.5rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.9rem;font-weight:700;cursor:pointer;">SideKick</button>
-      <button onclick="openLegendaryInfo()" style="flex:1;width:auto;padding:0.55rem 0.5rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.9rem;font-weight:700;cursor:pointer;">Legendary SideKick</button>
+      <button onclick="openDonateOverlay()" style="flex:1;width:auto;padding:0.55rem 0.5rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.9rem;font-weight:700;cursor:pointer;" data-i18n="donate">Donate</button>
     </div>
   </div>
 </div>
@@ -6650,20 +6650,26 @@
       <div style="font-size:1.6rem;">▶️</div>
       <div style="font-size:0.75rem;color:var(--muted);" data-i18n="videoComingSoon">Video coming soon</div>
     </div>
-    <button class="btn-primary btn-sm" style="width:100%;" onclick="upgradeToLegendary()" data-i18n="learnAboutLegendary">Learn About Legendary SideKick</button>
+    <button class="btn-primary btn-sm" style="width:100%;" onclick="openFeaturesInfo()" data-i18n="learnMoreFeatures">Learn More About SideKick Features</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeSidekickInfo()" data-i18n="close">Close</button>
   </div>
 </div>
-<div class="tools-overlay" id="legendary-info-overlay">
+<div class="tools-overlay" id="donate-overlay">
   <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
-    <div class="tools-modal-title">Legendary SideKick</div>
-    <div style="font-size:0.9rem;color:var(--text);margin:0.5rem 0 0;" data-i18n="watchVideoHowTo">Watch Video For How To Use SideKick</div>
+    <div class="tools-modal-title" data-i18n="donate">Donate</div>
+    <div style="font-size:0.9rem;color:var(--text);margin:0.5rem 0;line-height:1.5;" data-i18n="donateMsg">If you are truly enjoying what SideKick has to offer and feel like contributing, donations toward development of the app and further development are greatly appreciated.</div>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeDonateOverlay()" data-i18n="close">Close</button>
+  </div>
+</div>
+<div class="tools-overlay" id="features-info-overlay">
+  <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
+    <div class="tools-modal-title" data-i18n="featuresHubTitle">SideKick Features</div>
+    <div style="font-size:0.9rem;color:var(--text);margin:0.5rem 0 0;" data-i18n="featuresHubMsg">In-depth video tutorials showcasing all the features SideKick has to offer — coming soon.</div>
     <div style="width:100%;aspect-ratio:16/9;border-radius:0.625rem;border:1px solid var(--border);background:rgba(0,0,0,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;margin:0.6rem 0;">
       <div style="font-size:1.6rem;">▶️</div>
       <div style="font-size:0.75rem;color:var(--muted);" data-i18n="videoComingSoon">Video coming soon</div>
     </div>
-    <button class="btn-primary btn-sm" style="width:100%;" onclick="buyLegendary()" data-i18n="buyNow">Buy Now</button>
-    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeLegendaryInfo()" data-i18n="close">Close</button>
+    <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeFeaturesInfo()" data-i18n="close">Close</button>
   </div>
 </div>
 
@@ -6702,7 +6708,7 @@
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeStandinOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
-<div id="overlay-kb" class="custom-kb" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:9750;padding:0.25rem 0.2rem calc(0.5rem + env(safe-area-inset-bottom, 0));background:rgba(10,10,15,0.97);border-top:1px solid var(--border);box-sizing:border-box;"></div>
+<div id="overlay-kb" class="custom-kb" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:100000;padding:0.25rem 0.2rem calc(0.5rem + env(safe-area-inset-bottom, 0));background:rgba(10,10,15,0.97);border-top:1px solid var(--border);box-sizing:border-box;"></div>
 <div class="tools-overlay" id="voice-presets-overlay">
   <div class="tools-modal" style="max-width:23.75rem; max-height:85vh; overflow-y:auto;">
     <div class="tools-modal-title">Preset Rooms</div>
@@ -7586,6 +7592,11 @@ const I18N_STRINGS = {
     freeNoSignup: '100% FREE - No Sign Up',
     currentlyUsingSidekick: 'You are currently using SideKick',
     learnAboutLegendary: 'Learn About Legendary SideKick',
+    donate: 'Donate',
+    donateMsg: 'If you are truly enjoying what SideKick has to offer and feel like contributing, donations toward development of the app and further development are greatly appreciated.',
+    learnMoreFeatures: 'Learn More About SideKick Features',
+    featuresHubTitle: 'SideKick Features',
+    featuresHubMsg: 'In-depth video tutorials showcasing all the features SideKick has to offer — coming soon.',
     watchVideoHowTo: 'Watch Video For How To Use SideKick',
     videoComingSoon: 'Video coming soon',
     upgradeToLegendary: 'Upgrade To Legendary',
@@ -7745,6 +7756,11 @@ const I18N_STRINGS = {
     freeNoSignup: '100% GRATIS - Sin registro',
     currentlyUsingSidekick: 'Actualmente usas SideKick',
     learnAboutLegendary: 'Conoce Legendary SideKick',
+    donate: 'Donar',
+    donateMsg: 'Si estás disfrutando lo que SideKick ofrece y quieres contribuir, las donaciones para el desarrollo de la app y su desarrollo futuro son muy apreciadas.',
+    learnMoreFeatures: 'Más información sobre las funciones',
+    featuresHubTitle: 'Funciones de SideKick',
+    featuresHubMsg: 'Videotutoriales en profundidad de todas las funciones — próximamente.',
     watchVideoHowTo: 'Mira el video para usar SideKick',
     videoComingSoon: 'Video próximamente',
     upgradeToLegendary: 'Mejora a Legendary',
@@ -7905,6 +7921,11 @@ const I18N_STRINGS = {
     freeNoSignup: '100% 免费 - 无需注册',
     currentlyUsingSidekick: '您当前正在使用 SideKick',
     learnAboutLegendary: '了解 Legendary SideKick',
+    donate: '捐赠',
+    donateMsg: '如果您非常喜欢 SideKick 提供的功能并愿意支持，欢迎为应用的开发和后续开发捐赠，我们将不胜感激。',
+    learnMoreFeatures: '了解更多 SideKick 功能',
+    featuresHubTitle: 'SideKick 功能',
+    featuresHubMsg: '所有功能的深度视频教程——即将上线。',
     watchVideoHowTo: '观看视频了解如何使用 SideKick',
     videoComingSoon: '视频即将上线',
     upgradeToLegendary: '升级到 Legendary',
@@ -8065,6 +8086,11 @@ const I18N_STRINGS = {
     freeNoSignup: '100% KOSTENLOS - Keine Anmeldung',
     currentlyUsingSidekick: 'Du nutzt gerade SideKick',
     learnAboutLegendary: 'Mehr über Legendary SideKick',
+    donate: 'Spenden',
+    donateMsg: 'Wenn dir gefällt, was SideKick bietet, und du beitragen möchtest, sind Spenden für die Entwicklung der App und ihre Weiterentwicklung sehr willkommen.',
+    learnMoreFeatures: 'Mehr über SideKick-Funktionen',
+    featuresHubTitle: 'SideKick-Funktionen',
+    featuresHubMsg: 'Ausführliche Video-Tutorials zu allen Funktionen — bald verfügbar.',
     watchVideoHowTo: 'Sieh dir das Video zur Nutzung von SideKick an',
     videoComingSoon: 'Video kommt bald',
     upgradeToLegendary: 'Auf Legendary upgraden',
@@ -8225,6 +8251,11 @@ const I18N_STRINGS = {
     freeNoSignup: '100% GRATUIT - Sans inscription',
     currentlyUsingSidekick: 'Vous utilisez actuellement SideKick',
     learnAboutLegendary: 'Découvrir Legendary SideKick',
+    donate: 'Faire un don',
+    donateMsg: 'Si vous appréciez vraiment ce que SideKick offre et souhaitez contribuer, les dons pour le développement de l’app et son évolution sont grandement appréciés.',
+    learnMoreFeatures: 'En savoir plus sur les fonctionnalités',
+    featuresHubTitle: 'Fonctionnalités SideKick',
+    featuresHubMsg: 'Tutoriels vidéo approfondis de toutes les fonctionnalités — bientôt disponible.',
     watchVideoHowTo: 'Regardez la vidéo pour utiliser SideKick',
     videoComingSoon: 'Vidéo bientôt disponible',
     upgradeToLegendary: 'Passer à Legendary',
@@ -8385,6 +8416,11 @@ const I18N_STRINGS = {
     freeNoSignup: '100%無料 - 登録不要',
     currentlyUsingSidekick: '現在SideKickを使用中',
     learnAboutLegendary: 'Legendary SideKickについて',
+    donate: '寄付する',
+    donateMsg: 'SideKickをお楽しみいただけているなら、アプリの開発と今後の発展のためのご寄付をいただけると幸いです。',
+    learnMoreFeatures: 'SideKickの機能をもっと知る',
+    featuresHubTitle: 'SideKickの機能',
+    featuresHubMsg: '全機能の詳しいビデオチュートリアル——近日公開。',
     watchVideoHowTo: 'SideKickの使い方動画を見る',
     videoComingSoon: '動画は近日公開',
     upgradeToLegendary: 'Legendaryにアップグレード',
@@ -8545,6 +8581,11 @@ const I18N_STRINGS = {
     freeNoSignup: '100% GRATIS - Nessuna registrazione',
     currentlyUsingSidekick: 'Stai usando SideKick',
     learnAboutLegendary: 'Scopri Legendary SideKick',
+    donate: 'Dona',
+    donateMsg: 'Se stai apprezzando ciò che SideKick offre e vuoi contribuire, le donazioni per lo sviluppo dell’app e il suo sviluppo futuro sono molto gradite.',
+    learnMoreFeatures: 'Scopri le funzioni di SideKick',
+    featuresHubTitle: 'Funzioni di SideKick',
+    featuresHubMsg: 'Video tutorial approfonditi di tutte le funzioni — in arrivo.',
     watchVideoHowTo: 'Guarda il video per usare SideKick',
     videoComingSoon: 'Video in arrivo',
     upgradeToLegendary: 'Passa a Legendary',
@@ -8705,6 +8746,11 @@ const I18N_STRINGS = {
     freeNoSignup: '100% GRÁTIS - Sem cadastro',
     currentlyUsingSidekick: 'Você está usando o SideKick',
     learnAboutLegendary: 'Conheça o Legendary SideKick',
+    donate: 'Doar',
+    donateMsg: 'Se você está gostando do que o SideKick oferece e quer contribuir, doações para o desenvolvimento do app são muito bem-vindas.',
+    learnMoreFeatures: 'Saiba mais sobre os recursos',
+    featuresHubTitle: 'Recursos do SideKick',
+    featuresHubMsg: 'Tutoriais em vídeo detalhados de todos os recursos — em breve.',
     watchVideoHowTo: 'Assista ao vídeo para usar o SideKick',
     videoComingSoon: 'Vídeo em breve',
     upgradeToLegendary: 'Atualizar para Legendary',
@@ -9476,20 +9522,19 @@ window.openSidekickInfo = function() {
 window.closeSidekickInfo = function() {
   document.getElementById('sidekick-info-overlay').classList.remove('show');
 };
-window.openLegendaryInfo = function() {
-  document.getElementById('legendary-info-overlay').classList.add('show');
+window.openDonateOverlay = function() {
+  document.getElementById('donate-overlay').classList.add('show');
   haptic(5);
 };
-window.closeLegendaryInfo = function() {
-  document.getElementById('legendary-info-overlay').classList.remove('show');
+window.closeDonateOverlay = function() {
+  document.getElementById('donate-overlay').classList.remove('show');
 };
-window.upgradeToLegendary = function() {
-  document.getElementById('sidekick-info-overlay').classList.remove('show');
-  document.getElementById('legendary-info-overlay').classList.add('show');
+window.openFeaturesInfo = function() {
+  document.getElementById('features-info-overlay').classList.add('show');
   haptic(5);
 };
-window.buyLegendary = function() {
-  showToast(t('comingSoon'));
+window.closeFeaturesInfo = function() {
+  document.getElementById('features-info-overlay').classList.remove('show');
 };
 function updateStandinColorBtn() {
   const btn = document.getElementById('standin-color-btn');
@@ -13885,7 +13930,7 @@ function setFeatureEnabled(key, enabled) {
 window.toggleFeature = function(key) {
   const def = FEATURE_DEFS_GRID.find(f => f.key === key);
   if (!def) return;
-  if (!currentUser && key !== 'nudge' && key !== 'playerSkip') { openUpgradeLockOverlay(); return; }
+  // Step 3 is open to all accounts — no guest gate here
   const wasEnabled = isFeatureEnabled(key);
   if (!wasEnabled) {
     // Enable and move to added
@@ -13911,10 +13956,10 @@ function renderFeatureGrid() {
   if (!avail) return;
   avail.innerHTML = '';
   const visibleDefs = FEATURE_DEFS_GRID.filter(f => !f.creatorOnly || isCreator);
-  const guestLockAll = !currentUser;
+  const guestLockAll = false; // Step 3 is fully open to every account
   visibleDefs.forEach(def => {
     // Guests (SideKick tier) can see all features but only use Nudge + Player Skip
-    const locked = guestLockAll && def.key !== 'nudge' && def.key !== 'playerSkip';
+    const locked = false; // no locked features
     const enabled = locked ? false : isFeatureEnabled(def.key);
     const card = document.createElement('div');
     card.className = 'feature-card' + (enabled ? ' added' : '') + (locked ? ' locked' : '');
@@ -18998,9 +19043,9 @@ function renderLobbyWheel(players, ids, opts) {
   const canCreate = isHost;
   if (canInvite || canCreate) {
     let ch = '';
-    if (canInvite) ch += '<button class="lobby-center-half" data-act="invite"><span style="font-size:1.1rem;line-height:1;">👥</span><span>Invite Friends</span></button>';
+    if (canInvite) ch += '<button class="lobby-center-half" data-act="invite"><span style="font-size:1rem;line-height:1;">👥</span><span>Invite<br>Friends</span></button>';
     if (canInvite && canCreate) ch += '<div style="width:70%;height:1px;background:var(--border);flex-shrink:0;"></div>';
-    if (canCreate) ch += '<button class="lobby-center-half" data-act="create"><span style="font-size:1.1rem;line-height:1;">＋</span><span>Create Player</span></button>';
+    if (canCreate) ch += '<button class="lobby-center-half" data-act="create"><span style="font-size:1rem;line-height:1;">＋</span><span>Create<br>Player</span></button>';
     center.innerHTML = ch;
     const invBtn = center.querySelector('[data-act="invite"]');
     if (invBtn) invBtn.addEventListener('click', () => { openInviteFriendsOverlay(); });
