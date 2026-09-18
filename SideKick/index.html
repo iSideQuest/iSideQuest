@@ -6665,10 +6665,9 @@
 <div class="tools-overlay" id="contact-overlay">
   <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
     <div class="tools-modal-title" data-i18n="contact">Contact</div>
-    <input type="text" id="contact-name" maxlength="40" data-i18n-ph="contactName" placeholder="Your name" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:0.625rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.5rem;">
-    <textarea id="contact-message" rows="4" data-i18n-ph="contactMessage" placeholder="Your message" style="width:100%;padding:0.6rem 0.75rem;font-size:0.9rem;border-radius:0.625rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.6rem;resize:vertical;font-family:inherit;"></textarea>
-    <button class="btn-primary btn-sm" style="width:100%;" onclick="sendContactMessage()" data-i18n="send">Send</button>
-    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeContactOverlay()" data-i18n="close">Close</button>
+    <div style="font-size:0.9rem;color:var(--text);margin:0 0 0.6rem;line-height:1.4;" data-i18n="contactPrompt">Questions, feedback, or ideas? Email us:</div>
+    <a href="mailto:iSideQuestContact@gmail.com" style="display:block;width:100%;padding:0.7rem 0.5rem;border-radius:0.625rem;border:1px solid var(--accent);background:rgba(124,92,191,0.15);color:var(--text);font-size:0.95rem;font-weight:700;text-decoration:none;box-sizing:border-box;word-break:break-all;">iSideQuestContact@gmail.com</a>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeContactOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
 <div class="tools-overlay" id="features-info-overlay">
@@ -7604,6 +7603,7 @@ const I18N_STRINGS = {
     learnAboutLegendary: 'Learn About Legendary SideKick',
     donate: 'Donate',
     contact: 'Contact',
+    contactPrompt: 'Questions, feedback, or ideas? Email us:',
     contactName: 'Your name',
     contactMessage: 'Your message',
     send: 'Send',
@@ -7772,6 +7772,7 @@ const I18N_STRINGS = {
     learnAboutLegendary: 'Conoce Legendary SideKick',
     donate: 'Donar',
     contact: 'Contacto',
+    contactPrompt: '¿Preguntas, comentarios o ideas? Escríbenos:',
     contactName: 'Tu nombre',
     contactMessage: 'Tu mensaje',
     send: 'Enviar',
@@ -7941,6 +7942,7 @@ const I18N_STRINGS = {
     learnAboutLegendary: '了解 Legendary SideKick',
     donate: '捐赠',
     contact: '联系',
+    contactPrompt: '有问题、反馈或想法？请发邮件给我们：',
     contactName: '您的姓名',
     contactMessage: '您的留言',
     send: '发送',
@@ -8110,6 +8112,7 @@ const I18N_STRINGS = {
     learnAboutLegendary: 'Mehr über Legendary SideKick',
     donate: 'Spenden',
     contact: 'Kontakt',
+    contactPrompt: 'Fragen, Feedback oder Ideen? Schreib uns:',
     contactName: 'Dein Name',
     contactMessage: 'Deine Nachricht',
     send: 'Senden',
@@ -8279,6 +8282,7 @@ const I18N_STRINGS = {
     learnAboutLegendary: 'Découvrir Legendary SideKick',
     donate: 'Faire un don',
     contact: 'Contact',
+    contactPrompt: 'Questions, retours ou idées ? Écrivez-nous :',
     contactName: 'Votre nom',
     contactMessage: 'Votre message',
     send: 'Envoyer',
@@ -8448,6 +8452,7 @@ const I18N_STRINGS = {
     learnAboutLegendary: 'Legendary SideKickについて',
     donate: '寄付する',
     contact: 'お問い合わせ',
+    contactPrompt: '質問やフィードバック、アイデアはメールで：',
     contactName: 'お名前',
     contactMessage: 'メッセージ',
     send: '送信',
@@ -8617,6 +8622,7 @@ const I18N_STRINGS = {
     learnAboutLegendary: 'Scopri Legendary SideKick',
     donate: 'Dona',
     contact: 'Contatto',
+    contactPrompt: 'Domande, feedback o idee? Scrivici:',
     contactName: 'Il tuo nome',
     contactMessage: 'Il tuo messaggio',
     send: 'Invia',
@@ -8786,6 +8792,7 @@ const I18N_STRINGS = {
     learnAboutLegendary: 'Conheça o Legendary SideKick',
     donate: 'Doar',
     contact: 'Contato',
+    contactPrompt: 'Dúvidas, feedback ou ideias? Envie um e-mail:',
     contactName: 'Seu nome',
     contactMessage: 'Sua mensagem',
     send: 'Enviar',
@@ -9577,14 +9584,6 @@ window.openContactOverlay = function() {
 };
 window.closeContactOverlay = function() {
   document.getElementById('contact-overlay').classList.remove('show');
-};
-window.sendContactMessage = function() {
-  const name = (document.getElementById('contact-name').value || '').trim();
-  const msg = (document.getElementById('contact-message').value || '').trim();
-  if (!msg) { showToast('Please write a message first', true); return; }
-  const subject = encodeURIComponent('SideKick feedback from ' + (name || 'a player'));
-  const body = encodeURIComponent((name ? 'Name: ' + name + '\n\n' : '') + msg);
-  window.location.href = 'mailto:iSideQuestContact@gmail.com?subject=' + subject + '&body=' + body;
 };
 window.openFeaturesInfo = function() {
   document.getElementById('features-info-overlay').classList.add('show');
@@ -11233,8 +11232,7 @@ const KB_OVERLAY_IDS = ['collection-search', 'collection-db-input',
   'game-notes-textarea', 'friends-add-input', 'st-name-input',
   'rng-min', 'rng-max', 'cd-min', 'cd-sec', 'picker-names',
   'picker-pick-count', 'picker-team-count', 'poison-hp-input',
-  'app-dialog-input', 'timer-countdown-min', 'timer-countdown-sec',
-  'contact-name', 'contact-message'];
+  'app-dialog-input', 'timer-countdown-min', 'timer-countdown-sec'];
 const KB_DYNAMIC_PREFIXES = ['st-amt-'];
 const CUSTOM_KB_KEY = 'sk_custom_kb';
 let kbShift = false;
