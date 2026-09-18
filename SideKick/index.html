@@ -5462,7 +5462,7 @@
             <div style="flex:1;display:flex;align-items:center;justify-content:center;">
               <span style="font-size:1.05rem;font-weight:700;color:#fff;" data-i18n="typeCode">Type Code</span>
             </div>
-            <input id="join-code" placeholder="----" maxlength="4" oninput="updateJoinCollapseSummary()" style="width:100%;background:transparent;border:none;color:var(--text);font-family:monospace;font-size:1.3rem;letter-spacing:0.4em;text-align:center;text-transform:uppercase;outline:none;padding:0;">
+            <input id="join-code" placeholder="----" maxlength="4" inputmode="numeric" oninput="updateJoinCollapseSummary()" style="width:100%;background:transparent;border:none;color:var(--text);font-family:monospace;font-size:1.3rem;letter-spacing:0.4em;text-align:center;text-transform:uppercase;outline:none;padding:0;">
           </div>
         </div>
         <button class="btn-primary" id="join-final-btn" onclick="joinRoom()" style="width:100%;" data-i18n="joinRoom">Join Room</button>
@@ -5976,6 +5976,10 @@
     </div>
     <button class="vp-submit-btn" onclick="submitVP()" style="margin-top:0.75rem;">Submit Points</button>
     <button id="vp-back-btn" onclick="confirmVPBack()" style="display:none;margin-top:0.5rem;width:100%;padding:0.6rem;border-radius:0.625rem;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;"><span class="play-tri">◀</span> Back to Room</button>
+  </div>
+  <div id="vp-standin-section" style="display:none;flex-direction:column;align-items:center;gap:0.5rem;width:100%;margin-top:0.75rem;">
+    <div style="font-size:0.85rem;font-weight:800;color:var(--text);" data-i18n="vpStandinTitle">Set scores for hosted players:</div>
+    <div id="vp-standin-list" data-pids="" style="display:flex;flex-direction:column;gap:0.5rem;width:100%;"></div>
   </div>
   <div id="vp-waiting-section" style="display:none; flex-direction:column; align-items:center; gap:0.75rem; width:100%;">
     <div class="vp-submitted-msg">✓ Score submitted! Waiting for others…</div>
@@ -6818,7 +6822,7 @@
       <div class="tutorial-slide">
         <div class="tutorial-icon">📱</div>
         <div class="tutorial-title">Share the Room Code</div>
-        <div class="tutorial-desc">A 4-letter code is generated. Share it — or let players <strong>scan the QR code</strong> — so they can join from their own phone. Everyone picks their own name, color, and avatar.</div>
+        <div class="tutorial-desc">A 4-digit code is generated. Share it — or let players <strong>scan the QR code</strong> — so they can join from their own phone. Everyone picks their own name, color, and avatar.</div>
       </div>
       <!-- Slide 4 -->
       <div class="tutorial-slide">
@@ -7654,6 +7658,8 @@ const I18N_STRINGS = {
     featAwards: 'Awards',
     featTimers: 'Timers',
     featVP: 'Victory Points',
+    vpStandinTitle: 'Set scores for hosted players:',
+    vpSet: 'Set',
     featStatus: 'Status Effects',
     featRounds: 'Rounds',
     featDnD: 'D&D',
@@ -7823,6 +7829,8 @@ const I18N_STRINGS = {
     featAwards: 'Premios',
     featTimers: 'Temporizadores',
     featVP: 'Puntos de Victoria',
+    vpStandinTitle: 'Pon puntajes a los jugadores invitados:',
+    vpSet: 'Fijar',
     featStatus: 'Efectos de Estado',
     featRounds: 'Rondas',
     featDnD: 'D&D',
@@ -7993,6 +8001,8 @@ const I18N_STRINGS = {
     featAwards: '奖项',
     featTimers: '计时器',
     featVP: '胜利点数',
+    vpStandinTitle: '为托管玩家设置分数：',
+    vpSet: '设置',
     featStatus: '状态效果',
     featRounds: '回合',
     featDnD: 'D&D',
@@ -8163,6 +8173,8 @@ const I18N_STRINGS = {
     featAwards: 'Auszeichnungen',
     featTimers: 'Timer',
     featVP: 'Siegpunkte',
+    vpStandinTitle: 'Punktzahlen für betreute Spieler festlegen:',
+    vpSet: 'Setzen',
     featStatus: 'Statuseffekte',
     featRounds: 'Runden',
     featDnD: 'D&D',
@@ -8333,6 +8345,8 @@ const I18N_STRINGS = {
     featAwards: 'Récompenses',
     featTimers: 'Minuteurs',
     featVP: 'Points de victoire',
+    vpStandinTitle: 'Définir les scores des joueurs invités :',
+    vpSet: 'Valider',
     featStatus: 'Effets de statut',
     featRounds: 'Manches',
     featDnD: 'D&D',
@@ -8503,6 +8517,8 @@ const I18N_STRINGS = {
     featAwards: 'アワード',
     featTimers: 'タイマー',
     featVP: '勝利ポイント',
+    vpStandinTitle: 'ホスト招待プレイヤーのスコアを入力：',
+    vpSet: '設定',
     featStatus: 'ステータス効果',
     featRounds: 'ラウンド',
     featDnD: 'D&D',
@@ -8673,6 +8689,8 @@ const I18N_STRINGS = {
     featAwards: 'Premi',
     featTimers: 'Timer',
     featVP: 'Punti Vittoria',
+    vpStandinTitle: 'Imposta i punteggi dei giocatori ospitati:',
+    vpSet: 'Imposta',
     featStatus: 'Effetti di Stato',
     featRounds: 'Round',
     featDnD: 'D&D',
@@ -8843,6 +8861,8 @@ const I18N_STRINGS = {
     featAwards: 'Prêmios',
     featTimers: 'Cronômetros',
     featVP: 'Pontos de Vitória',
+    vpStandinTitle: 'Definir pontuações dos jogadores convidados:',
+    vpSet: 'Definir',
     featStatus: 'Efeitos de Status',
     featRounds: 'Rounds',
     featDnD: 'D&D',
@@ -11126,7 +11146,7 @@ let nudgeCapTargetId = null;  // active player ID the cap is tied to
 // ── HELPERS ──────────────────────────────────────
 function uid() { return Math.random().toString(36).slice(2,10); }
 function genCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const chars = '0123456789';
   return Array.from({length:4}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
 }
 function showScreen(id) {
@@ -11233,10 +11253,13 @@ const KB_OVERLAY_IDS = ['collection-search', 'collection-db-input',
   'rng-min', 'rng-max', 'cd-min', 'cd-sec', 'picker-names',
   'picker-pick-count', 'picker-team-count', 'poison-hp-input',
   'app-dialog-input', 'timer-countdown-min', 'timer-countdown-sec'];
-const KB_DYNAMIC_PREFIXES = ['st-amt-'];
+const KB_DYNAMIC_PREFIXES = ['st-amt-', 'vp-score-'];
+const KB_NUM_IDS = ['join-code'];
+const KB_NUM_PREFIXES = ['vp-score-'];
 const CUSTOM_KB_KEY = 'sk_custom_kb';
 let kbShift = false;
 let kbSyms = false;
+let kbNumAlpha = false;
 let kbActiveInput = null;
 let kbActiveCtx = null;
 const KB_ALPHA_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
@@ -11379,12 +11402,29 @@ function kbKeyHTML(label, key, cls) {
 function kbActHTML(label, act, cls) {
   return '<button type="button" tabindex="-1" class="kb-key' + (cls ? ' ' + cls : '') + '" data-act="' + act + '" onpointerdown="event.preventDefault()">' + label + '</button>';
 }
+function kbIsNumField() {
+  if (!kbActiveInput || !kbActiveInput.id) return false;
+  if (KB_NUM_IDS.indexOf(kbActiveInput.id) !== -1) return true;
+  return KB_NUM_PREFIXES.some((p) => kbActiveInput.id.indexOf(p) === 0);
+}
+function kbNumAlphaToggle() {
+  kbNumAlpha = true;
+  renderKb();
+  haptic(5);
+}
 function renderKb() {
   [['create'], ['join'], ['overlay']].forEach(([ctx]) => {
     const box = document.getElementById(ctx + '-kb');
     if (!box) return;
     let html = '';
-    if (!kbSyms) {
+    if (!kbSyms && !kbNumAlpha && kbIsNumField()) {
+      // Number layout for room-code / score fields: same 4-row space as alpha
+      const digits = '123456789';
+      html += '<div class="custom-kb-row">' + digits.slice(0, 3).split('').map((ch) => kbKeyHTML(ch, ch)).join('') + '</div>';
+      html += '<div class="custom-kb-row">' + digits.slice(3, 6).split('').map((ch) => kbKeyHTML(ch, ch)).join('') + '</div>';
+      html += '<div class="custom-kb-row">' + digits.slice(6, 9).split('').map((ch) => kbKeyHTML(ch, ch)).join('') + '</div>';
+      html += '<div class="custom-kb-row">' + kbActHTML('ABC', 'numalpha', 'kb-wide') + kbKeyHTML('0', '0', 'kb-wide') + kbActHTML('⌫', 'back', 'kb-wide') + kbActHTML('Done', 'done', 'kb-wide') + '</div>';
+    } else if (!kbSyms) {
       html += '<div class="custom-kb-row">' + KB_ALPHA_ROWS[0].split('').map((ch) => kbKeyHTML(kbShift ? ch.toUpperCase() : ch, ch)).join('') + '</div>';
       html += '<div class="custom-kb-row">' + KB_ALPHA_ROWS[1].split('').map((ch) => kbKeyHTML(kbShift ? ch.toUpperCase() : ch, ch)).join('') + '</div>';
       html += '<div class="custom-kb-row">' + kbActHTML('⇧', 'shift', 'kb-wide' + (kbShift ? ' kb-on' : '')) + KB_ALPHA_ROWS[2].split('').map((ch) => kbKeyHTML(kbShift ? ch.toUpperCase() : ch, ch)).join('') + kbActHTML('⌫', 'back', 'kb-wide') + '</div>';
@@ -11414,6 +11454,7 @@ function renderKb() {
         ev.preventDefault();
         if (a === 'shift') kbShiftToggle();
         else if (a === 'syms') kbSymsToggle();
+        else if (a === 'numalpha') kbNumAlphaToggle();
         else if (a === 'done') kbDone();
       });
     });
@@ -11550,6 +11591,7 @@ document.addEventListener('focusin', (e) => {
   // Auto-caps like a native keyboard: shift on for a fresh field
   kbShift = (el.id !== 'join-code' && el.value.length === 0);
   kbSyms = false;
+  kbNumAlpha = false;
   renderKb();
   showKb(ctx);
   setTimeout(kbCaretUpdate, 60);
@@ -15929,7 +15971,7 @@ window.joinRoom = async function() {
   const wasInvite = !!pendingInviteCode;
   if (!code || code.length !== 4) {
     if (wasInvite) { pendingInviteCode = null; renderJoinStep(); }
-    status('join-status','Enter a 4-character room code.','error'); return;
+    status('join-status','Enter the 4-digit room code.','error'); return;
   }
   if (!name) { status('join-status','Enter your name.','error'); return; }
 
@@ -19371,6 +19413,47 @@ function showVPEntryOverlay(room) {
     });
   }
 
+  // Host-only: enter VP scores for hosted (stand-in) players who have no device
+  const siSection = document.getElementById('vp-standin-section');
+  const siList = document.getElementById('vp-standin-list');
+  if (siSection && siList) {
+    const pending = (isHost && typeof localPlayers !== 'undefined')
+      ? localPlayers.filter((p) => p && p.standin && !vpReady[p.id]) : [];
+    const pendingIds = pending.map((p) => p.id).join(',');
+    const typingHere = siList.contains(document.activeElement);
+    if (!(typingHere && siList.dataset.pids === pendingIds)) {
+      const stash = {};
+      let focusPid = null;
+      siList.querySelectorAll('input').forEach((inp) => {
+        stash[inp.dataset.pid] = inp.value;
+        if (inp === document.activeElement) focusPid = inp.dataset.pid;
+      });
+      siList.innerHTML = '';
+      pending.forEach((p) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;gap:0.5rem;width:100%;';
+        row.innerHTML =
+          '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.85rem;font-weight:700;color:var(--text);">' +
+            esc(p.avatar || '👤') + ' ' + esc(p.name || '?') + '</span>' +
+          '<input id="vp-score-' + p.id + '" data-pid="' + p.id + '" maxlength="4" placeholder="0" style="width:4.5rem;padding:0.5rem 0.4rem;font-size:1rem;text-align:center;border-radius:0.5rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;">' +
+          '<button onclick="submitVPForStandin(\'' + p.id + '\')" style="padding:0.5rem 0.9rem;border-radius:0.5rem;border:1px solid var(--accent);background:rgba(124,92,191,0.25);color:var(--text);font-size:0.85rem;font-weight:800;cursor:pointer;">' + esc(t('vpSet')) + '</button>';
+        siList.appendChild(row);
+      });
+      siList.querySelectorAll('input').forEach((inp) => {
+        if (stash[inp.dataset.pid] != null) inp.value = stash[inp.dataset.pid];
+        if (typeof isCustomKbEnabled === 'function' && isCustomKbEnabled()) {
+          inp.setAttribute('readonly', 'readonly');
+          inp.setAttribute('inputmode', 'none');
+        } else {
+          inp.setAttribute('inputmode', 'numeric');
+        }
+        if (inp.dataset.pid === focusPid) { try { inp.focus({ preventScroll: true }); } catch { try { inp.focus(); } catch {} } }
+      });
+      siList.dataset.pids = pendingIds;
+    }
+    siSection.style.display = pending.length ? 'flex' : 'none';
+  }
+
   // Host sees Begin button once all ready
   const beginBtn = document.getElementById('vp-begin-btn');
   if (beginBtn && isHost) {
@@ -19548,6 +19631,20 @@ window.submitVP = async function() {
   document.getElementById('vp-input-section').style.display   = 'none';
   document.getElementById('vp-waiting-section').style.display = 'flex';
   vpSubmitted = true;
+};
+
+window.submitVPForStandin = async function(pid) {
+  if (!db || !roomCode || !isHost || !pid) return;
+  const inp = document.getElementById('vp-score-' + pid);
+  let val = inp ? parseInt((inp.value || '').trim(), 10) : NaN;
+  if (isNaN(val) || val < 0) val = 0;
+  if (val > 9999) val = 9999;
+  const updates = {};
+  updates[`rooms/${roomCode}/vpScores/${pid}`] = val;
+  updates[`rooms/${roomCode}/vpReady/${pid}`]   = true;
+  await update(ref(db), updates);
+  if (inp) { try { inp.blur(); } catch {} }
+  haptic(10);
 };
 
 window.beginAfterVP = async function() {
