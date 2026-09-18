@@ -6334,20 +6334,6 @@
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
-<!--  MY SAVED GAMES (list)                      -->
-<!-- ═══════════════════════════════════════════ -->
-<div class="tools-overlay" id="my-saves-overlay">
-  <div class="tools-modal" style="max-height:80vh; overflow-y:auto;">
-    <div class="tools-modal-title">My Saved Games</div>
-    <div id="my-saves-list" style="display:flex; flex-direction:column; gap:0.5rem;">
-      <div style="color:var(--muted); font-size:0.85rem; text-align:center; padding:0.5rem;">Loading…</div>
-    </div>
-    <button class="btn-secondary btn-sm" style="margin-top:0.6rem;" onclick="closeMySavedGames(); openResumeOverlay();">Resume by code instead</button>
-    <button class="btn-secondary btn-sm" onclick="closeMySavedGames()">Close</button>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════ -->
 <!--  MY COLLECTION (board games library)        -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="collection-overlay">
@@ -6951,65 +6937,12 @@
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
-<!--  RESUME GAME OVERLAY                        -->
-<!-- ═══════════════════════════════════════════ -->
-<div class="tools-overlay" id="resume-overlay">
-  <div class="tools-modal">
-    <div class="tools-modal-title">Resume a Saved Game</div>
-
-    <div id="resume-code-step">
-      <input type="text" id="resume-code" placeholder="Enter save code" maxlength="6"
-        style="text-transform:uppercase; text-align:center; font-family:'Courier New',monospace; font-size:1.2rem; letter-spacing:0.1em;">
-      <button class="btn-primary btn-sm" style="width:100%; margin-top:0.5rem;" onclick="resumeFromSaveCode()">Continue</button>
-      <p id="resume-status" class="status"></p>
-    </div>
-
-    <div id="resume-who-step" style="display:none;">
-      <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:var(--text); margin-bottom:0.6rem; cursor:pointer;">
-        <input type="checkbox" id="resume-as-host" style="width:auto; margin:0;"> I'm the host of this room
-      </label>
-      <div class="rng-section-label" style="margin-top:0;">Who are you?</div>
-      <div id="resume-who-list" style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.4rem;"></div>
-    </div>
-
-    <button class="btn-secondary btn-sm" style="margin-top:0.6rem;" onclick="closeResumeOverlay()">Close</button>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════ -->
-<!--  GAME SAVED SCREEN                          -->
-<!-- ═══════════════════════════════════════════ -->
-<div class="saved-screen" id="saved-screen">
-  <div class="saved-screen-icon">💾</div>
-  <div class="saved-screen-title">Game Saved</div>
-  <div id="saved-screen-host-view" style="display:none;">
-    <div class="saved-screen-sub" id="saved-screen-name" style="font-weight:700; color:var(--text);">—</div>
-    <div class="saved-screen-sub">This save is in your "My Saved Games" list on the home screen. The room code below stays the same — anyone can rejoin with it once you resume.</div>
-    <div class="saved-screen-code" id="saved-screen-code">----</div>
-    <button class="btn-primary btn-sm" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem;" onclick="continueSavedGame()">Continue <span class="play-tri">▶</span></button>
-    <button class="btn-secondary btn-sm" style="margin-top:0.5rem; width:auto; padding:0.6rem 1.5rem;" onclick="openGameNotes()">📝 Take Notes</button>
-    <button class="btn-secondary btn-sm" style="margin-top:0.5rem; width:auto; padding:0.6rem 1.5rem;" onclick="hostLeaveGame()">🏠 Back to Home</button>
-  </div>
-  <div id="saved-screen-player-view" style="display:none;">
-    <div id="saved-screen-player-waiting">
-      <div class="saved-screen-sub">The host saved the game. Waiting for them to decide...</div>
-      <div style="margin-top:1rem; color:var(--muted); font-size:0.85rem;">Your seat and score will be right where you left them.</div>
-    </div>
-    <div id="saved-screen-player-action" style="display:none;">
-      <div class="saved-screen-sub" id="saved-screen-player-action-text"></div>
-      <button class="btn-primary btn-sm" id="saved-screen-player-continue-btn" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem; display:none;" onclick="playerContinueGame()">Continue <span class="play-tri">▶</span></button>
-      <button class="btn-secondary btn-sm" style="margin-top:0.5rem; width:auto; padding:0.6rem 1.5rem;" onclick="leaveSavedScreen()">🏠 Back to Home</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════ -->
 <!--  GAME NOTES OVERLAY                         -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="saved-screen" id="game-notes-overlay" style="z-index:8350;">
   <div class="saved-screen-icon">📝</div>
-  <div class="saved-screen-title">Game Notes</div>
-  <textarea id="game-notes-textarea" style="width:100%;max-width:22.5rem;min-height:10rem;margin-top:0.8rem;padding:0.6rem;border-radius:0.5rem;border:1px solid var(--border);background:var(--card);color:var(--text);font-family:inherit;font-size:0.9rem;resize:vertical;" placeholder="Write your notes here..."></textarea>
+  <div class="saved-screen-title" data-i18n="gameNotes">Game Notes</div>
+  <textarea id="game-notes-textarea" data-i18n-ph="gameNotesPh" placeholder="Write your notes here..." style="width:100%;max-width:22.5rem;min-height:10rem;margin-top:0.8rem;padding:0.6rem;border-radius:0.5rem;border:1px solid var(--border);background:var(--card);color:var(--text);font-family:inherit;font-size:0.9rem;resize:vertical;" placeholder="Write your notes here..."></textarea>
   <div style="display:flex;gap:0.5rem;margin-top:0.8rem;">
     <button class="btn-secondary btn-sm" style="padding:0.6rem 1.5rem;" onclick="closeGameNotes()">Cancel</button>
     <button class="btn-primary btn-sm" style="padding:0.6rem 1.5rem;" onclick="saveGameNotes()">Save</button>
@@ -7060,7 +6993,7 @@
   <div class="tools-modal">
     <div class="tools-modal-title"><span data-i18n="gameFeatures">Game Features</span></div>
     <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openMyCollection()"><span data-i18n="myCollection">My Collection</span></button>
-    <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openMySavedGames()"><span data-i18n="mySavedGames">My Saved Games</span></button>
+    <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openGameNotes()"><span data-i18n="gameNotes">📝 Game Notes</span></button>
     <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openToolsOverlay(false)"><span data-i18n="tools">Tools</span></button>
     <button class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="closeGameFeaturesOverlay()" data-i18n="close">Close</button>
   </div>
@@ -7658,6 +7591,8 @@ const I18N_STRINGS = {
     featAwards: 'Awards',
     featTimers: 'Timers',
     featVP: 'Victory Points',
+    gameNotes: '📝 Game Notes',
+    gameNotesPh: 'Write your notes here...',
     vpStandinTitle: 'Set scores for hosted players:',
     vpSet: 'Set',
     featStatus: 'Status Effects',
@@ -7829,6 +7764,8 @@ const I18N_STRINGS = {
     featAwards: 'Premios',
     featTimers: 'Temporizadores',
     featVP: 'Puntos de Victoria',
+    gameNotes: '📝 Notas del juego',
+    gameNotesPh: 'Escribe tus notas aquí...',
     vpStandinTitle: 'Pon puntajes a los jugadores invitados:',
     vpSet: 'Fijar',
     featStatus: 'Efectos de Estado',
@@ -8001,6 +7938,8 @@ const I18N_STRINGS = {
     featAwards: '奖项',
     featTimers: '计时器',
     featVP: '胜利点数',
+    gameNotes: '📝 游戏笔记',
+    gameNotesPh: '在此写下您的笔记...',
     vpStandinTitle: '为托管玩家设置分数：',
     vpSet: '设置',
     featStatus: '状态效果',
@@ -8173,6 +8112,8 @@ const I18N_STRINGS = {
     featAwards: 'Auszeichnungen',
     featTimers: 'Timer',
     featVP: 'Siegpunkte',
+    gameNotes: '📝 Spielnotizen',
+    gameNotesPh: 'Notizen hier schreiben...',
     vpStandinTitle: 'Punktzahlen für betreute Spieler festlegen:',
     vpSet: 'Setzen',
     featStatus: 'Statuseffekte',
@@ -8345,6 +8286,8 @@ const I18N_STRINGS = {
     featAwards: 'Récompenses',
     featTimers: 'Minuteurs',
     featVP: 'Points de victoire',
+    gameNotes: '📝 Notes de jeu',
+    gameNotesPh: 'Écrivez vos notes ici...',
     vpStandinTitle: 'Définir les scores des joueurs invités :',
     vpSet: 'Valider',
     featStatus: 'Effets de statut',
@@ -8517,6 +8460,8 @@ const I18N_STRINGS = {
     featAwards: 'アワード',
     featTimers: 'タイマー',
     featVP: '勝利ポイント',
+    gameNotes: '📝 ゲームメモ',
+    gameNotesPh: 'メモをここに書く...',
     vpStandinTitle: 'ホスト招待プレイヤーのスコアを入力：',
     vpSet: '設定',
     featStatus: 'ステータス効果',
@@ -8689,6 +8634,8 @@ const I18N_STRINGS = {
     featAwards: 'Premi',
     featTimers: 'Timer',
     featVP: 'Punti Vittoria',
+    gameNotes: '📝 Note di gioco',
+    gameNotesPh: 'Scrivi qui le tue note...',
     vpStandinTitle: 'Imposta i punteggi dei giocatori ospitati:',
     vpSet: 'Imposta',
     featStatus: 'Effetti di Stato',
@@ -8861,6 +8808,8 @@ const I18N_STRINGS = {
     featAwards: 'Prêmios',
     featTimers: 'Cronômetros',
     featVP: 'Pontos de Vitória',
+    gameNotes: '📝 Notas do jogo',
+    gameNotesPh: 'Escreva suas notas aqui...',
     vpStandinTitle: 'Definir pontuações dos jogadores convidados:',
     vpSet: 'Definir',
     featStatus: 'Efeitos de Status',
@@ -9298,11 +9247,11 @@ window.confirmSignOut = async function() {
   }
 };
 
-// Defensively closes any overlay that might still be showing (e.g. if My
-// Saved Games or Account was left open) before switching screens, so the
-// button always visibly takes you home.
+// Defensively closes any overlay that might still be showing (e.g. if
+// Account was left open) before switching screens, so the button always
+// visibly takes you home.
 window.backToHomeFromProfile = function() {
-  ['my-saves-overlay','account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','edit-profile-overlay','edit-profile-avatar-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay','features-help-overlay','collection-overlay','collection-edit-overlay','duel-mode-overlay','duel-setup-overlay','duel-live-overlay','duel-score-overlay'].forEach(id => {
+  ['account-overlay','resume-overlay','tools-overlay','rng-overlay','timer-overlay','picker-overlay','status-menu-overlay','status-alert-overlay','features-config-overlay','settings-overlay','themes-overlay','avatar-overlay','name-overlay','edit-profile-overlay','edit-profile-avatar-overlay','room-avatar-overlay','tutorial-overlay','my-awards-overlay','features-help-overlay','collection-overlay','collection-edit-overlay','duel-mode-overlay','duel-setup-overlay','duel-live-overlay','duel-score-overlay'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('show');
   });
@@ -9881,13 +9830,9 @@ async function createRoomFromPreset(preset) {
   isHost = true;
   myId = uid();
   myName = preset.profile ? preset.profile.name : getSavedName();
-  roomCode = genCode();
-  let roomRef = ref(db, `rooms/${roomCode}`);
-  const existing = await get(roomRef);
-  if (existing.exists()) {
-    roomCode = genCode();
-    roomRef = ref(db, `rooms/${roomCode}`);
-  }
+  const claimed = await claimRoomCode();
+  roomCode = claimed.code;
+  let roomRef = claimed.roomRef;
   const features = {
     passDirection: (typeof passDirection !== 'undefined' ? passDirection : ''),
     nudge: typeof featureNudgeEnabled !== 'undefined' ? featureNudgeEnabled : false,
@@ -10642,11 +10587,10 @@ async function createSpeedRoundRoom() {
   isHost = true;
   if (!myId) myId = uid();
   myName = name;
-  roomCode = genCode();
+  const claimed = await claimRoomCode();
+  roomCode = claimed.code;
 
-  let roomRef = ref(db, 'rooms/' + roomCode);
-  const existing = await get(roomRef);
-  if (existing.exists()) { roomCode = genCode(); roomRef = ref(db, 'rooms/' + roomCode); }
+  let roomRef = claimed.roomRef;
 
   await set(roomRef, {
     host: myId,
@@ -11149,6 +11093,27 @@ function genCode() {
   const chars = '0123456789';
   return Array.from({length:4}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
 }
+// Claims a 4-digit room code for a new room: fresh codes taken as-is; codes
+// held by rooms idle 24h+ are deleted and recycled; codes held by live rooms
+// are skipped with another draw. No server-side sweeper needed.
+async function claimRoomCode() {
+  const STALE_MS = 24 * 60 * 60 * 1000;
+  for (let attempt = 0; attempt < 12; attempt++) {
+    const code = genCode();
+    const roomRef = ref(db, `rooms/${code}`);
+    let existing = null;
+    try { existing = await get(roomRef); } catch { return { code, roomRef }; }
+    if (!existing.exists()) return { code, roomRef };
+    const room = existing.val() || {};
+    const ts = room.lastActivity || room.createdAt || 0;
+    if (Date.now() - ts > STALE_MS) {
+      try { await remove(roomRef); } catch {}
+      return { code, roomRef: ref(db, `rooms/${code}`) };
+    }
+  }
+  const code = genCode();
+  return { code, roomRef: ref(db, `rooms/${code}`) };
+}
 function showScreen(id) {
   window._lobbyPhase = (id === 'lobby');
   document.body.classList.toggle('in-game', ['active','waiting','buzz'].includes(id));
@@ -11248,7 +11213,7 @@ document.addEventListener('focusin', (e) => {
 const KB_OVERLAY_IDS = ['collection-search', 'collection-db-input',
   'ce-name', 'ce-min', 'ce-max', 'ce-time', 'ce-notes',
   'preferred-name-input', 'edit-profile-name-input', 'standin-name',
-  'voice-preset-name', 'voice-preset-player-name', 'resume-code',
+  'voice-preset-name', 'voice-preset-player-name',
   'game-notes-textarea', 'friends-add-input', 'st-name-input',
   'rng-min', 'rng-max', 'cd-min', 'cd-sec', 'picker-names',
   'picker-pick-count', 'picker-team-count', 'poison-hp-input',
@@ -11996,7 +11961,7 @@ async function tryAutoResume() {
     const players = room.players || {};
     if (!players[session.myId]) { clearSession(); return; } // player isn't in this room (e.g. resumed as someone else)
 
-    if (room.status === 'closed' || !['lobby','playing','ceremony','vp-entry','vp-ceremony','gameover','saved'].includes(room.status)) {
+    if (room.status === 'closed' || !['lobby','playing','ceremony','vp-entry','vp-ceremony','gameover'].includes(room.status)) {
       // 'closed' or unrecognized — nothing to resume into
       clearSession();
       return;
@@ -12044,16 +12009,6 @@ window.resumeContinue = function() {
     listenGameState();
   } else if (room.status === 'gameover') {
     showGameOver();
-  } else if (room.status === 'saved') {
-    document.getElementById('saved-screen-code').textContent = roomCode;
-    document.getElementById('saved-screen-name').textContent = '';
-    if (isHost) {
-      document.getElementById('saved-screen-host-view').style.display = 'block';
-      document.getElementById('saved-screen-player-view').style.display = 'none';
-      document.getElementById('saved-screen').classList.add('show');
-    } else {
-      showSavedScreenForPlayer(room.savedAction || null);
-    }
   }
 };
 window.resumeGoHome = function() {
@@ -13175,31 +13130,6 @@ window.closeStatusAlert = function() {
   currentStatusAlertKey = null;
 };
 
-window.continueSavedGame = async function() {
-  if (!db || !roomCode) return;
-  try {
-    await update(ref(db, `rooms/${roomCode}`), { status: 'playing', savedAction: 'continue' });
-    document.getElementById('saved-screen').classList.remove('show');
-  } catch(e) {
-    showAlert('Could not resume: ' + (e.message || e));
-  }
-};
-
-window.leaveSavedScreen = function() {
-  cleanupListeners();
-  stopTimerTick();
-  clearNudgeTimer();
-  document.getElementById('saved-screen').classList.remove('show');
-  goHome();
-};
-
-window.hostLeaveGame = function() {
-  if (db && roomCode) {
-    update(ref(db, `rooms/${roomCode}`), { savedAction: 'leave' }).catch(() => {});
-  }
-  leaveSavedScreen();
-};
-
 window.goHome = function() {
   // If friend was on Step 1 via invite and bails to home, mark invite as Left for host
   if (pendingInviteCode && currentUser) {
@@ -13652,10 +13582,6 @@ window.hostMenuAction = async function(action) {
       }
     };
     doEndRound();
-  } else if (action === 'save-game') {
-    if (await showConfirm('Save the game? Everyone will be paused until you resume with the save code.')) {
-      saveCurrentGame();
-    }
   } else if (action === 'end-game') {
     let msg = 'End the game';
     if (featureVPEnabled && featureRoundsEnabled) {
@@ -15880,22 +15806,13 @@ window.createRoom = async function() {
   isHost = true;
   myId = uid();
   myName = name;
-  roomCode = genCode();
+  const claimed = await claimRoomCode();
+  roomCode = claimed.code;
   _inviteStatus.clear();
   stopHostInviteListener();
   renderInviteFriendsList();
 
-  let roomRef = ref(db, `rooms/${roomCode}`);
-  try {
-    const existing = await get(roomRef);
-    if (existing.exists()) {
-      roomCode = genCode();
-      roomRef = ref(db, `rooms/${roomCode}`);
-    }
-  } catch (err) {
-    status('create-status', 'Could not reach the game server. Check your connection and try again.', 'error');
-    return;
-  }
+  let roomRef = claimed.roomRef;
 
   try {
     await set(roomRef, {
@@ -17195,18 +17112,10 @@ function listenGameState() {
       showScreen('reconfiguring');
       return;
     }
-    // Host saved the game — pause everyone on the Game Saved screen
-    if (room.status === 'saved') {
-      hideAllAwardOverlays();
-      if (!isHost) showSavedScreenForPlayer(room.savedAction || null);
-      return;
-    }
     // Gameover — show the end screen
     if (room.status === 'gameover') { showGameOver(); return; }
-    // Playing — if we were on the saved screen, hide it and resume
     if (room.status === 'playing') {
       hideAllAwardOverlays();
-      document.getElementById('saved-screen').classList.remove('show');
       // fall through to normal game rendering below
     }
     // Non-host players: stay on reconfiguring screen while host is in lobby setting up new game
@@ -17540,69 +17449,14 @@ window.undoTurn = async function() {
 };
 
 // ── SAVE GAME / RESUME ──────────────────────────
-// Host-triggered: snapshots the live room into savedGames/{code}, freezes
-// the live room so non-host players see a "saved" screen, and pauses
-// timers. Anyone can later use the save code from the home screen to
-// spin up a fresh live room pre-loaded with everything as it was.
-function genSaveCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  return Array.from({length:6}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
-}
 
-window.saveCurrentGame = async function() {
-  if (!db || !roomCode || !isHost) return;
-  if (!requireHostAccount()) return;
-
-  const name = await showPrompt('Name this save (e.g. "Friday D&D — Session 12"):', '');
-  if (name === null) return; // cancelled
-  const saveName = name.trim() || `Saved Game — ${new Date().toLocaleDateString()}`;
-
-  try {
-    const roomRef = ref(db, `rooms/${roomCode}`);
-    const snap = await get(roomRef);
-    if (!snap.exists()) { showAlert('Could not save: room not found.'); return; }
-    const room = snap.val();
-
-    const hostUserId = getHostId();
-    const saveCode = genSaveCode();
-    const snapshot = JSON.parse(JSON.stringify(room)); // deep copy
-    snapshot.name = saveName;
-    snapshot.savedAt = Date.now();
-    snapshot._originalRoomCode = roomCode;
-    snapshot._hostUserId = hostUserId;
-
-    await update(ref(db), {
-      [`savedGames/${hostUserId}/${saveCode}`]: snapshot,
-      [`saveCodeIndex/${saveCode}`]: hostUserId,   // lets a different device resolve a shared code
-      [`rooms/${roomCode}/status`]: 'saved',
-      [`rooms/${roomCode}/savedAction`]: null
-    });
-
-    stopTimerTick();
-    clearNudgeTimer();
-    currentSaveCode = saveCode;
-    currentSaveHostId = hostUserId;
-    currentNotesText = '';
-
-    document.getElementById('saved-screen-code').textContent = roomCode;
-    document.getElementById('saved-screen-name').textContent = saveName;
-    document.getElementById('saved-screen-host-view').style.display = 'block';
-    document.getElementById('saved-screen-player-view').style.display = 'none';
-    document.getElementById('saved-screen').classList.add('show');
-  } catch (err) {
-    showAlert('Save failed: ' + (err && err.message ? err.message : err));
-  }
-};
-
-let currentSaveCode = null;
-let currentSaveHostId = null;
 
 window.openGameNotes = function() {
   const overlay = document.getElementById('game-notes-overlay');
   const textarea = document.getElementById('game-notes-textarea');
   if (!overlay || !textarea) return;
   textarea.value = '';
-  if (currentNotesText) textarea.value = currentNotesText;
+  try { textarea.value = localStorage.getItem('sk_notes') || ''; } catch {}
   overlay.classList.add('show');
   textarea.focus();
 };
@@ -17612,245 +17466,12 @@ window.closeGameNotes = function() {
   if (overlay) overlay.classList.remove('show');
 };
 
-let currentNotesText = '';
-
-window.saveGameNotes = async function() {
+window.saveGameNotes = function() {
   const textarea = document.getElementById('game-notes-textarea');
   if (!textarea) return;
-  currentNotesText = textarea.value.trim();
-  if (db && currentSaveHostId && currentSaveCode) {
-    try {
-      await update(ref(db, `savedGames/${currentSaveHostId}/${currentSaveCode}`), { notes: currentNotesText });
-    } catch(e) {}
-  }
+  try { localStorage.setItem('sk_notes', textarea.value); } catch {}
   closeGameNotes();
 };
-
-// Called by the non-host listener when room.status becomes 'saved'
-function showSavedScreenForPlayer(savedAction) {
-  stopTimerTick();
-  clearNudgeTimer();
-  document.getElementById('saved-screen-host-view').style.display = 'none';
-  document.getElementById('saved-screen-player-view').style.display = 'block';
-  const waitingEl = document.getElementById('saved-screen-player-waiting');
-  const actionEl = document.getElementById('saved-screen-player-action');
-  const actionText = document.getElementById('saved-screen-player-action-text');
-  const continueBtn = document.getElementById('saved-screen-player-continue-btn');
-  if (savedAction === 'continue') {
-    if (waitingEl) waitingEl.style.display = 'none';
-    if (actionEl) actionEl.style.display = 'block';
-    if (actionText) actionText.textContent = 'The host resumed the game!';
-    if (continueBtn) continueBtn.style.display = 'inline-block';
-  } else if (savedAction === 'leave') {
-    if (waitingEl) waitingEl.style.display = 'none';
-    if (actionEl) actionEl.style.display = 'block';
-    if (actionText) actionText.textContent = 'The host left the game.';
-    if (continueBtn) continueBtn.style.display = 'none';
-  } else {
-    if (waitingEl) waitingEl.style.display = 'block';
-    if (actionEl) actionEl.style.display = 'none';
-  }
-  document.getElementById('saved-screen').classList.add('show');
-};
-
-window.playerContinueGame = function() {
-  document.getElementById('saved-screen').classList.remove('show');
-};
-
-let pendingResumeCode = null;
-let pendingResumeHostId = null;
-let pendingResumeData = null;
-
-window.resumeFromSaveCode = async function() {
-  if (!requireDb()) return;
-  const codeInput = document.getElementById('resume-code');
-  const code = codeInput ? codeInput.value.toUpperCase().trim() : '';
-  if (!code) { status('resume-status', 'Enter a save code.', 'error'); return; }
-
-  const indexSnap = await get(ref(db, `saveCodeIndex/${code}`));
-  if (!indexSnap.exists()) { status('resume-status', 'Save code not found.', 'error'); return; }
-  const hostUserId = indexSnap.val();
-
-  const saveRef = ref(db, `savedGames/${hostUserId}/${code}`);
-  const snap = await get(saveRef);
-  if (!snap.exists()) { status('resume-status', 'Save code not found.', 'error'); return; }
-  const saved = snap.val();
-
-  // Show a "who are you" picker so the resuming device reattaches to the
-  // correct existing player rather than joining as a stranger.
-  pendingResumeCode = code;
-  pendingResumeHostId = hostUserId;
-  pendingResumeData = saved;
-  document.getElementById('resume-as-host').checked = false;
-  const players = buildOrderedPlayers(saved.players || {});
-  const listEl = document.getElementById('resume-who-list');
-  listEl.innerHTML = '';
-  players.forEach(p => {
-    const btn = document.createElement('button');
-    btn.className = 'tool-list-btn';
-    btn.textContent = p.name;
-    btn.onclick = () => finishResume(p.id);
-    listEl.appendChild(btn);
-  });
-  const newBtn = document.createElement('button');
-  newBtn.className = 'tool-list-btn';
-  newBtn.style.marginTop = '0.5rem';
-  newBtn.textContent = "🆕 I'm not on this list (spectating)";
-  newBtn.onclick = () => finishResume(null);
-  listEl.appendChild(newBtn);
-
-  document.getElementById('resume-code-step').style.display = 'none';
-  document.getElementById('resume-who-step').style.display = 'block';
-};
-
-async function finishResume(existingPlayerId) {
-  const restored = JSON.parse(JSON.stringify(pendingResumeData));
-  const originalCode = restored._originalRoomCode || null;
-  if (!originalCode) { showAlert('This save is missing its original room code and cannot be restored.'); return; }
-
-  delete restored.savedAt;
-  delete restored._originalRoomCode;
-  delete restored._hostUserId;
-  delete restored.name;
-  restored.status = 'playing';
-  restored.lastActivity = Date.now();
-
-  // Safety check: don't clobber a room if someone else is already using
-  // this exact code for an unrelated live game (extremely unlikely with a
-  // 4-character code, but cheap to guard against).
-  const existingSnap = await get(ref(db, `rooms/${originalCode}`));
-  if (existingSnap.exists() && existingSnap.val().status !== 'saved') {
-    showAlert('That room code is currently in use by another game. Please try again in a moment.');
-    return;
-  }
-
-  await update(ref(db), { [`rooms/${originalCode}`]: restored });
-
-  const wantsHost = !!document.getElementById('resume-as-host').checked;
-  roomCode = originalCode;
-  if (existingPlayerId) {
-    // Reattach to an existing player record — same seat, color, score, turn position
-    myId = existingPlayerId;
-    myName = restored.players[existingPlayerId]?.name || '';
-    isHost = wantsHost; // can be both: occupying a seat AND running the host menu
-  } else {
-    // Not on the player list — spectating only, host status from the checkbox
-    myId = uid();
-    myName = 'Host';
-    isHost = wantsHost;
-  }
-  saveSession();
-
-  closeResumeOverlay();
-  closeMySavedGames();
-  listenGameState();
-}
-
-// ── MY SAVED GAMES (list, scoped to this device's host ID) ──
-window.openMySavedGames = async function() {
-  if (!requireDb()) return;
-  document.getElementById('my-saves-overlay').classList.add('show');
-  const listEl = document.getElementById('my-saves-list');
-  listEl.innerHTML = '<div style="color:var(--muted); font-size:0.85rem; text-align:center; padding:0.5rem;">Loading…</div>';
-
-  try {
-    const hostUserId = getHostId();
-    const snap = await get(ref(db, `savedGames/${hostUserId}`));
-    if (!snap.exists()) {
-      listEl.innerHTML = '<div style="color:var(--muted); font-size:0.85rem; text-align:center; padding:0.5rem;">No saved games yet.</div>';
-      return;
-    }
-    const saves = snap.val();
-    const codes = Object.keys(saves).sort((a,b) => (saves[b].savedAt||0) - (saves[a].savedAt||0));
-    listEl.innerHTML = '';
-    codes.forEach(code => renderSaveRow(listEl, code, saves[code]));
-  } catch (err) {
-    listEl.innerHTML = '<div style="color:#ff5c5c; font-size:0.85rem; text-align:center; padding:0.5rem;">Could not load saves: ' + (err && err.message ? err.message : err) + '</div>';
-  }
-};
-window.closeMySavedGames = function() {
-  document.getElementById('my-saves-overlay').classList.remove('show');
-};
-
-function renderSaveRow(listEl, code, save) {
-  const row = document.createElement('div');
-  row.className = 'save-row';
-  const dateStr = save.savedAt ? new Date(save.savedAt).toLocaleString() : '';
-  const notesHtml = save.notes ? '<div class="save-row-notes" style="margin-top:0.4rem;padding:0.5rem;border-radius:0.375rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);font-size:0.8rem;color:var(--muted);white-space:pre-wrap;word-break:break-word;">' + escapeHtml(save.notes) + '</div>' : '';
-  row.innerHTML = `
-    <div class="save-row-name">${escapeHtml(save.name || 'Untitled Save')}</div>
-    <div class="save-row-date">${escapeHtml(dateStr)} · code ${escapeHtml(code)}</div>
-    ${notesHtml}
-    <div class="save-row-actions">
-      <button data-act="resume">Resume <span class="play-tri">▶</span></button>
-      <button data-act="rename">✎ Rename</button>
-      <button data-act="delete" class="danger">🗑 Delete</button>
-    </div>
-  `;
-  row.querySelector('[data-act="resume"]').onclick = () => resumeFromList(code, save);
-  row.querySelector('[data-act="rename"]').onclick = () => renameSave(code, save, row);
-  row.querySelector('[data-act="delete"]').onclick = () => deleteSave(code, row);
-  listEl.appendChild(row);
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str == null ? '' : String(str);
-  return div.innerHTML;
-}
-
-async function resumeFromList(code, save) {
-  closeMySavedGames();
-  pendingResumeCode = code;
-  pendingResumeHostId = getHostId();
-  pendingResumeData = save;
-  document.getElementById('resume-as-host').checked = true; // resuming from your own saved list — most likely you're the host
-
-  const players = buildOrderedPlayers(save.players || {});
-  const listEl = document.getElementById('resume-who-list');
-  listEl.innerHTML = '';
-  players.forEach(p => {
-    const btn = document.createElement('button');
-    btn.className = 'tool-list-btn';
-    btn.textContent = p.name;
-    btn.onclick = () => finishResume(p.id);
-    listEl.appendChild(btn);
-  });
-  const newBtn = document.createElement('button');
-  newBtn.className = 'tool-list-btn';
-  newBtn.style.marginTop = '0.5rem';
-  newBtn.textContent = "🆕 I'm not on this list (spectating)";
-  newBtn.onclick = () => finishResume(null);
-  listEl.appendChild(newBtn);
-
-  document.getElementById('resume-code-step').style.display = 'none';
-  document.getElementById('resume-who-step').style.display = 'block';
-  document.getElementById('resume-overlay').classList.add('show');
-}
-
-async function renameSave(code, save, row) {
-  const newName = await showPrompt('Rename this save:', save.name || '');
-  if (newName === null || !newName.trim()) return;
-  try {
-    await update(ref(db, `savedGames/${getHostId()}/${code}`), { name: newName.trim() });
-    row.querySelector('.save-row-name').textContent = newName.trim();
-    save.name = newName.trim();
-  } catch (err) {
-    showAlert('Rename failed: ' + (err && err.message ? err.message : err));
-  }
-}
-
-async function deleteSave(code, row) {
-  if (!await showConfirm('Delete this saved game? This cannot be undone.')) return;
-  try {
-    await remove(ref(db, `savedGames/${getHostId()}/${code}`));
-    await remove(ref(db, `saveCodeIndex/${code}`));
-    row.remove();
-  } catch (err) {
-    showAlert('Delete failed: ' + (err && err.message ? err.message : err));
-  }
-}
-
 
 // ── MY COLLECTION (board game library) ──
 const COLLECTION_CATEGORIES = [
@@ -18960,17 +18581,6 @@ function stopFriendRequestListener() {
   stopFriendProfileListeners();
 }
 
-
-window.openResumeOverlay = function() {
-  document.getElementById('resume-code').value = '';
-  document.getElementById('resume-code-step').style.display = 'block';
-  document.getElementById('resume-who-step').style.display = 'none';
-  status('resume-status', '');
-  document.getElementById('resume-overlay').classList.add('show');
-};
-window.closeResumeOverlay = function() {
-  document.getElementById('resume-overlay').classList.remove('show');
-};
 
 window.confirmLeaveRoom = async function() {
   if (await showConfirm('Leave the Player Lobby?')) leaveRoom();
@@ -20730,7 +20340,6 @@ if ('serviceWorker' in navigator) {
     <button class="host-menu-item" style="width:100%; border-radius:0.625rem; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); openMidGameSettings()">⚙️ Room Settings</button>
     <button class="host-menu-item" style="width:100%; border-radius:0.625rem; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); openToolsOverlay()">🧰 Tools</button>
     <button class="host-menu-item" id="host-crown-endround-btn" style="width:100%; border-radius:0.625rem; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); hostMenuAction('end-round')">🔁 End Round</button>
-    <button class="host-menu-item" style="width:100%; border-radius:0.625rem; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); hostMenuAction('save-game')">💾 Save Game</button>
     <button class="host-menu-item" style="width:100%; border-radius:0.625rem; margin-bottom:0.4rem;" onclick="closeHostCrownMenu(); startNewGameSetup()">🔄 Start New Game</button>
     <button class="host-menu-item danger" style="width:100%; border-radius:0.625rem; margin-bottom:0.75rem;" onclick="closeHostCrownMenu(); hostMenuAction('end-game')">🏆 End Game</button>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeHostCrownMenu()">✕ Close</button>
