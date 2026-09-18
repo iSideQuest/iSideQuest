@@ -5256,9 +5256,10 @@
       <span style="font-size:0.8rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-light);white-space:nowrap;" data-i18n="startHere">Start Here</span>
       <div style="flex:1;height:2px;background:linear-gradient(to left,transparent,var(--accent));border-radius:1px;"></div>
     </div>
-    <div style="display:flex;gap:0.6rem;">
-      <button onclick="openSidekickInfo()" style="flex:1;width:auto;padding:0.55rem 0.5rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.9rem;font-weight:700;cursor:pointer;">SideKick</button>
-      <button onclick="openDonateOverlay()" style="flex:1;width:auto;padding:0.55rem 0.5rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.9rem;font-weight:700;cursor:pointer;" data-i18n="donate">Donate</button>
+    <div style="display:flex;gap:0.5rem;">
+      <button onclick="openSidekickInfo()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">SideKick</button>
+      <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
+      <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
   </div>
 </div>
@@ -6661,6 +6662,15 @@
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeDonateOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
+<div class="tools-overlay" id="contact-overlay">
+  <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
+    <div class="tools-modal-title" data-i18n="contact">Contact</div>
+    <input type="text" id="contact-name" maxlength="40" data-i18n-ph="contactName" placeholder="Your name" style="width:100%;padding:0.6rem 0.75rem;font-size:0.95rem;border-radius:0.625rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.5rem;">
+    <textarea id="contact-message" rows="4" data-i18n-ph="contactMessage" placeholder="Your message" style="width:100%;padding:0.6rem 0.75rem;font-size:0.9rem;border-radius:0.625rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.6rem;resize:vertical;font-family:inherit;"></textarea>
+    <button class="btn-primary btn-sm" style="width:100%;" onclick="sendContactMessage()" data-i18n="send">Send</button>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeContactOverlay()" data-i18n="close">Close</button>
+  </div>
+</div>
 <div class="tools-overlay" id="features-info-overlay">
   <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
     <div class="tools-modal-title" data-i18n="featuresHubTitle">SideKick Features</div>
@@ -7593,6 +7603,10 @@ const I18N_STRINGS = {
     currentlyUsingSidekick: 'You are currently using SideKick',
     learnAboutLegendary: 'Learn About Legendary SideKick',
     donate: 'Donate',
+    contact: 'Contact',
+    contactName: 'Your name',
+    contactMessage: 'Your message',
+    send: 'Send',
     donateMsg: 'If you are truly enjoying what SideKick has to offer and feel like contributing, donations toward development of the app and further development are greatly appreciated.',
     learnMoreFeatures: 'Learn More About SideKick Features',
     featuresHubTitle: 'SideKick Features',
@@ -7757,6 +7771,10 @@ const I18N_STRINGS = {
     currentlyUsingSidekick: 'Actualmente usas SideKick',
     learnAboutLegendary: 'Conoce Legendary SideKick',
     donate: 'Donar',
+    contact: 'Contacto',
+    contactName: 'Tu nombre',
+    contactMessage: 'Tu mensaje',
+    send: 'Enviar',
     donateMsg: 'Si estás disfrutando lo que SideKick ofrece y quieres contribuir, las donaciones para el desarrollo de la app y su desarrollo futuro son muy apreciadas.',
     learnMoreFeatures: 'Más información sobre las funciones',
     featuresHubTitle: 'Funciones de SideKick',
@@ -7922,6 +7940,10 @@ const I18N_STRINGS = {
     currentlyUsingSidekick: '您当前正在使用 SideKick',
     learnAboutLegendary: '了解 Legendary SideKick',
     donate: '捐赠',
+    contact: '联系',
+    contactName: '您的姓名',
+    contactMessage: '您的留言',
+    send: '发送',
     donateMsg: '如果您非常喜欢 SideKick 提供的功能并愿意支持，欢迎为应用的开发和后续开发捐赠，我们将不胜感激。',
     learnMoreFeatures: '了解更多 SideKick 功能',
     featuresHubTitle: 'SideKick 功能',
@@ -8087,6 +8109,10 @@ const I18N_STRINGS = {
     currentlyUsingSidekick: 'Du nutzt gerade SideKick',
     learnAboutLegendary: 'Mehr über Legendary SideKick',
     donate: 'Spenden',
+    contact: 'Kontakt',
+    contactName: 'Dein Name',
+    contactMessage: 'Deine Nachricht',
+    send: 'Senden',
     donateMsg: 'Wenn dir gefällt, was SideKick bietet, und du beitragen möchtest, sind Spenden für die Entwicklung der App und ihre Weiterentwicklung sehr willkommen.',
     learnMoreFeatures: 'Mehr über SideKick-Funktionen',
     featuresHubTitle: 'SideKick-Funktionen',
@@ -8252,6 +8278,10 @@ const I18N_STRINGS = {
     currentlyUsingSidekick: 'Vous utilisez actuellement SideKick',
     learnAboutLegendary: 'Découvrir Legendary SideKick',
     donate: 'Faire un don',
+    contact: 'Contact',
+    contactName: 'Votre nom',
+    contactMessage: 'Votre message',
+    send: 'Envoyer',
     donateMsg: 'Si vous appréciez vraiment ce que SideKick offre et souhaitez contribuer, les dons pour le développement de l’app et son évolution sont grandement appréciés.',
     learnMoreFeatures: 'En savoir plus sur les fonctionnalités',
     featuresHubTitle: 'Fonctionnalités SideKick',
@@ -8417,6 +8447,10 @@ const I18N_STRINGS = {
     currentlyUsingSidekick: '現在SideKickを使用中',
     learnAboutLegendary: 'Legendary SideKickについて',
     donate: '寄付する',
+    contact: 'お問い合わせ',
+    contactName: 'お名前',
+    contactMessage: 'メッセージ',
+    send: '送信',
     donateMsg: 'SideKickをお楽しみいただけているなら、アプリの開発と今後の発展のためのご寄付をいただけると幸いです。',
     learnMoreFeatures: 'SideKickの機能をもっと知る',
     featuresHubTitle: 'SideKickの機能',
@@ -8582,6 +8616,10 @@ const I18N_STRINGS = {
     currentlyUsingSidekick: 'Stai usando SideKick',
     learnAboutLegendary: 'Scopri Legendary SideKick',
     donate: 'Dona',
+    contact: 'Contatto',
+    contactName: 'Il tuo nome',
+    contactMessage: 'Il tuo messaggio',
+    send: 'Invia',
     donateMsg: 'Se stai apprezzando ciò che SideKick offre e vuoi contribuire, le donazioni per lo sviluppo dell’app e il suo sviluppo futuro sono molto gradite.',
     learnMoreFeatures: 'Scopri le funzioni di SideKick',
     featuresHubTitle: 'Funzioni di SideKick',
@@ -8747,6 +8785,10 @@ const I18N_STRINGS = {
     currentlyUsingSidekick: 'Você está usando o SideKick',
     learnAboutLegendary: 'Conheça o Legendary SideKick',
     donate: 'Doar',
+    contact: 'Contato',
+    contactName: 'Seu nome',
+    contactMessage: 'Sua mensagem',
+    send: 'Enviar',
     donateMsg: 'Se você está gostando do que o SideKick oferece e quer contribuir, doações para o desenvolvimento do app são muito bem-vindas.',
     learnMoreFeatures: 'Saiba mais sobre os recursos',
     featuresHubTitle: 'Recursos do SideKick',
@@ -9528,6 +9570,21 @@ window.openDonateOverlay = function() {
 };
 window.closeDonateOverlay = function() {
   document.getElementById('donate-overlay').classList.remove('show');
+};
+window.openContactOverlay = function() {
+  document.getElementById('contact-overlay').classList.add('show');
+  haptic(5);
+};
+window.closeContactOverlay = function() {
+  document.getElementById('contact-overlay').classList.remove('show');
+};
+window.sendContactMessage = function() {
+  const name = (document.getElementById('contact-name').value || '').trim();
+  const msg = (document.getElementById('contact-message').value || '').trim();
+  if (!msg) { showToast('Please write a message first', true); return; }
+  const subject = encodeURIComponent('SideKick feedback from ' + (name || 'a player'));
+  const body = encodeURIComponent((name ? 'Name: ' + name + '\n\n' : '') + msg);
+  window.location.href = 'mailto:iSideQuestContact@gmail.com?subject=' + subject + '&body=' + body;
 };
 window.openFeaturesInfo = function() {
   document.getElementById('features-info-overlay').classList.add('show');
@@ -11176,7 +11233,8 @@ const KB_OVERLAY_IDS = ['collection-search', 'collection-db-input',
   'game-notes-textarea', 'friends-add-input', 'st-name-input',
   'rng-min', 'rng-max', 'cd-min', 'cd-sec', 'picker-names',
   'picker-pick-count', 'picker-team-count', 'poison-hp-input',
-  'app-dialog-input', 'timer-countdown-min', 'timer-countdown-sec'];
+  'app-dialog-input', 'timer-countdown-min', 'timer-countdown-sec',
+  'contact-name', 'contact-message'];
 const KB_DYNAMIC_PREFIXES = ['st-amt-'];
 const CUSTOM_KB_KEY = 'sk_custom_kb';
 let kbShift = false;
