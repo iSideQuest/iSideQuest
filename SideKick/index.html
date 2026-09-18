@@ -11259,7 +11259,6 @@ const KB_NUM_PREFIXES = ['vp-score-'];
 const CUSTOM_KB_KEY = 'sk_custom_kb';
 let kbShift = false;
 let kbSyms = false;
-let kbNumAlpha = false;
 let kbActiveInput = null;
 let kbActiveCtx = null;
 const KB_ALPHA_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
@@ -11407,23 +11406,18 @@ function kbIsNumField() {
   if (KB_NUM_IDS.indexOf(kbActiveInput.id) !== -1) return true;
   return KB_NUM_PREFIXES.some((p) => kbActiveInput.id.indexOf(p) === 0);
 }
-function kbNumAlphaToggle() {
-  kbNumAlpha = true;
-  renderKb();
-  haptic(5);
-}
 function renderKb() {
   [['create'], ['join'], ['overlay']].forEach(([ctx]) => {
     const box = document.getElementById(ctx + '-kb');
     if (!box) return;
     let html = '';
-    if (!kbSyms && !kbNumAlpha && kbIsNumField()) {
+    if (!kbSyms && kbIsNumField()) {
       // Number layout for room-code / score fields: same 4-row space as alpha
       const digits = '123456789';
       html += '<div class="custom-kb-row">' + digits.slice(0, 3).split('').map((ch) => kbKeyHTML(ch, ch)).join('') + '</div>';
       html += '<div class="custom-kb-row">' + digits.slice(3, 6).split('').map((ch) => kbKeyHTML(ch, ch)).join('') + '</div>';
       html += '<div class="custom-kb-row">' + digits.slice(6, 9).split('').map((ch) => kbKeyHTML(ch, ch)).join('') + '</div>';
-      html += '<div class="custom-kb-row">' + kbActHTML('ABC', 'numalpha', 'kb-wide') + kbKeyHTML('0', '0', 'kb-wide') + kbActHTML('⌫', 'back', 'kb-wide') + kbActHTML('Done', 'done', 'kb-wide') + '</div>';
+      html += '<div class="custom-kb-row">' + kbActHTML('⌫', 'back') + kbKeyHTML('0', '0') + kbActHTML('Done', 'done') + '</div>';
     } else if (!kbSyms) {
       html += '<div class="custom-kb-row">' + KB_ALPHA_ROWS[0].split('').map((ch) => kbKeyHTML(kbShift ? ch.toUpperCase() : ch, ch)).join('') + '</div>';
       html += '<div class="custom-kb-row">' + KB_ALPHA_ROWS[1].split('').map((ch) => kbKeyHTML(kbShift ? ch.toUpperCase() : ch, ch)).join('') + '</div>';
@@ -11454,7 +11448,6 @@ function renderKb() {
         ev.preventDefault();
         if (a === 'shift') kbShiftToggle();
         else if (a === 'syms') kbSymsToggle();
-        else if (a === 'numalpha') kbNumAlphaToggle();
         else if (a === 'done') kbDone();
       });
     });
@@ -11591,7 +11584,6 @@ document.addEventListener('focusin', (e) => {
   // Auto-caps like a native keyboard: shift on for a fresh field
   kbShift = (el.id !== 'join-code' && el.value.length === 0);
   kbSyms = false;
-  kbNumAlpha = false;
   renderKb();
   showKb(ctx);
   setTimeout(kbCaretUpdate, 60);
