@@ -6417,10 +6417,38 @@
     <div id="ce-mechanics" class="collection-chip-row" style="margin-bottom:0.6rem;"></div>
 
     <textarea id="ce-notes" placeholder="Notes (optional)" rows="2" style="margin-bottom:0.6rem;"></textarea>
+    <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.3rem;">Photo (only visible to you)</div>
+    <div id="ce-photo-preview-wrap" style="display:none;text-align:center;margin-bottom:0.5rem;">
+      <img id="ce-photo-preview" alt="" style="width:7rem;height:7rem;object-fit:cover;border-radius:0.75rem;border:1px solid var(--border);">
+      <div><button type="button" class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="removeCollectionPhoto()">Remove Photo</button></div>
+    </div>
+    <div style="display:flex;gap:0.5rem;margin-bottom:0.6rem;">
+      <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="document.getElementById('ce-photo-camera').click()">📷 Camera</button>
+      <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="document.getElementById('ce-photo-file').click()">🖼️ Gallery</button>
+    </div>
+    <input type="file" id="ce-photo-camera" accept="image/*" capture="environment" style="display:none;" onchange="handleCollectionPhotoFile(this)">
+    <input type="file" id="ce-photo-file" accept="image/*" style="display:none;" onchange="handleCollectionPhotoFile(this)">
     <div id="collection-edit-error" style="display:none;color:#ff5c5c;font-size:0.8rem;text-align:center;margin-bottom:0.4rem;"></div>
 
     <button class="btn-primary" style="width:100%;" onclick="saveCollectionGame()">Save Game</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.5rem;" onclick="closeCollectionEdit()">Cancel</button>
+  </div>
+</div>
+
+<!-- COLLECTION PHOTO CROP -->
+<div class="tools-overlay" id="collection-photo-overlay">
+  <div class="tools-modal" style="text-align:center;">
+    <div class="tools-modal-title">Adjust Photo</div>
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.5rem;">Drag to position · + / − to zoom</div>
+    <canvas id="collection-photo-canvas" width="480" height="480" style="width:min(20rem,80vw);height:min(20rem,80vw);border-radius:0.75rem;border:1px solid var(--border);touch-action:none;"></canvas>
+    <div style="display:flex;gap:0.5rem;margin-top:0.6rem;">
+      <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="collectionPhotoZoom(-1)">−</button>
+      <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="collectionPhotoZoom(1)">+</button>
+    </div>
+    <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+      <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="closeCollectionPhoto()">Retake</button>
+      <button type="button" class="btn-primary btn-sm" style="flex:1;" onclick="confirmCollectionPhoto()">Use Photo</button>
+    </div>
   </div>
 </div>
 
@@ -17797,9 +17825,11 @@ window.renderCollection = function() {
   });
 };
 
-function buildCollectionGameRow(game) {
+function buildCollectionGameRow(game, opts) {
   const row = document.createElement('div');
   row.className = 'collection-game';
+  // opts.photos === false renders text-only (for the future friend view)
+  const showPhoto = !opts || opts.photos !== false;
   const metaBits = [];
   if (game.minPlayers && game.maxPlayers) metaBits.push('👥 ' + game.minPlayers + '–' + game.maxPlayers + ' players');
   if (game.playTime) metaBits.push('⏱ ' + game.playTime);
@@ -17813,7 +17843,9 @@ function buildCollectionGameRow(game) {
   }).join('');
   const tagsHtml = (catLabels || mechLabels) ? '<div class="collection-game-tags">' + catLabels + mechLabels + '</div>' : '';
   const notesHtml = game.notes ? '<div style="font-size:0.72rem;color:var(--muted);margin-top:0.3rem;">' + escapeHtml(game.notes) + '</div>' : '';
+  const photoHtml = (showPhoto && game.photo) ? '<img src="' + game.photo + '" alt="" style="width:3.5rem;height:3.5rem;object-fit:cover;border-radius:0.5rem;margin-bottom:0.4rem;">' : '';
   row.innerHTML =
+    photoHtml +
     '<div class="collection-game-name">' + escapeHtml(game.name || 'Untitled') + '</div>' +
     (metaBits.length ? '<div class="collection-game-meta">' + metaBits.join(' · ') + '</div>' : '') +
     tagsHtml + notesHtml +
@@ -17836,10 +17868,17 @@ window.openCollectionEdit = function(id) {
   document.getElementById('collection-edit-error').style.display = 'none';
   collectionEditCats = new Set(game ? (game.categories || []) : []);
   collectionEditMechs = new Set(game ? (game.mechanics || []) : []);
+  collectionPhotoDataUrl = game && game.photo ? game.photo : '';
+  updateCollectionPhotoPreview();
+  const camEl = document.getElementById('ce-photo-camera');
+  if (camEl) camEl.value = '';
+  const galEl = document.getElementById('ce-photo-file');
+  if (galEl) galEl.value = '';
   renderCollectionEditChips();
   document.getElementById('collection-edit-overlay').classList.add('show');
 };
 window.closeCollectionEdit = function() {
+  closeCollectionPhoto();
   document.getElementById('collection-edit-overlay').classList.remove('show');
   document.getElementById('collection-db-search').style.display = 'none';
   document.getElementById('collection-main-menu').style.display = '';
@@ -17887,7 +17926,8 @@ window.saveCollectionGame = async function() {
     playTime: (document.getElementById('ce-time').value || '').trim(),
     notes: (document.getElementById('ce-notes').value || '').trim(),
     categories: [...collectionEditCats],
-    mechanics: [...collectionEditMechs]
+    mechanics: [...collectionEditMechs],
+    ...(collectionPhotoDataUrl ? { photo: collectionPhotoDataUrl } : {})
   };
   if (collectionEditingId) {
     const idx = collectionGames.findIndex(g => g.id === collectionEditingId);
@@ -17932,6 +17972,115 @@ document.getElementById('invite-friends-overlay').addEventListener('click', func
 document.getElementById('collection-edit-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeCollectionEdit();
 });
+
+// ── COLLECTION PHOTO (camera/gallery + square crop, owner-visible only) ──
+let collectionPhotoDataUrl = '';
+let collectionPhotoImg = null;
+let collectionPhotoZoomF = 1;
+let collectionPhotoPan = { x: 0, y: 0 };
+let collectionPhotoDrag = null;
+
+window.handleCollectionPhotoFile = function(input) {
+  const file = input && input.files && input.files[0];
+  if (input) input.value = '';
+  if (!file) return;
+  if (!file.type || file.type.indexOf('image/') !== 0) { showAlert('Please choose an image file.'); return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      // Cap source at 1600px so phone photos don't blow up memory
+      const maxDim = Math.max(img.width, img.height);
+      if (maxDim > 1600) {
+        const c = document.createElement('canvas');
+        const k = 1600 / maxDim;
+        c.width = Math.round(img.width * k);
+        c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        const small = new Image();
+        small.onload = () => openCollectionPhoto(small);
+        small.onerror = () => showAlert('Could not read that photo.');
+        small.src = c.toDataURL('image/jpeg', 0.85);
+        return;
+      }
+      openCollectionPhoto(img);
+    };
+    img.onerror = () => showAlert('Could not read that photo.');
+    img.src = reader.result;
+  };
+  reader.onerror = () => showAlert('Could not read that photo.');
+  reader.readAsDataURL(file);
+};
+
+function openCollectionPhoto(img) {
+  collectionPhotoImg = img;
+  collectionPhotoZoomF = 1;
+  collectionPhotoPan = { x: 0, y: 0 };
+  drawCollectionPhoto();
+  document.getElementById('collection-photo-overlay').classList.add('show');
+}
+window.closeCollectionPhoto = function() {
+  document.getElementById('collection-photo-overlay').classList.remove('show');
+  collectionPhotoDrag = null;
+};
+window.collectionPhotoZoom = function(dir) {
+  collectionPhotoZoomF = Math.min(4, Math.max(1, collectionPhotoZoomF * (dir > 0 ? 1.25 : 0.8)));
+  drawCollectionPhoto();
+};
+function drawCollectionPhoto() {
+  const canvas = document.getElementById('collection-photo-canvas');
+  if (!canvas || !collectionPhotoImg) return;
+  const ctx = canvas.getContext('2d');
+  const S = canvas.width;
+  const img = collectionPhotoImg;
+  const base = Math.max(S / img.width, S / img.height) * collectionPhotoZoomF;
+  const dw = img.width * base, dh = img.height * base;
+  // Clamp pan so the square never shows empty space
+  const maxX = Math.max(0, (dw - S) / 2), maxY = Math.max(0, (dh - S) / 2);
+  collectionPhotoPan.x = Math.min(maxX, Math.max(-maxX, collectionPhotoPan.x));
+  collectionPhotoPan.y = Math.min(maxY, Math.max(-maxY, collectionPhotoPan.y));
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, S, S);
+  ctx.drawImage(img, S / 2 - dw / 2 + collectionPhotoPan.x, S / 2 - dh / 2 + collectionPhotoPan.y, dw, dh);
+}
+window.confirmCollectionPhoto = function() {
+  const canvas = document.getElementById('collection-photo-canvas');
+  if (!canvas || !collectionPhotoImg) return;
+  collectionPhotoDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+  updateCollectionPhotoPreview();
+  closeCollectionPhoto();
+};
+window.removeCollectionPhoto = function() {
+  collectionPhotoDataUrl = '';
+  updateCollectionPhotoPreview();
+};
+function updateCollectionPhotoPreview() {
+  const wrap = document.getElementById('ce-photo-preview-wrap');
+  const img = document.getElementById('ce-photo-preview');
+  if (!wrap || !img) return;
+  if (collectionPhotoDataUrl) { img.src = collectionPhotoDataUrl; wrap.style.display = 'block'; }
+  else { img.removeAttribute('src'); wrap.style.display = 'none'; }
+}
+// Drag-to-pan on the crop canvas (mouse + touch via pointer events)
+(function initCollectionPhotoDrag() {
+  const canvas = document.getElementById('collection-photo-canvas');
+  if (!canvas) return;
+  canvas.addEventListener('pointerdown', (e) => {
+    collectionPhotoDrag = { x: e.clientX, y: e.clientY, px: collectionPhotoPan.x, py: collectionPhotoPan.y };
+    try { canvas.setPointerCapture(e.pointerId); } catch {}
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!collectionPhotoDrag) return;
+    const r = canvas.getBoundingClientRect();
+    const k = canvas.width / r.width;
+    collectionPhotoPan.x = collectionPhotoDrag.px + (e.clientX - collectionPhotoDrag.x) * k;
+    collectionPhotoPan.y = collectionPhotoDrag.py + (e.clientY - collectionPhotoDrag.y) * k;
+    drawCollectionPhoto();
+  });
+  const end = () => { collectionPhotoDrag = null; };
+  canvas.addEventListener('pointerup', end);
+  canvas.addEventListener('pointercancel', end);
+})();
 
 
 // ── FRIENDS SYSTEM ────────────────────────────────────
