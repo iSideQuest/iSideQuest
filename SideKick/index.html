@@ -6435,16 +6435,21 @@
   </div>
 </div>
 
+<!-- FRIEND PROFILE (read-only: card + awards + text-only collection) -->
+<div class="tools-overlay" id="friend-profile-overlay">
+  <div class="tools-modal" style="max-height:85vh; overflow-y:auto; text-align:center;">
+    <div id="friend-profile-body"></div>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeFriendProfile()" data-i18n="close">Close</button>
+  </div>
+</div>
+
 <!-- COLLECTION PHOTO CROP -->
 <div class="tools-overlay" id="collection-photo-overlay">
   <div class="tools-modal" style="text-align:center;">
     <div class="tools-modal-title">Adjust Photo</div>
-    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.5rem;">Drag to position · + / − to zoom</div>
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.5rem;">Drag the edges to frame your photo</div>
     <canvas id="collection-photo-canvas" width="480" height="480" style="width:min(20rem,80vw);height:min(20rem,80vw);border-radius:0.75rem;border:1px solid var(--border);touch-action:none;"></canvas>
-    <div style="display:flex;gap:0.5rem;margin-top:0.6rem;">
-      <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="collectionPhotoZoom(-1)">−</button>
-      <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="collectionPhotoZoom(1)">+</button>
-    </div>
+    <div style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem;">Drag the edges to resize · drag inside to move</div>
     <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
       <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="closeCollectionPhoto()">Retake</button>
       <button type="button" class="btn-primary btn-sm" style="flex:1;" onclick="confirmCollectionPhoto()">Use Photo</button>
@@ -9455,6 +9460,7 @@ async function syncProfileFromFirebase() {
     if (profile.hostedCount != null) localStorage.setItem('sk_hosted_count', String(profile.hostedCount));
     if (profile.roomsCount != null) localStorage.setItem('sk_rooms_count', String(profile.roomsCount));
     if (profile.awards) localStorage.setItem('sk_awards_' + uid, JSON.stringify(profile.awards));
+    if (profile.title != null) localStorage.setItem('sk_title_' + uid, profile.title || '');
     // Theme: use timestamp to decide which is newer (local vs Firebase)
     const localTs = parseInt(localStorage.getItem('sk_theme_ts') || '0', 10);
     const firebaseTs = profile.themeTs || 0;
@@ -17830,6 +17836,7 @@ function buildCollectionGameRow(game, opts) {
   row.className = 'collection-game';
   // opts.photos === false renders text-only (for the future friend view)
   const showPhoto = !opts || opts.photos !== false;
+  const readOnly = !!(opts && opts.readonly);
   const metaBits = [];
   if (game.minPlayers && game.maxPlayers) metaBits.push('👥 ' + game.minPlayers + '–' + game.maxPlayers + ' players');
   if (game.playTime) metaBits.push('⏱ ' + game.playTime);
@@ -17849,10 +17856,11 @@ function buildCollectionGameRow(game, opts) {
     '<div class="collection-game-name">' + escapeHtml(game.name || 'Untitled') + '</div>' +
     (metaBits.length ? '<div class="collection-game-meta">' + metaBits.join(' · ') + '</div>' : '') +
     tagsHtml + notesHtml +
+    (readOnly ? '' :
     '<div class="collection-game-actions">' +
       '<button onclick="openCollectionEdit(\'' + game.id + '\')">✎ Edit</button>' +
       '<button class="danger" onclick="deleteCollectionGame(\'' + game.id + '\')">🗑 Delete</button>' +
-    '</div>';
+    '</div>');
   return row;
 }
 
@@ -17976,8 +17984,7 @@ document.getElementById('collection-edit-overlay').addEventListener('click', fun
 // ── COLLECTION PHOTO (camera/gallery + square crop, owner-visible only) ──
 let collectionPhotoDataUrl = '';
 let collectionPhotoImg = null;
-let collectionPhotoZoomF = 1;
-let collectionPhotoPan = { x: 0, y: 0 };
+let collectionPhotoCrop = { x: 0, y: 0, w: 0, h: 0 };
 let collectionPhotoDrag = null;
 
 window.handleCollectionPhotoFile = function(input) {
@@ -18014,39 +18021,63 @@ window.handleCollectionPhotoFile = function(input) {
 
 function openCollectionPhoto(img) {
   collectionPhotoImg = img;
-  collectionPhotoZoomF = 1;
-  collectionPhotoPan = { x: 0, y: 0 };
+  // Start with a centered square covering the smaller side
+  const side = Math.min(img.width, img.height);
+  collectionPhotoCrop = {
+    x: Math.round((img.width - side) / 2),
+    y: Math.round((img.height - side) / 2),
+    w: side, h: side
+  };
   drawCollectionPhoto();
   document.getElementById('collection-photo-overlay').classList.add('show');
+}
+// Map between image pixels and canvas pixels (image is contain-fit)
+function collectionPhotoView() {
+  const S = 480;
+  const img = collectionPhotoImg;
+  const k = S / Math.max(img.width, img.height);
+  return { S, k, dw: img.width * k, dh: img.height * k, ox: (S - img.width * k) / 2, oy: (S - img.height * k) / 2 };
 }
 window.closeCollectionPhoto = function() {
   document.getElementById('collection-photo-overlay').classList.remove('show');
   collectionPhotoDrag = null;
 };
-window.collectionPhotoZoom = function(dir) {
-  collectionPhotoZoomF = Math.min(4, Math.max(1, collectionPhotoZoomF * (dir > 0 ? 1.25 : 0.8)));
-  drawCollectionPhoto();
-};
 function drawCollectionPhoto() {
   const canvas = document.getElementById('collection-photo-canvas');
   if (!canvas || !collectionPhotoImg) return;
   const ctx = canvas.getContext('2d');
-  const S = canvas.width;
+  const v = collectionPhotoView();
   const img = collectionPhotoImg;
-  const base = Math.max(S / img.width, S / img.height) * collectionPhotoZoomF;
-  const dw = img.width * base, dh = img.height * base;
-  // Clamp pan so the square never shows empty space
-  const maxX = Math.max(0, (dw - S) / 2), maxY = Math.max(0, (dh - S) / 2);
-  collectionPhotoPan.x = Math.min(maxX, Math.max(-maxX, collectionPhotoPan.x));
-  collectionPhotoPan.y = Math.min(maxY, Math.max(-maxY, collectionPhotoPan.y));
   ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, S, S);
-  ctx.drawImage(img, S / 2 - dw / 2 + collectionPhotoPan.x, S / 2 - dh / 2 + collectionPhotoPan.y, dw, dh);
+  ctx.fillRect(0, 0, v.S, v.S);
+  ctx.drawImage(img, v.ox, v.oy, v.dw, v.dh);
+  const r = collectionPhotoCrop;
+  const rx = v.ox + r.x * v.k, ry = v.oy + r.y * v.k, rw = r.w * v.k, rh = r.h * v.k;
+  // Dim everything outside the crop
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillRect(0, 0, v.S, ry);
+  ctx.fillRect(0, ry + rh, v.S, v.S - ry - rh);
+  ctx.fillRect(0, ry, rx, rh);
+  ctx.fillRect(rx + rw, ry, v.S - rx - rw, rh);
+  // Crop outline + edge/corner handles
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(rx, ry, rw, rh);
+  ctx.fillStyle = '#fff';
+  [[rx, ry], [rx + rw / 2, ry], [rx + rw, ry],
+   [rx, ry + rh / 2], [rx + rw, ry + rh / 2],
+   [rx, ry + rh], [rx + rw / 2, ry + rh], [rx + rw, ry + rh]
+  ].forEach(([hx, hy]) => { ctx.beginPath(); ctx.arc(hx, hy, 9, 0, Math.PI * 2); ctx.fill(); });
 }
 window.confirmCollectionPhoto = function() {
-  const canvas = document.getElementById('collection-photo-canvas');
-  if (!canvas || !collectionPhotoImg) return;
-  collectionPhotoDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+  if (!collectionPhotoImg) return;
+  const r = collectionPhotoCrop;
+  const k = Math.min(1, 640 / Math.max(r.w, r.h));
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(r.w * k));
+  c.height = Math.max(1, Math.round(r.h * k));
+  c.getContext('2d').drawImage(collectionPhotoImg, r.x, r.y, r.w, r.h, 0, 0, c.width, c.height);
+  collectionPhotoDataUrl = c.toDataURL('image/jpeg', 0.85);
   updateCollectionPhotoPreview();
   closeCollectionPhoto();
 };
@@ -18061,20 +18092,79 @@ function updateCollectionPhotoPreview() {
   if (collectionPhotoDataUrl) { img.src = collectionPhotoDataUrl; wrap.style.display = 'block'; }
   else { img.removeAttribute('src'); wrap.style.display = 'none'; }
 }
-// Drag-to-pan on the crop canvas (mouse + touch via pointer events)
+// Drag edges/corners to resize, drag inside to move (mouse + touch)
 (function initCollectionPhotoDrag() {
   const canvas = document.getElementById('collection-photo-canvas');
   if (!canvas) return;
+  const pos = (e) => {
+    const r = canvas.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * (canvas.width / r.width), y: (e.clientY - r.top) * (canvas.height / r.height) };
+  };
+  const rectCanvas = () => {
+    const v = collectionPhotoView();
+    const r = collectionPhotoCrop;
+    return { x: v.ox + r.x * v.k, y: v.oy + r.y * v.k, w: r.w * v.k, h: r.h * v.k };
+  };
+  const hitHandle = (p) => {
+    const rc = rectCanvas();
+    const pts = [
+      ['nw', rc.x, rc.y], ['n', rc.x + rc.w / 2, rc.y], ['ne', rc.x + rc.w, rc.y],
+      ['w', rc.x, rc.y + rc.h / 2], ['e', rc.x + rc.w, rc.y + rc.h / 2],
+      ['sw', rc.x, rc.y + rc.h], ['s', rc.x + rc.w / 2, rc.y + rc.h], ['se', rc.x + rc.w, rc.y + rc.h]
+    ];
+    for (const [mode, hx, hy] of pts) {
+      if (Math.abs(p.x - hx) <= 18 && Math.abs(p.y - hy) <= 18) return mode;
+    }
+    if (p.x >= rc.x && p.x <= rc.x + rc.w && p.y >= rc.y && p.y <= rc.y + rc.h) return 'move';
+    return null;
+  };
+  const CURSORS = { move: 'move', e: 'ew-resize', w: 'ew-resize', n: 'ns-resize', s: 'ns-resize', ne: 'nesw-resize', sw: 'nesw-resize', nw: 'nwse-resize', se: 'nwse-resize' };
   canvas.addEventListener('pointerdown', (e) => {
-    collectionPhotoDrag = { x: e.clientX, y: e.clientY, px: collectionPhotoPan.x, py: collectionPhotoPan.y };
+    if (!collectionPhotoImg) return;
+    const p = pos(e);
+    const mode = hitHandle(p);
+    if (!mode) return;
+    e.preventDefault();
+    const v = collectionPhotoView();
+    const ix = (p.x - v.ox) / v.k, iy = (p.y - v.oy) / v.k;
+    const r = collectionPhotoCrop;
+    collectionPhotoDrag = { mode, gx: ix - r.x, gy: iy - r.y };
     try { canvas.setPointerCapture(e.pointerId); } catch {}
   });
   canvas.addEventListener('pointermove', (e) => {
-    if (!collectionPhotoDrag) return;
-    const r = canvas.getBoundingClientRect();
-    const k = canvas.width / r.width;
-    collectionPhotoPan.x = collectionPhotoDrag.px + (e.clientX - collectionPhotoDrag.x) * k;
-    collectionPhotoPan.y = collectionPhotoDrag.py + (e.clientY - collectionPhotoDrag.y) * k;
+    if (!collectionPhotoImg) return;
+    const p = pos(e);
+    if (!collectionPhotoDrag) {
+      const mode = hitHandle(p);
+      canvas.style.cursor = (mode && CURSORS[mode]) || 'default';
+      return;
+    }
+    const v = collectionPhotoView();
+    const img = collectionPhotoImg;
+    const ix = (p.x - v.ox) / v.k, iy = (p.y - v.oy) / v.k;
+    const r = collectionPhotoCrop;
+    const MIN = 40;
+    const m = collectionPhotoDrag.mode;
+    const hasE = m === 'e' || m === 'ne' || m === 'se';
+    const hasS = m === 's' || m === 'se' || m === 'sw';
+    const hasW = m === 'w' || m === 'nw' || m === 'sw';
+    const hasN = m === 'n' || m === 'ne' || m === 'nw';
+    if (hasE) r.w = Math.min(img.width - r.x, Math.max(MIN, ix - r.x));
+    if (hasS) r.h = Math.min(img.height - r.y, Math.max(MIN, iy - r.y));
+    if (hasW) {
+      const nx = Math.min(Math.max(0, ix), r.x + r.w - MIN);
+      r.w += r.x - nx; r.x = nx;
+    }
+    if (hasN) {
+      const ny = Math.min(Math.max(0, iy), r.y + r.h - MIN);
+      r.h += r.y - ny; r.y = ny;
+    }
+    if (m === 'move') {
+      r.x = Math.min(Math.max(0, ix - collectionPhotoDrag.gx), img.width - r.w);
+      r.y = Math.min(Math.max(0, iy - collectionPhotoDrag.gy), img.height - r.h);
+    }
+    // Round to whole pixels and repaint
+    r.x = Math.round(r.x); r.y = Math.round(r.y); r.w = Math.round(r.w); r.h = Math.round(r.h);
     drawCollectionPhoto();
   });
   const end = () => { collectionPhotoDrag = null; };
@@ -18301,8 +18391,8 @@ function renderFriendsList() {
       : `<button class="btn-primary btn-sm" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="inviteFriendToRoom('${uid}')">${t('inviteToRoom')}</button>`)
       : '';
     el.innerHTML += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
-      <div style="font-size:1.4rem;flex-shrink:0;width:2rem;text-align:center;">${avatarHTML(avatar, 28)}</div>
-      <div style="flex:1;min-width:0;">
+      <div style="font-size:1.4rem;flex-shrink:0;width:2rem;text-align:center;cursor:pointer;" onclick="openFriendProfile('${uid}')">${avatarHTML(avatar, 28)}</div>
+      <div style="flex:1;min-width:0;cursor:pointer;" onclick="openFriendProfile('${uid}')">
         <div style="font-weight:700;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(name)}</div>
       </div>
       ${inviteBtn}
@@ -18342,6 +18432,65 @@ function renderPendingRequests() {
       <button class="btn-secondary btn-sm" style="padding:0.3rem 0.8rem;font-size:0.8rem;color:#ff5c5c;" onclick="declineFriend('${uid}')">✗ ${t('decline')}</button>
     </div>`;
   });
+}
+
+window.openFriendProfile = async function(uid) {
+  if (!db || !currentUser || !uid) return;
+  const body = document.getElementById('friend-profile-body');
+  if (body) body.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;padding:1rem;">Loading…</div>';
+  document.getElementById('friend-profile-overlay').classList.add('show');
+  try {
+    const snap = await get(ref(db, `users/${uid}`));
+    if (!snap.exists()) {
+      if (body) body.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;padding:1rem;">Could not load this profile.</div>';
+      return;
+    }
+    renderFriendProfile(uid, snap.val() || {});
+  } catch (e) {
+    if (body) body.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;padding:1rem;">Could not load this profile.</div>';
+  }
+};
+window.closeFriendProfile = function() {
+  document.getElementById('friend-profile-overlay').classList.remove('show');
+};
+function renderFriendProfile(uid, data) {
+  const body = document.getElementById('friend-profile-body');
+  if (!body) return;
+  const name = data.preferredName || localStorage.getItem('sk_preferred_name_' + uid) || 'Player';
+  const avatar = data.avatar || localStorage.getItem('sk_avatar_' + uid) || '👤';
+  const title = data.title || '';
+  let html = '<div style="font-size:3rem;line-height:1;">' + avatarHTML(avatar, 64) + '</div>';
+  html += '<div style="font-size:1.2rem;font-weight:900;color:var(--text);margin-top:0.3rem;">' + escapeHtml(name) + '</div>';
+  if (title) html += '<div style="display:inline-block;margin-top:0.35rem;padding:0.25rem 0.8rem;border-radius:1rem;background:rgba(124,92,191,0.25);border:1px solid var(--accent);font-size:0.8rem;font-weight:800;color:var(--text);">' + escapeHtml(title) + '</div>';
+  // Awards — only when the friend leaves them visible
+  if (data.showAwards !== 'no') {
+    const awards = Array.isArray(data.awards) ? data.awards : [];
+    html += '<div style="font-size:0.85rem;font-weight:800;color:var(--text);margin:1rem 0 0.4rem;">🏆 Awards</div>';
+    if (!awards.length) {
+      html += '<div style="font-size:0.8rem;color:var(--muted);">No awards yet.</div>';
+    } else {
+      awards.slice().reverse().forEach(a => {
+        const dateStr = a.date ? new Date(a.date).toLocaleDateString() : '';
+        html += '<div style="display:flex;align-items:center;gap:0.6rem;padding:0.4rem 0;border-bottom:1px solid var(--border);text-align:left;">' +
+          '<div style="font-size:1.5rem;flex-shrink:0;">' + (a.trophy || '🏆') + '</div>' +
+          '<div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.85rem;">' + escapeHtml(a.category || 'Award') + '</div>' +
+          (a.stat ? '<div style="font-size:0.75rem;color:var(--muted);">' + escapeHtml(a.stat) + '</div>' : '') + '</div>' +
+          (dateStr ? '<div style="font-size:0.72rem;color:var(--muted);flex-shrink:0;">' + escapeHtml(dateStr) + '</div>' : '') + '</div>';
+      });
+    }
+  }
+  // Collection — text only, never photos
+  const collObj = data.collection && typeof data.collection === 'object' ? data.collection : {};
+  const coll = Object.keys(collObj).map(k => Object.assign({ id: k }, collObj[k]));
+  html += '<div style="font-size:0.85rem;font-weight:800;color:var(--text);margin:1rem 0 0.4rem;">🎲 Collection (' + coll.length + ')</div>';
+  if (!coll.length) {
+    html += '<div style="font-size:0.8rem;color:var(--muted);">No games in collection.</div>';
+  } else {
+    html += '<div id="friend-collection-list" style="text-align:left;"></div>';
+  }
+  body.innerHTML = html;
+  const listEl = document.getElementById('friend-collection-list');
+  if (listEl) coll.forEach(g => listEl.appendChild(buildCollectionGameRow(g, { photos: false, readonly: true })));
 }
 
 window.addFriendByCode = async function() {
