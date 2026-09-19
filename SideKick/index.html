@@ -2831,28 +2831,27 @@
   .undo-turn-btn {
     display: none;
     position: absolute;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: auto;
-    border-radius: 1.25rem;
-    background: rgba(124,92,191,0.7);
-    border: 0.09375rem solid rgba(255,255,255,0.22);
-    color: #fff;
-    font-size: 0.9rem;
-    font-weight: 600;
+    bottom: 0.875rem;
+    right: 10.25rem;
+    top: auto;
+    left: auto;
+    z-index: 20;
+    width: clamp(2.25rem, 9vw, 3rem); height: clamp(2.25rem, 9vw, 3rem);
+    border-radius: 50%;
+    background: rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.65);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    cursor: pointer;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    z-index: 21;
-    padding: 0.5rem 1rem;
-    line-height: 1;
-    gap: 0.35rem;
+    padding: 0;
+    transition: background 0.2s;
   }
   .undo-turn-btn.visible { display: flex; }
-  .undo-turn-btn.stacked { bottom: 1rem; }
-  .undo-turn-btn:hover { transform: translateX(-50%) scale(1.03) !important; }
-  .undo-turn-btn:active { transform: translateX(-50%) scale(0.97) !important; }
+  .undo-turn-btn:active { background: rgba(124,92,191,0.5); }
 
   /* ── TOUCH GUARDS: block accidental pass-turn taps in button zones ── */
   .touch-guard {
@@ -5760,7 +5759,7 @@
   <div class="host-game-menu" id="host-game-menu-wait">
     <button class="host-game-menu-btn" id="host-game-menu-btn-wait" onclick="openHostCrownMenu()">Host Menu</button>
   </div>
-  <button class="undo-turn-btn" id="undo-turn-btn" onclick="undoTurn()" title="Undo Pass">↩ Undo Pass</button>
+  <button class="undo-turn-btn" id="undo-turn-btn" onclick="undoTurn()" title="Undo">Undo</button>
   <button class="status-effects-btn" id="status-btn-wait" onclick="openStatusMenu()" title="Status Effects">🩹</button>
   <!-- Round indicator (top-center, visible when Rounds feature is on) -->
   <div class="round-indicator" id="round-indicator-wait">
@@ -6310,13 +6309,19 @@
 
     <!-- Menu Items -->
     <div class="profile-menu" style="width:min(23.75rem,92vw); margin-bottom:0.75rem;">
-      <div class="profile-menu-item" onclick="openEditProfileMenuOverlay()">
+      <div class="profile-menu-item" onclick="openEditProfileOverlay()">
         <div class="profile-menu-title" data-i18n="editProfile">Edit Profile</div>
       </div>
       <div class="profile-menu-item" onclick="openFriendsOverlay()">
         <div class="profile-menu-title" data-i18n="Friends List">Friends</div>
       </div>
-      <div class="profile-menu-item" onclick="openGameFeaturesOverlay()">
+      <div class="profile-menu-item" onclick="openThemesOverlay()">
+        <div class="profile-menu-title" data-i18n="themes">Themes</div>
+      </div>
+      <div class="profile-menu-item" onclick="openMyCollection()">
+        <div class="profile-menu-title" data-i18n="myCollection">My Collection</div>
+      </div>
+      <div class="profile-menu-item" onclick="openToolsOverlay(true)">
         <div class="profile-menu-title" data-i18n="SideKick Tools">Game Features</div>
       </div>
       <div class="profile-menu-item" onclick="openAccountSettingsOverlay()">
@@ -6572,16 +6577,6 @@
       <button class="btn-secondary btn-sm" style="flex:1;" onclick="closeEditProfileAvatarOverlay()" data-i18n="close">Close</button>
       <button class="btn-primary btn-sm" style="flex:1;" onclick="confirmEditProfileAvatar()">Confirm</button>
     </div>
-  </div>
-</div>
-
-<!-- EDIT PROFILE MENU (submenu) -->
-<div class="tools-overlay" id="edit-profile-menu-overlay">
-  <div class="tools-modal" style="max-width:21.25rem;">
-    <div class="tools-modal-title" data-i18n="editProfile">Edit Profile</div>
-    <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openEditProfilePrefs()"><span data-i18n="editProfile">Edit Profile</span></button>
-    <button class="tool-list-btn" onclick="closeEditProfileMenuOverlay(); openThemesOverlay()"><span data-i18n="themes">Themes</span></button>
-    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeEditProfileMenuOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
 
@@ -6987,18 +6982,6 @@
   </div>
 </div>
 
-<!--  GAME FEATURES OVERLAY                         -->
-<!-- ═══════════════════════════════════════════ -->
-<div class="tools-overlay" id="game-features-overlay">
-  <div class="tools-modal">
-    <div class="tools-modal-title"><span data-i18n="gameFeatures">Game Features</span></div>
-    <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openMyCollection()"><span data-i18n="myCollection">My Collection</span></button>
-    <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openGameNotes()"><span data-i18n="gameNotes">📝 Game Notes</span></button>
-    <button class="tool-list-btn" onclick="closeGameFeaturesOverlay(); openToolsOverlay(false)"><span data-i18n="tools">Tools</span></button>
-    <button class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="closeGameFeaturesOverlay()" data-i18n="close">Close</button>
-  </div>
-</div>
-
 <!-- REMOVE FRIEND CONFIRM -->
 <div id="remove-friend-confirm" style="position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;">
   <div class="tools-modal" style="max-width:18.75rem;text-align:center;">
@@ -7095,6 +7078,7 @@
     <button class="tool-list-btn" onclick="openTool('status')">Status Effects</button>
     <button class="tool-list-btn" onclick="openSpeedRoundFromTool()">Speed Round</button>
     <button class="tool-list-btn" onclick="openTool('score')">Score Tracker</button>
+    <button class="tool-list-btn" onclick="openGameNotes()"><span data-i18n="gameNotes">📝 Game Notes</span></button>
 
     <button class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="closeToolsOverlay()">Close</button>
   </div>
@@ -7544,7 +7528,7 @@ const I18N_STRINGS = {
     contactName: 'Your name',
     contactMessage: 'Your message',
     send: 'Send',
-    donateMsg: 'If you are truly enjoying what SideKick has to offer and feel like contributing, donations toward development of the app and further development are greatly appreciated.',
+    donateMsg: 'I created SideKick in hopes to enhance the experience of board games and the joy we feel being together to enjoy them and the memories we create. If you are truly enjoying what SideKick has to offer and feel like contributing, donations are greatly appreciated.',
     learnMoreFeatures: 'Learn More About SideKick Features',
     featuresHubTitle: 'SideKick Features',
     featuresHubMsg: 'In-depth video tutorials showcasing all the features SideKick has to offer — coming soon.',
@@ -10119,7 +10103,7 @@ window.closeNameOverlay = function() {
   let vhListener = null;
 
   function findOverlay(el) {
-    return el.closest('.tools-overlay, .avatar-overlay, .color-picker-overlay, .rng-overlay, .timer-overlay, .picker-overlay, .feature-settings-overlay, .info-overlay, .turn-mode-overlay, .duel-overlay, .status-overlay, .themes-overlay, .saved-screen, .vp-overlay, #password-gate, #setup-overlay, #add-friend-overlay, #remove-friend-confirm, #app-dialog-overlay, #friends-overlay, #invite-friends-overlay, #game-features-overlay');
+    return el.closest('.tools-overlay, .avatar-overlay, .color-picker-overlay, .rng-overlay, .timer-overlay, .picker-overlay, .feature-settings-overlay, .info-overlay, .turn-mode-overlay, .duel-overlay, .status-overlay, .themes-overlay, .saved-screen, .vp-overlay, #password-gate, #setup-overlay, #add-friend-overlay, #remove-friend-confirm, #app-dialog-overlay, #friends-overlay, #invite-friends-overlay');
   }
   function findModal(overlay) {
     if (!overlay) return null;
@@ -10301,21 +10285,7 @@ window.confirmEditProfileColor = function() {
 
 window.closeEditProfileOverlay = function() {
   document.getElementById('edit-profile-overlay').classList.remove('show');
-  // Return to the Edit Profile menu (Edit Profile / Themes / Account Settings)
-  const menu = document.getElementById('edit-profile-menu-overlay');
-  if (menu) menu.classList.add('show');
 };
-window.openEditProfileMenuOverlay = function() {
-  document.getElementById('edit-profile-menu-overlay').classList.add('show');
-};
-window.closeEditProfileMenuOverlay = function() {
-  document.getElementById('edit-profile-menu-overlay').classList.remove('show');
-};
-window.openEditProfilePrefs = function() {
-  window.openEditProfileOverlay();
-  _editProfileDirectEntry = false;
-};
-
 window.saveEditProfile = function() {
   if (editProfileAvatarSelection) {
     saveAvatar(editProfileAvatarSelection);
@@ -10334,14 +10304,7 @@ window.saveEditProfile = function() {
   const profileNameEl = document.getElementById('profile-name');
   if (profileNameEl) profileNameEl.textContent = name || 'User';
   document.getElementById('edit-profile-overlay').classList.remove('show');
-  if (_editProfileDirectEntry) {
-    // Came from tapping avatar/name on profile page — go back to profile
-    _editProfileDirectEntry = false;
-  } else {
-    // Came from Edit Profile menu — go back to the menu
-    const menu = document.getElementById('edit-profile-menu-overlay');
-    if (menu) menu.classList.add('show');
-  }
+  _editProfileDirectEntry = false;
 };
 
 window.openAccountSettingsOverlay = function() {
@@ -12412,7 +12375,7 @@ window.openToolsOverlay = function(fromHome) {
 };
 window.closeToolsOverlay = function() {
   document.getElementById('tools-overlay').classList.remove('show');
-  if (toolsSource === 'host') openHostCrownMenu();
+  if (toolsSource === 'host' && typeof roomCode !== 'undefined' && roomCode) openHostCrownMenu();
 };
 
 // ── TUTORIAL OVERLAY ──
@@ -12490,8 +12453,9 @@ window.tutorialPrev = function() {
   tutorialGoTo(tutorialSlide - 1);
 };
 
-window.openTool = function(toolId, fromHome) {
-  toolsSource = fromHome ? 'home' : 'host';
+window.openTool = function(toolId) {
+  // toolsSource stays as set by openToolsOverlay — opening a tool from the
+  // home-context list must not flip it back to 'host'.
   closeToolsOverlay();
   if (toolId === 'rng') {
     openRngOverlay();
@@ -17901,9 +17865,6 @@ document.getElementById('collection-overlay').addEventListener('click', function
 document.getElementById('invite-friends-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeInviteFriendsOverlay();
 });
-document.getElementById('game-features-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeGameFeaturesOverlay();
-});
 document.getElementById('collection-edit-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeCollectionEdit();
 });
@@ -18052,14 +18013,6 @@ function renderInviteFriendsList() {
     </div>`;
   });
 }
-
-// ── GAME FEATURES OVERLAY ──────────────────────
-window.openGameFeaturesOverlay = function() {
-  document.getElementById('game-features-overlay').classList.add('show');
-};
-window.closeGameFeaturesOverlay = function() {
-  document.getElementById('game-features-overlay').classList.remove('show');
-};
 
 window.openAddFriendOverlay = function() {
   const overlay = document.getElementById('add-friend-overlay');
