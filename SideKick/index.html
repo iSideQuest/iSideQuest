@@ -6434,9 +6434,9 @@
     </div>
 
     <textarea id="ce-notes" placeholder="Notes (optional)" rows="2" style="margin-bottom:0.6rem;"></textarea>
-    <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.3rem;">Photo (only visible to you)</div>
+    <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.3rem;">Photo (only visible to you · tap photo to re-crop)</div>
     <div id="ce-photo-preview-wrap" style="display:none;text-align:center;margin-bottom:0.5rem;">
-      <img id="ce-photo-preview" alt="" style="display:block;max-width:12rem;max-height:10rem;width:auto;height:auto;border-radius:0.75rem;border:1px solid var(--border);margin:0 auto;">
+      <img id="ce-photo-preview" alt="" onclick="recropCollectionPhoto()" style="display:block;max-width:12rem;max-height:10rem;width:auto;height:auto;border-radius:0.75rem;border:1px solid var(--border);margin:0 auto;cursor:pointer;">
       <div><button type="button" class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="removeCollectionPhoto()">Remove Photo</button></div>
     </div>
     <div style="display:flex;gap:0.5rem;margin-bottom:0.6rem;">
@@ -17960,19 +17960,23 @@ window.scrubCollectionRatingStart = function(e) {
   collectionRatingScrub = true;
   collectionEditRating = collectionRatingFromEvent(e);
   paintCollectionRating(collectionEditRating);
+  haptic(5);
   try { e.preventDefault(); } catch {}
 };
 window.scrubCollectionRatingMove = function(e) {
   if (!collectionRatingScrub) return;
-  collectionEditRating = collectionRatingFromEvent(e);
-  paintCollectionRating(collectionEditRating);
+  const v = collectionRatingFromEvent(e);
+  if (v !== collectionEditRating) {
+    collectionEditRating = v;
+    paintCollectionRating(v);
+    haptic(5);
+  }
   try { e.preventDefault(); } catch {}
 };
 window.scrubCollectionRatingEnd = function(e) {
   if (!collectionRatingScrub) return;
   collectionRatingScrub = false;
   renderCollectionRating();
-  haptic(5);
 };
 window.clearCollectionRating = function() {
   collectionEditRating = 0;
@@ -18240,6 +18244,13 @@ window.confirmCollectionPhoto = function() {
 window.removeCollectionPhoto = function() {
   collectionPhotoDataUrl = '';
   updateCollectionPhotoPreview();
+};
+window.recropCollectionPhoto = function() {
+  if (!collectionPhotoDataUrl) return;
+  const img = new Image();
+  img.onload = () => openCollectionPhoto(img);
+  img.onerror = () => showAlert('Could not reload that photo.');
+  img.src = collectionPhotoDataUrl;
 };
 function updateCollectionPhotoPreview() {
   const wrap = document.getElementById('ce-photo-preview-wrap');
