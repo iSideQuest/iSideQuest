@@ -6436,7 +6436,7 @@
 </div>
 
 <!-- FRIEND PROFILE (read-only: card + awards + text-only collection) -->
-<div class="tools-overlay" id="friend-profile-overlay">
+<div class="tools-overlay" id="friend-profile-overlay" style="z-index:9650;">
   <div class="tools-modal" style="max-height:85vh; overflow-y:auto; text-align:center;">
     <div id="friend-profile-body"></div>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeFriendProfile()" data-i18n="close">Close</button>
@@ -18067,7 +18067,7 @@ function drawCollectionPhoto() {
   [[rx, ry], [rx + rw / 2, ry], [rx + rw, ry],
    [rx, ry + rh / 2], [rx + rw, ry + rh / 2],
    [rx, ry + rh], [rx + rw / 2, ry + rh], [rx + rw, ry + rh]
-  ].forEach(([hx, hy]) => { ctx.beginPath(); ctx.arc(hx, hy, 9, 0, Math.PI * 2); ctx.fill(); });
+  ].forEach(([hx, hy]) => { ctx.beginPath(); ctx.arc(hx, hy, 13, 0, Math.PI * 2); ctx.fill(); });
 }
 window.confirmCollectionPhoto = function() {
   if (!collectionPhotoImg) return;
@@ -18113,7 +18113,7 @@ function updateCollectionPhotoPreview() {
       ['sw', rc.x, rc.y + rc.h], ['s', rc.x + rc.w / 2, rc.y + rc.h], ['se', rc.x + rc.w, rc.y + rc.h]
     ];
     for (const [mode, hx, hy] of pts) {
-      if (Math.abs(p.x - hx) <= 18 && Math.abs(p.y - hy) <= 18) return mode;
+      if (Math.abs(p.x - hx) <= 30 && Math.abs(p.y - hy) <= 30) return mode;
     }
     if (p.x >= rc.x && p.x <= rc.x + rc.w && p.y >= rc.y && p.y <= rc.y + rc.h) return 'move';
     return null;
