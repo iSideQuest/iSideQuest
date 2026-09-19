@@ -4793,7 +4793,7 @@
   .collection-chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
   .collection-chip {
     background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-    color: var(--muted); border-radius: 50%; padding: 0.3rem 0.7rem;
+    color: var(--muted); border-radius: 1rem; padding: 0.3rem 0.7rem;
     font-size: 0.72rem; font-weight: 600; cursor: pointer;
     transition: border-color 0.15s, background 0.15s, color 0.15s;
   }
@@ -4812,15 +4812,16 @@
     background: var(--surface); border: 1px solid var(--border); border-radius: 0.75rem;
     padding: 0.7rem 0.8rem;
   }
-  .collection-game-name { font-weight: 800; font-size: 0.95rem; color: var(--text); line-height: 1.3; }
+  .collection-game-name { font-weight: 800; font-size: 0.95rem; color: var(--text); line-height: 1.3; text-align: center; }
   .collection-game-meta { font-size: 0.75rem; color: var(--muted); margin-top: 0.15rem; }
   .collection-game-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.45rem; }
   .collection-game-tag {
-    font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 50%;
+    font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 1rem;
     background: rgba(124,92,191,0.15); color: var(--accent-light);
   }
   .collection-game-tag.cat { background: rgba(251,191,36,0.15); color: #fcd34d; }
   .collection-game-actions { display: flex; gap: 0.4rem; margin-top: 0.45rem; }
+  .collection-game-rating { display: flex; align-items: center; justify-content: center; gap: 0.35rem; margin-top: 0.4rem; font-size: 0.8rem; font-weight: 800; color: var(--text); }
   .collection-game-actions button {
     background: transparent; border: 1px solid var(--border); color: var(--accent-light);
     font-size: 0.7rem; border-radius: 0.5rem; padding: 0.3rem 0.6rem; cursor: pointer;
@@ -6376,6 +6377,15 @@
       <div id="collection-list" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
     </div>
 
+    <!-- Game detail -->
+    <div id="collection-detail" style="display:none;">
+      <div style="display:flex;gap:0.5rem;margin-bottom:0.6rem;">
+        <button class="btn-secondary btn-sm" style="flex:1;" onclick="closeCollectionDetail()"><span class="play-tri">◀</span> Back</button>
+        <button class="btn-primary btn-sm" style="flex:1;" id="collection-detail-edit-btn">✎ Edit</button>
+      </div>
+      <div id="collection-detail-body"></div>
+    </div>
+
     <!-- Database search -->
     <div id="collection-db-search" style="display:none;">
       <button class="btn-secondary btn-sm" style="margin-bottom:0.5rem;" onclick="showCollectionMenu()"><span class="play-tri">◀</span> Back</button>
@@ -6415,6 +6425,13 @@
 
     <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.3rem;">Mechanics</div>
     <div id="ce-mechanics" class="collection-chip-row" style="margin-bottom:0.6rem;"></div>
+
+    <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.3rem;">Rating</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.6rem;">
+      <div id="ce-rating-stars" style="display:inline-flex;"></div>
+      <span id="ce-rating-num" style="font-weight:800;color:var(--text);min-width:1.8rem;"></span>
+      <button type="button" class="btn-secondary btn-sm" style="padding:0.2rem 0.6rem;" onclick="clearCollectionRating()">✕</button>
+    </div>
 
     <textarea id="ce-notes" placeholder="Notes (optional)" rows="2" style="margin-bottom:0.6rem;"></textarea>
     <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.3rem;">Photo (only visible to you)</div>
@@ -17615,17 +17632,20 @@ async function loadCollection() {
 window.openMyCollection = function() {
   document.getElementById('collection-main-menu').style.display = '';
   document.getElementById('collection-library').style.display = 'none';
+  document.getElementById('collection-detail').style.display = 'none';
   document.getElementById('collection-overlay').classList.add('show');
 };
 window.openCollectionLibrary = async function() {
   document.getElementById('collection-main-menu').style.display = 'none';
   document.getElementById('collection-library').style.display = '';
+  document.getElementById('collection-detail').style.display = 'none';
   renderCollectionFilters();
   await loadCollection();
   renderCollection();
 };
 window.showCollectionMenu = function() {
   document.getElementById('collection-library').style.display = 'none';
+  document.getElementById('collection-detail').style.display = 'none';
   document.getElementById('collection-db-search').style.display = 'none';
   document.getElementById('collection-main-menu').style.display = '';
 };
@@ -17837,6 +17857,13 @@ function buildCollectionGameRow(game, opts) {
   // opts.photos === false renders text-only (for the future friend view)
   const showPhoto = !opts || opts.photos !== false;
   const readOnly = !!(opts && opts.readonly);
+  if (!readOnly) {
+    row.style.cursor = 'pointer';
+    row.onclick = (e) => {
+      if (e.target.closest('.collection-game-actions')) return;
+      openCollectionDetail(game.id);
+    };
+  }
   const metaBits = [];
   if (game.minPlayers && game.maxPlayers) metaBits.push('👥 ' + game.minPlayers + '–' + game.maxPlayers + ' players');
   if (game.playTime) metaBits.push('⏱ ' + game.playTime);
@@ -17850,12 +17877,14 @@ function buildCollectionGameRow(game, opts) {
   }).join('');
   const tagsHtml = (catLabels || mechLabels) ? '<div class="collection-game-tags">' + catLabels + mechLabels + '</div>' : '';
   const notesHtml = game.notes ? '<div style="font-size:0.72rem;color:var(--muted);margin-top:0.3rem;">' + escapeHtml(game.notes) + '</div>' : '';
-  const photoHtml = (showPhoto && game.photo) ? '<img src="' + game.photo + '" alt="" style="width:3.5rem;height:3.5rem;object-fit:cover;border-radius:0.5rem;margin-bottom:0.4rem;">' : '';
+  const photoHtml = (showPhoto && game.photo) ? '<img src="' + game.photo + '" alt="" style="display:block;width:3.5rem;height:3.5rem;object-fit:cover;border-radius:0.5rem;margin:0 auto 0.4rem;">' : '';
+  const ratingVal = typeof game.rating === 'number' ? game.rating : 0;
+  const ratingHtml = '<div class="collection-game-rating">' + starsHTML(ratingVal, '0.8rem') + '<span>' + formatRating(ratingVal) + '</span></div>';
   row.innerHTML =
     photoHtml +
     '<div class="collection-game-name">' + escapeHtml(game.name || 'Untitled') + '</div>' +
     (metaBits.length ? '<div class="collection-game-meta">' + metaBits.join(' · ') + '</div>' : '') +
-    tagsHtml + notesHtml +
+    tagsHtml + ratingHtml + notesHtml +
     (readOnly ? '' :
     '<div class="collection-game-actions">' +
       '<button onclick="openCollectionEdit(\'' + game.id + '\')">✎ Edit</button>' +
@@ -17863,6 +17892,94 @@ function buildCollectionGameRow(game, opts) {
     '</div>');
   return row;
 }
+
+// 0–10 star rating (half steps) with numeric value
+function starsHTML(rating, size) {
+  const r = typeof rating === 'number' ? Math.max(0, Math.min(10, rating)) : 0;
+  let out = '<span style="display:inline-flex;gap:0.08rem;font-size:' + (size || '0.9rem') + ';line-height:1;">';
+  for (let i = 1; i <= 10; i++) {
+    const fill = Math.min(1, Math.max(0, r - (i - 1)));
+    out += '<span style="position:relative;display:inline-block;color:rgba(255,255,255,0.18);">★<span style="position:absolute;left:0;top:0;width:' + (fill * 100) + '%;overflow:hidden;color:#fbbf24;white-space:nowrap;">★</span></span>';
+  }
+  return out + '</span>';
+}
+function formatRating(r) {
+  if (typeof r !== 'number' || r <= 0) return '–';
+  return String(Math.round(r * 2) / 2);
+}
+
+let collectionEditRating = 0;
+function renderCollectionRating() {
+  const el = document.getElementById('ce-rating-stars');
+  if (!el) return;
+  el.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const fill = Math.min(1, Math.max(0, collectionEditRating - (i - 1)));
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('data-star', String(i));
+    b.style.cssText = 'background:none;border:none;padding:0.1rem;cursor:pointer;font-size:1.35rem;line-height:1;color:rgba(255,255,255,0.18);';
+    b.innerHTML = '<span style="position:relative;">★<span style="position:absolute;left:0;top:0;width:' + (fill * 100) + '%;overflow:hidden;color:#fbbf24;">★</span></span>';
+    b.onclick = (e) => setCollectionRating(i, e);
+    el.appendChild(b);
+  }
+  const num = document.getElementById('ce-rating-num');
+  if (num) num.textContent = formatRating(collectionEditRating);
+}
+window.setCollectionRating = function(i, e) {
+  let half = false;
+  try {
+    const btn = e && (e.currentTarget || e.target.closest('button'));
+    if (btn) {
+      const rect = btn.getBoundingClientRect();
+      half = (e.clientX - rect.left) / rect.width < 0.5;
+    }
+  } catch {}
+  collectionEditRating = half ? i - 0.5 : i;
+  renderCollectionRating();
+  haptic(5);
+};
+window.clearCollectionRating = function() {
+  collectionEditRating = 0;
+  renderCollectionRating();
+};
+
+// ── COLLECTION GAME DETAIL (bigger view, Back + Edit) ──
+window.openCollectionDetail = function(id) {
+  const game = collectionGames.find(g => g.id === id);
+  if (!game) return;
+  const ratingVal = typeof game.rating === 'number' ? game.rating : 0;
+  const metaBits = [];
+  if (game.minPlayers && game.maxPlayers) metaBits.push('👥 ' + game.minPlayers + '–' + game.maxPlayers + ' players');
+  if (game.playTime) metaBits.push('⏱ ' + game.playTime);
+  const catLabels = (game.categories || []).map(k => {
+    const def = COLLECTION_CATEGORIES.find(c => c.key === k);
+    return def ? '<span class="collection-game-tag cat">' + def.icon + ' ' + def.label + '</span>' : '';
+  }).join('');
+  const mechLabels = (game.mechanics || []).map(k => {
+    const def = COLLECTION_MECHANICS.find(m => m.key === k);
+    return def ? '<span class="collection-game-tag">' + def.icon + ' ' + def.label + '</span>' : '';
+  }).join('');
+  const tagsHtml = (catLabels || mechLabels) ? '<div class="collection-game-tags" style="justify-content:center;">' + catLabels + mechLabels + '</div>' : '';
+  const body = document.getElementById('collection-detail-body');
+  body.innerHTML =
+    (game.photo ? '<img src="' + game.photo + '" alt="" style="width:100%;max-height:16rem;object-fit:cover;border-radius:0.75rem;margin-bottom:0.6rem;">' : '') +
+    '<div class="collection-game-name" style="font-size:1.2rem;">' + escapeHtml(game.name || 'Untitled') + '</div>' +
+    '<div class="collection-game-rating" style="font-size:1rem;">' + starsHTML(ratingVal, '1.05rem') + '<span>' + formatRating(ratingVal) + '</span></div>' +
+    (metaBits.length ? '<div class="collection-game-meta" style="text-align:center;">' + metaBits.join(' · ') + '</div>' : '') +
+    tagsHtml +
+    (game.notes ? '<div style="font-size:0.85rem;color:var(--text);margin-top:0.6rem;white-space:pre-wrap;word-break:break-word;text-align:left;">' + escapeHtml(game.notes) + '</div>' : '');
+  const editBtn = document.getElementById('collection-detail-edit-btn');
+  if (editBtn) editBtn.onclick = () => { closeCollectionDetail(); openCollectionEdit(id); };
+  document.getElementById('collection-library').style.display = 'none';
+  document.getElementById('collection-detail').style.display = '';
+  const modal = document.querySelector('#collection-overlay .tools-modal');
+  if (modal) modal.scrollTop = 0;
+};
+window.closeCollectionDetail = function() {
+  document.getElementById('collection-detail').style.display = 'none';
+  document.getElementById('collection-library').style.display = '';
+};
 
 window.openCollectionEdit = function(id) {
   collectionEditingId = id || null;
@@ -17878,6 +17995,8 @@ window.openCollectionEdit = function(id) {
   collectionEditMechs = new Set(game ? (game.mechanics || []) : []);
   collectionPhotoDataUrl = game && game.photo ? game.photo : '';
   updateCollectionPhotoPreview();
+  collectionEditRating = game && typeof game.rating === 'number' ? game.rating : 0;
+  renderCollectionRating();
   const camEl = document.getElementById('ce-photo-camera');
   if (camEl) camEl.value = '';
   const galEl = document.getElementById('ce-photo-file');
@@ -17888,6 +18007,7 @@ window.openCollectionEdit = function(id) {
 window.closeCollectionEdit = function() {
   closeCollectionPhoto();
   document.getElementById('collection-edit-overlay').classList.remove('show');
+  document.getElementById('collection-detail').style.display = 'none';
   document.getElementById('collection-db-search').style.display = 'none';
   document.getElementById('collection-main-menu').style.display = '';
   document.getElementById('collection-library').style.display = 'none';
@@ -17935,6 +18055,7 @@ window.saveCollectionGame = async function() {
     notes: (document.getElementById('ce-notes').value || '').trim(),
     categories: [...collectionEditCats],
     mechanics: [...collectionEditMechs],
+    rating: collectionEditRating,
     ...(collectionPhotoDataUrl ? { photo: collectionPhotoDataUrl } : {})
   };
   if (collectionEditingId) {
@@ -18439,6 +18560,8 @@ window.openFriendProfile = async function(uid) {
   const body = document.getElementById('friend-profile-body');
   if (body) body.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;padding:1rem;">Loading…</div>';
   document.getElementById('friend-profile-overlay').classList.add('show');
+  const modal = document.querySelector('#friend-profile-overlay .tools-modal');
+  if (modal) modal.scrollTop = 0;
   try {
     const snap = await get(ref(db, `users/${uid}`));
     if (!snap.exists()) {
@@ -18453,6 +18576,14 @@ window.openFriendProfile = async function(uid) {
 window.closeFriendProfile = function() {
   document.getElementById('friend-profile-overlay').classList.remove('show');
 };
+window.toggleFriendSection = function(key) {
+  const sec = document.getElementById('friend-sec-' + key);
+  const arrow = document.getElementById('friend-arrow-' + key);
+  if (!sec) return;
+  const open = sec.style.display !== 'none';
+  sec.style.display = open ? 'none' : '';
+  if (arrow) arrow.textContent = open ? '▸' : '▾';
+};
 function renderFriendProfile(uid, data) {
   const body = document.getElementById('friend-profile-body');
   if (!body) return;
@@ -18465,7 +18596,7 @@ function renderFriendProfile(uid, data) {
   // Awards — only when the friend leaves them visible
   if (data.showAwards !== 'no') {
     const awards = Array.isArray(data.awards) ? data.awards : [];
-    html += '<div style="font-size:0.85rem;font-weight:800;color:var(--text);margin:1rem 0 0.4rem;">🏆 Awards</div>';
+    html += '<div onclick="toggleFriendSection(\'awards\')" style="font-size:0.85rem;font-weight:800;color:var(--text);margin:1rem 0 0.4rem;cursor:pointer;">🏆 Awards (' + awards.length + ') <span id="friend-arrow-awards">▸</span></div><div id="friend-sec-awards" style="display:none;">';
     if (!awards.length) {
       html += '<div style="font-size:0.8rem;color:var(--muted);">No awards yet.</div>';
     } else {
@@ -18478,16 +18609,18 @@ function renderFriendProfile(uid, data) {
           (dateStr ? '<div style="font-size:0.72rem;color:var(--muted);flex-shrink:0;">' + escapeHtml(dateStr) + '</div>' : '') + '</div>';
       });
     }
+    html += '</div>';
   }
   // Collection — text only, never photos
   const collObj = data.collection && typeof data.collection === 'object' ? data.collection : {};
   const coll = Object.keys(collObj).map(k => Object.assign({ id: k }, collObj[k]));
-  html += '<div style="font-size:0.85rem;font-weight:800;color:var(--text);margin:1rem 0 0.4rem;">🎲 Collection (' + coll.length + ')</div>';
+  html += '<div onclick="toggleFriendSection(\'collection\')" style="font-size:0.85rem;font-weight:800;color:var(--text);margin:1rem 0 0.4rem;cursor:pointer;">🎲 Collection (' + coll.length + ') <span id="friend-arrow-collection">▸</span></div><div id="friend-sec-collection" style="display:none;">';
   if (!coll.length) {
     html += '<div style="font-size:0.8rem;color:var(--muted);">No games in collection.</div>';
   } else {
     html += '<div id="friend-collection-list" style="text-align:left;"></div>';
   }
+  html += '</div>';
   body.innerHTML = html;
   const listEl = document.getElementById('friend-collection-list');
   if (listEl) coll.forEach(g => listEl.appendChild(buildCollectionGameRow(g, { photos: false, readonly: true })));
