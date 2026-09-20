@@ -11502,12 +11502,12 @@ function renderKb() {
       html += '<div class="custom-kb-row">' + KB_ALPHA_ROWS[0].split('').map((ch) => kbKeyHTML(kbShift ? ch.toUpperCase() : ch, ch)).join('') + '</div>';
       html += '<div class="custom-kb-row">' + KB_ALPHA_ROWS[1].split('').map((ch) => kbKeyHTML(kbShift ? ch.toUpperCase() : ch, ch)).join('') + '</div>';
       html += '<div class="custom-kb-row">' + kbActHTML('⇧', 'shift', 'kb-wide' + (kbShift ? ' kb-on' : '')) + KB_ALPHA_ROWS[2].split('').map((ch) => kbKeyHTML(kbShift ? ch.toUpperCase() : ch, ch)).join('') + kbActHTML('⌫', 'back', 'kb-wide') + '</div>';
-      html += '<div class="custom-kb-row">' + kbActHTML('123', 'syms', 'kb-wide') + kbKeyHTML('&nbsp;', ' ', 'kb-space') + kbActHTML('Done', 'done', 'kb-wide') + '</div>';
+      html += '<div class="custom-kb-row">' + kbActHTML('123', 'syms', 'kb-wide') + kbKeyHTML('&nbsp;', ' ', 'kb-space') + kbActHTML('⏎', 'enter', 'kb-wide') + kbActHTML('Done', 'done', 'kb-wide') + '</div>';
     } else {
       html += '<div class="custom-kb-row">' + KB_SYM_ROWS[0].split('').map((ch) => kbKeyHTML(kbEsc(ch), ch)).join('') + '</div>';
       html += '<div class="custom-kb-row">' + KB_SYM_ROWS[1].split('').map((ch) => kbKeyHTML(kbEsc(ch), ch)).join('') + '</div>';
       html += '<div class="custom-kb-row">' + kbActHTML('ABC', 'syms', 'kb-wide') + KB_SYM_ROWS[2].split('').map((ch) => kbKeyHTML(kbEsc(ch), ch)).join('') + kbActHTML('⌫', 'back', 'kb-wide') + '</div>';
-      html += '<div class="custom-kb-row">' + kbActHTML('ABC', 'syms', 'kb-wide') + kbKeyHTML('&nbsp;', ' ', 'kb-space') + kbActHTML('Done', 'done', 'kb-wide') + '</div>';
+      html += '<div class="custom-kb-row">' + kbActHTML('ABC', 'syms', 'kb-wide') + kbKeyHTML('&nbsp;', ' ', 'kb-space') + kbActHTML('⏎', 'enter', 'kb-wide') + kbActHTML('Done', 'done', 'kb-wide') + '</div>';
     }
     box.innerHTML = html;
     // Pointer-event activation only (no click handlers): with touchstart
@@ -11528,6 +11528,7 @@ function renderKb() {
         ev.preventDefault();
         if (a === 'shift') kbShiftToggle();
         else if (a === 'syms') kbSymsToggle();
+        else if (a === 'enter') kbEnter();
         else if (a === 'done') kbDone();
       });
     });
@@ -11694,6 +11695,17 @@ function kbSymsToggle() {
   kbShift = false;
   renderKb();
   haptic(5);
+}
+function kbEnter() {
+  const el = kbActiveInput;
+  if (el && el.tagName === 'TEXTAREA') {
+    kbInsert('\n');
+    haptic(5);
+    // Sentence case: capitalize the next letter on the new line
+    if (!kbShift) { kbShift = true; renderKb(); }
+  } else {
+    kbDone();
+  }
 }
 function kbDone() {
   kbStopRepeat();
@@ -17343,7 +17355,8 @@ function listenGameState() {
       const sr = room.sharedReveal;
       if (sr && sr.at && (Date.now() - sr.at) < 10000 && window._lastSharedReveal !== sr.at) {
         window._lastSharedReveal = sr.at;
-        showSharedReveal(sr.text || '', sr.sub || '', sr);
+        // The host already sees the result in their tool — overlay is for everyone else
+        if (!isHost) showSharedReveal(sr.text || '', sr.sub || '', sr);
       }
     } catch {}
     // Host starting new game — show reconfiguring screen
