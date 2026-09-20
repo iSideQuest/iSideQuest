@@ -6362,6 +6362,8 @@
 
       <div id="collection-filters" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.6rem;">
         <input id="collection-search" placeholder="Search by name…" oninput="renderCollection()" style="width:100%;">
+        <button class="btn-secondary btn-sm" style="width:100%;" onclick="toggleCollectionFilters()">🔍 Filters<span id="collection-filter-count"></span> <span id="collection-filter-arrow">▸</span></button>
+        <div id="collection-filter-body" style="display:none;flex-direction:column;gap:0.4rem;">
         <div style="display:flex;gap:0.4rem;align-items:center;">
           <span style="font-size:0.78rem;color:var(--muted);flex-shrink:0;">Players:</span>
           <button class="btn-secondary btn-sm" style="padding:0.3rem 0.7rem;" onclick="collectionPlayers(-1)">−</button>
@@ -6370,6 +6372,7 @@
           <button class="btn-secondary btn-sm" style="margin-left:auto;" onclick="clearCollectionFilters()">Clear</button>
         </div>
         <div id="collection-filter-groups"></div>
+        </div>
       </div>
 
       <button class="btn-secondary" style="width:100%;margin-bottom:0.6rem;" onclick="pickRandomGame()">🎲 Pick at Random</button>
@@ -6993,9 +6996,10 @@
 <!-- ═══════════════════════════════════════════ -->
 <!--  GAME NOTES OVERLAY                         -->
 <!-- ═══════════════════════════════════════════ -->
-<div class="saved-screen" id="game-notes-overlay" style="z-index:8350;">
+<div class="saved-screen" id="game-notes-overlay" style="z-index:9670;">
   <div class="saved-screen-icon">📝</div>
   <div class="saved-screen-title" data-i18n="gameNotes">Game Notes</div>
+  <div id="game-notes-saved" style="display:none;font-size:0.75rem;color:var(--muted);margin-top:0.4rem;"></div>
   <textarea id="game-notes-textarea" data-i18n-ph="gameNotesPh" placeholder="Write your notes here..." style="width:100%;max-width:22.5rem;min-height:10rem;margin-top:0.8rem;padding:0.6rem;border-radius:0.5rem;border:1px solid var(--border);background:var(--card);color:var(--text);font-family:inherit;font-size:0.9rem;resize:vertical;" placeholder="Write your notes here..."></textarea>
   <div style="display:flex;gap:0.5rem;margin-top:0.8rem;">
     <button class="btn-secondary btn-sm" style="padding:0.6rem 1.5rem;" onclick="closeGameNotes()">Cancel</button>
@@ -7140,6 +7144,16 @@
     <button class="tool-list-btn" onclick="openGameNotes()"><span data-i18n="gameNotes">📝 Game Notes</span></button>
 
     <button class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="closeToolsOverlay()">Close</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  SHARED TOOL REVEAL (host RNG/picker → all)  -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="shared-reveal-overlay" style="display:none;position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;pointer-events:none;">
+  <div style="text-align:center;padding:1rem;">
+    <div id="shared-reveal-text" style="font-size:3rem;font-weight:900;color:#fff;"></div>
+    <div id="shared-reveal-sub" style="font-size:1rem;color:rgba(255,255,255,0.7);margin-top:0.4rem;"></div>
   </div>
 </div>
 
@@ -7547,6 +7561,8 @@ function haptic(ms, el) {
     // Skip if this element's onclick already calls haptic() explicitly — let that handle it
     const onclick = t.getAttribute('onclick') || '';
     if (onclick.includes('haptic(')) return;
+    // Skip drag-control areas that buzz explicitly per step (e.g. rating scrub)
+    if (t.closest('#ce-rating-stars') && window._suppressGlobalHapticUntil && Date.now() < window._suppressGlobalHapticUntil) return;
     // Debounce: same target within 120ms = double-fire (touch+click) — skip second
     const now = Date.now();
     if (t === lastTarget && now - lastAt < 200) return;
@@ -10648,6 +10664,7 @@ window.confirmSpeedMode = function() {
 window.closeSpeedModeOverlay = function() {
   document.getElementById('speed-mode-overlay').classList.remove('show');
   _speedRoundFromTool = false;
+  backToToolsIfHome();
 };
 
 // ── Speed Round from Tools: create room immediately
@@ -11564,18 +11581,39 @@ function kbCaretUpdate() {
     let ls = parseFloat(cs.letterSpacing);
     if (isNaN(ls)) ls = 0;
     const val = el.value || '';
-    const fullW = _caretCtx.measureText(val).width + ls * val.length;
-    const preW = _caretCtx.measureText(val.slice(0, s)).width + ls * s;
+    const isTA = el.tagName === 'TEXTAREA';
+    // Multiline fields measure only the caret's own line; single-line
+    // fields measure from the start as before.
+    const lineStart = isTA ? val.lastIndexOf('\n', s - 1) + 1 : 0;
+    const preSeg = val.slice(lineStart, s);
+    const preW = _caretCtx.measureText(preSeg).width + ls * preSeg.length;
     const padL = parseFloat(cs.paddingLeft) || 0;
     const padR = parseFloat(cs.paddingRight) || 0;
-    const avail = el.clientWidth - padL - padR;
-    let x = padL + preW;
-    if (cs.textAlign === 'center') x = padL + Math.max(0, (avail - fullW) / 2) + preW;
-    else if (cs.textAlign === 'right') x = padL + Math.max(0, avail - fullW) + preW;
-    x -= (el.scrollLeft || 0);
+    const fs = parseFloat(cs.fontSize) || 16;
     const r = el.getBoundingClientRect();
     const borderL = parseFloat(cs.borderLeftWidth) || 0;
-    const fs = parseFloat(cs.fontSize) || 16;
+    let top;
+    if (isTA) {
+      const lineIdx = val.slice(0, s).split('\n').length - 1;
+      let lh = parseFloat(cs.lineHeight);
+      if (isNaN(lh)) lh = fs * 1.25;
+      const padT = parseFloat(cs.paddingTop) || 0;
+      const borderT = parseFloat(cs.borderTopWidth) || 0;
+      top = r.top + borderT + padT + lineIdx * lh - (el.scrollTop || 0);
+    } else {
+      top = r.top + (r.height - fs * 1.25) / 2;
+    }
+    let x = padL + preW;
+    if (!isTA && cs.textAlign === 'center') {
+      const fullW = _caretCtx.measureText(val).width + ls * val.length;
+      const avail = el.clientWidth - padL - padR;
+      x = padL + Math.max(0, (avail - fullW) / 2) + preW;
+    } else if (!isTA && cs.textAlign === 'right') {
+      const fullW = _caretCtx.measureText(val).width + ls * val.length;
+      const avail = el.clientWidth - padL - padR;
+      x = padL + Math.max(0, avail - fullW) + preW;
+    }
+    x -= (el.scrollLeft || 0);
     caret.style.height = (fs * 1.25) + 'px';
     caret.style.left = (r.left + borderL + x) + 'px';
     caret.style.top = (r.top + (r.height - fs * 1.25) / 2) + 'px';
@@ -12492,6 +12530,32 @@ window.closeToolsOverlay = function() {
   document.getElementById('tools-overlay').classList.remove('show');
   if (toolsSource === 'host' && typeof roomCode !== 'undefined' && roomCode) openHostCrownMenu();
 };
+// Re-show the Tools list when a tool is closed from the home/profile context;
+// in-game closes just reveal the underlying screen as before.
+function backToToolsIfHome() {
+  try {
+    if (typeof toolsSource !== 'undefined' && toolsSource === 'home') {
+      document.getElementById('tools-overlay').classList.add('show');
+    }
+  } catch {}
+}
+
+// ── SHARED TOOL REVEAL: host RNG / picker results shown on every screen ──
+let _revealTimer = null;
+window.showSharedReveal = function(text, sub) {
+  const overlay = document.getElementById('shared-reveal-overlay');
+  if (!overlay) return;
+  document.getElementById('shared-reveal-text').textContent = text;
+  document.getElementById('shared-reveal-sub').textContent = sub || '';
+  overlay.style.display = 'flex';
+  haptic(15);
+  if (_revealTimer) clearTimeout(_revealTimer);
+  _revealTimer = setTimeout(() => { overlay.style.display = 'none'; }, 3000);
+};
+function broadcastSharedReveal(text, sub) {
+  if (!db || !roomCode || !isHost) return;
+  try { update(ref(db, `rooms/${roomCode}`), { sharedReveal: { text: String(text), sub: String(sub || ''), at: Date.now() } }).catch(() => {}); } catch {}
+}
 
 // ── TUTORIAL OVERLAY ──
 let tutorialSlide = 0;
@@ -12605,6 +12669,7 @@ window.openRngOverlay = function() {
 };
 window.closeRngOverlay = function() {
   document.getElementById('rng-overlay').classList.remove('show');
+  backToToolsIfHome();
 };
 
 window.rollRangeNumber = function() {
@@ -12619,12 +12684,14 @@ window.rollRangeNumber = function() {
   const result = Math.floor(Math.random() * (max - min + 1)) + min;
   document.getElementById('rng-result-value').textContent = result;
   document.getElementById('rng-result-sub').textContent = `Range ${min}–${max}`;
+  broadcastSharedReveal(result, `Range ${min}–${max}`);
 };
 
 window.rollDie = function(sides) {
   const result = Math.floor(Math.random() * sides) + 1;
   document.getElementById('rng-result-value').textContent = result;
   document.getElementById('rng-result-sub').textContent = `d${sides} roll`;
+  broadcastSharedReveal(result, `d${sides} roll`);
 };
 
 // ── TIMER TOOL ───────────────────────────────────
@@ -12636,6 +12703,7 @@ window.openTimerOverlay = function() {
 };
 window.closeTimerOverlay = function() {
   document.getElementById('timer-overlay').classList.remove('show');
+  backToToolsIfHome();
 };
 
 // ── SCORE TRACKER TOOL ─────────────────────────
@@ -12667,6 +12735,7 @@ window.openScoreOverlay = function() {
 };
 window.closeScoreOverlay = function() {
   document.getElementById('score-overlay').classList.remove('show');
+  backToToolsIfHome();
 };
 window.stAddPlayer = function() {
   const input = document.getElementById('st-name-input');
@@ -12971,6 +13040,7 @@ window.openPickerOverlay = function() {
 };
 window.closePickerOverlay = function() {
   document.getElementById('picker-overlay').classList.remove('show');
+  backToToolsIfHome();
 };
 
 
@@ -13021,6 +13091,7 @@ window.runPlayerPick = function() {
   });
   resultsEl.innerHTML = '';
   resultsEl.appendChild(row);
+  broadcastSharedReveal([...picked].join(', '), 'Player pick');
 };
 
 window.runTeamMaker = function() {
@@ -13061,6 +13132,7 @@ window.runTeamMaker = function() {
     group.appendChild(chipRow);
     resultsEl.appendChild(group);
   });
+  broadcastSharedReveal(teams.map((t, i) => 'Team ' + (i + 1) + ': ' + t.join(', ')).join(' | '), 'Team draw');
 };
 
 // ── STATUS EFFECTS ────────────────────────────────
@@ -13095,6 +13167,7 @@ window.openStatusMenu = function() {
 };
 window.closeStatusMenu = function() {
   document.getElementById('status-menu-overlay').classList.remove('show');
+  backToToolsIfHome();
   document.getElementById('poison-hp-row').style.display = 'none';
 };
 
@@ -17185,6 +17258,14 @@ function listenGameState() {
     const room = snap.val();
     // Room closed by host — send everyone home immediately
     if (room.status === 'closed') { hideAllAwardOverlays(); showScreen('home'); return; }
+    // Shared tool reveals (host RNG / picker results) — show for 3s
+    try {
+      const sr = room.sharedReveal;
+      if (sr && sr.at && (Date.now() - sr.at) < 10000 && window._lastSharedReveal !== sr.at) {
+        window._lastSharedReveal = sr.at;
+        showSharedReveal(sr.text || '', sr.sub || '');
+      }
+    } catch {}
     // Host starting new game — show reconfiguring screen
     if (room.status === 'reconfiguring') {
       hideAllAwardOverlays();
@@ -17530,12 +17611,28 @@ window.undoTurn = async function() {
 // ── SAVE GAME / RESUME ──────────────────────────
 
 
+function readSavedNotes() {
+  try {
+    const raw = localStorage.getItem('sk_notes');
+    if (!raw) return { text: '', savedAt: 0 };
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object') return { text: parsed.text || '', savedAt: parsed.savedAt || 0 };
+    return { text: raw, savedAt: 0 }; // legacy plain-string format
+  } catch { return { text: '', savedAt: 0 }; }
+}
 window.openGameNotes = function() {
   const overlay = document.getElementById('game-notes-overlay');
   const textarea = document.getElementById('game-notes-textarea');
   if (!overlay || !textarea) return;
-  textarea.value = '';
-  try { textarea.value = localStorage.getItem('sk_notes') || ''; } catch {}
+  const saved = readSavedNotes();
+  textarea.value = saved.text;
+  const line = document.getElementById('game-notes-saved');
+  if (line) {
+    if (saved.text) {
+      line.style.display = 'block';
+      line.textContent = saved.savedAt ? ('Last saved ' + new Date(saved.savedAt).toLocaleString()) : 'Saved note';
+    } else line.style.display = 'none';
+  }
   overlay.classList.add('show');
   textarea.focus();
 };
@@ -17548,7 +17645,7 @@ window.closeGameNotes = function() {
 window.saveGameNotes = function() {
   const textarea = document.getElementById('game-notes-textarea');
   if (!textarea) return;
-  try { localStorage.setItem('sk_notes', textarea.value); } catch {}
+  try { localStorage.setItem('sk_notes', JSON.stringify({ text: textarea.value, savedAt: Date.now() })); } catch {}
   closeGameNotes();
 };
 
@@ -17766,6 +17863,14 @@ window.addGameFromDatabase = function(game) {
   document.getElementById('collection-edit-overlay').classList.add('show');
 };
 
+let collectionFiltersOpen = false;
+window.toggleCollectionFilters = function() {
+  collectionFiltersOpen = !collectionFiltersOpen;
+  const body = document.getElementById('collection-filter-body');
+  if (body) body.style.display = collectionFiltersOpen ? 'flex' : 'none';
+  const arrow = document.getElementById('collection-filter-arrow');
+  if (arrow) arrow.textContent = collectionFiltersOpen ? '▾' : '▸';
+};
 function renderCollectionFilters() {
   const groupsEl = document.getElementById('collection-filter-groups');
   if (groupsEl) {
@@ -17782,6 +17887,11 @@ function renderCollectionFilters() {
   }
   const playersEl = document.getElementById('collection-players');
   if (playersEl) playersEl.textContent = collectionFilter.players || 'Any';
+  const countEl = document.getElementById('collection-filter-count');
+  if (countEl) {
+    const n = (collectionFilter.players ? 1 : 0) + collectionFilter.cats.size + collectionFilter.mechs.size;
+    countEl.textContent = n ? ' (' + n + ')' : '';
+  }
 }
 
 window.toggleCollectionFilter = function(type, key) {
@@ -17961,6 +18071,7 @@ window.scrubCollectionRatingStart = function(e) {
   collectionEditRating = collectionRatingFromEvent(e);
   paintCollectionRating(collectionEditRating);
   haptic(5);
+  window._suppressGlobalHapticUntil = Date.now() + 1000;
   try { e.preventDefault(); } catch {}
 };
 window.scrubCollectionRatingMove = function(e) {
@@ -17970,6 +18081,7 @@ window.scrubCollectionRatingMove = function(e) {
     collectionEditRating = v;
     paintCollectionRating(v);
     haptic(5);
+    window._suppressGlobalHapticUntil = Date.now() + 1000;
   }
   try { e.preventDefault(); } catch {}
 };
