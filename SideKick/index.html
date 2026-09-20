@@ -6760,7 +6760,7 @@
       </button>
     </div>
     <div id="standin-error" style="display:none;color:#e74c3c;font-size:0.8rem;margin-bottom:0.5rem;"></div>
-    <button class="btn-primary btn-sm" style="width:100%;" onclick="createStandinPlayer()" data-i18n="createAction">Create</button>
+    <button class="btn-primary btn-sm" id="standin-save-btn" style="width:100%;" onclick="createStandinPlayer()" data-i18n="createAction">Create</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeStandinOverlay()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -6999,7 +6999,7 @@
 <div class="saved-screen" id="game-notes-overlay" style="z-index:9670;">
   <div class="saved-screen-icon">📝</div>
   <div class="saved-screen-title" data-i18n="gameNotes">Game Notes</div>
-  <div id="game-notes-saved" style="display:none;font-size:0.75rem;color:var(--muted);margin-top:0.4rem;"></div>
+  <div id="game-notes-list" style="display:flex;flex-direction:column;gap:0.4rem;margin-top:0.8rem;max-height:12rem;overflow-y:auto;"></div>
   <textarea id="game-notes-textarea" data-i18n-ph="gameNotesPh" placeholder="Write your notes here..." style="width:100%;max-width:22.5rem;min-height:10rem;margin-top:0.8rem;padding:0.6rem;border-radius:0.5rem;border:1px solid var(--border);background:var(--card);color:var(--text);font-family:inherit;font-size:0.9rem;resize:vertical;" placeholder="Write your notes here..."></textarea>
   <div style="display:flex;gap:0.5rem;margin-top:0.8rem;">
     <button class="btn-secondary btn-sm" style="padding:0.6rem 1.5rem;" onclick="closeGameNotes()">Cancel</button>
@@ -7150,7 +7150,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <!--  SHARED TOOL REVEAL (host RNG/picker → all)  -->
 <!-- ═══════════════════════════════════════════ -->
-<div id="shared-reveal-overlay" style="display:none;position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;pointer-events:none;">
+<div id="shared-reveal-overlay" style="display:none;position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,0.72);align-items:flex-start;justify-content:center;padding-top:5rem;pointer-events:none;">
   <div style="text-align:center;padding:1rem;">
     <div id="shared-reveal-text" style="font-size:3rem;font-weight:900;color:#fff;"></div>
     <div id="shared-reveal-sub" style="font-size:1rem;color:rgba(255,255,255,0.7);margin-top:0.4rem;"></div>
@@ -9720,12 +9720,17 @@ function updateStandinAvatarBtn() {
     label.style.color = '';
   }
 }
-window.openStandinOverlay = function() {
-  document.getElementById('standin-name').value = '';
-  _standinColor = '';
-  _standinAvatar = '';
+let standinEditingId = null;
+window.openStandinOverlay = function(id) {
+  standinEditingId = id || null;
+  const p = id ? localPlayers.find(x => x.id === id) : null;
+  document.getElementById('standin-name').value = p ? (p.name || '') : '';
+  _standinColor = (p && p.color) || '';
+  _standinAvatar = (p && p.avatar) || '';
   updateStandinColorBtn();
   updateStandinAvatarBtn();
+  const saveBtn = document.getElementById('standin-save-btn');
+  if (saveBtn) saveBtn.textContent = p ? 'Save' : 'Create';
   document.getElementById('standin-error').style.display = 'none';
   document.getElementById('standin-player-overlay').classList.add('show');
   haptic(5);
@@ -9739,8 +9744,23 @@ window.createStandinPlayer = async function() {
   err.style.display = 'none';
   const name = document.getElementById('standin-name').value.trim();
   if (!name) { showErr('Enter a player name'); return; }
-  if (localPlayers.some(p => (p.name || '').trim().toLowerCase() === name.toLowerCase())) { showErr('That name is already in the room'); return; }
+  if (localPlayers.some(p => p.id !== standinEditingId && (p.name || '').trim().toLowerCase() === name.toLowerCase())) { showErr('That name is already in the room'); return; }
   if (!db || !roomCode) { showErr('No active room'); return; }
+  if (standinEditingId) {
+    const cur = localPlayers.find(p => p.id === standinEditingId);
+    if (!cur || !cur.standin) { showErr('Player not found'); return; }
+    try {
+      await update(ref(db, `rooms/${roomCode}/players/${standinEditingId}`), {
+        name, color: _standinColor || null, avatar: _standinAvatar || '👤'
+      });
+    } catch (e) { showErr('Could not save changes'); return; }
+    standinEditingId = null;
+    _standinColor = '';
+    _standinAvatar = '';
+    closeStandinOverlay();
+    haptic(15);
+    return;
+  }
   const roomSnap = await get(ref(db, `rooms/${roomCode}`));
   if (!roomSnap.exists()) { showErr('Room not found'); return; }
   const order = Object.keys(roomSnap.val().players || {}).length;
@@ -11568,6 +11588,41 @@ function kbCaretHide() {
   const c = document.getElementById('kb-fake-caret');
   if (c) c.style.display = 'none';
 }
+// Mirror-div caret positioning for multiline fields: measures the exact
+// rendered position (including wrapped lines), which canvas measuring can't.
+let _kbMirror = null;
+function kbCaretMirrorPos(el, s) {
+  const cs = getComputedStyle(el);
+  if (!_kbMirror) {
+    _kbMirror = document.createElement('div');
+    _kbMirror.style.cssText = 'position:absolute;top:0;left:0;visibility:hidden;pointer-events:none;white-space:pre-wrap;word-wrap:break-word;overflow:hidden;';
+    document.body.appendChild(_kbMirror);
+  }
+  const m = _kbMirror;
+  const st = m.style;
+  st.width = el.clientWidth + 'px';
+  st.font = cs.fontStyle + ' ' + cs.fontVariant + ' ' + cs.fontWeight + ' ' + cs.fontSize + '/' + cs.lineHeight + ' ' + cs.fontFamily;
+  st.letterSpacing = cs.letterSpacing;
+  st.lineHeight = cs.lineHeight;
+  st.padding = cs.paddingTop + ' ' + cs.paddingRight + ' ' + cs.paddingBottom + ' ' + cs.paddingLeft;
+  st.border = '0';
+  m.textContent = '';
+  const pre = document.createElement('span');
+  pre.textContent = (el.value || '').slice(0, s);
+  const mark = document.createElement('span');
+  mark.textContent = '​';
+  m.appendChild(pre);
+  m.appendChild(mark);
+  const r = el.getBoundingClientRect();
+  const borderL = parseFloat(cs.borderLeftWidth) || 0;
+  const borderT = parseFloat(cs.borderTopWidth) || 0;
+  const fs = parseFloat(cs.fontSize) || 16;
+  return {
+    x: r.left + borderL + mark.offsetLeft - (el.scrollLeft || 0),
+    y: r.top + borderT + mark.offsetTop - (el.scrollTop || 0),
+    h: mark.offsetHeight || fs
+  };
+}
 function kbCaretUpdate() {
   const el = kbActiveInput;
   const caret = document.getElementById('kb-fake-caret');
@@ -11594,12 +11649,13 @@ function kbCaretUpdate() {
     const borderL = parseFloat(cs.borderLeftWidth) || 0;
     let top;
     if (isTA) {
-      const lineIdx = val.slice(0, s).split('\n').length - 1;
-      let lh = parseFloat(cs.lineHeight);
-      if (isNaN(lh)) lh = fs * 1.25;
-      const padT = parseFloat(cs.paddingTop) || 0;
-      const borderT = parseFloat(cs.borderTopWidth) || 0;
-      top = r.top + borderT + padT + lineIdx * lh - (el.scrollTop || 0);
+      // Mirror-div positioning: exact even with wrapped lines
+      const p = kbCaretMirrorPos(el, s);
+      caret.style.height = (p.h * 1.1) + 'px';
+      caret.style.left = p.x + 'px';
+      caret.style.top = p.y + 'px';
+      caret.style.display = 'block';
+      return;
     } else {
       top = r.top + (r.height - fs * 1.25) / 2;
     }
@@ -12542,19 +12598,35 @@ function backToToolsIfHome() {
 
 // ── SHARED TOOL REVEAL: host RNG / picker results shown on every screen ──
 let _revealTimer = null;
-window.showSharedReveal = function(text, sub) {
+window.showSharedReveal = function(text, sub, sr) {
   const overlay = document.getElementById('shared-reveal-overlay');
   if (!overlay) return;
-  document.getElementById('shared-reveal-text').textContent = text;
+  const textEl = document.getElementById('shared-reveal-text');
   document.getElementById('shared-reveal-sub').textContent = sub || '';
+  textEl.innerHTML = '';
+  if (sr && Array.isArray(sr.teams) && sr.teams.length) {
+    sr.teams.forEach((t, i) => {
+      const color = (typeof TEAM_COLORS !== 'undefined' ? TEAM_COLORS : ['#fff'])[i % (typeof TEAM_COLORS !== 'undefined' ? TEAM_COLORS.length : 1)];
+      const line = document.createElement('div');
+      line.style.cssText = 'font-size:1.4rem;font-weight:900;margin:0.25rem 0;';
+      line.style.color = color;
+      line.textContent = 'Team ' + (i + 1) + ': ' + (t || []).join(', ');
+      textEl.appendChild(line);
+    });
+  } else {
+    textEl.textContent = text;
+  }
   overlay.style.display = 'flex';
   haptic(15);
   if (_revealTimer) clearTimeout(_revealTimer);
   _revealTimer = setTimeout(() => { overlay.style.display = 'none'; }, 3000);
 };
-function broadcastSharedReveal(text, sub) {
+function broadcastSharedReveal(text, sub, extra) {
   if (!db || !roomCode || !isHost) return;
-  try { update(ref(db, `rooms/${roomCode}`), { sharedReveal: { text: String(text), sub: String(sub || ''), at: Date.now() } }).catch(() => {}); } catch {}
+  try {
+    const payload = Object.assign({ text: String(text), sub: String(sub || ''), at: Date.now() }, extra || {});
+    update(ref(db, `rooms/${roomCode}`), { sharedReveal: payload }).catch(() => {});
+  } catch {}
 }
 
 // ── TUTORIAL OVERLAY ──
@@ -13132,7 +13204,7 @@ window.runTeamMaker = function() {
     group.appendChild(chipRow);
     resultsEl.appendChild(group);
   });
-  broadcastSharedReveal(teams.map((t, i) => 'Team ' + (i + 1) + ': ' + t.join(', ')).join(' | '), 'Team draw');
+  broadcastSharedReveal('', 'Team draw', { teams: teams.map(t => t.slice()) });
 };
 
 // ── STATUS EFFECTS ────────────────────────────────
@@ -15805,6 +15877,14 @@ function renderManageListUnused(players, rawPlayers) {
     skipBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlayerSkip(p.id, p.name, p.knockedOut); });
     btnRow.appendChild(skipBtn);
     if (p.id !== myId) {
+      if (p.standin) {
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✎';
+        editBtn.title = 'Edit ' + (p.name || 'Player');
+        editBtn.style.cssText = 'font-size:0.7rem;font-weight:600;color:var(--accent-light);background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:0.4375rem;padding:0.3rem 0.6rem;cursor:pointer;';
+        editBtn.addEventListener('click', (e) => { e.stopPropagation(); openStandinOverlay(p.id); });
+        btnRow.appendChild(editBtn);
+      }
       const kickBtn = document.createElement('button');
       kickBtn.className = 'lobby-kick-btn';
       kickBtn.textContent = '×';
@@ -17263,7 +17343,7 @@ function listenGameState() {
       const sr = room.sharedReveal;
       if (sr && sr.at && (Date.now() - sr.at) < 10000 && window._lastSharedReveal !== sr.at) {
         window._lastSharedReveal = sr.at;
-        showSharedReveal(sr.text || '', sr.sub || '');
+        showSharedReveal(sr.text || '', sr.sub || '', sr);
       }
     } catch {}
     // Host starting new game — show reconfiguring screen
@@ -17611,28 +17691,78 @@ window.undoTurn = async function() {
 // ── SAVE GAME / RESUME ──────────────────────────
 
 
-function readSavedNotes() {
+let gameNotesEditId = null; // savedAt of the entry loaded for editing, or null for a new note
+function readNotesList() {
   try {
-    const raw = localStorage.getItem('sk_notes');
-    if (!raw) return { text: '', savedAt: 0 };
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === 'object') return { text: parsed.text || '', savedAt: parsed.savedAt || 0 };
-    return { text: raw, savedAt: 0 }; // legacy plain-string format
-  } catch { return { text: '', savedAt: 0 }; }
+    const raw = localStorage.getItem('sk_notes_list');
+    if (raw) {
+      const a = JSON.parse(raw);
+      if (Array.isArray(a)) return a;
+    }
+  } catch {}
+  // One-time migration from the old single-note formats
+  try {
+    const legacy = localStorage.getItem('sk_notes');
+    if (legacy) {
+      let entry = null;
+      try {
+        const p = JSON.parse(legacy);
+        if (p && typeof p === 'object') entry = { text: p.text || '', savedAt: p.savedAt || Date.now() };
+        else entry = { text: legacy, savedAt: Date.now() };
+      } catch { entry = { text: legacy, savedAt: Date.now() }; }
+      if (entry && entry.text) {
+        try { localStorage.setItem('sk_notes_list', JSON.stringify([entry])); } catch {}
+        return [entry];
+      }
+    }
+  } catch {}
+  return [];
 }
+function writeNotesList(list) {
+  try { localStorage.setItem('sk_notes_list', JSON.stringify((list || []).slice(0, 50))); } catch {}
+}
+function renderNotesList() {
+  const el = document.getElementById('game-notes-list');
+  if (!el) return;
+  const list = readNotesList();
+  el.innerHTML = '';
+  if (!list.length) {
+    el.innerHTML = '<div style="font-size:0.78rem;color:var(--muted);text-align:center;">No saved notes yet.</div>';
+    return;
+  }
+  list.forEach(n => {
+    const row = document.createElement('div');
+    const editing = gameNotesEditId != null && n.savedAt === gameNotesEditId;
+    row.style.cssText = 'display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.6rem;border-radius:0.5rem;background:rgba(255,255,255,0.04);border:1px solid ' + (editing ? 'var(--accent)' : 'rgba(255,255,255,0.08)') + ';cursor:pointer;text-align:left;';
+    const date = n.savedAt ? new Date(n.savedAt).toLocaleString() : '';
+    row.innerHTML =
+      '<div style="flex:1;min-width:0;">' +
+        '<div style="font-size:0.7rem;color:var(--muted);">' + escapeHtml(date) + '</div>' +
+        '<div style="font-size:0.82rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml((n.text || '').slice(0, 120)) + '</div>' +
+      '</div>' +
+      '<button type="button" style="flex-shrink:0;background:none;border:none;color:#ff5c5c;font-size:1rem;cursor:pointer;padding:0.2rem;" title="Delete note">✕</button>';
+    row.querySelector('button').onclick = (e) => deleteGameNote(n.savedAt, e);
+    row.onclick = () => {
+      document.getElementById('game-notes-textarea').value = n.text || '';
+      gameNotesEditId = n.savedAt;
+      renderNotesList();
+    };
+    el.appendChild(row);
+  });
+}
+window.deleteGameNote = function(savedAt, e) {
+  if (e) e.stopPropagation();
+  writeNotesList(readNotesList().filter(n => n.savedAt !== savedAt));
+  if (gameNotesEditId === savedAt) gameNotesEditId = null;
+  renderNotesList();
+};
 window.openGameNotes = function() {
   const overlay = document.getElementById('game-notes-overlay');
   const textarea = document.getElementById('game-notes-textarea');
   if (!overlay || !textarea) return;
-  const saved = readSavedNotes();
-  textarea.value = saved.text;
-  const line = document.getElementById('game-notes-saved');
-  if (line) {
-    if (saved.text) {
-      line.style.display = 'block';
-      line.textContent = saved.savedAt ? ('Last saved ' + new Date(saved.savedAt).toLocaleString()) : 'Saved note';
-    } else line.style.display = 'none';
-  }
+  textarea.value = '';
+  gameNotesEditId = null;
+  renderNotesList();
   overlay.classList.add('show');
   textarea.focus();
 };
@@ -17645,7 +17775,18 @@ window.closeGameNotes = function() {
 window.saveGameNotes = function() {
   const textarea = document.getElementById('game-notes-textarea');
   if (!textarea) return;
-  try { localStorage.setItem('sk_notes', JSON.stringify({ text: textarea.value, savedAt: Date.now() })); } catch {}
+  const text = textarea.value;
+  if (!text.trim()) { closeGameNotes(); return; }
+  const list = readNotesList();
+  if (gameNotesEditId != null) {
+    const idx = list.findIndex(n => n.savedAt === gameNotesEditId);
+    if (idx !== -1) list[idx] = { text, savedAt: Date.now() };
+    else list.unshift({ text, savedAt: Date.now() });
+  } else {
+    list.unshift({ text, savedAt: Date.now() });
+  }
+  writeNotesList(list);
+  gameNotesEditId = null;
   closeGameNotes();
 };
 
