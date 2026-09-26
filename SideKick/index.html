@@ -9292,7 +9292,10 @@ window.doSignOut = async function() {
       } catch {}
     }
     window._stopSessionEnforcement && window._stopSessionEnforcement();
+    currentUser = null;
+    isCreator = false;
     clearAccountState();
+    updateAccountButtonUI();
     await signOut(auth);
     showScreen('home');
   } catch (err) {
@@ -18596,6 +18599,7 @@ function clearAccountState() {
   stopFriendRequestListener();
   stopRoomInviteListener();
   resetThemeToDefault();
+  updateAccountButtonUI();
 }
 // Back to the Original theme on logout so the next session (including
 // guests) doesn't inherit the previous account's custom theme.
