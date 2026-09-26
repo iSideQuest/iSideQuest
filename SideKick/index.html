@@ -9067,8 +9067,9 @@ function clearSession() {
 }
 
 // ── HOST IDENTITY ──────────────────────────────
-// All features are open to every account (donate-only model) — guests and
-// signed-in users alike. getHostId() returns the Firebase Auth UID or null.
+// All features are open to every account (donate-only model). Account-bound
+// data (presets, collection, friends) still requires sign-in; getHostId()
+// returns the Firebase Auth UID or null.
 function getHostId() {
   return currentUser ? currentUser.uid : null;
 }
@@ -9921,6 +9922,7 @@ window.createRoomFromPresetId = async function(id) {
 };
 
 async function createRoomFromPreset(preset) {
+  if (!requireHostAccount()) return;
   // Apply preset profile to current session (do NOT persist to user profile)
   if (preset.profile) {
     if (preset.profile.name) myName = preset.profile.name;
@@ -10575,9 +10577,9 @@ function updateAccountButtonUI() {
     btn.textContent = t('login');
     btn.onclick = () => openAccountOverlay('login');
   }
-  // Host Preset Room is available to every account
+  // Host Preset Room pulls the user's saved presets, so it needs an account
   const presetBtn = document.getElementById('host-preset-room-btn');
-  if (presetBtn) presetBtn.style.display = '';
+  if (presetBtn) presetBtn.style.display = currentUser ? '' : 'none';
 }
 
 // ── TURN MODE SELECTION ─────────────────────────
