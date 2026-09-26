@@ -7603,7 +7603,7 @@ const I18N_STRINGS = {
     contactName: 'Your name',
     contactMessage: 'Your message',
     send: 'Send',
-    donateMsg: 'I created SideKick in hopes to enhance the experience of board games and the joy we feel being together to enjoy them and the memories we create. If you are truly enjoying what SideKick has to offer and feel like contributing, donations are greatly appreciated.',
+    donateMsg: 'I created SideKick in hopes to enhance the experience of board games. We all enjoy board games, to be together, and create memories that last a life time. If you are truly enjoying what SideKick has to offer and feel like contributing, donations are greatly appreciated. If not, continue using SideKick 100% free and enjoy! :)',
     learnMoreFeatures: 'Learn More About SideKick Features',
     featuresHubTitle: 'SideKick Features',
     featuresHubMsg: 'In-depth video tutorials showcasing all the features SideKick has to offer — coming soon.',
@@ -9067,9 +9067,8 @@ function clearSession() {
 }
 
 // ── HOST IDENTITY ──────────────────────────────
-// Guests (SideKick tier) can host rooms without an account. Presets and
-// saved games still require a signed-in account (filed under the real
-// Firebase Auth UID). Call requireHostAccount() before those actions.
+// All features are open to every account (donate-only model) — guests and
+// signed-in users alike. getHostId() returns the Firebase Auth UID or null.
 function getHostId() {
   return currentUser ? currentUser.uid : null;
 }
@@ -9611,14 +9610,7 @@ window.togglePresetFeature = function(key) {
   }
 };
 function updatePresetEditUI() {
-  // Hide creator-only features for non-creator accounts
-  const creatorFeatures = ['timers','status','dnd'];
-  document.querySelectorAll('#preset-features-grid .feature-card').forEach(el => {
-    const k = el.dataset.feature;
-    const isCreatorFeat = creatorFeatures.includes(k);
-    el.style.display = (!isCreator && isCreatorFeat) ? 'none' : '';
-    if (!isCreator && isCreatorFeat) _editingPresetFeatures[k] = false;
-  });
+  // All features are available to every account
   // Turn dir
   document.querySelectorAll('#preset-dir-cw, #preset-dir-ccw, #preset-dir-both').forEach(el => el.classList.remove('selected'));
   const dirEl = document.getElementById('preset-dir-' + _editingPresetDir);
@@ -9631,13 +9623,6 @@ function updatePresetEditUI() {
   });
 }
 window.openHostPresetGame = function() {
-  // Legendary SideKick (and Creator) accounts get the presets overlay;
-  // guests (SideKick tier) get the upgrade prompt instead.
-  if (!currentUser) {
-    document.getElementById('upgrade-pro-overlay').classList.add('show');
-    haptic(5);
-    return;
-  }
   openVoicePresetsOverlay();
 };
 window.closeUpgradeProOverlay = function() {
@@ -9936,7 +9921,6 @@ window.createRoomFromPresetId = async function(id) {
 };
 
 async function createRoomFromPreset(preset) {
-  if (!requireHostAccount()) return;
   // Apply preset profile to current session (do NOT persist to user profile)
   if (preset.profile) {
     if (preset.profile.name) myName = preset.profile.name;
@@ -10167,20 +10151,10 @@ function renderAvatarPicker(pickerId, current, onPick) {
     tabsEl.appendChild(tab);
   });
 
-  // Grid — guests (SideKick tier) can view all avatars but only pick from Free
+  // Grid — every avatar is pickable, signed in or not
   gridEl.innerHTML = '';
-  const guestLock = !currentUser;
-  const freeSet = guestLock ? new Set(getCategoryAvatars('free')) : null;
   getCategoryAvatars(activeKey).forEach(avatar => {
-    const locked = guestLock && !freeSet.has(avatar);
-    if (locked) {
-      gridEl.appendChild(makeAvatarOption(avatar, false, () => {
-        openUpgradeLockOverlay();
-        haptic(3);
-      }, true));
-    } else {
-      gridEl.appendChild(makeAvatarOption(avatar, avatar === current, () => onPick(avatar), false));
-    }
+    gridEl.appendChild(makeAvatarOption(avatar, avatar === current, () => onPick(avatar), false));
   });
 }
 
@@ -10601,9 +10575,9 @@ function updateAccountButtonUI() {
     btn.textContent = t('login');
     btn.onclick = () => openAccountOverlay('login');
   }
-  // Host Preset Room is a Pro-only home button — hide it for Free (guest) users
+  // Host Preset Room is available to every account
   const presetBtn = document.getElementById('host-preset-room-btn');
-  if (presetBtn) presetBtn.style.display = currentUser ? '' : 'none';
+  if (presetBtn) presetBtn.style.display = '';
 }
 
 // ── TURN MODE SELECTION ─────────────────────────
@@ -14142,9 +14116,9 @@ const FEATURE_DEFS_GRID = [
   { key: 'vp',      icon: '🏅', name: 'Victory Points',  hasSettings: false, var: 'featureVPEnabled' },
   { key: 'rounds',  icon: '🔢', name: 'Rounds',         hasSettings: true,  settingKey: 'rounds',  var: 'featureRoundsEnabled' },
   { key: 'undo',    icon: '↩️', name: 'Undo Pass',      hasSettings: false, var: 'featureUndoEnabled' },
-  { key: 'timers',  icon: '⏱️', name: 'Timers',         hasSettings: true,  settingKey: 'timers',  var: 'featureTimersEnabled',  creatorOnly: true },
-  { key: 'status',  icon: '🩹', name: 'Status Effects',  hasSettings: false, var: 'featureStatusEffectsEnabled', creatorOnly: true },
-  { key: 'dnd',     icon: '⚔️', name: 'D&D',            hasSettings: false, var: 'featureDndEnabled',           creatorOnly: true },
+  { key: 'timers',  icon: '⏱️', name: 'Timers',         hasSettings: true,  settingKey: 'timers',  var: 'featureTimersEnabled' },
+  { key: 'status',  icon: '🩹', name: 'Status Effects',  hasSettings: false, var: 'featureStatusEffectsEnabled' },
+  { key: 'dnd',     icon: '⚔️', name: 'D&D',            hasSettings: false, var: 'featureDndEnabled' },
   { key: 'playerSkip', icon: '⏭️', name: 'Player Skip', hasSettings: false, var: 'featurePlayerSkipEnabled' }
 ];
 
