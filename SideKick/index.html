@@ -5294,7 +5294,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v259</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v260</div>
   </div>
 </div>
 
@@ -6753,7 +6753,7 @@
     <div style="font-size:0.8rem;color:var(--muted);margin:0.3rem 0 0;" data-i18n="currentlyUsingSidekick">You are currently using SideKick</div>
     <div style="font-size:0.9rem;color:var(--text);margin:0.5rem 0 0;" data-i18n="watchVideoHowTo">Watch Video For How To Use SideKick</div>
     <div id="sidekick-videos" style="display:flex;flex-direction:column;gap:0.5rem;margin:0.6rem 0;">
-      <video controls preload="metadata" playsinline style="width:100%;aspect-ratio:16/9;border-radius:0.625rem;border:1px solid var(--border);background:#000;" src="Video/Tutorial.mp4"></video>
+      <video controls preload="metadata" playsinline style="display:block;width:auto;max-width:100%;height:auto;max-height:55vh;margin:0 auto;border-radius:0.625rem;border:1px solid var(--border);background:#000;" src="Video/Tutorial.mp4"></video>
     </div>
     <button class="btn-primary btn-sm" style="width:100%;" onclick="openFeaturesInfo()" data-i18n="learnMoreFeatures">Learn More About SideKick Features</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeSidekickInfo()" data-i18n="close">Close</button>
@@ -11796,7 +11796,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v259';
+const APP_VERSION = 'v260';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
