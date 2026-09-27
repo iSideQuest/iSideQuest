@@ -5249,7 +5249,6 @@
       <button class="btn-primary" onclick="showCreateRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999rem;" data-i18n="hostNewRoom">Host New Room</button>
       <button class="btn-secondary" id="host-preset-room-btn" onclick="openHostPresetGame()" style="width:66%;margin:0 auto;display:block;font-size:1.05rem;padding:0.85rem 1.2rem;border-radius:999rem;" data-i18n="hostPresetGame">Host Preset Room</button>
       <button class="btn-secondary" onclick="showJoinRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999rem;" data-i18n="joinRoom">Join Room</button>
-      <button class="btn-secondary" onclick="startPracticeGame()" style="width:66%;margin:0 auto;display:block;font-size:1.05rem;padding:0.85rem 1.2rem;border-radius:999rem;">🎯 Practice Solo</button>
     </div>
   </div>
   <p id="home-status" class="status"></p>
@@ -5295,7 +5294,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v262</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v263</div>
   </div>
 </div>
 
@@ -5710,6 +5709,7 @@
     <div class="pass-tap-label">Pass</div>
     <div class="pass-tap-player" id="pass-tap-player"></div>
   </button>
+  <button class="undo-turn-btn" id="undo-turn-btn-active" onclick="undoTurn()" title="Undo">Undo</button>
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
@@ -6783,6 +6783,7 @@
       <div style="font-size:1.6rem;">▶️</div>
       <div style="font-size:0.75rem;color:var(--muted);" data-i18n="videoComingSoon">Video coming soon</div>
     </div>
+    <button class="btn-primary btn-sm" style="width:100%;margin-bottom:0.4rem;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startPracticeGame()">🎯 Practice Solo</button>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeFeaturesInfo()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -9924,7 +9925,7 @@ function renderPracticeStep() {
   const texts = [
     'Welcome to your practice table. You play <b>BOTH</b> seats, starting as <b>' + you + '</b>. Nothing here affects real games.',
     'This screen is <b>' + you + '</b>’s turn. Tap the big <b>PASS TURN</b> button — Next unlocks once play reaches Rival.',
-    'Changed your mind? The <b>Undo</b> circle (bottom row, left of Skip) takes the turn back. Tap it — Next unlocks when the turn is yours again.',
+    'Changed your mind? The <b>Undo</b> circle in the bottom row takes the turn back. Tap it — Next unlocks when the turn is yours again.',
     'Now pass as <b>Rival</b>, then open the <b>Host menu</b> and peek inside <b>Tools</b> — both unlock Next.',
     'That’s the whole loop: pass, undo, tools. Finish to delete this practice room.'
   ];
@@ -11965,7 +11966,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v262';
+const APP_VERSION = 'v263';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
@@ -17738,6 +17739,10 @@ function listenGameState() {
       if (turnChanged || firstTurn) initTimersForTurn(room, true);
       else syncTimersFromRoom(room);
       clearNudgeTimer();
+      // Undo is also offered here: as host covering a stand-in (e.g. practice),
+      // the previous player can be you while this screen is showing.
+      const undoBtnA = document.getElementById('undo-turn-btn-active');
+      if (undoBtnA) undoBtnA.classList.toggle('visible', featureUndoEnabled && room.previousPlayerId === myId);
       showScreen('active');
       const activeRC = document.getElementById('active-room-code-val');
       if (activeRC && roomCode) activeRC.textContent = roomCode;
