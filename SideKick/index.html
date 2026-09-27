@@ -17847,6 +17847,33 @@ async function loadCollection() {
       if (snap.exists()) {
         const obj = snap.val();
         collectionGames = Object.keys(obj).map(k => Object.assign({ id: k }, obj[k]));
+        // Photos live owner-only under privatePhotos: attach them here and
+        // migrate any legacy inline photo out of the friend-readable node.
+        try {
+          const psnap = await get(ref(db, `privatePhotos/${uid}`));
+          const photos = (psnap && psnap.val()) || {};
+          const localMap = {};
+          loadCollectionLocal().forEach(g => { if (g && g.id && g.photo) localMap[g.id] = g.photo; });
+          for (const g of collectionGames) {
+            if (g.photo) {
+              try {
+                await set(ref(db, `privatePhotos/${uid}/${g.id}`), g.photo);
+                const strip = {};
+                strip[collectionPath() + '/' + g.id + '/photo'] = null;
+                await update(ref(db), strip);
+              } catch {}
+              photos[g.id] = g.photo;
+            }
+            if (!photos[g.id] && localMap[g.id]) {
+              try {
+                await set(ref(db, `privatePhotos/${uid}/${g.id}`), localMap[g.id]);
+                photos[g.id] = localMap[g.id];
+              } catch {}
+            }
+            if (photos[g.id]) g.photo = photos[g.id];
+            else delete g.photo;
+          }
+        } catch {}
         saveCollectionLocal(collectionGames);
         return collectionGames;
       }
@@ -18352,7 +18379,14 @@ window.saveCollectionGame = async function() {
   const uid = currentUser && currentUser.uid ? currentUser.uid : null;
   if (db && uid) {
     try {
-      await set(ref(db, collectionPath() + '/' + game.id), game);
+      // Photos stay owner-only: strip from the friend-readable game node…
+      const gameCopy = Object.assign({}, game);
+      delete gameCopy.photo;
+      await set(ref(db, collectionPath() + '/' + game.id), gameCopy);
+      // …and sync to privatePhotos instead (removed when no photo set)
+      const photoRef = ref(db, `privatePhotos/${uid}/${game.id}`);
+      if (collectionPhotoDataUrl) await set(photoRef, collectionPhotoDataUrl);
+      else await remove(photoRef);
     } catch (e) {
       showAlert('Could not sync this game to your account. It is saved on this device only.');
     }
@@ -18369,6 +18403,7 @@ window.deleteCollectionGame = async function(id) {
   if (db && uid) {
     try {
       await remove(ref(db, collectionPath() + '/' + id));
+      await remove(ref(db, `privatePhotos/${uid}/${id}`));
     } catch (e) {
       showAlert('Could not remove this game from your account. It was removed on this device only.');
     }
