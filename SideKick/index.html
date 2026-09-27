@@ -5294,7 +5294,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v263</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v264</div>
   </div>
 </div>
 
@@ -9923,17 +9923,21 @@ window.startPracticeGame = async function() {
 function renderPracticeStep() {
   const you = esc(myName || 'You');
   const texts = [
-    'Welcome to your practice table. You play <b>BOTH</b> seats, starting as <b>' + you + '</b>. Nothing here affects real games.',
-    'This screen is <b>' + you + '</b>’s turn. Tap the big <b>PASS TURN</b> button — Next unlocks once play reaches Rival.',
-    'Changed your mind? The <b>Undo</b> circle in the bottom row takes the turn back. Tap it — Next unlocks when the turn is yours again.',
-    'Now pass as <b>Rival</b>, then open the <b>Host menu</b> and peek inside <b>Tools</b> — both unlock Next.',
+    'Welcome to your practice table. You play <b>BOTH</b> seats, starting as <b>' + you + '</b>. Nothing here affects real games. Press Start when ready.',
+    'This screen is <b>' + you + '</b>’s turn. Tap the big <b>PASS TURN</b> button to send play to Rival.',
+    'Changed your mind? The <b>Undo</b> circle in the bottom row takes the turn back. Tap it.',
+    'Now pass as <b>Rival</b>, then open the <b>Host menu</b> and peek inside <b>Tools</b>.',
     'That’s the whole loop: pass, undo, tools. Finish to delete this practice room.'
   ];
   const idx = Math.min(Math.max(practiceStep, 1), PRACTICE_STEPS) - 1;
   document.getElementById('practice-text').innerHTML = texts[idx];
   document.getElementById('practice-step-num').textContent = (idx + 1) + '/' + PRACTICE_STEPS;
   document.getElementById('practice-back-btn').style.visibility = idx === 0 ? 'hidden' : 'visible';
-  document.getElementById('practice-next-btn').textContent = idx === PRACTICE_STEPS - 1 ? 'Finish ✓' : 'Next ▶';
+  const nextBtn = document.getElementById('practice-next-btn');
+  // Gated steps advance themselves when the task is done — Next only
+  // exists to Start (step 1) and Finish (step 5).
+  nextBtn.style.display = (idx === 0 || idx === PRACTICE_STEPS - 1) ? '' : 'none';
+  nextBtn.textContent = idx === PRACTICE_STEPS - 1 ? 'Finish ✓' : 'Start ▶';
   updatePracticeNext();
 }
 // Each gated step only unlocks Next once the room proves the task was done
@@ -9954,19 +9958,21 @@ function practiceStepDone(step, room) {
   return true;
 }
 function updatePracticeNext() {
-  const btn = document.getElementById('practice-next-btn');
-  if (!btn) return;
-  const ok = practiceStepDone(practiceStep, _practiceRoom);
-  btn.disabled = !ok;
-  btn.style.opacity = ok ? '' : '0.45';
+  // Gated steps (2-4) advance themselves the moment the room proves the
+  // task was done. Each landing step's gate is false in that same state,
+  // so this can never cascade more than one step per snapshot.
+  if (practiceStep >= 2 && practiceStep <= PRACTICE_STEPS - 1) {
+    if (practiceStepDone(practiceStep, _practiceRoom)) {
+      practiceStep++;
+      renderPracticeStep();
+      haptic(10);
+    }
+  }
 }
 window.renderPracticeStep = renderPracticeStep;
 window.practiceNext = function() {
-  if (!practiceStepDone(practiceStep, _practiceRoom)) return;
+  if (practiceStep === 1) { practiceStep = 2; renderPracticeStep(); haptic(5); return; }
   if (practiceStep >= PRACTICE_STEPS) { endPractice(); return; }
-  practiceStep++;
-  renderPracticeStep();
-  haptic(5);
 };
 window.practiceBack = function() {
   if (practiceStep > 1) practiceStep--;
@@ -11966,7 +11972,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v263';
+const APP_VERSION = 'v264';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
