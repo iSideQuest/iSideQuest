@@ -5249,6 +5249,7 @@
       <button class="btn-primary" onclick="showCreateRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999rem;" data-i18n="hostNewRoom">Host New Room</button>
       <button class="btn-secondary" id="host-preset-room-btn" onclick="openHostPresetGame()" style="width:66%;margin:0 auto;display:block;font-size:1.05rem;padding:0.85rem 1.2rem;border-radius:999rem;" data-i18n="hostPresetGame">Host Preset Room</button>
       <button class="btn-secondary" onclick="showJoinRoom()" style="font-size:1.3rem;padding:1.1rem 1.5rem;border-radius:999rem;" data-i18n="joinRoom">Join Room</button>
+      <button class="btn-secondary" onclick="startPracticeGame()" style="width:66%;margin:0 auto;display:block;font-size:1.05rem;padding:0.85rem 1.2rem;border-radius:999rem;">🎯 Practice Solo</button>
     </div>
   </div>
   <p id="home-status" class="status"></p>
@@ -5294,7 +5295,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v260</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v261</div>
   </div>
 </div>
 
@@ -6819,6 +6820,18 @@
     <div id="standin-error" style="display:none;color:#e74c3c;font-size:0.8rem;margin-bottom:0.5rem;"></div>
     <button class="btn-primary btn-sm" id="standin-save-btn" style="width:100%;" onclick="createStandinPlayer()" data-i18n="createAction">Create</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeStandinOverlay()" data-i18n="close">Close</button>
+  </div>
+</div>
+<!-- PRACTICE COACH (guided solo room, top banner so game controls stay visible) -->
+<div id="practice-coach" style="display:none;position:fixed;top:calc(4.75rem + env(safe-area-inset-top, 0));left:0.75rem;right:0.75rem;z-index:9500;background:var(--surface);border:1px solid var(--accent);border-radius:1rem;padding:0.7rem 0.9rem;box-shadow:0 0.5rem 2rem rgba(0,0,0,0.5);">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem;">
+    <span style="font-size:0.75rem;font-weight:800;color:var(--accent-light);letter-spacing:0.06em;">🎯 PRACTICE <span id="practice-step-num">1/5</span></span>
+    <button onclick="endPractice()" style="margin-left:auto;background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:0 0.2rem;" title="End practice">✕</button>
+  </div>
+  <div id="practice-text" style="font-size:0.85rem;color:var(--text);line-height:1.4;margin-bottom:0.6rem;"></div>
+  <div style="display:flex;gap:0.5rem;">
+    <button id="practice-back-btn" class="btn-secondary btn-sm" style="flex:1;" onclick="practiceBack()">◀ Back</button>
+    <button id="practice-next-btn" class="btn-primary btn-sm" style="flex:1;" onclick="practiceNext()">Next ▶</button>
   </div>
 </div>
 <div id="overlay-kb" class="custom-kb" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:100000;padding:0.25rem 0.2rem calc(0.5rem + env(safe-area-inset-bottom, 0));background:rgba(10,10,15,0.97);border-top:1px solid var(--border);box-sizing:border-box;"></div>
@@ -9822,6 +9835,105 @@ window.createStandinPlayer = async function() {
   closeStandinOverlay();
   haptic(15);
 };
+// ── PRACTICE MODE (solo guided room, deleted afterwards) ──
+// A real room with you + one hosted Rival, driven by the normal game logic.
+// Coach steps are manual Next/Back on purpose — no event wiring to rot.
+let practiceStep = 0;
+let _prevUndoEnabled = null;
+const PRACTICE_STEPS = 5;
+window.startPracticeGame = async function() {
+  if (!requireDb()) return;
+  const you = getSavedName() || 'You';
+  myName = you;
+  myColor = getSavedColor() || '';
+  const avatar = (typeof roomAvatarSelection !== 'undefined' && roomAvatarSelection) || getSavedAvatar() || '👤';
+  isHost = true;
+  myId = uid();
+  const rivalId = uid();
+  let rivalColor = '';
+  try {
+    const alt = PLAYER_COLORS.find(c => c && c.hex !== myColor);
+    if (alt) rivalColor = alt.hex;
+  } catch {}
+  const claimed = await claimRoomCode();
+  roomCode = claimed.code;
+  const now = Date.now();
+  try {
+    await set(claimed.roomRef, {
+      host: myId,
+      hostAuthUid: currentUser ? currentUser.uid : null,
+      status: 'playing',
+      activePlayerIndex: 0,
+      previousPlayerId: null,
+      previousPlayerIndex: null,
+      lastActivity: now,
+      currentRound: 0,
+      features: {
+        passDirection: 'both', nudge: false, awards: false, victoryPoints: false,
+        statusEffects: false, dndTurnComponents: false, timers: false,
+        rounds: false, turnMode: 'classic', undo: true, playerSkip: false
+      },
+      players: {
+        [myId]: { name: you, order: 0, joinedAt: now, knockedOut: false, color: myColor || null, avatar, authUid: currentUser ? currentUser.uid : null },
+        [rivalId]: { name: 'Rival', order: 1, joinedAt: now, knockedOut: false, color: rivalColor || null, avatar: '🤖', authUid: null, standin: true }
+      }
+    });
+  } catch (e) {
+    showAlert('Could not start practice. Check your connection and try again.');
+    return;
+  }
+  localPlayers = [
+    { id: myId, name: you, order: 0, color: myColor || null, avatar },
+    { id: rivalId, name: 'Rival', order: 1, color: rivalColor || null, avatar: '🤖', standin: true }
+  ];
+  _prevUndoEnabled = featureUndoEnabled;
+  featureUndoEnabled = true;
+  try { cleanupListeners(); } catch {}
+  try { listenGameState(); } catch {}
+  practiceStep = 1;
+  renderPracticeStep();
+  document.getElementById('practice-coach').style.display = 'block';
+  haptic(15);
+};
+function renderPracticeStep() {
+  const you = esc(myName || 'You');
+  const texts = [
+    'Welcome to your practice table. You play <b>BOTH</b> seats, starting as <b>' + you + '</b>. Nothing here affects real games.',
+    'This screen is <b>' + you + '</b>’s turn. Tap the big <b>PASS TURN</b> button to send play to Rival.',
+    'Changed your mind? The <b>Undo</b> circle (bottom row, left of Skip) takes the turn back. Tap it — or just continue.',
+    'Now pass as <b>Rival</b>, then open the <b>Host menu</b> and peek inside <b>Tools</b>.',
+    'That’s the whole loop: pass, undo, tools. Finish to delete this practice room.'
+  ];
+  const idx = Math.min(Math.max(practiceStep, 1), PRACTICE_STEPS) - 1;
+  document.getElementById('practice-text').innerHTML = texts[idx];
+  document.getElementById('practice-step-num').textContent = (idx + 1) + '/' + PRACTICE_STEPS;
+  document.getElementById('practice-back-btn').style.visibility = idx === 0 ? 'hidden' : 'visible';
+  document.getElementById('practice-next-btn').textContent = idx === PRACTICE_STEPS - 1 ? 'Finish ✓' : 'Next ▶';
+}
+window.renderPracticeStep = renderPracticeStep;
+window.practiceNext = function() {
+  if (practiceStep >= PRACTICE_STEPS) { endPractice(); return; }
+  practiceStep++;
+  renderPracticeStep();
+  haptic(5);
+};
+window.practiceBack = function() {
+  if (practiceStep > 1) practiceStep--;
+  renderPracticeStep();
+  haptic(5);
+};
+window.endPractice = async function() {
+  const coach = document.getElementById('practice-coach');
+  if (coach) coach.style.display = 'none';
+  if (_prevUndoEnabled !== null) { featureUndoEnabled = _prevUndoEnabled; _prevUndoEnabled = null; }
+  const code = roomCode;
+  try { cleanupListeners(); } catch {}
+  roomCode = null; myId = null; isHost = false;
+  try { clearSession(); } catch {}
+  if (db && code) { try { await remove(ref(db, `rooms/${code}`)); } catch {} }
+  practiceStep = 0;
+  showScreen('home');
+};
 window.openVoicePresetsOverlay = function() {
   renderVoicePresets();
   document.getElementById('voice-presets-overlay').classList.add('show');
@@ -11796,7 +11908,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v260';
+const APP_VERSION = 'v261';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
