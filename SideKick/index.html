@@ -4799,6 +4799,7 @@
   }
   .collection-chip:hover { border-color: var(--accent); }
   .collection-chip.active { border-color: var(--accent); background: rgba(124,92,191,0.18); color: var(--accent-light); }
+  #collection-filter-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 0.15rem 0.6rem; align-items: start; }
   .collection-filter-subtitle {
     font-size: 0.62rem; font-weight: 700; color: var(--muted);
     text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.1rem;
@@ -5269,7 +5270,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v250</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v251</div>
   </div>
 </div>
 
@@ -6365,8 +6366,8 @@
         <button class="btn-secondary btn-sm" style="flex-shrink:0;white-space:nowrap;" onclick="toggleCollectionFilters()">Filters<span id="collection-filter-count"></span> <span id="collection-filter-arrow">▸</span></button>
       </div>
       <div style="display:flex;gap:0.5rem;margin-bottom:0.6rem;">
-        <button class="btn-primary" style="flex:1;" onclick="openCollectionSearchDB()">🔍 Add Game</button>
-        <button class="btn-secondary" style="flex:1;" onclick="openCollectionEdit()">+ Manual</button>
+        <button class="btn-primary" style="flex:1;padding:0.55rem 0.5rem;" onclick="openCollectionSearchDB()">🔍 Add Game</button>
+        <button class="btn-secondary" style="flex:1;padding:0.55rem 0.5rem;" onclick="openCollectionEdit()">+ Manual</button>
       </div>
       <div id="collection-filters" style="display:flex;flex-direction:column;gap:0.3rem;margin-bottom:0.5rem;">
         <div id="collection-filter-body" style="display:none;flex-direction:column;gap:0.3rem;">
@@ -11742,7 +11743,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v250';
+const APP_VERSION = 'v251';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
@@ -18044,8 +18045,8 @@ function renderCollectionFilters() {
         if (!def) return '';
         return '<button class="collection-chip' + (set.has(key) ? ' active' : '') + '" onclick="toggleCollectionFilter(\'' + group.type + '\',\'' + key + '\')">' + def.icon + ' ' + def.label + '</button>';
       }).join('');
-      return '<div class="collection-filter-subtitle">' + group.label + '</div>' +
-             '<div class="collection-chip-row">' + chips + '</div>';
+      return '<div><div class="collection-filter-subtitle">' + group.label + '</div>' +
+             '<div class="collection-chip-row">' + chips + '</div></div>';
     }).join('');
   }
   const playersEl = document.getElementById('collection-players');
