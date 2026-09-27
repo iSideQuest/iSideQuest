@@ -5295,7 +5295,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v261</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v262</div>
   </div>
 </div>
 
@@ -9839,6 +9839,11 @@ window.createStandinPlayer = async function() {
 // A real room with you + one hosted Rival, driven by the normal game logic.
 // Coach steps are manual Next/Back on purpose — no event wiring to rot.
 let practiceStep = 0;
+let practiceUnsub = null;
+let _practiceRoom = null;
+let _practiceSawTools = false;
+let _origOpenToolsOverlay = null;
+let _practiceToolsWrapped = false;
 let _prevUndoEnabled = null;
 const PRACTICE_STEPS = 5;
 window.startPracticeGame = async function() {
@@ -9888,8 +9893,27 @@ window.startPracticeGame = async function() {
   ];
   _prevUndoEnabled = featureUndoEnabled;
   featureUndoEnabled = true;
+  _practiceSawTools = false;
+  _practiceRoom = null;
+  if (!_practiceToolsWrapped) {
+    _practiceToolsWrapped = true;
+    _origOpenToolsOverlay = window.openToolsOverlay;
+    window.openToolsOverlay = function(...args) {
+      _practiceSawTools = true;
+      updatePracticeNext();
+      return _origOpenToolsOverlay.apply(this, args);
+    };
+  }
   try { cleanupListeners(); } catch {}
   try { listenGameState(); } catch {}
+  try {
+    if (practiceUnsub) { try { practiceUnsub(); } catch {} }
+    practiceUnsub = onValue(ref(db, `rooms/${roomCode}`), (snap) => {
+      if (!snap.exists()) return;
+      _practiceRoom = snap.val();
+      updatePracticeNext();
+    });
+  } catch {}
   practiceStep = 1;
   renderPracticeStep();
   document.getElementById('practice-coach').style.display = 'block';
@@ -9899,9 +9923,9 @@ function renderPracticeStep() {
   const you = esc(myName || 'You');
   const texts = [
     'Welcome to your practice table. You play <b>BOTH</b> seats, starting as <b>' + you + '</b>. Nothing here affects real games.',
-    'This screen is <b>' + you + '</b>’s turn. Tap the big <b>PASS TURN</b> button to send play to Rival.',
-    'Changed your mind? The <b>Undo</b> circle (bottom row, left of Skip) takes the turn back. Tap it — or just continue.',
-    'Now pass as <b>Rival</b>, then open the <b>Host menu</b> and peek inside <b>Tools</b>.',
+    'This screen is <b>' + you + '</b>’s turn. Tap the big <b>PASS TURN</b> button — Next unlocks once play reaches Rival.',
+    'Changed your mind? The <b>Undo</b> circle (bottom row, left of Skip) takes the turn back. Tap it — Next unlocks when the turn is yours again.',
+    'Now pass as <b>Rival</b>, then open the <b>Host menu</b> and peek inside <b>Tools</b> — both unlock Next.',
     'That’s the whole loop: pass, undo, tools. Finish to delete this practice room.'
   ];
   const idx = Math.min(Math.max(practiceStep, 1), PRACTICE_STEPS) - 1;
@@ -9909,9 +9933,35 @@ function renderPracticeStep() {
   document.getElementById('practice-step-num').textContent = (idx + 1) + '/' + PRACTICE_STEPS;
   document.getElementById('practice-back-btn').style.visibility = idx === 0 ? 'hidden' : 'visible';
   document.getElementById('practice-next-btn').textContent = idx === PRACTICE_STEPS - 1 ? 'Finish ✓' : 'Next ▶';
+  updatePracticeNext();
+}
+// Each gated step only unlocks Next once the room proves the task was done
+function practiceActiveId(room) {
+  try {
+    const ps = buildOrderedPlayers((room && room.players) || {});
+    const p = ps[(room && room.activePlayerIndex) || 0];
+    return p ? p.id : null;
+  } catch { return null; }
+}
+function practiceStepDone(step, room) {
+  if (step === 1 || step >= PRACTICE_STEPS) return true;
+  if (!room || !myId) return false;
+  const activeId = practiceActiveId(room);
+  if (step === 2) return !!activeId && activeId !== myId;
+  if (step === 3) return !!activeId && activeId === myId;
+  if (step === 4) return !!activeId && activeId !== myId && !!_practiceSawTools;
+  return true;
+}
+function updatePracticeNext() {
+  const btn = document.getElementById('practice-next-btn');
+  if (!btn) return;
+  const ok = practiceStepDone(practiceStep, _practiceRoom);
+  btn.disabled = !ok;
+  btn.style.opacity = ok ? '' : '0.45';
 }
 window.renderPracticeStep = renderPracticeStep;
 window.practiceNext = function() {
+  if (!practiceStepDone(practiceStep, _practiceRoom)) return;
   if (practiceStep >= PRACTICE_STEPS) { endPractice(); return; }
   practiceStep++;
   renderPracticeStep();
@@ -9926,6 +9976,13 @@ window.endPractice = async function() {
   const coach = document.getElementById('practice-coach');
   if (coach) coach.style.display = 'none';
   if (_prevUndoEnabled !== null) { featureUndoEnabled = _prevUndoEnabled; _prevUndoEnabled = null; }
+  if (practiceUnsub) { try { practiceUnsub(); } catch {} practiceUnsub = null; }
+  _practiceRoom = null;
+  if (_practiceToolsWrapped) {
+    _practiceToolsWrapped = false;
+    if (_origOpenToolsOverlay) window.openToolsOverlay = _origOpenToolsOverlay;
+    _origOpenToolsOverlay = null;
+  }
   const code = roomCode;
   try { cleanupListeners(); } catch {}
   roomCode = null; myId = null; isHost = false;
@@ -11908,7 +11965,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v261';
+const APP_VERSION = 'v262';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
