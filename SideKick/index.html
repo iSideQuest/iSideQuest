@@ -4012,6 +4012,28 @@
   body.theme-viking .toggle-slider { background:#2a1a00; border:1px solid rgba(139,105,20,0.4) !important; }
 
   /* ══════════════════════════════════════════════
+     COMPACT LAYOUT THEME — density + layout only, inherits palette.
+     CSS-only: no DOM/JS changes, safe to swap with any other theme.
+  ══════════════════════════════════════════════ */
+  body.theme-compact .tools-modal { padding:1rem 0.8rem !important; gap:0.35rem !important; }
+  body.theme-compact .tool-list-btn { padding:0.45rem 0.8rem !important; font-size:0.85rem !important; }
+  body.theme-compact .card { padding:0.75rem !important; }
+  body.theme-compact .tagline { font-size:0.8rem !important; margin-bottom:0.25rem !important; }
+  body.theme-compact .profile-menu-item { padding:0.55rem 0.8rem !important; }
+  body.theme-compact .feature-card { padding:0.5rem 0.4rem !important; font-size:0.78rem !important; }
+  body.theme-compact .avatar-option { width:2.25rem !important; height:2.25rem !important; font-size:1.3rem !important; }
+  body.theme-compact .collection-chip { padding:0.18rem 0.45rem !important; font-size:0.62rem !important; }
+  body.theme-compact .collection-game-tag { font-size:0.6rem !important; padding:0.1rem 0.4rem !important; }
+  /* Collection becomes a dense single-column row list */
+  body.theme-compact #collection-list.collection-grid { display:flex !important; flex-direction:column !important; gap:0.4rem !important; }
+  body.theme-compact .collection-game { display:flex !important; align-items:center !important; gap:0.5rem !important; padding:0.4rem 0.5rem !important; text-align:left !important; }
+  body.theme-compact .collection-card-photo { width:2.75rem !important; height:2.75rem !important; margin-bottom:0 !important; flex-shrink:0 !important; }
+  body.theme-compact .collection-card-info { flex:1 !important; min-width:0 !important; text-align:left !important; }
+  body.theme-compact .collection-card-name { font-size:0.8rem !important; text-align:left !important; }
+  body.theme-compact .collection-card-stars { justify-content:flex-start !important; margin-top:0.1rem !important; font-size:0.65rem !important; }
+  body.theme-compact .collection-card-meta { text-align:left !important; margin-top:0 !important; font-size:0.62rem !important; }
+
+  /* ══════════════════════════════════════════════
      THEMES OVERLAY
   ══════════════════════════════════════════════ */
   .themes-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9700; align-items:center; justify-content:center; padding:1rem; }
@@ -4161,6 +4183,7 @@
   .theme-preview.preview-gothic    { background:linear-gradient(135deg,#0a0a0a 50%,#c0c0c0 50%); border-color:#c0c0c0; font-size:1.1rem; color:#e0e0e0; }
   .theme-preview.preview-halloween    { background:linear-gradient(135deg,#0a0505 50%,#ff6600 50%); border-color:#ff6600; font-size:1.1rem; color:#ff9933; }
   .theme-preview.preview-viking    { background:linear-gradient(135deg,#0f0a05 50%,#c4a035 50%); border-color:#8b6914; font-size:1.1rem; color:#d4b84a; }
+  .theme-preview.preview-compact    { background:linear-gradient(135deg,#0a0a0f 50%,#7c5cbf 50%); border-color:var(--accent); font-size:1.1rem; color:var(--text); }
   /* ══════════════════════════════════════════════
      TURN MODE CARD (Create Room)
   ══════════════════════════════════════════════ */
@@ -5271,7 +5294,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v257</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v258</div>
   </div>
 </div>
 
@@ -6588,6 +6611,11 @@
         <input type="radio" name="sk-theme-choice" value="viking" style="display:none;">
         <div class="theme-preview preview-viking">⚔</div>
         <div class="theme-option-name">Viking</div>
+      </label>
+      <label class="theme-option" id="theme-opt-compact" onclick="selectTheme('compact')">
+        <input type="radio" name="sk-theme-choice" value="compact" style="display:none;">
+        <div class="theme-preview preview-compact">≡</div>
+        <div class="theme-option-name">Compact</div>
       </label>
     </div>
     <button class="btn-secondary btn-sm" style="margin-top:0.25rem;width:100%;" onclick="closeThemesOverlay()">Done</button>
@@ -11767,7 +11795,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v257';
+const APP_VERSION = 'v258';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
@@ -20878,7 +20906,7 @@ function makeDraggable(listEl, onReorder) {
 }
 
 // ── THEME SYSTEM ─────────────────────────────
-const NAMED_THEMES = ['default','8bit','cyberpunk','fantasy','galaxy','forest','ocean','sunset','steampunk','vaporwave','nord','dracula','gothic','halloween','viking'];
+const NAMED_THEMES = ['default','8bit','cyberpunk','fantasy','galaxy','forest','ocean','sunset','steampunk','vaporwave','nord','dracula','gothic','halloween','viking','compact'];
 
 function applyTheme(isLight) {
   document.body.classList.toggle('light-mode', isLight);
