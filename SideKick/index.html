@@ -5271,7 +5271,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v255</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v256</div>
   </div>
 </div>
 
@@ -6480,8 +6480,8 @@
   <div class="tools-modal" style="text-align:center;">
     <div class="tools-modal-title">Scan Barcode</div>
     <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.5rem;">Point the camera at the box barcode</div>
-    <div id="barcode-viewport" style="position:relative;width:100%;border-radius:0.75rem;overflow:hidden;background:#000;min-height:12rem;">
-      <div style="position:absolute;inset:1.5rem;border:2px dashed rgba(255,255,255,0.6);border-radius:0.5rem;pointer-events:none;z-index:2;"></div>
+    <div id="barcode-viewport" style="position:relative;width:100%;aspect-ratio:4/3;max-height:46vh;border-radius:0.75rem;overflow:hidden;background:#000;">
+      <div style="position:absolute;left:2rem;right:2rem;top:32%;bottom:32%;border:2px dashed rgba(255,255,255,0.6);border-radius:0.5rem;pointer-events:none;z-index:2;"></div>
     </div>
     <div id="barcode-status" style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem;"></div>
     <div style="display:flex;gap:0.5rem;margin-top:0.6rem;">
@@ -11766,7 +11766,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v255';
+const APP_VERSION = 'v256';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
@@ -17965,11 +17965,24 @@ async function loadGameDatabase() {
 // ── BARCODE SCAN TO ADD (EAN-13 / UPC-A via Quagga) ──
 let collectionEditUPC = '';
 let _barcodeQuaggaOn = false;
+// Quagga sizes its own video/canvas — force them to fill our fixed frame
+function fitBarcodeViewport() {
+  const vp = document.querySelector('#barcode-viewport');
+  if (!vp) return;
+  vp.querySelectorAll('video,canvas').forEach(el => {
+    el.style.position = 'absolute';
+    el.style.top = '0'; el.style.left = '0';
+    el.style.width = '100%'; el.style.height = '100%';
+    el.style.objectFit = 'cover';
+  });
+}
 function normUPC(s) {
   return String(s || '').replace(/\D/g, '').replace(/^0+/, '');
 }
 window.openBarcodeScanner = function() {
   document.getElementById('barcode-scanner-overlay').classList.add('show');
+  const vp0 = document.querySelector('#barcode-viewport');
+  if (vp0) vp0.querySelectorAll('video,canvas').forEach(el => { try { el.remove(); } catch {} });
   const statusEl = document.getElementById('barcode-status');
   if (typeof Quagga === 'undefined') {
     if (statusEl) statusEl.textContent = 'Scanner needs internet on first use — or use Photo Instead.';
@@ -17978,7 +17991,7 @@ window.openBarcodeScanner = function() {
   if (statusEl) statusEl.textContent = 'Starting camera…';
   try {
     Quagga.init({
-      inputStream: { name: 'Live', type: 'LiveStream', target: document.querySelector('#barcode-viewport'), constraints: { facingMode: 'environment' } },
+      inputStream: { name: 'Live', type: 'LiveStream', target: document.querySelector('#barcode-viewport'), constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } },
       decoder: { readers: ['ean_reader', 'upc_reader'] },
       locate: true
     }, (err) => {
@@ -17988,6 +18001,8 @@ window.openBarcodeScanner = function() {
       }
       _barcodeQuaggaOn = true;
       Quagga.start();
+      fitBarcodeViewport();
+      setTimeout(fitBarcodeViewport, 500);
       if (statusEl) statusEl.textContent = 'Scanning…';
     });
     try { Quagga.offDetected(handleBarcodeDetected); } catch {}
