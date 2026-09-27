@@ -5271,7 +5271,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v254</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v255</div>
   </div>
 </div>
 
@@ -6401,6 +6401,7 @@
       <div class="tools-modal-title" style="font-size:1.05rem;">🔍 Search Game Database</div>
       <div style="font-size:0.78rem;color:var(--muted);text-align:center;margin-bottom:0.6rem;">Type a game name to search 299+ board games. Tap a result to add it to your collection.</div>
       <input id="collection-db-input" placeholder="Type game name…" oninput="searchGameDatabase()" style="width:100%;margin-bottom:0.5rem;">
+      <button class="btn-secondary" style="width:100%;margin-bottom:0.5rem;" onclick="openBarcodeScanner()">📷 Scan Barcode Instead</button>
       <div id="collection-db-results" style="display:flex;flex-direction:column;gap:0.4rem;max-height:50vh;overflow-y:auto;"></div>
     </div>
   </div>
@@ -6471,6 +6472,23 @@
   <div class="tools-modal" style="max-height:85vh; overflow-y:auto; text-align:center;">
     <div id="friend-profile-body"></div>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeFriendProfile()" data-i18n="close">Close</button>
+  </div>
+</div>
+
+<!-- BARCODE SCANNER -->
+<div class="tools-overlay" id="barcode-scanner-overlay" style="z-index:9670;">
+  <div class="tools-modal" style="text-align:center;">
+    <div class="tools-modal-title">Scan Barcode</div>
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.5rem;">Point the camera at the box barcode</div>
+    <div id="barcode-viewport" style="position:relative;width:100%;border-radius:0.75rem;overflow:hidden;background:#000;min-height:12rem;">
+      <div style="position:absolute;inset:1.5rem;border:2px dashed rgba(255,255,255,0.6);border-radius:0.5rem;pointer-events:none;z-index:2;"></div>
+    </div>
+    <div id="barcode-status" style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem;"></div>
+    <div style="display:flex;gap:0.5rem;margin-top:0.6rem;">
+      <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="closeBarcodeScanner()">Cancel</button>
+      <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="document.getElementById('barcode-file').click()">Photo Instead</button>
+    </div>
+    <input type="file" id="barcode-file" accept="image/*" capture="environment" style="display:none;" onchange="handleBarcodePhoto(this)">
   </div>
 </div>
 
@@ -11748,7 +11766,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v254';
+const APP_VERSION = 'v255';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
@@ -17944,6 +17962,112 @@ async function loadGameDatabase() {
   return gameDatabaseCache;
 }
 
+// ── BARCODE SCAN TO ADD (EAN-13 / UPC-A via Quagga) ──
+let collectionEditUPC = '';
+let _barcodeQuaggaOn = false;
+function normUPC(s) {
+  return String(s || '').replace(/\D/g, '').replace(/^0+/, '');
+}
+window.openBarcodeScanner = function() {
+  document.getElementById('barcode-scanner-overlay').classList.add('show');
+  const statusEl = document.getElementById('barcode-status');
+  if (typeof Quagga === 'undefined') {
+    if (statusEl) statusEl.textContent = 'Scanner needs internet on first use — or use Photo Instead.';
+    return;
+  }
+  if (statusEl) statusEl.textContent = 'Starting camera…';
+  try {
+    Quagga.init({
+      inputStream: { name: 'Live', type: 'LiveStream', target: document.querySelector('#barcode-viewport'), constraints: { facingMode: 'environment' } },
+      decoder: { readers: ['ean_reader', 'upc_reader'] },
+      locate: true
+    }, (err) => {
+      if (err) {
+        if (statusEl) statusEl.textContent = 'Camera unavailable — try Photo Instead.';
+        return;
+      }
+      _barcodeQuaggaOn = true;
+      Quagga.start();
+      if (statusEl) statusEl.textContent = 'Scanning…';
+    });
+    try { Quagga.offDetected(handleBarcodeDetected); } catch {}
+    Quagga.onDetected(handleBarcodeDetected);
+  } catch (e) {
+    if (statusEl) statusEl.textContent = 'Camera unavailable — try Photo Instead.';
+  }
+};
+function handleBarcodeDetected(result) {
+  const code = result && result.codeResult && result.codeResult.code;
+  if (!code) return;
+  stopBarcodeScanner();
+  handleScannedUPC(code);
+}
+function stopBarcodeScanner() {
+  try {
+    if (typeof Quagga !== 'undefined' && _barcodeQuaggaOn) {
+      try { Quagga.offDetected(handleBarcodeDetected); } catch {}
+      Quagga.stop();
+    }
+  } catch {}
+  _barcodeQuaggaOn = false;
+}
+window.closeBarcodeScanner = function() {
+  stopBarcodeScanner();
+  document.getElementById('barcode-scanner-overlay').classList.remove('show');
+  const f = document.getElementById('barcode-file');
+  if (f) f.value = '';
+};
+window.handleBarcodePhoto = function(input) {
+  const file = input && input.files && input.files[0];
+  if (input) input.value = '';
+  if (!file) return;
+  if (typeof Quagga === 'undefined') { showAlert('Scanner needs internet on first use.'); return; }
+  const statusEl = document.getElementById('barcode-status');
+  if (statusEl) statusEl.textContent = 'Reading photo…';
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      Quagga.decodeSingle({
+        src: reader.result, numOfWorkers: 0,
+        inputStream: { size: 800 },
+        decoder: { readers: ['ean_reader', 'upc_reader'] }
+      }, (result) => {
+        const code = result && result.codeResult && result.codeResult.code;
+        if (code) { stopBarcodeScanner(); handleScannedUPC(code); }
+        else if (statusEl) statusEl.textContent = 'No barcode found — try again.';
+      });
+    } catch (e) {
+      if (statusEl) statusEl.textContent = 'No barcode found — try again.';
+    }
+  };
+  reader.onerror = () => { if (statusEl) statusEl.textContent = 'Could not read that photo.'; };
+  reader.readAsDataURL(file);
+};
+async function handleScannedUPC(rawCode) {
+  const code = String(rawCode || '').replace(/\D/g, '');
+  closeBarcodeScanner();
+  if (!code) return;
+  // 1) Already in your library?
+  const owned = collectionGames.find(g => g.upc && normUPC(g.upc) === normUPC(code));
+  if (owned) {
+    showAlert('You already own this game.');
+    openCollectionDetail(owned.id);
+    return;
+  }
+  // 2) Match the shared game database
+  try { await loadGameDatabase(); } catch {}
+  const match = (gameDatabaseCache || []).find(g => g.upc && normUPC(g.upc) === normUPC(code));
+  if (match) {
+    collectionEditUPC = code;
+    addGameFromDatabase(match);
+    return;
+  }
+  // 3) Unknown barcode — open the manual form with the UPC stored
+  openCollectionEdit();
+  collectionEditUPC = code;
+  showAlert('No match found — enter the details (barcode saved).');
+}
+
 window.openCollectionSearchDB = async function() {
   document.getElementById('collection-library').style.display = 'none';
   document.getElementById('collection-detail').style.display = 'none';
@@ -18017,6 +18141,7 @@ window.addGameFromDatabase = function(game) {
   document.getElementById('collection-edit-error').style.display = 'none';
   collectionEditCats = cats;
   collectionEditMechs = mechs;
+  if (game.upc) collectionEditUPC = game.upc;
   renderCollectionEditChips();
   // Fresh staging — never inherit a photo/rating from a previously edited game
   collectionPhotoDataUrl = '';
@@ -18275,7 +18400,8 @@ window.openCollectionDetail = function(id) {
     '<div class="collection-game-rating" style="font-size:1rem;">' + starsHTML(ratingVal, '1.05rem') + '<span>' + formatRating(ratingVal) + '</span></div>' +
     (metaBits.length ? '<div class="collection-game-meta" style="text-align:center;">' + metaBits.join(' · ') + '</div>' : '') +
     tagsHtml +
-    (game.notes ? '<div style="font-size:0.85rem;color:var(--text);margin-top:0.6rem;white-space:pre-wrap;word-break:break-word;text-align:left;">' + escapeHtml(game.notes) + '</div>' : '');
+    (game.notes ? '<div style="font-size:0.85rem;color:var(--text);margin-top:0.6rem;white-space:pre-wrap;word-break:break-word;text-align:left;">' + escapeHtml(game.notes) + '</div>' : '') +
+    (game.upc ? '<div style="font-size:0.72rem;color:var(--muted);margin-top:0.6rem;">Barcode: ' + escapeHtml(game.upc) + '</div>' : '');
   const editBtn = document.getElementById('collection-detail-edit-btn');
   if (editBtn) editBtn.onclick = () => { closeCollectionDetail(); openCollectionEdit(id); };
   document.getElementById('collection-library').style.display = 'none';
@@ -18302,6 +18428,7 @@ window.openCollectionEdit = function(id) {
   collectionEditMechs = new Set(game ? (game.mechanics || []) : []);
   collectionPhotoDataUrl = game && game.photo ? game.photo : '';
   updateCollectionPhotoPreview();
+  collectionEditUPC = game && game.upc ? game.upc : '';
   collectionEditRating = game && typeof game.rating === 'number' ? game.rating : 0;
   renderCollectionRating();
   const camEl = document.getElementById('ce-photo-camera');
@@ -18363,7 +18490,8 @@ window.saveCollectionGame = async function() {
     categories: [...collectionEditCats],
     mechanics: [...collectionEditMechs],
     rating: collectionEditRating,
-    ...(collectionPhotoDataUrl ? { photo: collectionPhotoDataUrl } : {})
+    ...(collectionPhotoDataUrl ? { photo: collectionPhotoDataUrl } : {}),
+    ...(collectionEditUPC ? { upc: collectionEditUPC } : {})
   };
   if (collectionEditingId) {
     const idx = collectionGames.findIndex(g => g.id === collectionEditingId);
@@ -21198,5 +21326,6 @@ if ('serviceWorker' in navigator) {
 </audio>
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js" defer></script>
 </body>
 </html>
