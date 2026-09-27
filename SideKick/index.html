@@ -4811,16 +4811,16 @@
   }
   .collection-game {
     background: var(--surface); border: 1px solid var(--border); border-radius: 0.9rem;
-    padding: 0.6rem; text-align: center;
+    padding: 0.5rem; text-align: center;
   }
-  #collection-list.collection-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  #collection-list.collection-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
   #collection-list.collection-grid .collection-game { min-width: 0; }
-  .collection-card-photo { width: 100%; aspect-ratio: 4/3; border-radius: 0.6rem; overflow: hidden; background: rgba(0,0,0,0.35); margin-bottom: 0.45rem; }
+  .collection-card-photo { width: 100%; aspect-ratio: 16/10; border-radius: 0.6rem; overflow: hidden; background: rgba(0,0,0,0.35); margin-bottom: 0.35rem; }
   .collection-card-photo img { width: 100%; height: 100%; object-fit: contain; display: block; }
   .collection-card-photo-empty { display: flex; align-items: center; justify-content: center; font-size: 2rem; opacity: 0.7; }
-  .collection-card-name { font-weight: 800; font-size: 0.9rem; color: var(--text); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .collection-card-stars { display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-size: 0.75rem; font-weight: 800; color: var(--text); margin-top: 0.25rem; }
-  .collection-card-meta { font-size: 0.7rem; color: var(--muted); margin-top: 0.15rem; }
+  .collection-card-name { font-weight: 800; font-size: 0.8rem; color: var(--text); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .collection-card-stars { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; font-size: 0.7rem; font-weight: 800; color: var(--text); margin-top: 0.2rem; }
+  .collection-card-meta { font-size: 0.65rem; color: var(--muted); margin-top: 0.1rem; }
   .collection-game-name { font-weight: 800; font-size: 0.95rem; color: var(--text); line-height: 1.3; text-align: center; }
   .collection-game-meta { font-size: 0.75rem; color: var(--muted); margin-top: 0.15rem; }
   .collection-game-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.45rem; }
@@ -5270,7 +5270,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v251</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v252</div>
   </div>
 </div>
 
@@ -6353,13 +6353,14 @@
 <!--  MY COLLECTION (board games library)        -->
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="collection-overlay">
-  <div class="tools-modal" style="max-height:88vh; overflow-y:auto;">
+  <div class="tools-modal" style="max-height:88vh; display:flex; flex-direction:column; overflow:hidden;">
     <!-- Library -->
-    <div id="collection-library">
+    <div id="collection-library" style="display:flex;flex-direction:column;min-height:0;flex:1;">
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem;">
         <div class="tools-modal-title" style="font-size:1.05rem;margin:0;text-align:left;">📚 My Collection</div>
         <span id="collection-count" style="font-size:0.78rem;color:var(--muted);"></span>
         <button class="btn-secondary btn-sm" style="margin-left:auto;padding:0.35rem 0.8rem;" onclick="pickRandomGame()" title="Pick at random">🎲</button>
+        <button class="btn-secondary btn-sm" style="padding:0.35rem 0.8rem;" onclick="closeCollection()" data-i18n="close">Close</button>
       </div>
       <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">
         <input id="collection-search" placeholder="Search by name…" oninput="renderCollection()" style="flex:1;min-width:0;margin-bottom:0;">
@@ -6382,12 +6383,11 @@
         </div>
       </div>
 
-      <div id="collection-list" class="collection-grid"></div>
-      <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.8rem;" onclick="closeCollection()" data-i18n="close">Close</button>
+      <div id="collection-list" class="collection-grid" style="flex:1;min-height:0;overflow-y:auto;padding-bottom:0.2rem;"></div>
     </div>
 
     <!-- Game detail -->
-    <div id="collection-detail" style="display:none;">
+    <div id="collection-detail" style="display:none;flex:1;min-height:0;overflow-y:auto;">
       <div style="display:flex;gap:0.5rem;margin-bottom:0.6rem;">
         <button class="btn-secondary btn-sm" style="flex:1;" onclick="closeCollectionDetail()"><span class="play-tri">◀</span> Back</button>
         <button class="btn-primary btn-sm" style="flex:1;" id="collection-detail-edit-btn">✎ Edit</button>
@@ -6396,7 +6396,7 @@
     </div>
 
     <!-- Database search -->
-    <div id="collection-db-search" style="display:none;">
+    <div id="collection-db-search" style="display:none;flex:1;min-height:0;overflow-y:auto;">
       <button class="btn-secondary btn-sm" style="margin-bottom:0.5rem;" onclick="showCollectionMenu()"><span class="play-tri">◀</span> Back</button>
       <div class="tools-modal-title" style="font-size:1.05rem;">🔍 Search Game Database</div>
       <div style="font-size:0.78rem;color:var(--muted);text-align:center;margin-bottom:0.6rem;">Type a game name to search 299+ board games. Tap a result to add it to your collection.</div>
@@ -11743,7 +11743,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v251';
+const APP_VERSION = 'v252';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
@@ -18156,7 +18156,7 @@ function buildCollectionGameRow(game, opts) {
   card.innerHTML =
     photoHtml +
     '<div class="collection-card-name">' + escapeHtml(game.name || 'Untitled') + '</div>' +
-    '<div class="collection-card-stars">' + starsHTML(ratingVal, '0.7rem') + '<span>' + formatRating(ratingVal) + '</span></div>' +
+    '<div class="collection-card-stars">' + starsHTML(ratingVal, '0.5rem') + '<span>' + formatRating(ratingVal) + '</span></div>' +
     (playersLine ? '<div class="collection-card-meta">' + playersLine + '</div>' : '');
   return card;
 }
