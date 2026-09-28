@@ -4297,7 +4297,7 @@
   }
 
   #create-kb, #join-kb { position: relative; z-index: 100000; }
-  .tour-bubble { position:relative; background:rgba(124,92,191,0.15); border:1px solid var(--accent); border-radius:0.75rem; padding:0.7rem 0.75rem 0.6rem; font-size:0.85rem; color:var(--text); line-height:1.4; }
+  .tour-bubble { position:relative; background:rgba(124,92,191,0.15); border:1px solid var(--accent); border-radius:0.75rem; padding:0.7rem 0.75rem 0.6rem; font-size:0.85rem; color:var(--text); line-height:1.4; text-align:center; }
   .tour-name-tab { position:absolute; top:-0.65rem; left:0.9rem; z-index:2; background:var(--accent); color:#fff; font-size:0.7rem; font-weight:800; letter-spacing:0.04em; padding:0.12rem 0.8rem; border-radius:0.5rem; }
   .custom-kb-row { display: flex; gap: 0.15rem; justify-content: center; margin-bottom: 0.25rem; }
   .custom-kb-row:last-child { margin-bottom: 0; }
@@ -5297,7 +5297,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v274</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v275</div>
   </div>
 </div>
 
@@ -6779,11 +6779,11 @@
 <div class="tools-overlay" id="features-info-overlay">
   <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
     <div class="tools-modal-title">Choose Your Guided Tour</div>
-    <div style="display:flex;align-items:flex-start;margin:0.8rem 0 0.2rem;">
-      <img src="img/Dante2.png" alt="Dante the guide cat" style="height:6rem;width:auto;flex-shrink:0;margin-right:-1rem;margin-top:0.4rem;position:relative;z-index:1;">
-      <div style="position:relative;flex:1;min-width:0;">
+    <div style="margin:0.6rem 0 0.2rem;text-align:center;">
+      <img src="img/Dante2.png" alt="Dante the guide cat" style="height:10rem;width:auto;max-width:100%;">
+      <div style="position:relative;text-align:left;margin-top:0.4rem;">
         <div class="tour-name-tab">Dante</div>
-        <div class="tour-bubble" style="font-size:0.85rem;">My name is Dante, I'm your guide.</div>
+        <div class="tour-bubble" style="font-size:0.85rem;">Hi! My name is Dante! Let me take you on one of our guided tours. Choose which tour you would like to go through.</div>
       </div>
     </div>
     <div style="display:flex;gap:0.6rem;margin:0.6rem 0;">
@@ -6849,9 +6849,11 @@
 <div id="tour-ring" style="display:none;position:fixed;z-index:9491;border:2px solid var(--accent);border-radius:0.9rem;box-shadow:0 0 0.75rem rgba(124,92,191,0.8),inset 0 0 0.75rem rgba(124,92,191,0.25);pointer-events:none;transition:all 0.25s ease-out;"></div>
 <!-- GUIDED TOUR COACH (home → create → lobby → play → exit, gated) -->
 <div id="tutorial-coach" style="display:none;position:fixed;top:calc(4.75rem + env(safe-area-inset-top, 0));left:0.75rem;right:0.75rem;z-index:9500;background:var(--surface);border:1px solid var(--accent);border-radius:1rem;padding:0.7rem 0.9rem;box-shadow:0 0.5rem 2rem rgba(0,0,0,0.5);">
-  <button onclick="quitTour()" style="position:absolute;top:0.55rem;right:0.7rem;background:none;border:none;color:var(--muted);font-size:0.75rem;font-weight:700;cursor:pointer;padding:0.2rem;">Close</button>
+  <div style="display:flex;justify-content:flex-end;">
+    <button onclick="quitTour()" style="background:none;border:none;color:var(--muted);font-size:0.75rem;font-weight:700;cursor:pointer;padding:0.2rem;">Close</button>
+  </div>
   <div style="margin-bottom:0.3rem;">
-    <div style="font-size:0.75rem;font-weight:800;color:var(--accent-light);letter-spacing:0.06em;text-align:center;">TOUR</div>
+    <div id="tour-title" style="font-size:0.8rem;font-weight:800;color:var(--accent-light);letter-spacing:0.06em;text-align:center;">TOUR</div>
     <div id="tutorial-dots" style="display:flex;gap:0.3rem;justify-content:center;margin-top:0.35rem;"></div>
   </div>
   <div style="display:flex;align-items:flex-start;margin-top:0.8rem;margin-bottom:0.6rem;">
@@ -10251,6 +10253,7 @@ window.renderTutorialStep = renderTutorialStep;
 window.startTutorial = function() {
   try { if (typeof practiceStep !== 'undefined' && practiceStep > 0) endPractice(); } catch {}
   tourMode = 'guided';
+  document.getElementById('tour-title').textContent = 'Quick Start Tour';
   const navRow = document.getElementById('tutorial-nav-row');
   if (navRow) navRow.style.display = 'none';
   tutorialStep = 1;
@@ -10325,6 +10328,7 @@ let indepthStep = 0;
 window.startInDepthTour = function() {
   try { if (tourMode === 'guided' && tutorialStep > 0) endTutorial(); } catch {}
   tourMode = 'indepth';
+  document.getElementById('tour-title').textContent = 'In-Depth Tour';
   indepthStep = 1;
   renderInDepthStep();
   document.getElementById('tutorial-coach').style.display = 'block';
@@ -12356,7 +12360,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v274';
+const APP_VERSION = 'v275';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
