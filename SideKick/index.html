@@ -5294,7 +5294,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v264</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v265</div>
   </div>
 </div>
 
@@ -6784,6 +6784,7 @@
       <div style="font-size:0.75rem;color:var(--muted);" data-i18n="videoComingSoon">Video coming soon</div>
     </div>
     <button class="btn-primary btn-sm" style="width:100%;margin-bottom:0.4rem;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startPracticeGame()">🎯 Practice Solo</button>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-bottom:0.4rem;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startTutorial()">🎓 Guided Tour</button>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeFeaturesInfo()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -6833,6 +6834,17 @@
   <div style="display:flex;gap:0.5rem;">
     <button id="practice-back-btn" class="btn-secondary btn-sm" style="flex:1;" onclick="practiceBack()">◀ Back</button>
     <button id="practice-next-btn" class="btn-primary btn-sm" style="flex:1;" onclick="practiceNext()">Next ▶</button>
+  </div>
+</div>
+<!-- GUIDED TOUR COACH (home → create → lobby → play → exit, gated) -->
+<div id="tutorial-coach" style="display:none;position:fixed;top:calc(4.75rem + env(safe-area-inset-top, 0));left:0.75rem;right:0.75rem;z-index:9500;background:var(--surface);border:1px solid var(--accent);border-radius:1rem;padding:0.7rem 0.9rem;box-shadow:0 0.5rem 2rem rgba(0,0,0,0.5);">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem;">
+    <span style="font-size:0.75rem;font-weight:800;color:var(--accent-light);letter-spacing:0.06em;">🎓 TOUR <span id="tutorial-step-num">1/10</span></span>
+    <button onclick="endTutorial()" style="margin-left:auto;background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:0 0.2rem;" title="End tour">✕</button>
+  </div>
+  <div id="tutorial-text" style="font-size:0.85rem;color:var(--text);line-height:1.4;"></div>
+  <div id="tutorial-finish-row" style="display:none;margin-top:0.6rem;">
+    <button class="btn-primary btn-sm" style="width:100%;" onclick="finishTutorial()">Finish ✓</button>
   </div>
 </div>
 <div id="overlay-kb" class="custom-kb" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:100000;padding:0.25rem 0.2rem calc(0.5rem + env(safe-area-inset-bottom, 0));background:rgba(10,10,15,0.97);border-top:1px solid var(--border);box-sizing:border-box;"></div>
@@ -9849,6 +9861,7 @@ let _prevUndoEnabled = null;
 const PRACTICE_STEPS = 5;
 window.startPracticeGame = async function() {
   if (!requireDb()) return;
+  try { if (typeof tutorialStep !== 'undefined' && tutorialStep > 0) await endTutorial(); } catch {}
   const you = getSavedName() || 'You';
   myName = you;
   myColor = getSavedColor() || '';
@@ -9996,6 +10009,147 @@ window.endPractice = async function() {
   try { clearSession(); } catch {}
   if (db && code) { try { await remove(ref(db, `rooms/${code}`)); } catch {} }
   practiceStep = 0;
+  showScreen('home');
+};
+// ── GUIDED TOUR (home → create → lobby → play → exit, gated + auto-advance) ──
+// Drives the REAL wizard/room UI; gates read live state (screens, createStep,
+// room snapshot). Only rooms created mid-tour are ever deleted on cleanup.
+let tutorialStep = 0;
+let tutorialUnsub = null;
+let tutorialScreenObs = null;
+let tutorialCreateObs = null;
+let _tutorialRoom = null;
+let _tutorialStartActive = null;
+let _tutorialStartCode = null;
+let _origSelectFirst = null;
+const TUTORIAL_STEPS = 10;
+function tutorialActiveScreen() {
+  try {
+    const el = document.querySelector('.screen.active');
+    return el ? el.id : null;
+  } catch { return null; }
+}
+function tutorialPlayerCount() {
+  try { return Object.keys((_tutorialRoom && _tutorialRoom.players) || {}).length; }
+  catch { return 0; }
+}
+function tutorialGate(step) {
+  if (step >= TUTORIAL_STEPS) return true;
+  if (step === 1) return tutorialActiveScreen() === 'screen-create';
+  if (step === 2) return (typeof createStep !== 'undefined' && createStep >= 2);
+  if (step === 3) return (typeof createStep !== 'undefined' && createStep >= 3);
+  if (step === 4) return tutorialActiveScreen() === 'screen-lobby';
+  if (step === 5) return tutorialPlayerCount() >= 2;
+  if (step === 6) return (typeof firstPlayerOption !== 'undefined' && firstPlayerOption !== null);
+  if (step === 7) {
+    const s = tutorialActiveScreen();
+    return s === 'screen-active' || s === 'screen-waiting';
+  }
+  if (step === 8) {
+    const a = practiceActiveId(_tutorialRoom);
+    return !!a && !!_tutorialStartActive && a !== _tutorialStartActive;
+  }
+  if (step === 9) return tutorialActiveScreen() === 'screen-home';
+  return true;
+}
+function tutorialWatchRoom() {
+  if (tutorialUnsub || !roomCode || !db) return;
+  try {
+    tutorialUnsub = onValue(ref(db, `rooms/${roomCode}`), (snap) => {
+      if (!snap.exists()) return;
+      _tutorialRoom = snap.val();
+      updateTutorial();
+    });
+  } catch {}
+}
+function updateTutorial() {
+  if (!tutorialStep) return;
+  tutorialWatchRoom();
+  if (!tutorialGate(tutorialStep)) return;
+  if (tutorialStep >= TUTORIAL_STEPS) return;
+  tutorialStep++;
+  if (tutorialStep === 8) _tutorialStartActive = practiceActiveId(_tutorialRoom);
+  renderTutorialStep();
+  haptic(10);
+}
+function renderTutorialStep() {
+  const texts = [
+    'TOUR — from the home screen, tap <b>Host New Room</b> to begin.',
+    '<b>Step 1:</b> enter your name, pick a color and avatar, then tap <b>Continue</b>.',
+    '<b>Step 2:</b> choose which way turns pass, then tap <b>Confirm</b>.',
+    '<b>Step 3:</b> toggle any features you like (or none), then tap <b>Create Room</b>.',
+    'This is the <b>player lobby</b>. Add a second player: tap <b>Create Player</b>, name them, Create.',
+    'Choose who goes first — tap <b>Random</b>.',
+    'Tap <b>Start Game</b> to begin.',
+    'Play is live. Tap <b>PASS TURN</b> to advance the turn.',
+    'Done playing? Tap <b>Exit Room</b> and confirm to leave.',
+    'Tour complete — the room was cleaned up. Tap Finish.'
+  ];
+  const idx = Math.min(Math.max(tutorialStep, 1), TUTORIAL_STEPS) - 1;
+  document.getElementById('tutorial-text').innerHTML = texts[idx];
+  document.getElementById('tutorial-step-num').textContent = (idx + 1) + '/' + TUTORIAL_STEPS;
+  document.getElementById('tutorial-finish-row').style.display = idx === TUTORIAL_STEPS - 1 ? '' : 'none';
+}
+window.renderTutorialStep = renderTutorialStep;
+window.startTutorial = function() {
+  try { if (typeof practiceStep !== 'undefined' && practiceStep > 0) endPractice(); } catch {}
+  tutorialStep = 1;
+  _tutorialRoom = null;
+  _tutorialStartActive = null;
+  _tutorialStartCode = (typeof roomCode !== 'undefined') ? roomCode : null;
+  if (!_origSelectFirst && window.selectFirstPlayerOption) {
+    _origSelectFirst = window.selectFirstPlayerOption;
+    window.selectFirstPlayerOption = function(...args) {
+      const r = _origSelectFirst.apply(this, args);
+      updateTutorial();
+      return r;
+    };
+  }
+  try {
+    if (tutorialScreenObs) tutorialScreenObs.disconnect();
+    tutorialScreenObs = new MutationObserver(() => updateTutorial());
+    document.querySelectorAll('.screen').forEach(s => tutorialScreenObs.observe(s, { attributes: true, attributeFilter: ['class'] }));
+  } catch {}
+  try {
+    if (tutorialCreateObs) tutorialCreateObs.disconnect();
+    const area = document.getElementById('create-cards-area');
+    if (area) {
+      tutorialCreateObs = new MutationObserver(() => updateTutorial());
+      tutorialCreateObs.observe(area, { attributes: true, subtree: true, attributeFilter: ['class'] });
+    }
+  } catch {}
+  renderTutorialStep();
+  document.getElementById('tutorial-coach').style.display = 'block';
+  haptic(15);
+  updateTutorial();
+};
+async function tutorialCleanup() {
+  const code = (typeof roomCode !== 'undefined') ? roomCode : null;
+  const mine = code && code !== _tutorialStartCode;
+  if (tutorialUnsub) { try { tutorialUnsub(); } catch {} tutorialUnsub = null; }
+  _tutorialRoom = null;
+  try { if (tutorialScreenObs) tutorialScreenObs.disconnect(); } catch {}
+  try { if (tutorialCreateObs) tutorialCreateObs.disconnect(); } catch {}
+  tutorialScreenObs = tutorialCreateObs = null;
+  if (_origSelectFirst) { window.selectFirstPlayerOption = _origSelectFirst; _origSelectFirst = null; }
+  const coach = document.getElementById('tutorial-coach');
+  if (coach) coach.style.display = 'none';
+  if (mine) {
+    try { cleanupListeners(); } catch {}
+    roomCode = null; myId = null; isHost = false;
+    try { clearSession(); } catch {}
+    if (db && code) { try { await remove(ref(db, `rooms/${code}`)); } catch {} }
+  }
+  tutorialStep = 0;
+  return mine;
+}
+window.endTutorial = async function() {
+  const code = (typeof roomCode !== 'undefined') ? roomCode : null;
+  await tutorialCleanup();
+  if (code && code !== _tutorialStartCode) showScreen('home');
+};
+window.finishTutorial = async function() {
+  await tutorialCleanup();
   showScreen('home');
 };
 window.openVoicePresetsOverlay = function() {
@@ -11972,7 +12126,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v264';
+const APP_VERSION = 'v265';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
