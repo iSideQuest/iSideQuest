@@ -5295,7 +5295,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v270</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v271</div>
   </div>
 </div>
 
@@ -6750,8 +6750,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <div class="tools-overlay" id="sidekick-info-overlay">
   <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
-    <div class="tools-modal-title">SideKick</div>
-    <div style="font-size:0.85rem;font-weight:800;letter-spacing:0.06em;color:var(--accent-light);margin:0.4rem 0 0;" data-i18n="freeNoSignup">100% FREE - No Sign Up</div>
+    <div class="tools-modal-title">What Is SideKick?</div>
     <div style="font-size:0.9rem;color:var(--text);margin:0.5rem 0 0;">What is SideKick?</div>
     <div id="sidekick-videos" style="display:flex;flex-direction:column;gap:0.5rem;margin:0.6rem 0;">
       <video controls preload="metadata" playsinline style="display:block;width:auto;max-width:100%;height:auto;max-height:55vh;margin:0 auto;border-radius:0.625rem;border:1px solid var(--border);background:#000;" src="Video/Tutorial.mp4"></video>
@@ -6779,8 +6778,8 @@
   <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
     <div class="tools-modal-title">Choose Your Guided Tour</div>
     <div style="display:flex;gap:0.6rem;margin:0.6rem 0;">
-      <button class="btn-primary" style="flex:1;aspect-ratio:1/1;border-radius:1rem;font-size:1rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;min-width:0;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startTutorial()"><span style="font-size:2rem;line-height:1;">⚡</span><span>Quick Start Tour</span></button>
-      <button class="btn-secondary" style="flex:1;aspect-ratio:1/1;border-radius:1rem;font-size:1rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;min-width:0;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startInDepthTour()"><span style="font-size:2rem;line-height:1;">🔍</span><span>In-Depth Tour</span></button>
+      <button class="btn-primary" style="flex:1;aspect-ratio:1/1;border-radius:1rem;font-size:1rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;min-width:0;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startTutorial()"><span>Quick Start Tour</span></button>
+      <button class="btn-secondary" style="flex:1;aspect-ratio:1/1;border-radius:1rem;font-size:1rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;min-width:0;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startInDepthTour()"><span>In-Depth Tour</span></button>
     </div>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeFeaturesInfo()" data-i18n="close">Close</button>
   </div>
@@ -10297,13 +10296,15 @@ window.quitTour = function() {
 };
 // ── IN-DEPTH TOUR (home screen walkthrough, free taps, manual steps) ──
 const INDEPTH_STEPS = [
-  { sel: null, title: 'Welcome to SideKick', text: 'This tour walks the home screen — every button, top to bottom. Tap Next.' },
-  { sel: '#screen-home [onclick="showCreateRoom()"]', title: 'Host New Room', text: 'Start here to create a room: enter your name, pick a turn direction and features.' },
-  { sel: '#host-preset-room-btn', title: 'Host Preset Room', text: 'Save favorite setups and host them in one tap. Needs an account — log in to see it.' },
+  { sel: null, title: 'Welcome to SideKick', text: 'This tour walks the home screen top to bottom, left to right. Tap Next.' },
+  { sel: '#lang-btn', title: 'Language', text: 'Top left switches the app between 8 languages.' },
+  { sel: '#account-btn', title: 'Account', text: 'Top right logs you in. Presets, collection and friends need an account — hosting and joining work without one.' },
+  { sel: '#screen-home [onclick="showCreateRoom()"]', title: 'Host New Room', text: 'Create a room: enter your name, pick a turn direction and features.' },
   { sel: '#screen-home [onclick="showJoinRoom()"]', title: 'Join Room', text: 'Got a 4-digit code from a friend? Enter it here with your name.' },
-  { sel: '#account-btn', title: 'Account & Language', text: 'Top right logs you in — presets, collection and friends need an account. Top left switches language.' },
   { sel: '#theme-toggle-btn', title: 'Light / Dark', text: 'Quick sun-moon toggle. Full themes live in your profile under Themes.' },
-  { sel: '#screen-home [onclick="openSidekickInfo()"]', title: 'Tour, Donate, Contact', text: 'Tour replays info, Donate supports development, Contact emails us.' },
+  { sel: '#screen-home [onclick="openSidekickInfo()"]', title: 'Tour', text: 'Replays info videos and opens the guided tours.' },
+  { sel: '#screen-home [onclick="openDonateOverlay()"]', title: 'Donate', text: 'SideKick is free. Donations support development.' },
+  { sel: '#screen-home [onclick="openContactOverlay()"]', title: 'Contact', text: 'Questions, feedback or ideas — email us here.' },
   { sel: '#app-version', title: 'Version tag', text: 'If anything ever looks wrong, read this number first — most bugs are a stale cached copy.' }
 ];
 let indepthStep = 0;
@@ -12341,7 +12342,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v270';
+const APP_VERSION = 'v271';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
