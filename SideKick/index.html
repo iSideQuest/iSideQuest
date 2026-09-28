@@ -5291,11 +5291,11 @@
       <div style="flex:1;height:2px;background:linear-gradient(to left,transparent,var(--accent));border-radius:1px;"></div>
     </div>
     <div style="display:flex;gap:0.5rem;">
-      <button onclick="openSidekickInfo()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">SideKick</button>
+      <button onclick="openSidekickInfo()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Tour</button>
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v268</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v269</div>
   </div>
 </div>
 
@@ -6757,7 +6757,7 @@
     <div id="sidekick-videos" style="display:flex;flex-direction:column;gap:0.5rem;margin:0.6rem 0;">
       <video controls preload="metadata" playsinline style="display:block;width:auto;max-width:100%;height:auto;max-height:55vh;margin:0 auto;border-radius:0.625rem;border:1px solid var(--border);background:#000;" src="Video/Tutorial.mp4"></video>
     </div>
-    <button class="btn-primary btn-sm" style="width:100%;" onclick="openFeaturesInfo()" data-i18n="learnMoreFeatures">Learn More About SideKick Features</button>
+    <button class="btn-primary btn-sm" style="width:100%;" onclick="openFeaturesInfo()">Guided Tours</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeSidekickInfo()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -6779,12 +6779,10 @@
 <div class="tools-overlay" id="features-info-overlay">
   <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
     <div class="tools-modal-title" data-i18n="featuresHubTitle">SideKick Features</div>
-    <div style="font-size:0.9rem;color:var(--text);margin:0.5rem 0 0;" data-i18n="featuresHubMsg">In-depth video tutorials showcasing all the features SideKick has to offer — coming soon.</div>
-    <div style="width:100%;aspect-ratio:16/9;border-radius:0.625rem;border:1px solid var(--border);background:rgba(0,0,0,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;margin:0.6rem 0;">
-      <div style="font-size:1.6rem;">▶️</div>
-      <div style="font-size:0.75rem;color:var(--muted);" data-i18n="videoComingSoon">Video coming soon</div>
-    </div>
-    <button class="btn-primary btn-sm" style="width:100%;margin-bottom:0.4rem;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startTutorial()">Guided Tour</button>
+    <div style="font-size:0.9rem;color:var(--text);margin:0.5rem 0 0;">For a quick start guided tour, choose "Quick Start Tour".</div>
+    <button class="btn-primary btn-sm" style="width:100%;margin-bottom:0.4rem;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startTutorial()">Quick Start Tour</button>
+    <div style="font-size:0.9rem;color:var(--text);margin:0.5rem 0 0;">For a more in-depth tour, choose "In-Depth Tour".</div>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startInDepthTour()">In-Depth Tour</button>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeFeaturesInfo()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -6847,9 +6845,13 @@
   <div style="position:relative;margin-bottom:0.3rem;">
     <div style="text-align:center;font-size:0.75rem;font-weight:800;color:var(--accent-light);letter-spacing:0.06em;padding:0 3.2rem;">TOUR</div>
     <div id="tutorial-dots" style="display:flex;gap:0.3rem;justify-content:center;margin-top:0.35rem;"></div>
-    <button onclick="endTutorial()" style="position:absolute;right:0;top:0;background:none;border:none;color:var(--muted);font-size:0.75rem;font-weight:700;cursor:pointer;padding:0.2rem;">Close</button>
+    <button onclick="quitTour()" style="position:absolute;right:0;top:0;background:none;border:none;color:var(--muted);font-size:0.75rem;font-weight:700;cursor:pointer;padding:0.2rem;">Close</button>
   </div>
   <div id="tutorial-text" style="font-size:0.85rem;color:var(--text);line-height:1.4;"></div>
+  <div id="tutorial-nav-row" style="display:none;gap:0.5rem;margin-top:0.6rem;">
+    <button class="btn-secondary btn-sm" style="flex:1;" onclick="indepthBack()">◀ Back</button>
+    <button class="btn-primary btn-sm" style="flex:1;" onclick="indepthNext()">Next ▶</button>
+  </div>
   <div id="tutorial-finish-row" style="display:none;margin-top:0.6rem;">
     <button class="btn-primary btn-sm" style="width:100%;" onclick="finishTutorial()">Finish ✓</button>
   </div>
@@ -10030,6 +10032,7 @@ let _tutorialStartActive = null;
 let _tutorialStartCode = null;
 let _origSelectFirst = null;
 const TUTORIAL_STEPS = 10;
+let tourMode = null; // 'guided' | 'indepth' | null
 // Click guard: during gated steps, only task-relevant controls respond.
 // Everything else is swallowed so users can't veer off the guide.
 // (Scrolling is untouched — only taps/clicks are filtered.)
@@ -10046,6 +10049,7 @@ const TOUR_ALLOW = {
   10: []
 };
 function tourGuard(e) {
+  if (tourMode !== 'guided') return;
   if (!tutorialStep || tutorialStep >= TUTORIAL_STEPS) return;
   const t = e.target && e.target.closest ? e.target.closest('#tutorial-coach *, button, a, input, textarea, select, [onclick], [role="button"]') : null;
   if (!t) return;
@@ -10113,10 +10117,19 @@ function tourHideSpotlight() {
 function tourSpotlight() {
   const ring = document.getElementById('tour-ring');
   if (!ring) return;
-  if (!tutorialStep || tutorialStep >= TUTORIAL_STEPS) { tourHideSpotlight(); return; }
+  let el = null, pad = 6;
+  if (tourMode === 'indepth') {
+    try {
+      const s = INDEPTH_STEPS[Math.min(Math.max(indepthStep, 1), INDEPTH_STEPS.length) - 1];
+      if (s && s.sel) el = document.querySelector(s.sel);
+    } catch {}
+  } else {
+    if (!tutorialStep || tutorialStep >= TUTORIAL_STEPS) { tourHideSpotlight(); return; }
+    try { el = tourFocusEl(tutorialStep); } catch {}
+    pad = (tutorialStep >= 2 && tutorialStep <= 4) ? 14 : 6;
+  }
+  if (!tourMode) { tourHideSpotlight(); return; }
   const vw = window.innerWidth, vh = window.innerHeight;
-  let el = null;
-  try { el = tourFocusEl(tutorialStep); } catch {}
   const r = el && el.getBoundingClientRect ? el.getBoundingClientRect() : null;
   if (!r || !r.width || !r.height) {
     // No visible focus — dim everything
@@ -10127,7 +10140,6 @@ function tourSpotlight() {
     ring.style.display = 'none';
     return;
   }
-  const pad = (tutorialStep >= 2 && tutorialStep <= 4) ? 14 : 6;
   const x = Math.max(0, r.left - pad), y = Math.max(0, r.top - pad);
   const w = Math.min(vw - x, r.width + pad * 2), h = Math.min(vh - y, r.height + pad * 2);
   tourSetDim('tour-dim-t', 0, 0, vw, y);
@@ -10225,6 +10237,9 @@ function renderTutorialStep() {
 window.renderTutorialStep = renderTutorialStep;
 window.startTutorial = function() {
   try { if (typeof practiceStep !== 'undefined' && practiceStep > 0) endPractice(); } catch {}
+  tourMode = 'guided';
+  const navRow = document.getElementById('tutorial-nav-row');
+  if (navRow) navRow.style.display = 'none';
   tutorialStep = 1;
   _tutorialRoom = null;
   _tutorialStartActive = null;
@@ -10274,8 +10289,76 @@ async function tutorialCleanup() {
     if (db && code) { try { await remove(ref(db, `rooms/${code}`)); } catch {} }
   }
   tutorialStep = 0;
+  tourMode = null;
   return mine;
 }
+window.quitTour = function() {
+  if (tourMode === 'indepth') endInDepthTour();
+  else endTutorial();
+};
+// ── IN-DEPTH TOUR (home screen walkthrough, free taps, manual steps) ──
+const INDEPTH_STEPS = [
+  { sel: null, title: 'Welcome to SideKick', text: 'This tour walks the home screen — every button, top to bottom. Tap Next.' },
+  { sel: '#screen-home [onclick="showCreateRoom()"]', title: 'Host New Room', text: 'Start here to create a room: enter your name, pick a turn direction and features.' },
+  { sel: '#host-preset-room-btn', title: 'Host Preset Room', text: 'Save favorite setups and host them in one tap. Needs an account — log in to see it.' },
+  { sel: '#screen-home [onclick="showJoinRoom()"]', title: 'Join Room', text: 'Got a 4-digit code from a friend? Enter it here with your name.' },
+  { sel: '#account-btn', title: 'Account & Language', text: 'Top right logs you in — presets, collection and friends need an account. Top left switches language.' },
+  { sel: '#theme-toggle-btn', title: 'Light / Dark', text: 'Quick sun-moon toggle. Full themes live in your profile under Themes.' },
+  { sel: '#screen-home [onclick="openSidekickInfo()"]', title: 'Tour, Donate, Contact', text: 'Tour replays info, Donate supports development, Contact emails us.' },
+  { sel: '#app-version', title: 'Version tag', text: 'If anything ever looks wrong, read this number first — most bugs are a stale cached copy.' }
+];
+let indepthStep = 0;
+window.startInDepthTour = function() {
+  try { if (tourMode === 'guided' && tutorialStep > 0) endTutorial(); } catch {}
+  tourMode = 'indepth';
+  indepthStep = 1;
+  renderInDepthStep();
+  document.getElementById('tutorial-coach').style.display = 'block';
+  haptic(15);
+};
+function renderInDepthStep() {
+  const total = INDEPTH_STEPS.length;
+  const idx = Math.min(Math.max(indepthStep, 1), total) - 1;
+  const s = INDEPTH_STEPS[idx];
+  document.getElementById('tutorial-text').innerHTML = '<b>' + s.title + '</b><br>' + s.text;
+  const dotsEl = document.getElementById('tutorial-dots');
+  if (dotsEl) {
+    dotsEl.innerHTML = '';
+    for (let i = 1; i <= total; i++) {
+      const d = document.createElement('span');
+      const on = i === idx + 1, done = i < idx + 1;
+      d.style.cssText = 'width:' + (on ? '1.1rem' : '0.4rem') + ';height:0.4rem;border-radius:999rem;background:' + (on ? 'var(--accent)' : (done ? 'var(--accent-light)' : 'rgba(255,255,255,0.2)')) + ';';
+      dotsEl.appendChild(d);
+    }
+  }
+  document.getElementById('tutorial-finish-row').style.display = 'none';
+  const navRow = document.getElementById('tutorial-nav-row');
+  if (navRow) navRow.style.display = 'flex';
+  const backBtn = document.querySelector('#tutorial-nav-row button');
+  if (backBtn) backBtn.style.visibility = idx === 0 ? 'hidden' : 'visible';
+  const nextBtns = document.querySelectorAll('#tutorial-nav-row button');
+  if (nextBtns[1]) nextBtns[1].textContent = idx === total - 1 ? 'Finish ✓' : 'Next ▶';
+  tourSpotlight();
+  try { requestAnimationFrame(() => tourSpotlight()); } catch {}
+}
+window.renderInDepthStep = renderInDepthStep;
+window.indepthNext = function() {
+  if (indepthStep >= INDEPTH_STEPS.length) { endInDepthTour(); return; }
+  indepthStep++;
+  renderInDepthStep();
+  haptic(5);
+};
+window.indepthBack = function() {
+  if (indepthStep > 1) indepthStep--;
+  renderInDepthStep();
+  haptic(5);
+};
+window.endInDepthTour = function() {
+  tourMode = null;
+  indepthStep = 0;
+  document.getElementById('tutorial-coach').style.display = 'none';
+  try { tourHideSpotlight(); } catch {}
+};
 window.endTutorial = async function() {
   const code = (typeof roomCode !== 'undefined') ? roomCode : null;
   await tutorialCleanup();
@@ -12259,7 +12342,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v268';
+const APP_VERSION = 'v269';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
