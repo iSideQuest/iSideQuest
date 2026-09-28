@@ -5294,7 +5294,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v266</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v267</div>
   </div>
 </div>
 
@@ -6783,7 +6783,7 @@
       <div style="font-size:1.6rem;">▶️</div>
       <div style="font-size:0.75rem;color:var(--muted);" data-i18n="videoComingSoon">Video coming soon</div>
     </div>
-    <button class="btn-primary btn-sm" style="width:100%;margin-bottom:0.4rem;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startTutorial()">🎓 Guided Tour</button>
+    <button class="btn-primary btn-sm" style="width:100%;margin-bottom:0.4rem;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startTutorial()">Guided Tour</button>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeFeaturesInfo()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -6835,14 +6835,18 @@
     <button id="practice-next-btn" class="btn-primary btn-sm" style="flex:1;" onclick="practiceNext()">Next ▶</button>
   </div>
 </div>
-<!-- TOUR SPOTLIGHT (dims everything except the current focus) -->
-<div id="tour-dim" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.68);z-index:9490;pointer-events:none;"></div>
+<!-- TOUR SPOTLIGHT (dims everything except the focus cutout, which stays full brightness) -->
+<div id="tour-dim-t" style="display:none;position:fixed;background:rgba(0,0,0,0.72);z-index:9490;pointer-events:none;"></div>
+<div id="tour-dim-b" style="display:none;position:fixed;background:rgba(0,0,0,0.72);z-index:9490;pointer-events:none;"></div>
+<div id="tour-dim-l" style="display:none;position:fixed;background:rgba(0,0,0,0.72);z-index:9490;pointer-events:none;"></div>
+<div id="tour-dim-r" style="display:none;position:fixed;background:rgba(0,0,0,0.72);z-index:9490;pointer-events:none;"></div>
 <div id="tour-ring" style="display:none;position:fixed;z-index:9491;border:2px solid var(--accent);border-radius:0.9rem;box-shadow:0 0 0.75rem rgba(124,92,191,0.8),inset 0 0 0.75rem rgba(124,92,191,0.25);pointer-events:none;transition:all 0.25s ease-out;"></div>
 <!-- GUIDED TOUR COACH (home → create → lobby → play → exit, gated) -->
 <div id="tutorial-coach" style="display:none;position:fixed;top:calc(4.75rem + env(safe-area-inset-top, 0));left:0.75rem;right:0.75rem;z-index:9500;background:var(--surface);border:1px solid var(--accent);border-radius:1rem;padding:0.7rem 0.9rem;box-shadow:0 0.5rem 2rem rgba(0,0,0,0.5);">
-  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem;">
-    <span style="font-size:0.75rem;font-weight:800;color:var(--accent-light);letter-spacing:0.06em;">🎓 TOUR <span id="tutorial-step-num">1/10</span></span>
-    <button onclick="endTutorial()" style="margin-left:auto;background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:0 0.2rem;" title="End tour">✕</button>
+  <div style="position:relative;margin-bottom:0.3rem;">
+    <div style="text-align:center;font-size:0.75rem;font-weight:800;color:var(--accent-light);letter-spacing:0.06em;">TOUR</div>
+    <div id="tutorial-dots" style="display:flex;gap:0.3rem;justify-content:center;margin-top:0.35rem;"></div>
+    <button onclick="endTutorial()" style="position:absolute;right:0;top:0;background:none;border:none;color:var(--muted);font-size:0.75rem;font-weight:700;cursor:pointer;padding:0.2rem;">Close</button>
   </div>
   <div id="tutorial-text" style="font-size:0.85rem;color:var(--text);line-height:1.4;"></div>
   <div id="tutorial-finish-row" style="display:none;margin-top:0.6rem;">
@@ -10086,22 +10090,49 @@ function tourFocusEl(step) {
     }
   } catch { return null; }
 }
+function tourSetDim(id, l, t, w, h) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = (w > 0 && h > 0) ? 'block' : 'none';
+  el.style.left = l + 'px';
+  el.style.top = t + 'px';
+  el.style.width = w + 'px';
+  el.style.height = h + 'px';
+}
+function tourHideSpotlight() {
+  ['tour-dim-t', 'tour-dim-b', 'tour-dim-l', 'tour-dim-r', 'tour-ring'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+}
 function tourSpotlight() {
-  const dim = document.getElementById('tour-dim');
   const ring = document.getElementById('tour-ring');
-  if (!dim || !ring) return;
-  if (!tutorialStep || tutorialStep >= TUTORIAL_STEPS) { dim.style.display = 'none'; ring.style.display = 'none'; return; }
-  dim.style.display = 'block';
+  if (!ring) return;
+  if (!tutorialStep || tutorialStep >= TUTORIAL_STEPS) { tourHideSpotlight(); return; }
+  const vw = window.innerWidth, vh = window.innerHeight;
   let el = null;
   try { el = tourFocusEl(tutorialStep); } catch {}
-  if (!el || !el.getBoundingClientRect) { ring.style.display = 'none'; return; }
-  const r = el.getBoundingClientRect();
-  if (!r.width || !r.height) { ring.style.display = 'none'; return; }
-  const pad = 6;
-  ring.style.left = (r.left - pad) + 'px';
-  ring.style.top = (r.top - pad) + 'px';
-  ring.style.width = (r.width + pad * 2) + 'px';
-  ring.style.height = (r.height + pad * 2) + 'px';
+  const r = el && el.getBoundingClientRect ? el.getBoundingClientRect() : null;
+  if (!r || !r.width || !r.height) {
+    // No visible focus — dim everything
+    tourSetDim('tour-dim-t', 0, 0, vw, vh);
+    tourSetDim('tour-dim-b', 0, 0, 0, 0);
+    tourSetDim('tour-dim-l', 0, 0, 0, 0);
+    tourSetDim('tour-dim-r', 0, 0, 0, 0);
+    ring.style.display = 'none';
+    return;
+  }
+  const pad = (tutorialStep >= 2 && tutorialStep <= 4) ? 14 : 6;
+  const x = Math.max(0, r.left - pad), y = Math.max(0, r.top - pad);
+  const w = Math.min(vw - x, r.width + pad * 2), h = Math.min(vh - y, r.height + pad * 2);
+  tourSetDim('tour-dim-t', 0, 0, vw, y);
+  tourSetDim('tour-dim-b', 0, y + h, vw, vh - y - h);
+  tourSetDim('tour-dim-l', 0, y, x, h);
+  tourSetDim('tour-dim-r', x + w, y, vw - x - w, h);
+  ring.style.left = x + 'px';
+  ring.style.top = y + 'px';
+  ring.style.width = w + 'px';
+  ring.style.height = h + 'px';
   ring.style.display = 'block';
 }
 function tourReposition() { if (tutorialStep) { try { tourSpotlight(); } catch {} } }
@@ -10172,7 +10203,16 @@ function renderTutorialStep() {
   ];
   const idx = Math.min(Math.max(tutorialStep, 1), TUTORIAL_STEPS) - 1;
   document.getElementById('tutorial-text').innerHTML = texts[idx];
-  document.getElementById('tutorial-step-num').textContent = (idx + 1) + '/' + TUTORIAL_STEPS;
+  const dotsEl = document.getElementById('tutorial-dots');
+  if (dotsEl) {
+    dotsEl.innerHTML = '';
+    for (let i = 1; i <= TUTORIAL_STEPS; i++) {
+      const d = document.createElement('span');
+      const on = i === idx + 1, done = i < idx + 1;
+      d.style.cssText = 'width:' + (on ? '1.1rem' : '0.4rem') + ';height:0.4rem;border-radius:999rem;background:' + (on ? 'var(--accent)' : (done ? 'var(--accent-light)' : 'rgba(255,255,255,0.2)')) + ';';
+      dotsEl.appendChild(d);
+    }
+  }
   document.getElementById('tutorial-finish-row').style.display = idx === TUTORIAL_STEPS - 1 ? '' : 'none';
   tourSpotlight();
   try { requestAnimationFrame(() => tourSpotlight()); } catch {}
@@ -10221,10 +10261,7 @@ async function tutorialCleanup() {
   if (_origSelectFirst) { window.selectFirstPlayerOption = _origSelectFirst; _origSelectFirst = null; }
   const coach = document.getElementById('tutorial-coach');
   if (coach) coach.style.display = 'none';
-  try {
-    document.getElementById('tour-dim').style.display = 'none';
-    document.getElementById('tour-ring').style.display = 'none';
-  } catch {}
+  try { tourHideSpotlight(); } catch {}
   if (mine) {
     try { cleanupListeners(); } catch {}
     roomCode = null; myId = null; isHost = false;
@@ -12217,7 +12254,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v266';
+const APP_VERSION = 'v267';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
