@@ -4297,7 +4297,7 @@
   }
 
   #create-kb, #join-kb { position: relative; z-index: 100000; }
-  .tour-bubble { position:relative; background:rgba(124,92,191,0.15); border:1px solid var(--accent); border-radius:0.75rem; padding:0.7rem 0.75rem 0.6rem; font-size:0.85rem; color:var(--text); line-height:1.4; text-align:center; }
+  .tour-bubble { position:relative; background:rgba(124,92,191,0.15); border:1px solid var(--accent); border-radius:0.75rem; padding:0.7rem 0.75rem 0.6rem; font-size:1rem; color:var(--text); line-height:1.4; text-align:center; }
   .tour-name-tab { position:absolute; top:-0.65rem; left:0.9rem; z-index:2; background:var(--accent); color:#fff; font-size:0.7rem; font-weight:800; letter-spacing:0.04em; padding:0.12rem 0.8rem; border-radius:0.5rem; }
   .custom-kb-row { display: flex; gap: 0.15rem; justify-content: center; margin-bottom: 0.25rem; }
   .custom-kb-row:last-child { margin-bottom: 0; }
@@ -5297,7 +5297,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v275</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v276</div>
   </div>
 </div>
 
@@ -6753,7 +6753,6 @@
 <div class="tools-overlay" id="sidekick-info-overlay">
   <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
     <div class="tools-modal-title">What Is SideKick?</div>
-    <div style="font-size:0.9rem;color:var(--text);margin:0.5rem 0 0;">What is SideKick?</div>
     <div id="sidekick-videos" style="display:flex;flex-direction:column;gap:0.5rem;margin:0.6rem 0;">
       <video controls preload="metadata" playsinline style="display:block;width:auto;max-width:100%;height:auto;max-height:55vh;margin:0 auto;border-radius:0.625rem;border:1px solid var(--border);background:#000;" src="Video/Tutorial.mp4"></video>
     </div>
@@ -6777,20 +6776,19 @@
   </div>
 </div>
 <div class="tools-overlay" id="features-info-overlay">
-  <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
-    <div class="tools-modal-title">Choose Your Guided Tour</div>
+  <div class="tools-modal" style="max-width:21.25rem; text-align:center; position:relative;">
+    <button onclick="closeFeaturesInfo()" style="position:absolute;top:0.55rem;right:0.7rem;background:none;border:none;color:var(--muted);font-size:0.75rem;font-weight:700;cursor:pointer;padding:0.2rem;">Close</button>
     <div style="margin:0.6rem 0 0.2rem;text-align:center;">
       <img src="img/Dante2.png" alt="Dante the guide cat" style="height:10rem;width:auto;max-width:100%;">
       <div style="position:relative;text-align:left;margin-top:0.4rem;">
         <div class="tour-name-tab">Dante</div>
-        <div class="tour-bubble" style="font-size:0.85rem;">Hi! My name is Dante! Let me take you on one of our guided tours. Choose which tour you would like to go through.</div>
+        <div class="tour-bubble">Hi! My name is Dante! Let me take you on one of our guided tours. Choose which tour you would like to go through.</div>
       </div>
     </div>
     <div style="display:flex;gap:0.6rem;margin:0.6rem 0;">
       <button class="btn-primary" style="flex:1;aspect-ratio:1/1;border-radius:1rem;font-size:1rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;min-width:0;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startTutorial()"><span>Quick Start Tour</span></button>
       <button class="btn-secondary" style="flex:1;aspect-ratio:1/1;border-radius:1rem;font-size:1rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;min-width:0;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startInDepthTour()"><span>In-Depth Tour</span></button>
     </div>
-    <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeFeaturesInfo()" data-i18n="close">Close</button>
   </div>
 </div>
 
@@ -10064,14 +10062,14 @@ const TOUR_ALLOW = {
   10: []
 };
 function tourGuard(e) {
-  if (tourMode !== 'guided') return;
-  if (!tutorialStep || tutorialStep >= TUTORIAL_STEPS) return;
+  if (tourMode !== 'guided' && tourMode !== 'indepth') return;
+  if (tourMode === 'guided' && (!tutorialStep || tutorialStep >= TUTORIAL_STEPS)) return;
   const t = e.target && e.target.closest ? e.target.closest('#tutorial-coach *, button, a, input, textarea, select, [onclick], [role="button"]') : null;
   if (!t) return;
   if (t.closest('#tutorial-coach')) return;
   // Alert/confirm/prompt dialogs must always be dismissible — never trap the user
   if (t.closest('#app-dialog-overlay')) return;
-  const allowed = TOUR_ALLOW[tutorialStep] || [];
+  const allowed = tourMode === 'guided' ? (TOUR_ALLOW[tutorialStep] || []) : [];
   for (const sel of allowed) {
     try { if (t.matches(sel)) return; } catch {}
   }
@@ -12360,7 +12358,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v275';
+const APP_VERSION = 'v276';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
