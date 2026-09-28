@@ -1,7 +1,7 @@
 ﻿// SideKick Service Worker
 
 // âš ï¸ Bump this on every release so the new version takes effect for all users.
-const CACHE_NAME = 'sidekick-v272';
+const CACHE_NAME = 'sidekick-v273';
 
 // Files to cache on install â€” the core app shell (relative paths)
 const PRECACHE = [
@@ -10,7 +10,7 @@ const PRECACHE = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './img/Dante.png',
+  './img/Dante2.png',
 ];
 
 // External Firebase/CDN URLs we do NOT cache â€” they must always be live

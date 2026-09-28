@@ -5297,7 +5297,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v272</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v273</div>
   </div>
 </div>
 
@@ -6779,7 +6779,10 @@
 <div class="tools-overlay" id="features-info-overlay">
   <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
     <div class="tools-modal-title">Choose Your Guided Tour</div>
-    <img src="img/Dante.png" alt="Dante the guide cat" style="display:block;width:5rem;height:5rem;border-radius:50%;object-fit:cover;margin:0.5rem auto;border:2px solid var(--accent);">
+    <div style="display:flex;gap:0.6rem;align-items:center;margin:0.5rem 0;">
+      <img src="img/Dante2.png" alt="Dante the guide cat" style="height:4rem;width:auto;flex-shrink:0;">
+      <div class="tour-bubble" style="font-size:0.85rem;">My name is Dante, I'm your guide.</div>
+    </div>
     <div style="display:flex;gap:0.6rem;margin:0.6rem 0;">
       <button class="btn-primary" style="flex:1;aspect-ratio:1/1;border-radius:1rem;font-size:1rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;min-width:0;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startTutorial()"><span>Quick Start Tour</span></button>
       <button class="btn-secondary" style="flex:1;aspect-ratio:1/1;border-radius:1rem;font-size:1rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;min-width:0;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startInDepthTour()"><span>In-Depth Tour</span></button>
@@ -6843,13 +6846,18 @@
 <div id="tour-ring" style="display:none;position:fixed;z-index:9491;border:2px solid var(--accent);border-radius:0.9rem;box-shadow:0 0 0.75rem rgba(124,92,191,0.8),inset 0 0 0.75rem rgba(124,92,191,0.25);pointer-events:none;transition:all 0.25s ease-out;"></div>
 <!-- GUIDED TOUR COACH (home → create → lobby → play → exit, gated) -->
 <div id="tutorial-coach" style="display:none;position:fixed;top:calc(4.75rem + env(safe-area-inset-top, 0));left:0.75rem;right:0.75rem;z-index:9500;background:var(--surface);border:1px solid var(--accent);border-radius:1rem;padding:0.7rem 0.9rem;box-shadow:0 0.5rem 2rem rgba(0,0,0,0.5);">
-  <div style="position:relative;margin-bottom:0.3rem;">
-    <div style="text-align:center;font-size:0.75rem;font-weight:800;color:var(--accent-light);letter-spacing:0.06em;padding:0 3.2rem;">TOUR</div>
+  <div style="margin-bottom:0.3rem;">
+    <div style="display:flex;align-items:center;">
+      <div style="flex:1;"></div>
+      <div style="font-size:0.75rem;font-weight:800;color:var(--accent-light);letter-spacing:0.06em;">TOUR</div>
+      <div style="flex:1;display:flex;justify-content:flex-end;">
+        <button onclick="quitTour()" style="background:none;border:none;color:var(--muted);font-size:0.75rem;font-weight:700;cursor:pointer;padding:0.2rem;">Close</button>
+      </div>
+    </div>
     <div id="tutorial-dots" style="display:flex;gap:0.3rem;justify-content:center;margin-top:0.35rem;"></div>
-    <button onclick="quitTour()" style="position:absolute;right:0;top:0;background:none;border:none;color:var(--muted);font-size:0.75rem;font-weight:700;cursor:pointer;padding:0.2rem;">Close</button>
   </div>
   <div style="display:flex;gap:0.6rem;align-items:flex-start;margin-bottom:0.6rem;">
-    <img src="img/Dante.png" alt="Dante the guide cat" style="width:3.5rem;height:3.5rem;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--accent);">
+    <img src="img/Dante2.png" alt="Dante the guide cat" style="height:3.5rem;width:auto;flex-shrink:0;">
     <div id="tutorial-text" class="tour-bubble"></div>
   </div>
   <div id="tutorial-nav-row" style="display:none;gap:0.5rem;margin-top:0.6rem;">
@@ -10310,8 +10318,7 @@ const INDEPTH_STEPS = [
   { sel: '#theme-toggle-btn', title: 'Light / Dark', text: 'Quick sun-moon toggle. Full themes live in your profile under Themes.' },
   { sel: '#screen-home [onclick="openSidekickInfo()"]', title: 'Tour', text: 'Replays info videos and opens the guided tours.' },
   { sel: '#screen-home [onclick="openDonateOverlay()"]', title: 'Donate', text: 'SideKick is free. Donations support development.' },
-  { sel: '#screen-home [onclick="openContactOverlay()"]', title: 'Contact', text: 'Questions, feedback or ideas — email us here.' },
-  { sel: '#app-version', title: 'Version tag', text: 'If anything ever looks wrong, read this number first — most bugs are a stale cached copy.' }
+  { sel: '#screen-home [onclick="openContactOverlay()"]', title: 'Contact', text: 'Questions, feedback or ideas — email us here.' }
 ];
 let indepthStep = 0;
 window.startInDepthTour = function() {
@@ -12348,7 +12355,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v272';
+const APP_VERSION = 'v273';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
