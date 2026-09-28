@@ -5294,7 +5294,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v265</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v266</div>
   </div>
 </div>
 
@@ -6783,8 +6783,7 @@
       <div style="font-size:1.6rem;">▶️</div>
       <div style="font-size:0.75rem;color:var(--muted);" data-i18n="videoComingSoon">Video coming soon</div>
     </div>
-    <button class="btn-primary btn-sm" style="width:100%;margin-bottom:0.4rem;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startPracticeGame()">🎯 Practice Solo</button>
-    <button class="btn-secondary btn-sm" style="width:100%;margin-bottom:0.4rem;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startTutorial()">🎓 Guided Tour</button>
+    <button class="btn-primary btn-sm" style="width:100%;margin-bottom:0.4rem;" onclick="closeFeaturesInfo(); closeSidekickInfo(); startTutorial()">🎓 Guided Tour</button>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeFeaturesInfo()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -6836,6 +6835,9 @@
     <button id="practice-next-btn" class="btn-primary btn-sm" style="flex:1;" onclick="practiceNext()">Next ▶</button>
   </div>
 </div>
+<!-- TOUR SPOTLIGHT (dims everything except the current focus) -->
+<div id="tour-dim" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.68);z-index:9490;pointer-events:none;"></div>
+<div id="tour-ring" style="display:none;position:fixed;z-index:9491;border:2px solid var(--accent);border-radius:0.9rem;box-shadow:0 0 0.75rem rgba(124,92,191,0.8),inset 0 0 0.75rem rgba(124,92,191,0.25);pointer-events:none;transition:all 0.25s ease-out;"></div>
 <!-- GUIDED TOUR COACH (home → create → lobby → play → exit, gated) -->
 <div id="tutorial-coach" style="display:none;position:fixed;top:calc(4.75rem + env(safe-area-inset-top, 0));left:0.75rem;right:0.75rem;z-index:9500;background:var(--surface);border:1px solid var(--accent);border-radius:1rem;padding:0.7rem 0.9rem;box-shadow:0 0.5rem 2rem rgba(0,0,0,0.5);">
   <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem;">
@@ -10023,6 +10025,89 @@ let _tutorialStartActive = null;
 let _tutorialStartCode = null;
 let _origSelectFirst = null;
 const TUTORIAL_STEPS = 10;
+// Click guard: during gated steps, only task-relevant controls respond.
+// Everything else is swallowed so users can't veer off the guide.
+// (Scrolling is untouched — only taps/clicks are filtered.)
+const TOUR_ALLOW = {
+  1: ['#screen-home [onclick="showCreateRoom()"]'],
+  2: ['.create-step[data-step="1"] *', '#color-picker-overlay *', '#avatar-overlay *', '#room-avatar-overlay *', '.custom-kb *'],
+  3: ['.create-step[data-step="2"] *', '.custom-kb *'],
+  4: ['.create-step[data-step="3"] *', '.feature-settings-overlay *', '#features-help-overlay *', '.custom-kb *'],
+  5: ['#screen-lobby [data-act="create"]', '#standin-player-overlay *', '#color-picker-overlay *', '#avatar-overlay *', '#room-avatar-overlay *', '.custom-kb *'],
+  6: ['#screen-lobby [id^="first-opt-"]'],
+  7: ['#screen-lobby #start-btn'],
+  8: ['#btn-left', '#btn-right', '#pass-tap-btn'],
+  9: ['.screen.active .exit-btn', '#app-dialog-overlay *'],
+  10: []
+};
+function tourGuard(e) {
+  if (!tutorialStep || tutorialStep >= TUTORIAL_STEPS) return;
+  const t = e.target && e.target.closest ? e.target.closest('#tutorial-coach *, button, a, input, textarea, select, [onclick], [role="button"]') : null;
+  if (!t) return;
+  if (t.closest('#tutorial-coach')) return;
+  // Alert/confirm/prompt dialogs must always be dismissible — never trap the user
+  if (t.closest('#app-dialog-overlay')) return;
+  const allowed = TOUR_ALLOW[tutorialStep] || [];
+  for (const sel of allowed) {
+    try { if (t.matches(sel)) return; } catch {}
+  }
+  e.stopPropagation();
+  e.preventDefault();
+  try {
+    const ring = document.getElementById('tour-ring');
+    if (ring) {
+      ring.style.boxShadow = '0 0 1.5rem rgba(255,90,90,0.9),inset 0 0 0.75rem rgba(255,90,90,0.3)';
+      if (window._tourPulseT) clearTimeout(window._tourPulseT);
+      window._tourPulseT = setTimeout(() => { ring.style.boxShadow = ''; }, 350);
+    }
+  } catch {}
+  haptic(3);
+}
+document.addEventListener('click', tourGuard, true);
+function tourFocusEl(step) {
+  try {
+    switch (step) {
+      case 1: return document.querySelector('#screen-home [onclick="showCreateRoom()"]');
+      case 2: return document.querySelector('.create-step[data-step="1"] .card');
+      case 3: return document.querySelector('.create-step[data-step="2"] .card');
+      case 4: return document.querySelector('.create-step[data-step="3"] .card');
+      case 5: return document.querySelector('#screen-lobby [data-act="create"]');
+      case 6: return document.querySelector('#screen-lobby #first-opt-random');
+      case 7: return document.querySelector('#screen-lobby #start-btn');
+      case 8: {
+        const cands = document.querySelectorAll('.screen.active #btn-left, .screen.active #btn-right, .screen.active #pass-tap-btn');
+        for (const c of cands) {
+          try { const r = c.getBoundingClientRect(); if (r.width && r.height) return c; } catch {}
+        }
+        return cands[0] || null;
+      }
+      case 9: return document.querySelector('.screen.active .exit-btn');
+      default: return null;
+    }
+  } catch { return null; }
+}
+function tourSpotlight() {
+  const dim = document.getElementById('tour-dim');
+  const ring = document.getElementById('tour-ring');
+  if (!dim || !ring) return;
+  if (!tutorialStep || tutorialStep >= TUTORIAL_STEPS) { dim.style.display = 'none'; ring.style.display = 'none'; return; }
+  dim.style.display = 'block';
+  let el = null;
+  try { el = tourFocusEl(tutorialStep); } catch {}
+  if (!el || !el.getBoundingClientRect) { ring.style.display = 'none'; return; }
+  const r = el.getBoundingClientRect();
+  if (!r.width || !r.height) { ring.style.display = 'none'; return; }
+  const pad = 6;
+  ring.style.left = (r.left - pad) + 'px';
+  ring.style.top = (r.top - pad) + 'px';
+  ring.style.width = (r.width + pad * 2) + 'px';
+  ring.style.height = (r.height + pad * 2) + 'px';
+  ring.style.display = 'block';
+}
+function tourReposition() { if (tutorialStep) { try { tourSpotlight(); } catch {} } }
+window.addEventListener('scroll', tourReposition, { capture: true, passive: true });
+window.addEventListener('resize', tourReposition);
+window.addEventListener('orientationchange', tourReposition);
 function tutorialActiveScreen() {
   try {
     const el = document.querySelector('.screen.active');
@@ -10089,6 +10174,8 @@ function renderTutorialStep() {
   document.getElementById('tutorial-text').innerHTML = texts[idx];
   document.getElementById('tutorial-step-num').textContent = (idx + 1) + '/' + TUTORIAL_STEPS;
   document.getElementById('tutorial-finish-row').style.display = idx === TUTORIAL_STEPS - 1 ? '' : 'none';
+  tourSpotlight();
+  try { requestAnimationFrame(() => tourSpotlight()); } catch {}
 }
 window.renderTutorialStep = renderTutorialStep;
 window.startTutorial = function() {
@@ -10134,6 +10221,10 @@ async function tutorialCleanup() {
   if (_origSelectFirst) { window.selectFirstPlayerOption = _origSelectFirst; _origSelectFirst = null; }
   const coach = document.getElementById('tutorial-coach');
   if (coach) coach.style.display = 'none';
+  try {
+    document.getElementById('tour-dim').style.display = 'none';
+    document.getElementById('tour-ring').style.display = 'none';
+  } catch {}
   if (mine) {
     try { cleanupListeners(); } catch {}
     roomCode = null; myId = null; isHost = false;
@@ -12126,7 +12217,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v265';
+const APP_VERSION = 'v266';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
