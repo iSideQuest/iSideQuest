@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v284</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v285</div>
   </div>
 </div>
 
@@ -6853,6 +6853,7 @@
 <div id="tour-dim-l" style="display:none;position:fixed;background:rgba(0,0,0,0.72);z-index:9490;pointer-events:none;"></div>
 <div id="tour-dim-r" style="display:none;position:fixed;background:rgba(0,0,0,0.72);z-index:9490;pointer-events:none;"></div>
 <div id="tour-ring" style="display:none;position:fixed;z-index:9491;border:2px solid var(--accent);border-radius:0.9rem;box-shadow:0 0 0.75rem rgba(124,92,191,0.8),inset 0 0 0.75rem rgba(124,92,191,0.25);pointer-events:none;transition:all 0.25s ease-out;"></div>
+<audio id="tour-audio" preload="auto" style="display:none;"></audio>
 <!-- GUIDED TOUR COACH (home → create → lobby → play → exit, gated) -->
 <div id="tutorial-coach" style="display:none;position:fixed;top:calc(4.75rem + env(safe-area-inset-top, 0));left:0.75rem;right:0.75rem;z-index:9500;background:var(--surface);border:1px solid var(--accent);border-radius:1rem;padding:0.7rem 0.9rem;box-shadow:0 0.5rem 2rem rgba(0,0,0,0.5);">
   <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -10033,7 +10034,7 @@ window.practiceBack = function() {
   haptic(5);
 };
 window.endPractice = async function() {
-  try { speechSynthesis.cancel(); } catch {}
+  tourStopVoice();
   const coach = document.getElementById('practice-coach');
   if (coach) coach.style.display = 'none';
   if (_prevUndoEnabled !== null) { featureUndoEnabled = _prevUndoEnabled; _prevUndoEnabled = null; }
@@ -10316,7 +10317,7 @@ async function tutorialCleanup() {
   if (_origSelectFirst) { window.selectFirstPlayerOption = _origSelectFirst; _origSelectFirst = null; }
   const coach = document.getElementById('tutorial-coach');
   if (coach) coach.style.display = 'none';
-  try { speechSynthesis.cancel(); } catch {}
+  tourStopVoice();
   try { tourHideSpotlight(); } catch {}
   if (mine) {
     try { cleanupListeners(); } catch {}
@@ -10343,7 +10344,33 @@ function tourPickVoice() {
         || list[0];
   } catch { return null; }
 }
+function tourStopVoice() {
+  try { speechSynthesis.cancel(); } catch {}
+  try { const au = document.getElementById('tour-audio'); if (au) au.pause(); } catch {}
+}
+function tourAudioSrc() {
+  if (tourMode === 'guided') return 'audio/tour-quick-' + Math.min(Math.max(tutorialStep, 1), 10) + '.mp3';
+  if (tourMode === 'indepth') return 'audio/tour-indepth-' + Math.min(Math.max(indepthStep, 1), 9) + '.mp3';
+  return null;
+}
 function tourSpeak() {
+  // Pre-recorded line if shipped, otherwise device TTS
+  try {
+    if (!tourVoiceOn) return;
+    const src = tourAudioSrc();
+    const au = document.getElementById('tour-audio');
+    if (src && au) {
+      try { au.pause(); } catch {}
+      au.onerror = () => tourSpeakTTS();
+      au.src = src;
+      const p = au.play();
+      if (p && p.catch) p.catch(() => tourSpeakTTS());
+      return;
+    }
+    tourSpeakTTS();
+  } catch { tourSpeakTTS(); }
+}
+function tourSpeakTTS() {
   try {
     if (!tourVoiceOn || !('speechSynthesis' in window)) return;
     speechSynthesis.cancel();
@@ -10365,8 +10392,8 @@ function updateTourVoiceBtn() {
 }
 window.toggleTourVoice = function() {
   tourVoiceOn = !tourVoiceOn;
-  try { localStorage.setItem('sk_tour_voice', tourVoiceOn ? 'on' : 'off'); } catch {}
-  try { speechSynthesis.cancel(); } catch {}
+    try { localStorage.setItem('sk_tour_voice', tourVoiceOn ? 'on' : 'off'); } catch {}
+  tourStopVoice();
   updateTourVoiceBtn();
   if (tourVoiceOn) tourSpeak();
   haptic(5);
@@ -10439,7 +10466,7 @@ window.indepthBack = function() {
 window.endInDepthTour = function() {
   tourMode = null;
   indepthStep = 0;
-  try { speechSynthesis.cancel(); } catch {}
+  tourStopVoice();
   document.getElementById('tutorial-coach').style.display = 'none';
   try { tourHideSpotlight(); } catch {}
 };
@@ -12427,7 +12454,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v284';
+const APP_VERSION = 'v285';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
