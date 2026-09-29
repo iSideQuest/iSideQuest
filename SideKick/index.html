@@ -2507,6 +2507,10 @@
   .lobby-invite-btn:active { background: rgba(124,92,191,0.25); }
   .lobby-center-half { flex: 1; width: 100%; border: none; background: transparent; color: var(--text); font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1rem; font-size: 0.8rem; padding: 0; line-height: 1.25; }
   .lobby-center-half:active { background: rgba(124,92,191,0.25); }
+  /* Keep the lobby hub text inside the circle */
+  #lobby-wheel-center .lobby-center-half { font-size: 0.62rem; line-height: 1.15; gap: 0; padding: 0.1rem 0; }
+  #lobby-wheel-center .lobby-center-half > span:first-child { font-size: 0.75rem !important; line-height: 1 !important; }
+  #lobby-wheel-center .lobby-center-half > span:last-child { font-size: 0.62rem !important; line-height: 1.15 !important; }
   #lobby-wheel-kicks, #wl-wheel-kicks, #mg-wheel-kicks { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
   .lobby-kick-btn { position: absolute; width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 1px solid var(--border); background: rgba(0,0,0,0.65); color: #ff6b6b; font-size: 0.95rem; font-weight: 800; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transform: translate(-50%, -50%); pointer-events: all; }
 
@@ -5304,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v282</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v283</div>
   </div>
 </div>
 
@@ -7712,7 +7716,7 @@ const I18N_STRINGS = {
     contactName: 'Your name',
     contactMessage: 'Your message',
     send: 'Send',
-    donateMsg: 'I created SideKick in hopes to enhance the experience of board games. We all enjoy board games, to be together, and create memories that last a life time. If you are truly enjoying what SideKick has to offer and feel like contributing, donations are greatly appreciated. If not, continue using SideKick 100% free and enjoy! :)',
+    donateMsg: 'I created SideKick to enhance the experience of board games. We all enjoy board games, to be together, and create memories that last a life time. If you are enjoying what SideKick has to offer and feel like contributing, donations are greatly appreciated. If not, continue using SideKick 100% free and enjoy!',
     learnMoreFeatures: 'Learn More About SideKick Features',
     featuresHubTitle: 'SideKick Features',
     featuresHubMsg: 'In-depth video tutorials showcasing all the features SideKick has to offer — coming soon.',
@@ -9723,7 +9727,12 @@ window.togglePresetFeature = function(key) {
   }
 };
 function updatePresetEditUI() {
-  // All features are available to every account
+  // Timers, Status Effects and D&D are shelved — hidden for every account
+  document.querySelectorAll('#preset-features-grid .feature-card').forEach(el => {
+    const hide = HIDDEN_FEATURES.includes(el.dataset.feature);
+    el.style.display = hide ? 'none' : '';
+    if (hide) _editingPresetFeatures[el.dataset.feature] = false;
+  });
   // Turn dir
   document.querySelectorAll('#preset-dir-cw, #preset-dir-ccw, #preset-dir-both').forEach(el => el.classList.remove('selected'));
   const dirEl = document.getElementById('preset-dir-' + _editingPresetDir);
@@ -10228,16 +10237,16 @@ function updateTutorial() {
 }
 function renderTutorialStep() {
   const texts = [
-    'TOUR — from the home screen, tap <b>Host New Room</b> to begin.',
-    '<b>Step 1:</b> enter your name, pick a color and avatar, then tap <b>Continue</b>.',
-    '<b>Step 2:</b> choose which way turns pass, then tap <b>Confirm</b>.',
-    '<b>Step 3:</b> toggle any features you like (or none), then tap <b>Create Room</b>.',
-    'This is the <b>player lobby</b>. Add a second player: tap <b>Create Player</b>, name them, Create.',
-    'Choose who goes first — tap <b>Random</b>.',
-    'Tap <b>Start Game</b> to begin.',
-    'Play is live. Tap <b>PASS TURN</b> to advance the turn.',
-    'Done playing? Tap <b>Exit Room</b> and confirm to leave.',
-    'Tour complete — the room was cleaned up. Tap Finish.'
+    'Here is how we start your first SideKick room! Begin by choosing "Host New Room".',
+    '<b>Step 1:</b> enter your name, pick a color and avatar, then choose <b>Confirm</b>.',
+    '<b>Step 2:</b> choose which way turns pass in your game, then choose <b>Confirm</b>.',
+    '<b>Step 3:</b> toggle any features you like (or none), then choose <b>Create Room</b>.',
+    'This is the <b>player lobby</b>. Normally, your friends will join you here, but we can actually create players manually, choose <b>Create Player</b>.',
+    'This is where you choose who goes first. For now choose <b>Random</b>.',
+    'Choose <b>Start Game</b> to begin.',
+    'This shows you who the current player&#39s turn is. Tap the screen to pass the turn to the next player.',
+    'When you are done playing? Choose <b>Exit Room</b> to close the game room.',
+    'That was my Quick Start Tour of SideKick. Want more? My In-Depth Tour teaches you EVERYTHING about SideKick. Or, explore on your own and enjoy!'
   ];
   const idx = Math.min(Math.max(tutorialStep, 1), TUTORIAL_STEPS) - 1;
   document.getElementById('tutorial-text').innerHTML = texts[idx];
@@ -10320,15 +10329,15 @@ window.quitTour = function() {
 };
 // ── IN-DEPTH TOUR (home screen walkthrough, free taps, manual steps) ──
 const INDEPTH_STEPS = [
-  { sel: null, title: 'Welcome to SideKick', text: 'This tour walks the home screen top to bottom, left to right. Tap Next.' },
-  { sel: '#lang-btn', title: 'Language', text: 'Top left switches the app between 8 languages.' },
-  { sel: '#account-btn', title: 'Account', text: 'Top right logs you in. Presets, collection and friends need an account — hosting and joining work without one.' },
-  { sel: '#screen-home [onclick="showCreateRoom()"]', title: 'Host New Room', text: 'Create a room: enter your name, pick a turn direction and features.' },
-  { sel: '#screen-home [onclick="showJoinRoom()"]', title: 'Join Room', text: 'Got a 4-digit code from a friend? Enter it here with your name.' },
-  { sel: '#theme-toggle-btn', title: 'Light / Dark', text: 'Quick sun-moon toggle. Full themes live in your profile under Themes.' },
-  { sel: '#screen-home [onclick="openSidekickInfo()"]', title: 'Tour', text: 'Replays info videos and opens the guided tours.' },
-  { sel: '#screen-home [onclick="openDonateOverlay()"]', title: 'Donate', text: 'SideKick is free. Donations support development.' },
-  { sel: '#screen-home [onclick="openContactOverlay()"]', title: 'Contact', text: 'Questions, feedback or ideas — email us here.' }
+  { sel: null, title: 'Welcome to SideKick', text: 'This tour will go over ALL of SideKick. This will take some time, but will teach you EVERYTHING. Tap Next to begin!' },
+  { sel: '#lang-btn', title: 'Language', text: 'SideKick supports 8 languages. Change languages here.' },
+  { sel: '#account-btn', title: 'Account', text: 'By creating and logging into an account, you gain access to WAY MORE features and personalization!' },
+  { sel: '#screen-home [onclick="showCreateRoom()"]', title: 'Host New Room', text: 'This is where the magic happens! Host New Room to start having fun!' },
+  { sel: '#screen-home [onclick="showJoinRoom()"]', title: 'Join Room', text: 'Your friend has a room started already? Join their room and start having fun!' },
+  { sel: '#theme-toggle-btn', title: 'Light & Dark', text: 'Choose whether you like light or dark mode with this toggle button.' },
+  { sel: '#screen-home [onclick="openSidekickInfo()"]', title: 'Tour', text: 'Here is how you learn about SideKick and ALL it has to offer!' },
+  { sel: '#screen-home [onclick="openDonateOverlay()"]', title: 'Donate', text: 'SideKick is currently 100% free. This is how you can send donations to help support development of SideKick.' },
+  { sel: '#screen-home [onclick="openContactOverlay()"]', title: 'Contact', text: 'If you have any questions, feedback or ideas — email us here.' }
 ];
 let indepthStep = 0;
 window.startInDepthTour = function() {
@@ -12367,7 +12376,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v282';
+const APP_VERSION = 'v283';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
@@ -13095,7 +13104,7 @@ window.updateCreateCollapseSummary = function() {
   }
   const featLabel = document.getElementById('create-collapse-features');
   if (featLabel) {
-    const visibleDefs = FEATURE_DEFS_GRID.filter(f => !f.creatorOnly || isCreator);
+    const visibleDefs = FEATURE_DEFS_GRID.filter(f => (!f.creatorOnly || isCreator) && !HIDDEN_FEATURES.includes(f.key));
     const enabled = visibleDefs.filter(f => isFeatureEnabled(f.key));
     featLabel.textContent = enabled.length ? '⚙️ ' + enabled.length + ' feature' + (enabled.length > 1 ? 's' : '') : t('allFeaturesOff');
   }
@@ -14538,7 +14547,7 @@ function renderMGFeatureGrid() {
   const grid = document.getElementById('mg-features-grid');
   if (!grid) return;
   grid.innerHTML = '';
-  const visibleDefs = FEATURE_DEFS_GRID.filter(f => !f.creatorOnly || isCreator);
+  const visibleDefs = FEATURE_DEFS_GRID.filter(f => (!f.creatorOnly || isCreator) && !HIDDEN_FEATURES.includes(f.key));
   visibleDefs.forEach(def => {
     const enabled = isMGFeatureEnabled(def.key);
     const card = document.createElement('div');
@@ -14759,6 +14768,8 @@ const FEATURE_DEFS_GRID = [
   { key: 'dnd',     icon: '⚔️', name: 'D&D',            hasSettings: false, var: 'featureDndEnabled' },
   { key: 'playerSkip', icon: '⏭️', name: 'Player Skip', hasSettings: false, var: 'featurePlayerSkipEnabled' }
 ];
+// Shelved for now — hidden from Step 3 and presets for every account
+const HIDDEN_FEATURES = ['timers', 'status', 'dnd'];
 
 function isFeatureEnabled(key) {
   const def = FEATURE_DEFS_GRID.find(f => f.key === key);
@@ -14819,7 +14830,7 @@ function renderFeatureGrid() {
   const avail = document.getElementById('features-available-grid');
   if (!avail) return;
   avail.innerHTML = '';
-  const visibleDefs = FEATURE_DEFS_GRID.filter(f => !f.creatorOnly || isCreator);
+  const visibleDefs = FEATURE_DEFS_GRID.filter(f => (!f.creatorOnly || isCreator) && !HIDDEN_FEATURES.includes(f.key));
   const guestLockAll = false; // Step 3 is fully open to every account
   visibleDefs.forEach(def => {
     // Guests (SideKick tier) can see all features but only use Nudge + Player Skip
@@ -14978,7 +14989,7 @@ window.closeFeatureInfo = function() {
 function buildFeatureHelpList() {
   const container = document.getElementById('features-help-list');
   if (!container) return;
-  const visibleDefs = FEATURE_DEFS_GRID.filter(f => !f.creatorOnly || isCreator);
+  const visibleDefs = FEATURE_DEFS_GRID.filter(f => (!f.creatorOnly || isCreator) && !HIDDEN_FEATURES.includes(f.key));
   container.innerHTML = visibleDefs.map(def => {
     const info = FEATURE_INFO[def.key];
     if (!info) return '';
