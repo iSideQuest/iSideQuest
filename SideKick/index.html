@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v283</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v284</div>
   </div>
 </div>
 
@@ -6855,7 +6855,8 @@
 <div id="tour-ring" style="display:none;position:fixed;z-index:9491;border:2px solid var(--accent);border-radius:0.9rem;box-shadow:0 0 0.75rem rgba(124,92,191,0.8),inset 0 0 0.75rem rgba(124,92,191,0.25);pointer-events:none;transition:all 0.25s ease-out;"></div>
 <!-- GUIDED TOUR COACH (home → create → lobby → play → exit, gated) -->
 <div id="tutorial-coach" style="display:none;position:fixed;top:calc(4.75rem + env(safe-area-inset-top, 0));left:0.75rem;right:0.75rem;z-index:9500;background:var(--surface);border:1px solid var(--accent);border-radius:1rem;padding:0.7rem 0.9rem;box-shadow:0 0.5rem 2rem rgba(0,0,0,0.5);">
-  <div style="display:flex;justify-content:flex-end;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <button id="tour-voice-btn" onclick="toggleTourVoice()" style="background:none;border:none;width:auto;flex:none;font-size:1rem;cursor:pointer;padding:0.2rem;" title="Voice on/off">🔊</button>
     <button onclick="quitTour()" style="background:none;border:none;width:auto;flex:none;color:var(--muted);font-size:0.75rem;font-weight:700;cursor:pointer;padding:0.2rem;">Close</button>
   </div>
   <div style="margin-bottom:0.3rem;">
@@ -10032,6 +10033,7 @@ window.practiceBack = function() {
   haptic(5);
 };
 window.endPractice = async function() {
+  try { speechSynthesis.cancel(); } catch {}
   const coach = document.getElementById('practice-coach');
   if (coach) coach.style.display = 'none';
   if (_prevUndoEnabled !== null) { featureUndoEnabled = _prevUndoEnabled; _prevUndoEnabled = null; }
@@ -10261,6 +10263,7 @@ function renderTutorialStep() {
     }
   }
   document.getElementById('tutorial-finish-row').style.display = idx === TUTORIAL_STEPS - 1 ? '' : 'none';
+  tourSpeak();
   tourSpotlight();
   try { requestAnimationFrame(() => tourSpotlight()); } catch {}
 }
@@ -10268,6 +10271,7 @@ window.renderTutorialStep = renderTutorialStep;
 window.startTutorial = function() {
   try { if (typeof practiceStep !== 'undefined' && practiceStep > 0) endPractice(); } catch {}
   tourMode = 'guided';
+  updateTourVoiceBtn();
   document.getElementById('tour-title').textContent = 'Quick Start Tour';
   const navRow = document.getElementById('tutorial-nav-row');
   if (navRow) navRow.style.display = 'none';
@@ -10312,6 +10316,7 @@ async function tutorialCleanup() {
   if (_origSelectFirst) { window.selectFirstPlayerOption = _origSelectFirst; _origSelectFirst = null; }
   const coach = document.getElementById('tutorial-coach');
   if (coach) coach.style.display = 'none';
+  try { speechSynthesis.cancel(); } catch {}
   try { tourHideSpotlight(); } catch {}
   if (mine) {
     try { cleanupListeners(); } catch {}
@@ -10323,6 +10328,49 @@ async function tutorialCleanup() {
   tourMode = null;
   return mine;
 }
+// ── TOUR VOICE (device text-to-speech, free/offline, matches app language) ──
+let tourVoiceOn = true;
+try { tourVoiceOn = localStorage.getItem('sk_tour_voice') !== 'off'; } catch {}
+function tourPickVoice() {
+  try {
+    const vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+    if (!vs.length) return null;
+    const langCode = ((typeof lang !== 'undefined' && lang) || 'en').toLowerCase();
+    const pool = vs.filter(v => ((v && v.lang) || '').toLowerCase().indexOf(langCode) === 0);
+    const list = pool.length ? pool : vs;
+    return list.find(v => /google|microsoft|samantha|zira|aria|jenny|natural/i.test(v.name || ''))
+        || list.find(v => /female/i.test(v.name || ''))
+        || list[0];
+  } catch { return null; }
+}
+function tourSpeak() {
+  try {
+    if (!tourVoiceOn || !('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const el = document.getElementById('tutorial-text');
+    const text = el ? (el.textContent || '').trim() : '';
+    if (!text) return;
+    const u = new SpeechSynthesisUtterance(text);
+    const v = tourPickVoice();
+    if (v) u.voice = v;
+    try { u.lang = (typeof lang !== 'undefined' && lang) || 'en'; } catch {}
+    u.pitch = 1.15;
+    u.rate = 1;
+    speechSynthesis.speak(u);
+  } catch {}
+}
+function updateTourVoiceBtn() {
+  const b = document.getElementById('tour-voice-btn');
+  if (b) b.textContent = tourVoiceOn ? '🔊' : '🔇';
+}
+window.toggleTourVoice = function() {
+  tourVoiceOn = !tourVoiceOn;
+  try { localStorage.setItem('sk_tour_voice', tourVoiceOn ? 'on' : 'off'); } catch {}
+  try { speechSynthesis.cancel(); } catch {}
+  updateTourVoiceBtn();
+  if (tourVoiceOn) tourSpeak();
+  haptic(5);
+};
 window.quitTour = function() {
   if (tourMode === 'indepth') endInDepthTour();
   else endTutorial();
@@ -10343,6 +10391,7 @@ let indepthStep = 0;
 window.startInDepthTour = function() {
   try { if (tourMode === 'guided' && tutorialStep > 0) endTutorial(); } catch {}
   tourMode = 'indepth';
+  updateTourVoiceBtn();
   document.getElementById('tour-title').textContent = 'In-Depth Tour';
   indepthStep = 1;
   renderInDepthStep();
@@ -10371,6 +10420,7 @@ function renderInDepthStep() {
   if (backBtn) backBtn.style.visibility = idx === 0 ? 'hidden' : 'visible';
   const nextBtns = document.querySelectorAll('#tutorial-nav-row button');
   if (nextBtns[1]) nextBtns[1].textContent = idx === total - 1 ? 'Finish ✓' : 'Next ▶';
+  tourSpeak();
   tourSpotlight();
   try { requestAnimationFrame(() => tourSpotlight()); } catch {}
 }
@@ -10389,6 +10439,7 @@ window.indepthBack = function() {
 window.endInDepthTour = function() {
   tourMode = null;
   indepthStep = 0;
+  try { speechSynthesis.cancel(); } catch {}
   document.getElementById('tutorial-coach').style.display = 'none';
   try { tourHideSpotlight(); } catch {}
 };
@@ -12376,7 +12427,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v283';
+const APP_VERSION = 'v284';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
