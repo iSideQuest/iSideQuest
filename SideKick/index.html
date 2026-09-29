@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v285</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v286</div>
   </div>
 </div>
 
@@ -6767,7 +6767,7 @@
       <img src="img/Dante2.png" alt="Dante the guide cat" style="height:10.8rem;width:auto;flex-shrink:0;margin-right:-2rem;margin-top:0.4rem;position:relative;z-index:1;">
       <div style="position:relative;flex:1;min-width:0;">
         <div class="tour-name-tab">Dante</div>
-        <div class="tour-bubble">Hi! I'm Dante, your magical wizard guide! Choose one of the options below and I'll explain everything you need to know about SideKick!</div>
+        <div class="tour-bubble">Hi! I'm Dante, your wizard guide! Choose one of the options below and I'll explain everything you need to know about SideKick!</div>
       </div>
     </div>
     <div style="display:flex;gap:0.5rem;margin:0.6rem 0;">
@@ -10264,6 +10264,11 @@ function renderTutorialStep() {
     }
   }
   document.getElementById('tutorial-finish-row').style.display = idx === TUTORIAL_STEPS - 1 ? '' : 'none';
+  // Tour step 2 focuses the high wizard Step 1 card — lift the coach so it never covers it
+  try {
+    const coachEl = document.getElementById('tutorial-coach');
+    if (coachEl) coachEl.style.top = (idx === 1) ? '0.75rem' : 'calc(4.75rem + env(safe-area-inset-top, 0))';
+  } catch {}
   tourSpeak();
   tourSpotlight();
   try { requestAnimationFrame(() => tourSpotlight()); } catch {}
@@ -10316,7 +10321,7 @@ async function tutorialCleanup() {
   tutorialScreenObs = tutorialCreateObs = null;
   if (_origSelectFirst) { window.selectFirstPlayerOption = _origSelectFirst; _origSelectFirst = null; }
   const coach = document.getElementById('tutorial-coach');
-  if (coach) coach.style.display = 'none';
+  if (coach) { coach.style.display = 'none'; coach.style.top = 'calc(4.75rem + env(safe-area-inset-top, 0))'; }
   tourStopVoice();
   try { tourHideSpotlight(); } catch {}
   if (mine) {
@@ -10330,8 +10335,8 @@ async function tutorialCleanup() {
   return mine;
 }
 // ── TOUR VOICE (device text-to-speech, free/offline, matches app language) ──
-let tourVoiceOn = true;
-try { tourVoiceOn = localStorage.getItem('sk_tour_voice') !== 'off'; } catch {}
+let tourVoiceOn = false;
+try { tourVoiceOn = localStorage.getItem('sk_tour_voice') === 'on'; } catch {}
 function tourPickVoice() {
   try {
     const vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
@@ -10469,11 +10474,11 @@ window.endInDepthTour = function() {
   tourStopVoice();
   document.getElementById('tutorial-coach').style.display = 'none';
   try { tourHideSpotlight(); } catch {}
+  showScreen('home');
 };
 window.endTutorial = async function() {
-  const code = (typeof roomCode !== 'undefined') ? roomCode : null;
   await tutorialCleanup();
-  if (code && code !== _tutorialStartCode) showScreen('home');
+  showScreen('home');
 };
 window.finishTutorial = async function() {
   await tutorialCleanup();
@@ -12454,7 +12459,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v285';
+const APP_VERSION = 'v286';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
