@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v296</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v297</div>
   </div>
 </div>
 
@@ -6774,8 +6774,8 @@
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openVideoPopup()"><span>What Is SideKick?</span></button>
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="closeSidekickInfo(); startTutorial()"><span>Quick Start<br>Tour</span></button>
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="closeSidekickInfo(); startInDepthTour()"><span>Home<br>Page</span></button>
-      <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openHostingTour()"><span>Hosting</span></button>
-      <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openJoiningTour()"><span>Joining</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openHostingTour()"><span>Host Room</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openJoiningTour()"><span>Join Room</span></button>
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openProfileTour()"><span>Profile</span></button>
     </div>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeSidekickInfo()" data-i18n="close">Close</button>
@@ -10210,6 +10210,9 @@ function tourSpotlight() {
   const r = el && el.getBoundingClientRect ? el.getBoundingClientRect() : null;
   if (!r || !r.width || !r.height) {
     // No visible focus — dim everything
+    ['tour-dim-t', 'tour-dim-b', 'tour-dim-l', 'tour-dim-r'].forEach(id => { const d = document.getElementById(id); if (d) d.style.zIndex = 9490; });
+    ring.style.zIndex = 9491;
+    const _coach0 = document.getElementById('tutorial-coach'); if (_coach0) _coach0.style.zIndex = 9500;
     tourSetDim('tour-dim-t', 0, 0, vw, vh);
     tourSetDim('tour-dim-b', 0, 0, 0, 0);
     tourSetDim('tour-dim-l', 0, 0, 0, 0);
@@ -10218,6 +10221,11 @@ function tourSpotlight() {
     return;
   }
   const x = Math.max(0, r.left - pad), y = Math.max(0, r.top - pad);
+  // Lift the spotlight above full-screen pickers (color/avatar) so the ring stays visible
+  const liftTop = !!(el && el.closest && el.closest('#color-picker-overlay.show, #room-avatar-overlay.show'));
+  ['tour-dim-t', 'tour-dim-b', 'tour-dim-l', 'tour-dim-r'].forEach(id => { const d = document.getElementById(id); if (d) d.style.zIndex = liftTop ? 9849 : 9490; });
+  ring.style.zIndex = liftTop ? 9850 : 9491;
+  const _coach1 = document.getElementById('tutorial-coach'); if (_coach1) _coach1.style.zIndex = liftTop ? 9860 : 9500;
   const w = Math.min(vw - x, r.width + pad * 2), h = Math.min(vh - y, r.height + pad * 2);
   tourSetDim('tour-dim-t', 0, 0, vw, y);
   tourSetDim('tour-dim-b', 0, y + h, vw, vh - y - h);
@@ -10460,11 +10468,101 @@ const HOSTING_STEPS = [
   { sel: '.create-step[data-step="3"] .card', title: 'Step 3: Features', text: 'Toggle extras like Victory Points, then tap Create Room.' },
   { sel: '#create-final-btn', title: 'Create Room', text: 'This button opens your player lobby.' }
 ];
+// ── JOIN TOUR helpers: drive the real Join UI with a mock player, restore on exit ──
+function tourJoinClosePickers() {
+  try { document.getElementById('color-picker-overlay').classList.remove('show'); } catch {}
+  try { document.getElementById('room-avatar-overlay').classList.remove('show'); } catch {}
+}
+function tourJoinHome() {
+  tourJoinClosePickers();
+  try { showScreen('home'); } catch {}
+}
+function tourJoinSetup() {
+  tourJoinClosePickers();
+  try {
+    if (!window._tourJoinSaved) {
+      window._tourJoinSaved = {
+        name: document.getElementById('join-name').value,
+        code: document.getElementById('join-code').value,
+        color: (typeof myColor !== 'undefined' ? myColor : ''),
+        avatar: (typeof roomAvatarSelection !== 'undefined' ? roomAvatarSelection : ''),
+        step: (typeof joinStep !== 'undefined' ? joinStep : 1)
+      };
+    }
+    document.getElementById('join-name').value = 'Dante';
+    document.getElementById('join-code').value = '';
+    myColor = ''; roomAvatarSelection = '';
+    const jcb = document.getElementById('join-color-btn'), jcl = document.getElementById('join-color-label');
+    if (jcb) { jcb.style.background = ''; jcb.style.borderColor = ''; jcb.classList.remove('light-fill'); }
+    if (jcl) { jcl.innerHTML = 'Choose<br>Color'; jcl.style.color = ''; }
+    setAvatarLabel(document.getElementById('join-avatar-label'), '');
+    joinStep = 1; renderJoinStep(); updateJoinCollapseSummary();
+    showScreen('join');
+  } catch {}
+}
+function tourJoinToStep1() {
+  tourJoinClosePickers();
+  try { joinStep = 1; renderJoinStep(); updateJoinCollapseSummary(); showScreen('join'); } catch {}
+}
+function tourJoinToStep2() {
+  tourJoinClosePickers();
+  try { joinStep = 2; renderJoinStep(); updateJoinCollapseSummary(); showScreen('join'); } catch {}
+}
+function tourJoinOpenColors() {
+  try { openColorPicker('join'); } catch {}
+}
+function tourJoinOpenAvatars() {
+  try { openRoomAvatarOverlay(); } catch {}
+  try {
+    const tabs = Array.prototype.slice.call(document.querySelectorAll('#room-avatar-tabs .avatar-tab'));
+    const sp = tabs.find(b => (b.textContent || '').trim() === 'Special');
+    if (sp) sp.click();
+  } catch {}
+}
+function tourJoinMockLobby() {
+  tourJoinClosePickers();
+  try {
+    showScreen('waiting-lobby');
+    const code = document.getElementById('wl-code');
+    if (code) code.textContent = '1234';
+    renderWaitingLobbyList([
+      { id: 'tour-dante', name: 'Dante', color: '#005ee7', avatar: 'img/Dante2.png' },
+      { id: 'tour-you', name: 'You', color: '#e74c3c', avatar: '\uD83D\uDE00' }
+    ]);
+  } catch {}
+}
+function tourJoinRestore() {
+  const s = window._tourJoinSaved;
+  window._tourJoinSaved = null;
+  tourJoinClosePickers();
+  if (!s) return;
+  try {
+    document.getElementById('join-name').value = s.name || '';
+    document.getElementById('join-code').value = s.code || '';
+    myColor = s.color || ''; roomAvatarSelection = s.avatar || '';
+    const jcb = document.getElementById('join-color-btn'), jcl = document.getElementById('join-color-label');
+    if (jcb) { jcb.style.background = myColor; jcb.style.borderColor = myColor; jcb.classList.toggle('light-fill', !!(myColor && isLightColor(myColor))); }
+    if (jcl) {
+      if (myColor) { jcl.textContent = (PLAYER_COLORS.find(c => c.hex === myColor) || {}).name || 'Custom'; jcl.style.color = isLightColor(myColor) ? '#000' : '#fff'; }
+      else { jcl.innerHTML = 'Choose<br>Color'; jcl.style.color = ''; }
+    }
+    setAvatarLabel(document.getElementById('join-avatar-label'), s.avatar || '');
+    joinStep = s.step || 1; renderJoinStep(); updateJoinCollapseSummary();
+  } catch {}
+}
 const JOINING_STEPS = [
-  { sel: null, title: 'Joining a Room', text: 'Joining takes two things: a code and a name. Tap Next.' },
-  { sel: '#join-code', title: 'Room Code', text: 'Enter the 4-digit code your host is showing.' },
-  { sel: '#join-name', title: 'Your Name', text: 'Enter the name everyone will see.' },
-  { sel: '#join-final-btn', title: 'Join Room', text: 'Tap to jump into the lobby.' }
+  { sel: '#screen-home [onclick="showJoinRoom()"]', text: 'Start on the Home Page. Join Room jumps into a game your friend is already hosting. Tap Next to walk through it.', enter: tourJoinHome },
+  { sel: '#join-name', dock: 'bottom', text: 'Step 1 is all about you. Fill out your player name - we typed Dante as an example. Tap the field to make it yours.', enter: tourJoinSetup },
+  { sel: '#join-color-btn', dock: 'bottom', text: 'Choose your player color. It marks your seat around the table.', enter: tourJoinClosePickers },
+  { sel: '#color-grid .color-swatch[title="Blue"]', text: 'The color picker is open with Blue highlighted. Tap it, then Confirm to lock it in.', enter: tourJoinOpenColors },
+  { sel: '#join-avatar-btn', dock: 'bottom', text: 'Now choose your avatar - the face everyone sees next to your name.', enter: tourJoinClosePickers },
+  { sel: '#room-avatar-grid .avatar-option[data-avatar="img/Dante2.png"]', text: 'Look who it is - Dante himself, in the Special row. Tap him, then Confirm.', enter: tourJoinOpenAvatars },
+  { sel: '#join-next-btn', dock: 'bottom', text: 'Choose Confirm to wrap up Step 1 and move on to the room code.', enter: tourJoinToStep1 },
+  { sel: '.join-step[data-step="2"] [onclick="openQRScanner()"]', dock: 'bottom', text: 'Step 2 finds the room. Scan Room QR Code uses your camera on the host code - no typing needed.', enter: tourJoinToStep2 },
+  { sel: '#join-code', dock: 'bottom', text: 'Or type the 4-digit room code the host is showing into the Type Code box.', enter: tourJoinClosePickers },
+  { sel: '#join-final-btn', dock: 'bottom', text: 'Choose Join Room and you step straight into the player lobby.', enter: tourJoinToStep2 },
+  { sel: '#wl-wheel-wrap', dock: 'bottom', text: 'This is the player lobby guests see. Dante is already seated, and you joined as You. Wait for everyone to arrive.', enter: tourJoinMockLobby },
+  { sel: null, dock: 'bottom', text: 'When all players are ready, the host taps Start and SideKick begins. That is the whole tour!' }
 ];
 const PROFILE_STEPS = [
   { sel: null, title: 'Dante’s Profile', text: 'This is MY demo profile — no login needed. Tap Next.' },
@@ -10496,6 +10594,7 @@ window.endManualTour = function() {
   document.getElementById('tutorial-coach').style.display = 'none';
   try { document.getElementById('demo-profile-overlay').classList.remove('show'); } catch {}
   try { tourHideSpotlight(); } catch {}
+  try { tourJoinRestore(); } catch {}
   showScreen('home');
   openSidekickInfo({ quiet: true });
 };
@@ -10506,8 +10605,8 @@ window.openHostingTour = function() {
 };
 window.openJoiningTour = function() {
   closeSidekickInfo();
-  try { showJoinRoom(); } catch {}
-  startManualTour('joining', 'Joining Tour');
+  try { showScreen('home'); } catch {}
+  startManualTour('joining', 'Join Room Tour');
 };
 window.openProfileTour = function() {
   closeSidekickInfo();
@@ -10547,6 +10646,7 @@ function renderInDepthStep() {
   const total = steps.length;
   const idx = Math.min(Math.max(indepthStep, 1), total) - 1;
   const s = steps[idx];
+  if (s && typeof s.enter === 'function') { try { s.enter(); } catch {} }
   document.getElementById('tutorial-text').innerHTML = s.text;
   const dotsEl = document.getElementById('tutorial-dots');
   if (dotsEl) {
@@ -10567,14 +10667,23 @@ function renderInDepthStep() {
   if (nextBtns[1]) nextBtns[1].textContent = idx === total - 1 ? 'Finish ✓' : 'Next ▶';
   try {
     const coach = document.getElementById('tutorial-coach');
-    const tgt = s.sel ? document.querySelector(s.sel) : null;
-    const tr = tgt && tgt.getBoundingClientRect ? tgt.getBoundingClientRect() : null;
-    if (coach && tr && tr.width > 0 && tr.height > 0) {
+    if (coach) {
       const ch = coach.offsetHeight || 320, gap = 12, minTop = 64;
-      let top = tr.top - ch - gap;
-      if (top < minTop) top = tr.bottom + gap;
-      top = Math.max(minTop, Math.min(top, window.innerHeight - ch - 96));
-      coach.style.top = top + 'px';
+      if (s.dock === 'bottom') {
+        const wiz = document.getElementById('join-wizard-btns');
+        const wr = wiz && wiz.getBoundingClientRect ? wiz.getBoundingClientRect() : null;
+        const top = (wr && wr.width > 0 && wr.height > 0) ? (wr.top - ch - gap) : (window.innerHeight - ch - 110);
+        coach.style.top = Math.max(minTop, top) + 'px';
+      } else {
+        const tgt = s.sel ? document.querySelector(s.sel) : null;
+        const tr = tgt && tgt.getBoundingClientRect ? tgt.getBoundingClientRect() : null;
+        if (tr && tr.width > 0 && tr.height > 0) {
+          let top = tr.top - ch - gap;
+          if (top < minTop) top = tr.bottom + gap;
+          top = Math.max(minTop, Math.min(top, window.innerHeight - ch - 96));
+          coach.style.top = top + 'px';
+        }
+      }
     }
   } catch {}
   tourSpeak();
@@ -12587,7 +12696,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v296';
+const APP_VERSION = 'v297';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
