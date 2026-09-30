@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v286</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v287</div>
   </div>
 </div>
 
@@ -6854,6 +6854,7 @@
 <div id="tour-dim-r" style="display:none;position:fixed;background:rgba(0,0,0,0.72);z-index:9490;pointer-events:none;"></div>
 <div id="tour-ring" style="display:none;position:fixed;z-index:9491;border:2px solid var(--accent);border-radius:0.9rem;box-shadow:0 0 0.75rem rgba(124,92,191,0.8),inset 0 0 0.75rem rgba(124,92,191,0.25);pointer-events:none;transition:all 0.25s ease-out;"></div>
 <audio id="tour-audio" preload="auto" style="display:none;"></audio>
+<audio id="tour-intro-audio" preload="auto" src="Voice/Tour_Intro.wav" style="display:none;"></audio>
 <!-- GUIDED TOUR COACH (home → create → lobby → play → exit, gated) -->
 <div id="tutorial-coach" style="display:none;position:fixed;top:calc(4.75rem + env(safe-area-inset-top, 0));left:0.75rem;right:0.75rem;z-index:9500;background:var(--surface);border:1px solid var(--accent);border-radius:1rem;padding:0.7rem 0.9rem;box-shadow:0 0.5rem 2rem rgba(0,0,0,0.5);">
   <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -9761,11 +9762,16 @@ window.closeUpgradeLockOverlay = function() {
 };
 window.openSidekickInfo = function() {
   document.getElementById('sidekick-info-overlay').classList.add('show');
+  try {
+    const intro = document.getElementById('tour-intro-audio');
+    if (intro) { intro.currentTime = 0; const p = intro.play(); if (p && p.catch) p.catch(() => {}); }
+  } catch {}
   haptic(5);
 };
 window.closeSidekickInfo = function() {
   const overlay = document.getElementById('sidekick-info-overlay');
   if (overlay) overlay.querySelectorAll('video').forEach(v => { try { v.pause(); } catch {} });
+  try { const intro = document.getElementById('tour-intro-audio'); if (intro) intro.pause(); } catch {}
   if (overlay) overlay.classList.remove('show');
 };
 window.openVideoPopup = function() {
@@ -12459,7 +12465,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v286';
+const APP_VERSION = 'v287';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
