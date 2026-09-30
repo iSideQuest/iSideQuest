@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v288</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v289</div>
   </div>
 </div>
 
@@ -6770,10 +6770,13 @@
         <div class="tour-bubble">Hi! I'm Dante, your wizard guide! Choose one of the options below and I'll explain everything you need to know about SideKick!</div>
       </div>
     </div>
-    <div style="display:flex;gap:0.5rem;margin:0.6rem 0;">
-      <button class="btn-secondary" style="flex:1;aspect-ratio:1/1;border-radius:1rem;font-size:0.78rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;line-height:1.25;padding:0.4rem 0.2rem;" onclick="openVideoPopup()"><span>What Is SideKick?</span></button>
-      <button class="btn-secondary" style="flex:1;aspect-ratio:1/1;border-radius:1rem;font-size:0.78rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;line-height:1.25;padding:0.4rem 0.2rem;" onclick="closeSidekickInfo(); startTutorial()"><span>Quick Start<br>Tour</span></button>
-      <button class="btn-secondary" style="flex:1;aspect-ratio:1/1;border-radius:1rem;font-size:0.78rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;line-height:1.25;padding:0.4rem 0.2rem;" onclick="closeSidekickInfo(); startInDepthTour()"><span>In-Depth<br>Tour</span></button>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin:0.6rem 0;">
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;padding:0.7rem 0.3rem;line-height:1.25;" onclick="openVideoPopup()"><span>What Is SideKick?</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;padding:0.7rem 0.3rem;line-height:1.25;" onclick="closeSidekickInfo(); startTutorial()"><span>Quick Start<br>Tour</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;padding:0.7rem 0.3rem;line-height:1.25;" onclick="closeSidekickInfo(); startInDepthTour()"><span>Home<br>Page</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;padding:0.7rem 0.3rem;line-height:1.25;" onclick="openHostingTour()"><span>Hosting</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;padding:0.7rem 0.3rem;line-height:1.25;" onclick="openJoiningTour()"><span>Joining</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;padding:0.7rem 0.3rem;line-height:1.25;" onclick="openProfileTour()"><span>Profile</span></button>
     </div>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeSidekickInfo()" data-i18n="close">Close</button>
   </div>
@@ -6866,7 +6869,7 @@
     <div id="tutorial-dots" style="display:flex;gap:0.3rem;justify-content:center;margin-top:0.35rem;"></div>
   </div>
   <div style="display:flex;align-items:flex-start;margin-top:0.8rem;margin-bottom:0.6rem;">
-    <img src="img/Dante2.png" alt="Dante the guide cat" style="height:6.5rem;width:auto;flex-shrink:0;margin-right:-1rem;margin-top:0.4rem;position:relative;z-index:1;">
+    <img src="img/Dante2.png" alt="Dante the guide cat" style="height:13rem;width:auto;flex-shrink:0;margin-right:-1rem;margin-top:0.4rem;position:relative;z-index:1;">
     <div style="position:relative;flex:1;min-width:0;">
       <div class="tour-name-tab">Dante</div>
       <div id="tutorial-text" class="tour-bubble"></div>
@@ -9748,6 +9751,11 @@ function updatePresetEditUI() {
   });
 }
 window.openHostPresetGame = function() {
+  if (!currentUser) {
+    showToast('To use Host Preset Room, you must create and log into an account.');
+    haptic(5);
+    return;
+  }
   openVoicePresetsOverlay();
 };
 window.closeUpgradeProOverlay = function() {
@@ -10071,7 +10079,9 @@ let _tutorialStartActive = null;
 let _tutorialStartCode = null;
 let _origSelectFirst = null;
 const TUTORIAL_STEPS = 10;
-let tourMode = null; // 'guided' | 'indepth' | null
+let tourMode = null; // 'guided' | 'indepth' | 'manual' | null
+let manualSteps = null;
+let manualTitle = '';
 // Click guard: during gated steps, only task-relevant controls respond.
 // Everything else is swallowed so users can't veer off the guide.
 // (Scrolling is untouched — only taps/clicks are filtered.)
@@ -10157,9 +10167,10 @@ function tourSpotlight() {
   const ring = document.getElementById('tour-ring');
   if (!ring) return;
   let el = null, pad = 6;
-  if (tourMode === 'indepth') {
+  if (tourMode === 'indepth' || tourMode === 'manual') {
     try {
-      const s = INDEPTH_STEPS[Math.min(Math.max(indepthStep, 1), INDEPTH_STEPS.length) - 1];
+      const steps = manualSteps || INDEPTH_STEPS;
+      const s = steps[Math.min(Math.max(indepthStep, 1), steps.length) - 1];
       if (s && s.sel) el = document.querySelector(s.sel);
     } catch {}
   } else {
@@ -10411,7 +10422,67 @@ window.toggleTourVoice = function() {
 };
 window.quitTour = function() {
   if (tourMode === 'indepth') endInDepthTour();
+  else if (tourMode === 'manual') endManualTour();
   else endTutorial();
+};
+// ── MANUAL MINI-TOURS (hosting / joining / profile walkthroughs) ──
+const HOSTING_STEPS = [
+  { sel: null, title: 'Hosting a Room', text: 'Hosting walks the Create screen top to bottom. Tap Next.' },
+  { sel: '.create-step[data-step="1"] .card', title: 'Step 1: You', text: 'Enter your name, pick a color and avatar, then Continue.' },
+  { sel: '.create-step[data-step="2"] .card', title: 'Step 2: Direction', text: 'Choose which way turns pass around the table.' },
+  { sel: '.create-step[data-step="3"] .card', title: 'Step 3: Features', text: 'Toggle extras like Victory Points, then tap Create Room.' },
+  { sel: '#create-final-btn', title: 'Create Room', text: 'This button opens your player lobby.' }
+];
+const JOINING_STEPS = [
+  { sel: null, title: 'Joining a Room', text: 'Joining takes two things: a code and a name. Tap Next.' },
+  { sel: '#join-code', title: 'Room Code', text: 'Enter the 4-digit code your host is showing.' },
+  { sel: '#join-name', title: 'Your Name', text: 'Enter the name everyone will see.' },
+  { sel: '#join-final-btn', title: 'Join Room', text: 'Tap to jump into the lobby.' }
+];
+const PROFILE_STEPS = [
+  { sel: null, title: 'Your Profile', text: 'Everything about you lives here. Tap Next.' },
+  { sel: '#profile-avatar', title: 'Avatar & Name', text: 'Tap your picture or name to edit your profile, color and title.' },
+  { sel: '#profile-role-badge', title: 'Title', text: 'Your chosen title shows here. Pick one in Edit Profile.' },
+  { sel: '#screen-profile [onclick="openThemesOverlay()"]', title: 'Themes', text: 'Recolor and restyle the whole app, including the Compact layout.' },
+  { sel: '#screen-profile [onclick="openMyCollection()"]', title: 'My Collection', text: 'Your board game library with photos, ratings and filters.' },
+  { sel: '#screen-profile [onclick="openFriendsOverlay()"]', title: 'Friends', text: 'Add friends by code and view their profiles.' }
+];
+window.startManualTour = function(kind, title) {
+  const map = { hosting: HOSTING_STEPS, joining: JOINING_STEPS, profile: PROFILE_STEPS };
+  manualSteps = map[kind] || null;
+  if (!manualSteps) return;
+  manualTitle = title || 'Tour';
+  tourMode = 'manual';
+  indepthStep = 1;
+  updateTourVoiceBtn();
+  renderInDepthStep();
+  document.getElementById('tutorial-coach').style.display = 'block';
+  document.getElementById('tour-title').textContent = manualTitle;
+  haptic(15);
+};
+window.endManualTour = function() {
+  tourMode = null;
+  indepthStep = 0;
+  manualSteps = null;
+  tourStopVoice();
+  document.getElementById('tutorial-coach').style.display = 'none';
+  try { tourHideSpotlight(); } catch {}
+};
+window.openHostingTour = function() {
+  closeSidekickInfo();
+  try { showCreateRoom(); } catch {}
+  startManualTour('hosting', 'Hosting Tour');
+};
+window.openJoiningTour = function() {
+  closeSidekickInfo();
+  try { showJoinRoom(); } catch {}
+  startManualTour('joining', 'Joining Tour');
+};
+window.openProfileTour = function() {
+  if (!currentUser) { showToast('To view your profile tour, you must create and log into an account.'); haptic(5); return; }
+  closeSidekickInfo();
+  try { openProfileScreen(); } catch {}
+  startManualTour('profile', 'Profile Tour');
 };
 // ── IN-DEPTH TOUR (home screen walkthrough, free taps, manual steps) ──
 const INDEPTH_STEPS = [
@@ -10429,6 +10500,7 @@ let indepthStep = 0;
 window.startInDepthTour = function() {
   try { if (tourMode === 'guided' && tutorialStep > 0) endTutorial(); } catch {}
   tourMode = 'indepth';
+  manualSteps = INDEPTH_STEPS;
   updateTourVoiceBtn();
   document.getElementById('tour-title').textContent = 'In-Depth Tour';
   indepthStep = 1;
@@ -10437,9 +10509,10 @@ window.startInDepthTour = function() {
   haptic(15);
 };
 function renderInDepthStep() {
-  const total = INDEPTH_STEPS.length;
+  const steps = manualSteps || INDEPTH_STEPS;
+  const total = steps.length;
   const idx = Math.min(Math.max(indepthStep, 1), total) - 1;
-  const s = INDEPTH_STEPS[idx];
+  const s = steps[idx];
   document.getElementById('tutorial-text').innerHTML = '<b>' + s.title + '</b><br>' + s.text;
   const dotsEl = document.getElementById('tutorial-dots');
   if (dotsEl) {
@@ -10464,7 +10537,7 @@ function renderInDepthStep() {
 }
 window.renderInDepthStep = renderInDepthStep;
 window.indepthNext = function() {
-  if (indepthStep >= INDEPTH_STEPS.length) { endInDepthTour(); return; }
+  if (indepthStep >= (manualSteps || INDEPTH_STEPS).length) { quitTour(); return; }
   indepthStep++;
   renderInDepthStep();
   haptic(5);
@@ -11308,9 +11381,9 @@ function updateAccountButtonUI() {
     btn.textContent = t('login');
     btn.onclick = () => openAccountOverlay('login');
   }
-  // Host Preset Room pulls the user's saved presets, so it needs an account
+  // Host Preset Room pulls the user's saved presets — guests get a login nudge
   const presetBtn = document.getElementById('host-preset-room-btn');
-  if (presetBtn) presetBtn.style.display = currentUser ? '' : 'none';
+  if (presetBtn) presetBtn.style.display = '';
 }
 
 // ── TURN MODE SELECTION ─────────────────────────
@@ -12465,7 +12538,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v288';
+const APP_VERSION = 'v289';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
