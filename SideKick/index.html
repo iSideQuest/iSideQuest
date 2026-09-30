@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v292</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v293</div>
   </div>
 </div>
 
@@ -6767,7 +6767,7 @@
       <img src="img/Dante2.png" alt="Dante the guide cat" style="height:13rem;width:auto;flex-shrink:0;margin-right:-1rem;margin-top:0.4rem;position:relative;z-index:1;">
       <div style="position:relative;flex:1;min-width:0;">
         <div class="tour-name-tab">Dante</div>
-        <div class="tour-bubble">Hello Friend! My name is Dante, your SideKick guide! Choose one of the options below and I'll explain EVERYTHING you need to know about SideKick!</div>
+        <div class="tour-bubble">Hello Friend! My name is Dante, your SideKick guide! Choose one of the options below and I'll explain EVERYTHING you need to know to get started!</div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin:0.6rem 0;">
@@ -6857,7 +6857,7 @@
 <div id="tour-dim-r" style="display:none;position:fixed;background:rgba(0,0,0,0.72);z-index:9490;pointer-events:none;"></div>
 <div id="tour-ring" style="display:none;position:fixed;z-index:9491;border:2px solid var(--accent);border-radius:0.9rem;box-shadow:0 0 0.75rem rgba(124,92,191,0.8),inset 0 0 0.75rem rgba(124,92,191,0.25);pointer-events:none;transition:all 0.25s ease-out;"></div>
 <audio id="tour-audio" preload="auto" style="display:none;"></audio>
-<audio id="tour-intro-audio" preload="auto" src="Voice/DanteTourIntro.mp3" style="display:none;"></audio>
+<audio id="tour-intro-audio" preload="auto" src="Voice/DanteTourIntro.wav" style="display:none;"></audio>
 <!-- DEMO PROFILE (Dante's fake profile for the Profile tour — no login, no real data) -->
 <div class="tools-overlay" id="demo-profile-overlay" style="z-index:9480;">
   <div class="tools-modal" style="max-height:85vh; overflow-y:auto; text-align:center;">
@@ -10282,9 +10282,9 @@ function updateTutorial() {
 function renderTutorialStep() {
   const texts = [
     'Here is how we start your first SideKick room! Begin by choosing "Host New Room".',
-    'Enter your name, pick a color and avatar, then choose <b>Confirm</b>.',
-    'Choose which way turns pass in your game, then choose <b>Confirm</b>.',
-    'Toggle any features you like (or none), then choose <b>Create Room</b>.',
+    '<b>Step 1:</b> enter your name, pick a color and avatar, then choose <b>Confirm</b>.',
+    '<b>Step 2:</b> choose which way turns pass in your game, then choose <b>Confirm</b>.',
+    '<b>Step 3:</b> toggle any features you like (or none), then choose <b>Create Room</b>.',
     'This is the <b>player lobby</b>. Normally, your friends will join you here, but we can actually create players manually, choose <b>Create Player</b>.',
     'This is where you choose who goes first. For now choose <b>Random</b>.',
     'Choose <b>Start Game</b> to begin.',
@@ -10396,7 +10396,7 @@ function tourStopVoice() {
 }
 function tourAudioSrc() {
   if (tourMode === 'guided') return 'audio/tour-quick-' + Math.min(Math.max(tutorialStep, 1), 10) + '.mp3';
-  if (tourMode === 'indepth') return 'Voice/InDepthTour' + Math.min(Math.max(indepthStep, 1), 9) + '.wav';
+  if (tourMode === 'indepth') { const map = {1:'InDepthTour1',2:'InDepthTour2',3:'InDepthTour3',4:'InDepthTour4',5:'HostPresetRoom',6:'InDepthTour5',7:'InDepthTour6',8:'InDepthTour7',9:'InDepthTour8',10:'InDepthTour9'}; const st = Math.min(Math.max(indepthStep, 1), 10); return 'Voice/' + (map[st] || 'InDepthTour9') + '.wav'; }
   return null;
 }
 function tourSpeak() {
@@ -10514,15 +10514,16 @@ window.closeDemoProfile = function() {
 };
 // ── IN-DEPTH TOUR (home screen walkthrough, free taps, manual steps) ──
 const INDEPTH_STEPS = [
-  { sel: null, title: 'Welcome to SideKick', text: 'This tour will go over all of SideKick. This will take some time, but will teach you EVERYTHING. Choose Next to begin!' },
+  { sel: null, title: 'Welcome to SideKick', text: 'I will explain the Home Page for SideKick and what each button does.' },
   { sel: '#lang-btn', title: 'Language', text: 'SideKick currently supports 8 different languages. Select this to choose which language you would like.' },
   { sel: '#account-btn', title: 'Account', text: 'By creating and logging into a profile, you gain access to a lot more features and personalization!' },
   { sel: '#screen-home [onclick="showCreateRoom()"]', title: 'Host New Room', text: 'Host New Room is how you start using SideKick for your game' },
+  { sel: '#host-preset-room-btn', text: 'Host Preset Room jumps straight into one of your saved setups. Pick a preset and the room is ready instantly.' },
   { sel: '#screen-home [onclick="showJoinRoom()"]', title: 'Join Room', text: 'If your friend is already hosting a room, you can join their room to start playing.' },
   { sel: '#theme-toggle-btn', title: 'Light & Dark', text: 'SideKick allows you to toggle between light or dark mode.' },
   { sel: '#screen-home [onclick="openSidekickInfo()"]', title: 'Tour', text: 'Here is how you learn about SideKick and all it has to offer!' },
-  { sel: '#screen-home [onclick="openDonateOverlay()"]', title: 'Donate', text: 'SideKick is currently 100% free. This is how you can send donations to help support development of SideKick.' },
-  { sel: '#screen-home [onclick="openContactOverlay()"]', title: 'Contact', text: 'If you have any questions, feedback or ideas — email us here.' }
+  { sel: '#screen-home [onclick="openDonateOverlay()"]', title: 'Donate', text: 'SideKick is currently 100% free. This is where you can send donations to show your appreciation and support.' },
+  { sel: '#screen-home [onclick="openContactOverlay()"]', title: 'Contact', text: 'If you have any questions, feedback or ideas, email us here.' }
 ];
 let indepthStep = 0;
 window.startInDepthTour = function() {
@@ -10559,6 +10560,18 @@ function renderInDepthStep() {
   if (backBtn) backBtn.style.visibility = idx === 0 ? 'hidden' : 'visible';
   const nextBtns = document.querySelectorAll('#tutorial-nav-row button');
   if (nextBtns[1]) nextBtns[1].textContent = idx === total - 1 ? 'Finish ✓' : 'Next ▶';
+  try {
+    const coach = document.getElementById('tutorial-coach');
+    const tgt = s.sel ? document.querySelector(s.sel) : null;
+    const tr = tgt && tgt.getBoundingClientRect ? tgt.getBoundingClientRect() : null;
+    if (coach && tr && tr.width > 0 && tr.height > 0) {
+      const ch = coach.offsetHeight || 320, gap = 12, minTop = 64;
+      let top = tr.top - ch - gap;
+      if (top < minTop) top = tr.bottom + gap;
+      top = Math.max(minTop, Math.min(top, window.innerHeight - ch - 96));
+      coach.style.top = top + 'px';
+    }
+  } catch {}
   tourSpeak();
   tourSpotlight();
   try { requestAnimationFrame(() => tourSpotlight()); } catch {}
@@ -12566,7 +12579,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v292';
+const APP_VERSION = 'v293';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
