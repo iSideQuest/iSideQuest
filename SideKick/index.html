@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v293</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v294</div>
   </div>
 </div>
 
@@ -6764,10 +6764,10 @@
 <div class="tools-overlay" id="sidekick-info-overlay">
   <div class="tools-modal" style="max-width:21.25rem; text-align:center; position:relative; max-height:88vh; overflow-y:auto;">
     <div style="display:flex;align-items:flex-start;margin:0.6rem 0 0.2rem;">
-      <img src="img/Dante2.png" alt="Dante the guide cat" style="height:13rem;width:auto;flex-shrink:0;margin-right:-1rem;margin-top:0.4rem;position:relative;z-index:1;">
+<img src="img/Dante2.png" alt="Dante the guide cat" style="height:6.5rem;width:auto;flex-shrink:0;margin-right:-0.5rem;margin-top:0.2rem;position:relative;z-index:1;">
       <div style="position:relative;flex:1;min-width:0;">
         <div class="tour-name-tab">Dante</div>
-        <div class="tour-bubble">Hello Friend! My name is Dante, your SideKick guide! Choose one of the options below and I'll explain EVERYTHING you need to know to get started!</div>
+        <div class="tour-bubble">Hello Friend! My name is Dante, your guide for SideKick! Choose one of the options below and I'll explain EVERYTHING you need to know to get started!</div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin:0.6rem 0;">
@@ -9792,12 +9792,15 @@ window.openUpgradeLockOverlay = function() {
 window.closeUpgradeLockOverlay = function() {
   document.getElementById('locked-feature-overlay').classList.remove('show');
 };
-window.openSidekickInfo = function() {
+window.openSidekickInfo = function(opts) {
   document.getElementById('sidekick-info-overlay').classList.add('show');
-  try {
-    const intro = document.getElementById('tour-intro-audio');
-    if (intro) { intro.currentTime = 0; const p = intro.play(); if (p && p.catch) p.catch(() => {}); }
-  } catch {}
+  const quiet = opts && opts.quiet;
+  if (!quiet) {
+    try {
+      const intro = document.getElementById('tour-intro-audio');
+      if (intro) { intro.currentTime = 0; const p = intro.play(); if (p && p.catch) p.catch(() => {}); }
+    } catch {}
+  }
   haptic(5);
 };
 window.closeSidekickInfo = function() {
@@ -10493,6 +10496,8 @@ window.endManualTour = function() {
   document.getElementById('tutorial-coach').style.display = 'none';
   try { document.getElementById('demo-profile-overlay').classList.remove('show'); } catch {}
   try { tourHideSpotlight(); } catch {}
+  showScreen('home');
+  openSidekickInfo({ quiet: true });
 };
 window.openHostingTour = function() {
   closeSidekickInfo();
@@ -10518,7 +10523,7 @@ const INDEPTH_STEPS = [
   { sel: '#lang-btn', title: 'Language', text: 'SideKick currently supports 8 different languages. Select this to choose which language you would like.' },
   { sel: '#account-btn', title: 'Account', text: 'By creating and logging into a profile, you gain access to a lot more features and personalization!' },
   { sel: '#screen-home [onclick="showCreateRoom()"]', title: 'Host New Room', text: 'Host New Room is how you start using SideKick for your game' },
-  { sel: '#host-preset-room-btn', text: 'Host Preset Room jumps straight into one of your saved setups. Pick a preset and the room is ready instantly.' },
+  { sel: '#host-preset-room-btn', text: 'To use Host Preset, Room You must create and log into your profile, afterwards you can create quick start settings for any of your games so you are only 2 button presses from inviting friends to join you.' },
   { sel: '#screen-home [onclick="showJoinRoom()"]', title: 'Join Room', text: 'If your friend is already hosting a room, you can join their room to start playing.' },
   { sel: '#theme-toggle-btn', title: 'Light & Dark', text: 'SideKick allows you to toggle between light or dark mode.' },
   { sel: '#screen-home [onclick="openSidekickInfo()"]', title: 'Tour', text: 'Here is how you learn about SideKick and all it has to offer!' },
@@ -10531,7 +10536,7 @@ window.startInDepthTour = function() {
   tourMode = 'indepth';
   manualSteps = INDEPTH_STEPS;
   updateTourVoiceBtn();
-  document.getElementById('tour-title').textContent = 'In-Depth Tour';
+  document.getElementById('tour-title').textContent = 'Home Page Tour';
   indepthStep = 1;
   renderInDepthStep();
   document.getElementById('tutorial-coach').style.display = 'block';
@@ -10595,14 +10600,17 @@ window.endInDepthTour = function() {
   document.getElementById('tutorial-coach').style.display = 'none';
   try { tourHideSpotlight(); } catch {}
   showScreen('home');
+  openSidekickInfo({ quiet: true });
 };
 window.endTutorial = async function() {
   await tutorialCleanup();
   showScreen('home');
+  openSidekickInfo({ quiet: true });
 };
 window.finishTutorial = async function() {
   await tutorialCleanup();
   showScreen('home');
+  openSidekickInfo({ quiet: true });
 };
 window.openVoicePresetsOverlay = function() {
   renderVoicePresets();
@@ -12579,7 +12587,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v293';
+const APP_VERSION = 'v294';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
