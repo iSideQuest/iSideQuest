@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v287</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v288</div>
   </div>
 </div>
 
@@ -10341,8 +10341,8 @@ async function tutorialCleanup() {
   return mine;
 }
 // ── TOUR VOICE (device text-to-speech, free/offline, matches app language) ──
-let tourVoiceOn = false;
-try { tourVoiceOn = localStorage.getItem('sk_tour_voice') === 'on'; } catch {}
+let tourVoiceOn = true;
+try { tourVoiceOn = localStorage.getItem('sk_tour_voice') !== 'off'; } catch {}
 function tourPickVoice() {
   try {
     const vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
@@ -10361,7 +10361,7 @@ function tourStopVoice() {
 }
 function tourAudioSrc() {
   if (tourMode === 'guided') return 'audio/tour-quick-' + Math.min(Math.max(tutorialStep, 1), 10) + '.mp3';
-  if (tourMode === 'indepth') return 'audio/tour-indepth-' + Math.min(Math.max(indepthStep, 1), 9) + '.mp3';
+  if (tourMode === 'indepth') return 'Voice/InDepthTour' + Math.min(Math.max(indepthStep, 1), 9) + '.wav';
   return null;
 }
 function tourSpeak() {
@@ -10415,11 +10415,11 @@ window.quitTour = function() {
 };
 // ── IN-DEPTH TOUR (home screen walkthrough, free taps, manual steps) ──
 const INDEPTH_STEPS = [
-  { sel: null, title: 'Welcome to SideKick', text: 'This tour will go over ALL of SideKick. This will take some time, but will teach you EVERYTHING. Tap Next to begin!' },
+  { sel: null, title: 'Welcome to SideKick', text: 'This tour will go over ALL of SideKick. This will take some time, but will teach you EVERYTHING. Press Next to begin!' },
   { sel: '#lang-btn', title: 'Language', text: 'SideKick supports 8 languages. Change languages here.' },
   { sel: '#account-btn', title: 'Account', text: 'By creating and logging into an account, you gain access to WAY MORE features and personalization!' },
   { sel: '#screen-home [onclick="showCreateRoom()"]', title: 'Host New Room', text: 'This is where the magic happens! Host New Room to start having fun!' },
-  { sel: '#screen-home [onclick="showJoinRoom()"]', title: 'Join Room', text: 'Your friend has a room started already? Join their room and start having fun!' },
+  { sel: '#screen-home [onclick="showJoinRoom()"]', title: 'Join Room', text: 'If your friend is already hosting a room, you can join their room and start having fun!' },
   { sel: '#theme-toggle-btn', title: 'Light & Dark', text: 'Choose whether you like light or dark mode with this toggle button.' },
   { sel: '#screen-home [onclick="openSidekickInfo()"]', title: 'Tour', text: 'Here is how you learn about SideKick and ALL it has to offer!' },
   { sel: '#screen-home [onclick="openDonateOverlay()"]', title: 'Donate', text: 'SideKick is currently 100% free. This is how you can send donations to help support development of SideKick.' },
@@ -12465,7 +12465,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v287';
+const APP_VERSION = 'v288';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;

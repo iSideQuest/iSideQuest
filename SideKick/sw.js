@@ -1,7 +1,7 @@
 ﻿// SideKick Service Worker
 
 // âš ï¸ Bump this on every release so the new version takes effect for all users.
-const CACHE_NAME = 'sidekick-v287';
+const CACHE_NAME = 'sidekick-v288';
 
 // Files to cache on install â€” the core app shell (relative paths)
 const PRECACHE = [
@@ -12,6 +12,15 @@ const PRECACHE = [
   './icon-512.png',
   './img/Dante2.png',
   './Voice/Tour_Intro.wav',
+  './Voice/InDepthTour1.wav',
+  './Voice/InDepthTour2.wav',
+  './Voice/InDepthTour3.wav',
+  './Voice/InDepthTour4.wav',
+  './Voice/InDepthTour5.wav',
+  './Voice/InDepthTour6.wav',
+  './Voice/InDepthTour7.wav',
+  './Voice/InDepthTour8.wav',
+  './Voice/InDepthTour9.wav',
 ];
 
 // External Firebase/CDN URLs we do NOT cache â€” they must always be live
