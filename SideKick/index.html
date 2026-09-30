@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v289</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v290</div>
   </div>
 </div>
 
@@ -6764,19 +6764,19 @@
 <div class="tools-overlay" id="sidekick-info-overlay">
   <div class="tools-modal" style="max-width:21.25rem; text-align:center; position:relative; max-height:88vh; overflow-y:auto;">
     <div style="display:flex;align-items:flex-start;margin:0.6rem 0 0.2rem;">
-      <img src="img/Dante2.png" alt="Dante the guide cat" style="height:10.8rem;width:auto;flex-shrink:0;margin-right:-2rem;margin-top:0.4rem;position:relative;z-index:1;">
+      <img src="img/Dante2.png" alt="Dante the guide cat" style="height:13rem;width:auto;flex-shrink:0;margin-right:-1rem;margin-top:0.4rem;position:relative;z-index:1;">
       <div style="position:relative;flex:1;min-width:0;">
         <div class="tour-name-tab">Dante</div>
         <div class="tour-bubble">Hi! I'm Dante, your wizard guide! Choose one of the options below and I'll explain everything you need to know about SideKick!</div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin:0.6rem 0;">
-      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;padding:0.7rem 0.3rem;line-height:1.25;" onclick="openVideoPopup()"><span>What Is SideKick?</span></button>
-      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;padding:0.7rem 0.3rem;line-height:1.25;" onclick="closeSidekickInfo(); startTutorial()"><span>Quick Start<br>Tour</span></button>
-      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;padding:0.7rem 0.3rem;line-height:1.25;" onclick="closeSidekickInfo(); startInDepthTour()"><span>Home<br>Page</span></button>
-      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;padding:0.7rem 0.3rem;line-height:1.25;" onclick="openHostingTour()"><span>Hosting</span></button>
-      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;padding:0.7rem 0.3rem;line-height:1.25;" onclick="openJoiningTour()"><span>Joining</span></button>
-      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;padding:0.7rem 0.3rem;line-height:1.25;" onclick="openProfileTour()"><span>Profile</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openVideoPopup()"><span>What Is SideKick?</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="closeSidekickInfo(); startTutorial()"><span>Quick Start<br>Tour</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="closeSidekickInfo(); startInDepthTour()"><span>Home<br>Page</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openHostingTour()"><span>Hosting</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openJoiningTour()"><span>Joining</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.72rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openProfileTour()"><span>Profile</span></button>
     </div>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeSidekickInfo()" data-i18n="close">Close</button>
   </div>
@@ -6858,6 +6858,30 @@
 <div id="tour-ring" style="display:none;position:fixed;z-index:9491;border:2px solid var(--accent);border-radius:0.9rem;box-shadow:0 0 0.75rem rgba(124,92,191,0.8),inset 0 0 0.75rem rgba(124,92,191,0.25);pointer-events:none;transition:all 0.25s ease-out;"></div>
 <audio id="tour-audio" preload="auto" style="display:none;"></audio>
 <audio id="tour-intro-audio" preload="auto" src="Voice/Tour_Intro.wav" style="display:none;"></audio>
+<!-- DEMO PROFILE (Dante's fake profile for the Profile tour — no login, no real data) -->
+<div class="tools-overlay" id="demo-profile-overlay" style="z-index:9480;">
+  <div class="tools-modal" style="max-height:85vh; overflow-y:auto; text-align:center;">
+    <img id="demo-profile-avatar" src="img/Dante2.png" alt="Dante" style="width:5rem;height:5rem;border-radius:50%;object-fit:cover;margin:0 auto;border:2px solid var(--accent);">
+    <div id="demo-profile-name" style="font-size:1.2rem;font-weight:900;color:var(--text);margin-top:0.4rem;">Dante</div>
+    <div id="demo-profile-title" style="display:inline-block;margin-top:0.35rem;padding:0.25rem 0.8rem;border-radius:1rem;background:rgba(124,92,191,0.25);border:1px solid var(--accent);font-size:0.8rem;font-weight:800;color:var(--text);">Duel King</div>
+    <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.9rem;text-align:left;">
+      <div id="demo-row-themes" style="padding:0.6rem 0.8rem;border:1px solid var(--border);border-radius:0.75rem;font-weight:700;font-size:0.9rem;">🎨 Themes</div>
+      <div id="demo-row-collection" style="padding:0.6rem 0.8rem;border:1px solid var(--border);border-radius:0.75rem;">
+        <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.3rem;">🎲 My Collection (3)</div>
+        <div style="font-size:0.8rem;color:var(--muted);">Catan · ★ 9</div>
+        <div style="font-size:0.8rem;color:var(--muted);">Azul · ★ 8.5</div>
+        <div style="font-size:0.8rem;color:var(--muted);">Coup · ★ 7</div>
+      </div>
+      <div id="demo-row-friends" style="padding:0.6rem 0.8rem;border:1px solid var(--border);border-radius:0.75rem;">
+        <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.3rem;">👥 Friends (2)</div>
+        <div style="font-size:0.8rem;color:var(--muted);">Merlin · SideKick</div>
+        <div style="font-size:0.8rem;color:var(--muted);">Morgana · Duel Queen</div>
+      </div>
+    </div>
+    <button id="demo-profile-close" class="btn-secondary btn-sm" style="width:100%;margin-top:0.8rem;" onclick="closeDemoProfile()" data-i18n="close">Close</button>
+  </div>
+</div>
+
 <!-- GUIDED TOUR COACH (home → create → lobby → play → exit, gated) -->
 <div id="tutorial-coach" style="display:none;position:fixed;top:calc(4.75rem + env(safe-area-inset-top, 0));left:0.75rem;right:0.75rem;z-index:9500;background:var(--surface);border:1px solid var(--accent);border-radius:1rem;padding:0.7rem 0.9rem;box-shadow:0 0.5rem 2rem rgba(0,0,0,0.5);">
   <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -10440,12 +10464,13 @@ const JOINING_STEPS = [
   { sel: '#join-final-btn', title: 'Join Room', text: 'Tap to jump into the lobby.' }
 ];
 const PROFILE_STEPS = [
-  { sel: null, title: 'Your Profile', text: 'Everything about you lives here. Tap Next.' },
-  { sel: '#profile-avatar', title: 'Avatar & Name', text: 'Tap your picture or name to edit your profile, color and title.' },
-  { sel: '#profile-role-badge', title: 'Title', text: 'Your chosen title shows here. Pick one in Edit Profile.' },
-  { sel: '#screen-profile [onclick="openThemesOverlay()"]', title: 'Themes', text: 'Recolor and restyle the whole app, including the Compact layout.' },
-  { sel: '#screen-profile [onclick="openMyCollection()"]', title: 'My Collection', text: 'Your board game library with photos, ratings and filters.' },
-  { sel: '#screen-profile [onclick="openFriendsOverlay()"]', title: 'Friends', text: 'Add friends by code and view their profiles.' }
+  { sel: null, title: 'Dante’s Profile', text: 'This is MY demo profile — no login needed. Tap Next.' },
+  { sel: '#demo-profile-avatar', title: 'Avatar & Name', text: 'My picture and name. Yours works the same way — tap to edit.' },
+  { sel: '#demo-profile-title', title: 'Title', text: 'I’m showing off Duel King. You can pick your own title too.' },
+  { sel: '#demo-row-themes', title: 'Themes', text: 'Recolor and restyle the whole app from here.' },
+  { sel: '#demo-row-collection', title: 'My Collection', text: 'A peek at my board game shelf — yours holds photos, ratings and filters.' },
+  { sel: '#demo-row-friends', title: 'Friends', text: 'Add friends by code and visit their profiles.' },
+  { sel: '#demo-profile-close', title: 'That’s Me!', text: 'Sign in anytime to build your own profile just like this one.' }
 ];
 window.startManualTour = function(kind, title) {
   const map = { hosting: HOSTING_STEPS, joining: JOINING_STEPS, profile: PROFILE_STEPS };
@@ -10466,6 +10491,7 @@ window.endManualTour = function() {
   manualSteps = null;
   tourStopVoice();
   document.getElementById('tutorial-coach').style.display = 'none';
+  try { document.getElementById('demo-profile-overlay').classList.remove('show'); } catch {}
   try { tourHideSpotlight(); } catch {}
 };
 window.openHostingTour = function() {
@@ -10479,10 +10505,12 @@ window.openJoiningTour = function() {
   startManualTour('joining', 'Joining Tour');
 };
 window.openProfileTour = function() {
-  if (!currentUser) { showToast('To view your profile tour, you must create and log into an account.'); haptic(5); return; }
   closeSidekickInfo();
-  try { openProfileScreen(); } catch {}
+  document.getElementById('demo-profile-overlay').classList.add('show');
   startManualTour('profile', 'Profile Tour');
+};
+window.closeDemoProfile = function() {
+  document.getElementById('demo-profile-overlay').classList.remove('show');
 };
 // ── IN-DEPTH TOUR (home screen walkthrough, free taps, manual steps) ──
 const INDEPTH_STEPS = [
@@ -12538,7 +12566,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v289';
+const APP_VERSION = 'v290';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
