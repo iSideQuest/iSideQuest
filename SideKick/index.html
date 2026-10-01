@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v297</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v298</div>
   </div>
 </div>
 
@@ -6851,10 +6851,10 @@
   </div>
 </div>
 <!-- TOUR SPOTLIGHT (dims everything except the focus cutout, which stays full brightness) -->
-<div id="tour-dim-t" style="display:none;position:fixed;background:rgba(0,0,0,0.72);z-index:9490;pointer-events:none;"></div>
-<div id="tour-dim-b" style="display:none;position:fixed;background:rgba(0,0,0,0.72);z-index:9490;pointer-events:none;"></div>
-<div id="tour-dim-l" style="display:none;position:fixed;background:rgba(0,0,0,0.72);z-index:9490;pointer-events:none;"></div>
-<div id="tour-dim-r" style="display:none;position:fixed;background:rgba(0,0,0,0.72);z-index:9490;pointer-events:none;"></div>
+<div id="tour-dim-t" style="display:none;position:fixed;background:rgba(0,0,0,0.45);z-index:9490;pointer-events:none;"></div>
+<div id="tour-dim-b" style="display:none;position:fixed;background:rgba(0,0,0,0.45);z-index:9490;pointer-events:none;"></div>
+<div id="tour-dim-l" style="display:none;position:fixed;background:rgba(0,0,0,0.45);z-index:9490;pointer-events:none;"></div>
+<div id="tour-dim-r" style="display:none;position:fixed;background:rgba(0,0,0,0.45);z-index:9490;pointer-events:none;"></div>
 <div id="tour-ring" style="display:none;position:fixed;z-index:9491;border:2px solid var(--accent);border-radius:0.9rem;box-shadow:0 0 0.75rem rgba(124,92,191,0.8),inset 0 0 0.75rem rgba(124,92,191,0.25);pointer-events:none;transition:all 0.25s ease-out;"></div>
 <audio id="tour-audio" preload="auto" style="display:none;"></audio>
 <audio id="tour-intro-audio" preload="auto" src="Voice/DanteTourIntro.wav" style="display:none;"></audio>
@@ -7293,7 +7293,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <!--  SHARED TOOL REVEAL (host RNG/picker → all)  -->
 <!-- ═══════════════════════════════════════════ -->
-<div id="shared-reveal-overlay" style="display:none;position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,0.72);align-items:flex-start;justify-content:center;padding-top:5rem;pointer-events:none;">
+<div id="shared-reveal-overlay" style="display:none;position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,0.45);align-items:flex-start;justify-content:center;padding-top:5rem;pointer-events:none;">
   <div style="text-align:center;padding:1rem;">
     <div id="shared-reveal-text" style="font-size:3rem;font-weight:900;color:#fff;"></div>
     <div id="shared-reveal-sub" style="font-size:1rem;color:rgba(255,255,255,0.7);margin-top:0.4rem;"></div>
@@ -12696,7 +12696,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v297';
+const APP_VERSION = 'v298';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
