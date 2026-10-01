@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v298</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v299</div>
   </div>
 </div>
 
@@ -6851,10 +6851,10 @@
   </div>
 </div>
 <!-- TOUR SPOTLIGHT (dims everything except the focus cutout, which stays full brightness) -->
-<div id="tour-dim-t" style="display:none;position:fixed;background:rgba(0,0,0,0.45);z-index:9490;pointer-events:none;"></div>
-<div id="tour-dim-b" style="display:none;position:fixed;background:rgba(0,0,0,0.45);z-index:9490;pointer-events:none;"></div>
-<div id="tour-dim-l" style="display:none;position:fixed;background:rgba(0,0,0,0.45);z-index:9490;pointer-events:none;"></div>
-<div id="tour-dim-r" style="display:none;position:fixed;background:rgba(0,0,0,0.45);z-index:9490;pointer-events:none;"></div>
+<div id="tour-dim-t" style="display:none;position:fixed;background:rgba(0,0,0,0.35);z-index:9490;pointer-events:none;"></div>
+<div id="tour-dim-b" style="display:none;position:fixed;background:rgba(0,0,0,0.35);z-index:9490;pointer-events:none;"></div>
+<div id="tour-dim-l" style="display:none;position:fixed;background:rgba(0,0,0,0.35);z-index:9490;pointer-events:none;"></div>
+<div id="tour-dim-r" style="display:none;position:fixed;background:rgba(0,0,0,0.35);z-index:9490;pointer-events:none;"></div>
 <div id="tour-ring" style="display:none;position:fixed;z-index:9491;border:2px solid var(--accent);border-radius:0.9rem;box-shadow:0 0 0.75rem rgba(124,92,191,0.8),inset 0 0 0.75rem rgba(124,92,191,0.25);pointer-events:none;transition:all 0.25s ease-out;"></div>
 <audio id="tour-audio" preload="auto" style="display:none;"></audio>
 <audio id="tour-intro-audio" preload="auto" src="Voice/DanteTourIntro.wav" style="display:none;"></audio>
@@ -7293,7 +7293,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <!--  SHARED TOOL REVEAL (host RNG/picker → all)  -->
 <!-- ═══════════════════════════════════════════ -->
-<div id="shared-reveal-overlay" style="display:none;position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,0.45);align-items:flex-start;justify-content:center;padding-top:5rem;pointer-events:none;">
+<div id="shared-reveal-overlay" style="display:none;position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,0.35);align-items:flex-start;justify-content:center;padding-top:5rem;pointer-events:none;">
   <div style="text-align:center;padding:1rem;">
     <div id="shared-reveal-text" style="font-size:3rem;font-weight:900;color:#fff;"></div>
     <div id="shared-reveal-sub" style="font-size:1rem;color:rgba(255,255,255,0.7);margin-top:0.4rem;"></div>
@@ -10408,6 +10408,7 @@ function tourStopVoice() {
 function tourAudioSrc() {
   if (tourMode === 'guided') return 'audio/tour-quick-' + Math.min(Math.max(tutorialStep, 1), 10) + '.mp3';
   if (tourMode === 'indepth') { const map = {1:'InDepthTour1',2:'InDepthTour2',3:'InDepthTour3',4:'InDepthTour4',5:'HostPresetRoom',6:'InDepthTour5',7:'InDepthTour6',8:'InDepthTour7',9:'InDepthTour8',10:'InDepthTour9'}; const st = Math.min(Math.max(indepthStep, 1), 10); return 'Voice/' + (map[st] || 'InDepthTour9') + '.wav'; }
+  if (tourMode === 'manual' && manualSteps === JOINING_STEPS) { const st = Math.min(Math.max(indepthStep, 1), 12); return 'Voice/JoinRoom' + st + '.wav'; }
   return null;
 }
 function tourSpeak() {
@@ -10551,18 +10552,18 @@ function tourJoinRestore() {
   } catch {}
 }
 const JOINING_STEPS = [
-  { sel: '#screen-home [onclick="showJoinRoom()"]', text: 'Start on the Home Page. Join Room jumps into a game your friend is already hosting. Tap Next to walk through it.', enter: tourJoinHome },
-  { sel: '#join-name', dock: 'bottom', text: 'Step 1 is all about you. Fill out your player name - we typed Dante as an example. Tap the field to make it yours.', enter: tourJoinSetup },
-  { sel: '#join-color-btn', dock: 'bottom', text: 'Choose your player color. It marks your seat around the table.', enter: tourJoinClosePickers },
-  { sel: '#color-grid .color-swatch[title="Blue"]', text: 'The color picker is open with Blue highlighted. Tap it, then Confirm to lock it in.', enter: tourJoinOpenColors },
-  { sel: '#join-avatar-btn', dock: 'bottom', text: 'Now choose your avatar - the face everyone sees next to your name.', enter: tourJoinClosePickers },
-  { sel: '#room-avatar-grid .avatar-option[data-avatar="img/Dante2.png"]', text: 'Look who it is - Dante himself, in the Special row. Tap him, then Confirm.', enter: tourJoinOpenAvatars },
-  { sel: '#join-next-btn', dock: 'bottom', text: 'Choose Confirm to wrap up Step 1 and move on to the room code.', enter: tourJoinToStep1 },
-  { sel: '.join-step[data-step="2"] [onclick="openQRScanner()"]', dock: 'bottom', text: 'Step 2 finds the room. Scan Room QR Code uses your camera on the host code - no typing needed.', enter: tourJoinToStep2 },
-  { sel: '#join-code', dock: 'bottom', text: 'Or type the 4-digit room code the host is showing into the Type Code box.', enter: tourJoinClosePickers },
-  { sel: '#join-final-btn', dock: 'bottom', text: 'Choose Join Room and you step straight into the player lobby.', enter: tourJoinToStep2 },
-  { sel: '#wl-wheel-wrap', dock: 'bottom', text: 'This is the player lobby guests see. Dante is already seated, and you joined as You. Wait for everyone to arrive.', enter: tourJoinMockLobby },
-  { sel: null, dock: 'bottom', text: 'When all players are ready, the host taps Start and SideKick begins. That is the whole tour!' }
+  { sel: '#screen-home [onclick="showJoinRoom()"]', text: 'Here is an example of joining a room. To join a room that your friend is already hosting, select Join Room from the Home Page.', enter: tourJoinHome },
+  { sel: '#join-name', dock: 'bottom', text: 'Beginning with Step 1, start by typing in your preferred Player Name.', enter: tourJoinSetup },
+  { sel: '#join-color-btn', dock: 'bottom', text: 'Next, select Choose Color to pick your player color.', enter: tourJoinClosePickers },
+  { sel: '#color-grid .color-swatch[title="Blue"]', text: 'Choose one of the colors that will represent you to all players and then Confirm your choice.', enter: tourJoinOpenColors },
+  { sel: '#join-avatar-btn', dock: 'bottom', text: 'Next, select Choose Avatar.', enter: tourJoinClosePickers },
+  { sel: '#room-avatar-grid .avatar-option[data-avatar="img/Dante2.png"]', text: 'Look who it is, It\'s my avatar! After selecting it I Confirm my choice.', enter: tourJoinOpenAvatars },
+  { sel: '#join-next-btn', dock: 'bottom', text: 'Once player name, color, and avatar are chosen, select Confirm to move to Step 2.', enter: tourJoinToStep1 },
+  { sel: '.join-step[data-step="2"] [onclick="openQRScanner()"]', dock: 'bottom', text: 'In Step 2, we need to add your friend\'s room code. You can scan the host\'s QR code using this option.', enter: tourJoinToStep2 },
+  { sel: '#join-code', dock: 'bottom', text: 'Or you can type the 4-digit room code here.', enter: tourJoinClosePickers },
+  { sel: '#join-final-btn', dock: 'bottom', text: 'Select Join Room and you will enter the Player Lobby.', enter: tourJoinToStep2 },
+  { sel: '#wl-wheel-wrap', dock: 'bottom', text: 'This is the Player Lobby that guests see. Both you and I are here.', enter: tourJoinMockLobby },
+  { sel: null, dock: 'bottom', text: 'When all players are ready, the host chooses Start Game and SideKick begins.' }
 ];
 const PROFILE_STEPS = [
   { sel: null, title: 'Dante’s Profile', text: 'This is MY demo profile — no login needed. Tap Next.' },
@@ -12696,7 +12697,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v298';
+const APP_VERSION = 'v299';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
