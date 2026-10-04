@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v300</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v301</div>
   </div>
 </div>
 
@@ -6884,9 +6884,21 @@
 
 <!-- GUIDED TOUR COACH (home → create → lobby → play → exit, gated) -->
 <div id="tutorial-coach" style="display:none;position:fixed;top:calc(4.75rem + env(safe-area-inset-top, 0));left:0.75rem;right:0.75rem;z-index:9500;background:var(--surface);border:1px solid var(--accent);border-radius:1rem;padding:0.7rem 0.9rem;box-shadow:0 0.5rem 2rem rgba(0,0,0,0.5);">
+  <div id="coach-mini" onclick="toggleCoachExpand(event)" style="display:none;align-items:center;gap:0.5rem;cursor:pointer;padding:0.15rem 0;">
+    <img src="img/Dante2.png" alt="Dante" style="height:2.5rem;width:auto;flex-shrink:0;">
+    <div id="coach-mini-text" style="flex:1;min-width:0;font-size:0.8rem;line-height:1.3;color:var(--text);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;"></div>
+    <span id="coach-mini-nav" style="display:flex;gap:0.35rem;flex-shrink:0;">
+      <button onclick="coachMiniNav(event,-1)" style="background:none;border:1px solid var(--border);border-radius:999rem;color:var(--text);font-weight:800;font-size:0.85rem;padding:0.25rem 0.6rem;cursor:pointer;width:auto;flex:none;">◀</button>
+      <button onclick="coachMiniNav(event,1)" style="background:none;border:1px solid var(--accent);border-radius:999rem;color:var(--text);font-weight:800;font-size:0.85rem;padding:0.25rem 0.6rem;cursor:pointer;width:auto;flex:none;">▶</button>
+    </span>
+  </div>
+  <div id="coach-full">
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <button id="tour-voice-btn" onclick="toggleTourVoice()" style="background:none;border:none;width:auto;flex:none;font-size:1rem;cursor:pointer;padding:0.2rem;" title="Voice on/off">🔊</button>
-    <button onclick="quitTour()" style="background:none;border:none;width:auto;flex:none;color:var(--muted);font-size:0.75rem;font-weight:700;cursor:pointer;padding:0.2rem;">Close</button>
+    <span style="display:flex;gap:0.1rem;align-items:center;flex:none;">
+      <button onclick="setCoachExpanded(false)" style="background:none;border:none;width:auto;flex:none;color:var(--muted);font-size:0.85rem;font-weight:700;cursor:pointer;padding:0.2rem 0.35rem;" title="Minimize">▾</button>
+      <button onclick="quitTour()" style="background:none;border:none;width:auto;flex:none;color:var(--muted);font-size:0.75rem;font-weight:700;cursor:pointer;padding:0.2rem;">Close</button>
+    </span>
   </div>
   <div style="margin-bottom:0.3rem;">
     <div id="tour-title" style="font-size:0.8rem;font-weight:800;color:var(--accent-light);letter-spacing:0.06em;text-align:center;">TOUR</div>
@@ -6906,6 +6918,7 @@
   <div id="tutorial-finish-row" style="display:none;margin-top:0.6rem;">
     <button class="btn-primary btn-sm" style="width:100%;" onclick="finishTutorial()">Finish ✓</button>
   </div>
+  </div><!-- /coach-full -->
 </div>
 <div id="overlay-kb" class="custom-kb" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:100000;padding:0.25rem 0.2rem calc(0.5rem + env(safe-area-inset-bottom, 0));background:rgba(10,10,15,0.97);border-top:1px solid var(--border);box-sizing:border-box;"></div>
 <div class="tools-overlay" id="voice-presets-overlay">
@@ -10293,9 +10306,9 @@ function updateTutorial() {
 function renderTutorialStep() {
   const texts = [
     'Here is how we start your first SideKick room! Begin by choosing "Host New Room".',
-    '<b>Step 1:</b> enter your name, pick a color and avatar, then choose <b>Confirm</b>.',
-    '<b>Step 2:</b> choose which way turns pass in your game, then choose <b>Confirm</b>.',
-    '<b>Step 3:</b> toggle any features you like (or none), then choose <b>Create Room</b>.',
+    'Enter your name, pick a color and avatar, then choose <b>Confirm</b>.',
+    'Choose which way turns pass in your game, then choose <b>Confirm</b>.',
+    'Toggle any features you like (or none), then choose <b>Create Room</b>.',
     'This is the <b>player lobby</b>. Normally, your friends will join you here, but we can actually create players manually, choose <b>Create Player</b>.',
     'This is where you choose who goes first. For now choose <b>Random</b>.',
     'Choose <b>Start Game</b> to begin.',
@@ -10304,6 +10317,9 @@ function renderTutorialStep() {
     'That was my Quick Start Tour of SideKick. Want more? My In-Depth Tour teaches you EVERYTHING about SideKick. Or, explore on your own and enjoy!'
   ];
   const idx = Math.min(Math.max(tutorialStep, 1), TUTORIAL_STEPS) - 1;
+  window._coachStep = null;
+  renderCollapseDefault('g:' + idx);
+  setMiniText(texts[idx]);
   document.getElementById('tutorial-text').innerHTML = texts[idx];
   const dotsEl = document.getElementById('tutorial-dots');
   if (dotsEl) {
@@ -10456,6 +10472,65 @@ window.toggleTourVoice = function() {
   if (tourVoiceOn) tourSpeak();
   haptic(5);
 };
+// ── COACH MINI-BAR (collapsed tour card, tap to expand) ──
+function setMiniText(html) {
+  const el = document.getElementById('coach-mini-text');
+  if (!el) return;
+  try {
+    const div = document.createElement('div');
+    div.innerHTML = html || '';
+    let t = (div.textContent || div.innerText || '').trim();
+    if (t.length > 110) t = t.slice(0, 109).trim() + '…';
+    el.textContent = t;
+  } catch {}
+}
+function renderCollapseDefault(key) {
+  const coach = document.getElementById('tutorial-coach');
+  if (key !== window._coachKey || (coach && coach.style.display === 'none')) {
+    window._coachKey = key;
+    setCoachExpanded(false);
+  }
+}
+window.setCoachExpanded = function(b) {
+  const full = document.getElementById('coach-full'), mini = document.getElementById('coach-mini');
+  if (full) full.style.display = b ? '' : 'none';
+  if (mini) mini.style.display = b ? 'none' : 'flex';
+  const nav = document.getElementById('coach-mini-nav');
+  if (nav) nav.style.display = (tourMode === 'guided') ? 'none' : '';
+  const s = window._coachStep;
+  if (s && tourMode !== 'guided') { try { positionCoachForStep(s); } catch {} }
+};
+window.toggleCoachExpand = function(e) {
+  if (e && e.target && e.target.closest && e.target.closest('button')) return;
+  setCoachExpanded(true);
+};
+window.coachMiniNav = function(e, d) {
+  try { if (e) { e.stopPropagation(); if (e.preventDefault) e.preventDefault(); } } catch {}
+  if (tourMode === 'manual' || tourMode === 'indepth') {
+    if (d < 0) indepthBack(); else indepthNext();
+  }
+  haptic(5);
+};
+function positionCoachForStep(s) {
+  const coach = document.getElementById('tutorial-coach');
+  if (!coach) return;
+  const ch = coach.offsetHeight || 320, gap = 12, minTop = 64;
+  if (s.dock === 'bottom') {
+    const wiz = document.getElementById('join-wizard-btns');
+    const wr = wiz && wiz.getBoundingClientRect ? wiz.getBoundingClientRect() : null;
+    const top = (wr && wr.width > 0 && wr.height > 0) ? (wr.top - ch - gap) : (window.innerHeight - ch - 110);
+    coach.style.top = Math.max(minTop, top) + 'px';
+  } else {
+    const tgt = s.sel ? document.querySelector(s.sel) : null;
+    const tr = tgt && tgt.getBoundingClientRect ? tgt.getBoundingClientRect() : null;
+    if (tr && tr.width > 0 && tr.height > 0) {
+      let top = tr.top - ch - gap;
+      if (top < minTop) top = tr.bottom + gap;
+      top = Math.max(minTop, Math.min(top, window.innerHeight - ch - 96));
+      coach.style.top = top + 'px';
+    }
+  }
+}
 window.quitTour = function() {
   if (tourMode === 'indepth') endInDepthTour();
   else if (tourMode === 'manual') endManualTour();
@@ -10648,6 +10723,9 @@ function renderInDepthStep() {
   const idx = Math.min(Math.max(indepthStep, 1), total) - 1;
   const s = steps[idx];
   if (s && typeof s.enter === 'function') { try { s.enter(); } catch {} }
+  window._coachStep = s;
+  renderCollapseDefault('m:' + idx);
+  setMiniText(s.text);
   document.getElementById('tutorial-text').innerHTML = s.text;
   const dotsEl = document.getElementById('tutorial-dots');
   if (dotsEl) {
@@ -10666,27 +10744,7 @@ function renderInDepthStep() {
   if (backBtn) backBtn.style.visibility = idx === 0 ? 'hidden' : 'visible';
   const nextBtns = document.querySelectorAll('#tutorial-nav-row button');
   if (nextBtns[1]) nextBtns[1].textContent = idx === total - 1 ? 'Finish ✓' : 'Next ▶';
-  try {
-    const coach = document.getElementById('tutorial-coach');
-    if (coach) {
-      const ch = coach.offsetHeight || 320, gap = 12, minTop = 64;
-      if (s.dock === 'bottom') {
-        const wiz = document.getElementById('join-wizard-btns');
-        const wr = wiz && wiz.getBoundingClientRect ? wiz.getBoundingClientRect() : null;
-        const top = (wr && wr.width > 0 && wr.height > 0) ? (wr.top - ch - gap) : (window.innerHeight - ch - 110);
-        coach.style.top = Math.max(minTop, top) + 'px';
-      } else {
-        const tgt = s.sel ? document.querySelector(s.sel) : null;
-        const tr = tgt && tgt.getBoundingClientRect ? tgt.getBoundingClientRect() : null;
-        if (tr && tr.width > 0 && tr.height > 0) {
-          let top = tr.top - ch - gap;
-          if (top < minTop) top = tr.bottom + gap;
-          top = Math.max(minTop, Math.min(top, window.innerHeight - ch - 96));
-          coach.style.top = top + 'px';
-        }
-      }
-    }
-  } catch {}
+  try { positionCoachForStep(s); } catch {}
   tourSpeak();
   tourSpotlight();
   try { requestAnimationFrame(() => tourSpotlight()); } catch {}
@@ -12697,7 +12755,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v300';
+const APP_VERSION = 'v301';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
