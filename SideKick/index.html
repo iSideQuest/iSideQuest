@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v299</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v300</div>
   </div>
 </div>
 
@@ -10125,7 +10125,7 @@ const TOUR_ALLOW = {
   10: []
 };
 function tourGuard(e) {
-  if (tourMode !== 'guided' && tourMode !== 'indepth') return;
+  if (tourMode !== 'guided' && tourMode !== 'indepth' && tourMode !== 'manual') return;
   if (tourMode === 'guided' && (!tutorialStep || tutorialStep >= TUTORIAL_STEPS)) return;
   const t = e.target && e.target.closest ? e.target.closest('#tutorial-coach *, button, a, input, textarea, select, [onclick], [role="button"]') : null;
   if (!t) return;
@@ -12697,7 +12697,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v299';
+const APP_VERSION = 'v300';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
