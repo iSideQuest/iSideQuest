@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v304</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v305</div>
   </div>
 </div>
 
@@ -6784,7 +6784,7 @@
 <div class="tools-overlay" id="video-popup-overlay" style="z-index:9650;">
   <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
     <div class="tools-modal-title">What Is SideKick?</div>
-    <video controls preload="metadata" playsinline style="display:block;width:auto;max-width:100%;height:auto;max-height:55vh;margin:0 auto;border-radius:0.625rem;border:1px solid var(--border);background:#000;" src="Video/Tutorial.mp4"></video>
+    <video controls preload="metadata" playsinline style="display:block;width:auto;max-width:100%;height:auto;max-height:55vh;margin:0 auto;border-radius:0.625rem;border:1px solid var(--border);background:#000;" src="Video/HostTutorial.mp4"></video>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeVideoPopup()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -12817,7 +12817,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v304';
+const APP_VERSION = 'v305';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
