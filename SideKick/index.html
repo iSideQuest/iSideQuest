@@ -5308,7 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
-    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v302</div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v303</div>
   </div>
 </div>
 
@@ -6771,7 +6771,7 @@
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin:0.6rem 0;">
-      <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openVideoPopup()"><span>What Is SideKick?</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openQuickTour()"><span>What Is SideKick?</span></button>
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="closeSidekickInfo(); startTutorial()"><span>Quick Start<br>Tour</span></button>
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="closeSidekickInfo(); startInDepthTour()"><span>Home<br>Page</span></button>
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openHostingTour()"><span>Host Room</span></button>
@@ -10422,6 +10422,7 @@ function tourAudioSrc() {
   if (tourMode === 'guided') return 'audio/tour-quick-' + Math.min(Math.max(tutorialStep, 1), 10) + '.mp3';
   if (tourMode === 'indepth') { const map = {1:'InDepthTour1',2:'InDepthTour2',3:'InDepthTour3',4:'InDepthTour4',5:'HostPresetRoom',6:'InDepthTour5',7:'InDepthTour6',8:'InDepthTour7',9:'InDepthTour8',10:'InDepthTour9'}; const st = Math.min(Math.max(indepthStep, 1), 10); return 'Voice/' + (map[st] || 'InDepthTour9') + '.wav'; }
   if (tourMode === 'manual' && manualSteps === JOINING_STEPS) { const st = Math.min(Math.max(indepthStep, 1), 12); return 'Voice/JoinRoom' + st + '.wav'; }
+  if (tourMode === 'manual' && manualSteps === QUICK_STEPS) { const st = Math.min(Math.max(indepthStep, 1), 8); return 'Voice/QuickTour' + st + '.wav'; }
   return null;
 }
 function tourSpeak() {
@@ -10649,8 +10650,50 @@ const PROFILE_STEPS = [
   { sel: '#demo-row-friends', title: 'Friends', text: 'Add friends by code and visit their profiles.' },
   { sel: '#demo-profile-close', title: 'That’s Me!', text: 'Sign in anytime to build your own profile just like this one.' }
 ];
+// ── QUICK SHOWCASE TOUR (What Is SideKick: ~45s auto-advancing reel, view-only) ──
+function quickHome() { try { tourJoinClosePickers(); showScreen('home'); } catch {} }
+function quickCreate(n) { try { tourJoinClosePickers(); showCreateRoom(); createStep = n; renderCreateStep(); } catch {} }
+function quickJoinCode() { try { tourJoinClosePickers(); showJoinRoom(); joinStep = 2; renderJoinStep(); updateJoinCollapseSummary(); } catch {} }
+function quickLobby() {
+  try {
+    tourJoinClosePickers();
+    showScreen('waiting-lobby');
+    const code = document.getElementById('wl-code');
+    if (code) code.textContent = '1234';
+    renderWaitingLobbyList([
+      { id: 'tour-dante', name: 'Dante', color: '#005ee7', avatar: 'img/Dante2.png' },
+      { id: 'tour-you', name: 'You', color: '#e74c3c', avatar: '\uD83D\uDE00' }
+    ]);
+  } catch {}
+}
+function quickArm() {
+  try {
+    if (window._quickTimer) clearTimeout(window._quickTimer);
+    window._quickTimer = null;
+    if (tourMode === 'manual' && manualSteps === QUICK_STEPS) {
+      window._quickTimer = setTimeout(() => { if (tourMode === 'manual' && manualSteps === QUICK_STEPS) indepthNext(); }, 5500);
+    }
+  } catch {}
+}
+function quickClear() { try { if (window._quickTimer) { clearTimeout(window._quickTimer); window._quickTimer = null; } } catch {} }
+const QUICK_STEPS = [
+  { sel: '#screen-home [onclick="showCreateRoom()"]', text: 'SideKick runs your game night. Hosting a room takes seconds - tap Host New Room and follow three quick steps.', enter: quickHome },
+  { sel: '#screen-home [onclick="showJoinRoom()"]', text: 'Friends join from their own phones with a 4-digit code. No accounts, nothing to install.', enter: quickHome },
+  { sel: '.create-step[data-step="1"] .card', text: 'Step 1: players grab a name, a color and an avatar.', enter: function() { quickCreate(1); } },
+  { sel: '.create-step[data-step="2"] .card', text: 'Step 2: choose which way turns pass around the table.', enter: function() { quickCreate(2); } },
+  { sel: '.create-step[data-step="3"] .card', text: 'Step 3: add scoring, timers and extras - or keep it classic.', enter: function() { quickCreate(3); } },
+  { sel: '#join-code', dock: 'bottom', text: 'Joining takes one 4-digit code. Type it or scan the host QR.', enter: quickJoinCode },
+  { sel: '#wl-wheel-wrap', dock: 'bottom', text: 'The live table shows everyone. The banner always tells you whose turn it is.', enter: quickLobby },
+  { sel: null, dock: 'bottom', text: 'When the host taps Start, SideKick runs the night. Try the Quick Start Tour next!' }
+];
+window.openQuickTour = function() {
+  closeSidekickInfo();
+  window._quickRan = true;
+  try { showScreen('home'); } catch {}
+  startManualTour('quick', 'What Is SideKick');
+};
 window.startManualTour = function(kind, title) {
-  const map = { hosting: HOSTING_STEPS, joining: JOINING_STEPS, profile: PROFILE_STEPS };
+  const map = { hosting: HOSTING_STEPS, joining: JOINING_STEPS, profile: PROFILE_STEPS, quick: QUICK_STEPS };
   manualSteps = map[kind] || null;
   if (!manualSteps) return;
   manualTitle = title || 'Tour';
@@ -10671,6 +10714,8 @@ window.endManualTour = function() {
   try { document.getElementById('demo-profile-overlay').classList.remove('show'); } catch {}
   try { tourHideSpotlight(); } catch {}
   try { tourJoinRestore(); } catch {}
+  try { quickClear(); } catch {}
+  if (window._quickRan) { window._quickRan = false; try { const wl = document.getElementById('wl-code'); if (wl) wl.textContent = '----'; } catch {} }
   showScreen('home');
   openSidekickInfo({ quiet: true });
 };
@@ -10726,6 +10771,7 @@ function renderInDepthStep() {
   window._coachStep = s;
   renderCollapseDefault('m:' + idx);
   setMiniText(s.text);
+  quickArm();
   document.getElementById('tutorial-text').innerHTML = s.text;
   const dotsEl = document.getElementById('tutorial-dots');
   if (dotsEl) {
@@ -12755,7 +12801,7 @@ if (window.visualViewport) {
 renderKb();
 applyCustomKbMode();
 // App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
-const APP_VERSION = 'v302';
+const APP_VERSION = 'v303';
 try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
