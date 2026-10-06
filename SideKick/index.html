@@ -6770,7 +6770,7 @@
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin:0.6rem 0;">
-      <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openWhatisChoice()"><span>What Is SideKick?</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openVideoPopup()"><span>What Is SideKick?</span></button>
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="closeSidekickInfo(); startTutorial()"><span>Quick Start<br>Tour</span></button>
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="closeSidekickInfo(); startInDepthTour()"><span>Home<br>Page</span></button>
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openHostingTour()"><span>Host Room</span></button>
@@ -6785,15 +6785,6 @@
     <div class="tools-modal-title">What Is SideKick?</div>
     <video controls preload="metadata" playsinline style="display:block;width:auto;max-width:100%;height:auto;max-height:55vh;margin:0 auto;border-radius:0.625rem;border:1px solid var(--border);background:#000;" src="Video/HostTutorial.mp4"></video>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeVideoPopup()" data-i18n="close">Close</button>
-  </div>
-</div>
-<div class="tools-overlay" id="whatis-choice-overlay" style="z-index:9655;">
-  <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
-    <div class="tools-modal-title">What Is SideKick?</div>
-    <div style="font-size:0.9rem;color:var(--muted);margin:0.4rem 0 0.2rem;">Watch it or walk it - your pick.</div>
-    <button class="btn-primary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeWhatisChoice();openVideoPopup()">Watch the Video</button>
-    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeWhatisChoice();openQuickTour()">Take the Quick Tour</button>
-    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeWhatisChoice()" data-i18n="close">Close</button>
   </div>
 </div>
 <div class="tools-overlay" id="donate-overlay">
@@ -9837,13 +9828,6 @@ window.closeVideoPopup = function() {
   const overlay = document.getElementById('video-popup-overlay');
   if (overlay) overlay.querySelectorAll('video').forEach(v => { try { v.pause(); } catch {} });
   if (overlay) overlay.classList.remove('show');
-};
-window.openWhatisChoice = function() {
-  document.getElementById('whatis-choice-overlay').classList.add('show');
-  haptic(5);
-};
-window.closeWhatisChoice = function() {
-  document.getElementById('whatis-choice-overlay').classList.remove('show');
 };
 window.openDonateOverlay = function() {
   document.getElementById('donate-overlay').classList.add('show');
