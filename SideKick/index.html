@@ -2938,7 +2938,7 @@
     background: rgba(0,0,0,0.96); z-index: 8050;
     flex-direction: column; align-items: center; justify-content: center;
     padding: 2rem 1.5rem; gap: 1rem;
-   
+    overflow-y: auto;
   }
   .vp-overlay.show { display: flex; }
   .vp-overlay-title { font-size: 1.8rem; font-weight: 900; color: #fff; text-align: center; }
@@ -3109,6 +3109,42 @@
     color: #4ade80;
     pointer-events: none;
     text-shadow: 0 0 0.5rem rgba(74,222,128,0.5);
+  }
+
+  /* ── VP CALCULATOR (tally up, then send total to dial) ── */
+  .vp-calc-toggle {
+    width: min(15rem, 90vw); padding: 0.55rem;
+    background: rgba(255,255,255,0.06); color: var(--muted);
+    border: 1px solid var(--border); border-radius: 0.625rem;
+    font-size: 0.85rem; font-weight: 700; cursor: pointer;
+  }
+  .vp-calc-panel {
+    display: none; flex-direction: column; align-items: center; gap: 0.5rem;
+    width: min(15rem, 90vw);
+  }
+  .vp-calc-panel.show { display: flex; }
+  .vp-calc-display {
+    width: 100%; padding: 0.5rem 0.7rem; box-sizing: border-box;
+    background: #1a1a2e; border: 0.125rem solid var(--accent); border-radius: 0.625rem;
+    color: #fff; font-size: 1.4rem; font-weight: 800; text-align: right;
+    min-height: 2.6rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .vp-calc-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem; width: 100%;
+  }
+  .vp-calc-key {
+    padding: 0.55rem 0; border-radius: 0.5rem;
+    background: rgba(255,255,255,0.08); color: #fff;
+    border: 1px solid var(--border); font-size: 1.05rem; font-weight: 800; cursor: pointer;
+  }
+  .vp-calc-key:active { background: rgba(124,92,191,0.35); }
+  .vp-calc-key.op { color: var(--accent-light); }
+  .vp-calc-key.eq { background: var(--accent); border-color: var(--accent); }
+  .vp-calc-send {
+    width: 100%; padding: 0.6rem;
+    background: rgba(74,222,128,0.15); color: #4ade80;
+    border: 1px solid #4ade80; border-radius: 0.625rem;
+    font-size: 0.9rem; font-weight: 800; cursor: pointer;
   }
 
   /* ── NUDGE DIAL ── */
@@ -6022,6 +6058,32 @@
         <div class="vp-dial-center" id="vp-dial-center"></div>
       </div>
     </div>
+    <button class="vp-calc-toggle" id="vp-calc-toggle" onclick="toggleVPCalc()">&#129518; <span data-i18n="calculator">Calculator</span></button>
+    <div class="vp-calc-panel" id="vp-calc-panel">
+      <div class="vp-calc-display" id="vp-calc-display">0</div>
+      <div class="vp-calc-grid">
+        <button class="vp-calc-key op" onclick="vpCalcClear()">C</button>
+        <button class="vp-calc-key op" onclick="vpCalcBack()">&#9003;</button>
+        <button class="vp-calc-key op" onclick="vpCalcOp('/')">&divide;</button>
+        <button class="vp-calc-key op" onclick="vpCalcOp('*')">&times;</button>
+        <button class="vp-calc-key" onclick="vpCalcDigit('7')">7</button>
+        <button class="vp-calc-key" onclick="vpCalcDigit('8')">8</button>
+        <button class="vp-calc-key" onclick="vpCalcDigit('9')">9</button>
+        <button class="vp-calc-key op" onclick="vpCalcOp('-')">&minus;</button>
+        <button class="vp-calc-key" onclick="vpCalcDigit('4')">4</button>
+        <button class="vp-calc-key" onclick="vpCalcDigit('5')">5</button>
+        <button class="vp-calc-key" onclick="vpCalcDigit('6')">6</button>
+        <button class="vp-calc-key op" onclick="vpCalcOp('+')">+</button>
+        <button class="vp-calc-key" onclick="vpCalcDigit('1')">1</button>
+        <button class="vp-calc-key" onclick="vpCalcDigit('2')">2</button>
+        <button class="vp-calc-key" onclick="vpCalcDigit('3')">3</button>
+        <button class="vp-calc-key eq" onclick="vpCalcEq()">=</button>
+        <button class="vp-calc-key" style="grid-column:span 2;" onclick="vpCalcDigit('0')">0</button>
+        <button class="vp-calc-key" onclick="vpCalcDot()">.</button>
+        <button class="vp-calc-key op" onclick="vpCalcNeg()">&plusmn;</button>
+      </div>
+      <button class="vp-calc-send" onclick="vpCalcToDial()">&#10148; <span data-i18n="sendToDial">Send to dial</span></button>
+    </div>
     <button class="vp-submit-btn" onclick="submitVP()" style="margin-top:0.75rem;">Submit Points</button>
     <button id="vp-back-btn" onclick="confirmVPBack()" style="display:none;margin-top:0.5rem;width:100%;padding:0.6rem;border-radius:0.625rem;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;"><span class="play-tri">◀</span> Back to Room</button>
   </div>
@@ -7802,6 +7864,8 @@ const I18N_STRINGS = {
     featAwards: 'Awards',
     featTimers: 'Timers',
     featVP: 'Victory Points',
+    calculator: 'Calculator',
+    sendToDial: 'Send to dial',
     gameNotes: '📝 Game Notes',
     gameNotesPh: 'Write your notes here...',
     vpStandinTitle: 'Set scores for hosted players:',
@@ -7975,6 +8039,8 @@ const I18N_STRINGS = {
     featAwards: 'Premios',
     featTimers: 'Temporizadores',
     featVP: 'Puntos de Victoria',
+    calculator: 'Calculadora',
+    sendToDial: 'Enviar al dial',
     gameNotes: '📝 Notas del juego',
     gameNotesPh: 'Escribe tus notas aquí...',
     vpStandinTitle: 'Pon puntajes a los jugadores invitados:',
@@ -8149,6 +8215,8 @@ const I18N_STRINGS = {
     featAwards: '奖项',
     featTimers: '计时器',
     featVP: '胜利点数',
+    calculator: '计算器',
+    sendToDial: '发送到表盘',
     gameNotes: '📝 游戏笔记',
     gameNotesPh: '在此写下您的笔记...',
     vpStandinTitle: '为托管玩家设置分数：',
@@ -8323,6 +8391,8 @@ const I18N_STRINGS = {
     featAwards: 'Auszeichnungen',
     featTimers: 'Timer',
     featVP: 'Siegpunkte',
+    calculator: 'Rechner',
+    sendToDial: 'An Dial senden',
     gameNotes: '📝 Spielnotizen',
     gameNotesPh: 'Notizen hier schreiben...',
     vpStandinTitle: 'Punktzahlen für betreute Spieler festlegen:',
@@ -8497,6 +8567,8 @@ const I18N_STRINGS = {
     featAwards: 'Récompenses',
     featTimers: 'Minuteurs',
     featVP: 'Points de victoire',
+    calculator: 'Calculatrice',
+    sendToDial: 'Envoyer au cadran',
     gameNotes: '📝 Notes de jeu',
     gameNotesPh: 'Écrivez vos notes ici...',
     vpStandinTitle: 'Définir les scores des joueurs invités :',
@@ -8671,6 +8743,8 @@ const I18N_STRINGS = {
     featAwards: 'アワード',
     featTimers: 'タイマー',
     featVP: '勝利ポイント',
+    calculator: '電卓',
+    sendToDial: 'ダイヤルに送信',
     gameNotes: '📝 ゲームメモ',
     gameNotesPh: 'メモをここに書く...',
     vpStandinTitle: 'ホスト招待プレイヤーのスコアを入力：',
@@ -8845,6 +8919,8 @@ const I18N_STRINGS = {
     featAwards: 'Premi',
     featTimers: 'Timer',
     featVP: 'Punti Vittoria',
+    calculator: 'Calcolatrice',
+    sendToDial: 'Invia al quadrante',
     gameNotes: '📝 Note di gioco',
     gameNotesPh: 'Scrivi qui le tue note...',
     vpStandinTitle: 'Imposta i punteggi dei giocatori ospitati:',
@@ -9019,6 +9095,8 @@ const I18N_STRINGS = {
     featAwards: 'Prêmios',
     featTimers: 'Cronômetros',
     featVP: 'Pontos de Vitória',
+    calculator: 'Calculadora',
+    sendToDial: 'Enviar ao mostrador',
     gameNotes: '📝 Notas do jogo',
     gameNotesPh: 'Escreva suas notas aqui...',
     vpStandinTitle: 'Definir pontuações dos jogadores convidados:',
@@ -21176,11 +21254,94 @@ function vpDialClick() {
 function vpDialReset() {
   vpDialValue = 0;
   vpDialUpdateDisplay();
+  vpCalcReset();
   const inputSection = document.getElementById('vp-input-section');
   const waitSection  = document.getElementById('vp-waiting-section');
   if (inputSection) inputSection.style.display = '';
   if (waitSection)  waitSection.style.display  = 'none';
 }
+
+// ── VP CALCULATOR (tally up points, then send the total to the dial) ──
+let vpCalcCur = '0';
+let vpCalcPrev = null;
+let vpCalcOp = null;
+let vpCalcFresh = true;
+
+function vpCalcRender() {
+  const el = document.getElementById('vp-calc-display');
+  if (el) el.textContent = vpCalcCur;
+}
+function vpCalcReset() {
+  vpCalcCur = '0'; vpCalcPrev = null; vpCalcOp = null; vpCalcFresh = true;
+  vpCalcRender();
+}
+function vpCalcFormat(v) {
+  if (!isFinite(v)) return 'Error';
+  let s = String(Math.round(v * 10000) / 10000);
+  if (s.length > 12) s = v.toExponential(5);
+  return s;
+}
+function vpCalcCompute(a, b, op) {
+  if (op === '+') return a + b;
+  if (op === '-') return a - b;
+  if (op === '*') return a * b;
+  if (op === '/') return b === 0 ? NaN : a / b;
+  return b;
+}
+window.toggleVPCalc = function() {
+  const p = document.getElementById('vp-calc-panel');
+  if (p) p.classList.toggle('show');
+  try { haptic(5); } catch {}
+};
+window.vpCalcDigit = function(d) {
+  if (vpCalcCur === 'Error' || vpCalcFresh || vpCalcCur === '0') { vpCalcCur = d; vpCalcFresh = false; }
+  else if (vpCalcCur.replace(/[-.]/g, '').length < 9) { vpCalcCur += d; }
+  vpCalcRender();
+};
+window.vpCalcDot = function() {
+  if (vpCalcCur === 'Error' || vpCalcFresh) { vpCalcCur = '0.'; vpCalcFresh = false; }
+  else if (vpCalcCur.indexOf('.') === -1) { vpCalcCur += '.'; }
+  vpCalcRender();
+};
+window.vpCalcOp = function(op) {
+  const v = parseFloat(vpCalcCur);
+  if (vpCalcPrev !== null && vpCalcOp && !vpCalcFresh) {
+    const r = vpCalcCompute(vpCalcPrev, isNaN(v) ? 0 : v, vpCalcOp);
+    vpCalcPrev = (r !== r || !isFinite(r)) ? null : r;
+    vpCalcCur = vpCalcFormat(r);
+  } else if (!isNaN(v)) {
+    vpCalcPrev = v;
+  }
+  vpCalcOp = op; vpCalcFresh = true;
+  vpCalcRender();
+};
+window.vpCalcEq = function() {
+  if (vpCalcPrev === null || !vpCalcOp) return;
+  const v = parseFloat(vpCalcCur);
+  const r = vpCalcCompute(vpCalcPrev, isNaN(v) ? 0 : v, vpCalcOp);
+  vpCalcCur = vpCalcFormat(r);
+  vpCalcPrev = null; vpCalcOp = null; vpCalcFresh = true;
+  vpCalcRender();
+};
+window.vpCalcClear = function() { vpCalcReset(); };
+window.vpCalcBack = function() {
+  if (vpCalcCur === 'Error' || vpCalcFresh) { vpCalcReset(); return; }
+  vpCalcCur = vpCalcCur.slice(0, -1);
+  if (vpCalcCur === '' || vpCalcCur === '-') vpCalcCur = '0';
+  vpCalcRender();
+};
+window.vpCalcNeg = function() {
+  if (vpCalcCur === 'Error' || vpCalcCur === '0') return;
+  vpCalcCur = vpCalcCur.charAt(0) === '-' ? vpCalcCur.slice(1) : '-' + vpCalcCur;
+  vpCalcRender();
+};
+window.vpCalcToDial = function() {
+  const v = parseFloat(vpCalcCur);
+  if (isNaN(v) || !isFinite(v)) return;
+  vpDialValue = Math.round(v);
+  vpDialUpdateDisplay();
+  try { haptic(10); } catch {}
+};
 
 window.submitVP = async function() {
   if (!db || !roomCode) return;
