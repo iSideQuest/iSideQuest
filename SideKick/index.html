@@ -4864,6 +4864,7 @@
 
   /* ── MY COLLECTION ── */
   .collection-chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  #ce-photo-dropzone.dragover { border-color: var(--accent-light) !important; background: rgba(124,92,191,0.12); }
   .collection-chip {
     background: rgba(255,255,255,0.04); border: 1px solid var(--border);
     color: var(--muted); border-radius: 1rem; padding: 0.22rem 0.55rem;
@@ -6550,13 +6551,16 @@
 
     <textarea id="ce-notes" placeholder="Notes (optional)" rows="2" style="margin-bottom:0.6rem;"></textarea>
     <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.3rem;">Photo (only visible to you · tap photo to re-crop)</div>
+    <div id="ce-photo-dropzone" ondragover="cePhotoDragOver(event)" ondragleave="cePhotoDragLeave(event)" ondrop="cePhotoDrop(event)" style="border:1.5px dashed transparent;border-radius:0.75rem;padding:0.35rem;margin-bottom:0.1rem;">
     <div id="ce-photo-preview-wrap" style="display:none;text-align:center;margin-bottom:0.5rem;">
       <img id="ce-photo-preview" alt="" onclick="recropCollectionPhoto()" style="display:block;max-width:12rem;max-height:10rem;width:auto;height:auto;border-radius:0.75rem;border:1px solid var(--border);margin:0 auto;cursor:pointer;">
       <div><button type="button" class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="removeCollectionPhoto()">Remove Photo</button></div>
     </div>
-    <div style="display:flex;gap:0.5rem;margin-bottom:0.6rem;">
+    <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;">
       <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="document.getElementById('ce-photo-camera').click()">📷 Camera</button>
       <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="document.getElementById('ce-photo-file').click()">🖼️ Gallery</button>
+    </div>
+    <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.6rem;">⤵ <span data-i18n="dropPhotoHint">Drop an image here or paste it</span></div>
     </div>
     <input type="file" id="ce-photo-camera" accept="image/*" capture="environment" style="display:none;" onchange="handleCollectionPhotoFile(this)">
     <input type="file" id="ce-photo-file" accept="image/*" style="display:none;" onchange="handleCollectionPhotoFile(this)">
@@ -7866,6 +7870,7 @@ const I18N_STRINGS = {
     featVP: 'Victory Points',
     calculator: 'Calculator',
     sendToDial: 'Send to dial',
+    dropPhotoHint: 'Drop an image here or paste it',
     gameNotes: '📝 Game Notes',
     gameNotesPh: 'Write your notes here...',
     vpStandinTitle: 'Set scores for hosted players:',
@@ -8041,6 +8046,7 @@ const I18N_STRINGS = {
     featVP: 'Puntos de Victoria',
     calculator: 'Calculadora',
     sendToDial: 'Enviar al dial',
+    dropPhotoHint: 'Suelta una imagen aquí o pégala',
     gameNotes: '📝 Notas del juego',
     gameNotesPh: 'Escribe tus notas aquí...',
     vpStandinTitle: 'Pon puntajes a los jugadores invitados:',
@@ -8217,6 +8223,7 @@ const I18N_STRINGS = {
     featVP: '胜利点数',
     calculator: '计算器',
     sendToDial: '发送到表盘',
+    dropPhotoHint: '将图片拖到此处或粘贴',
     gameNotes: '📝 游戏笔记',
     gameNotesPh: '在此写下您的笔记...',
     vpStandinTitle: '为托管玩家设置分数：',
@@ -8393,6 +8400,7 @@ const I18N_STRINGS = {
     featVP: 'Siegpunkte',
     calculator: 'Rechner',
     sendToDial: 'An Dial senden',
+    dropPhotoHint: 'Bild hierher ziehen oder einfügen',
     gameNotes: '📝 Spielnotizen',
     gameNotesPh: 'Notizen hier schreiben...',
     vpStandinTitle: 'Punktzahlen für betreute Spieler festlegen:',
@@ -8569,6 +8577,7 @@ const I18N_STRINGS = {
     featVP: 'Points de victoire',
     calculator: 'Calculatrice',
     sendToDial: 'Envoyer au cadran',
+    dropPhotoHint: 'Déposez une image ici ou collez-la',
     gameNotes: '📝 Notes de jeu',
     gameNotesPh: 'Écrivez vos notes ici...',
     vpStandinTitle: 'Définir les scores des joueurs invités :',
@@ -8745,6 +8754,7 @@ const I18N_STRINGS = {
     featVP: '勝利ポイント',
     calculator: '電卓',
     sendToDial: 'ダイヤルに送信',
+    dropPhotoHint: '画像をドロップまたは貼り付け',
     gameNotes: '📝 ゲームメモ',
     gameNotesPh: 'メモをここに書く...',
     vpStandinTitle: 'ホスト招待プレイヤーのスコアを入力：',
@@ -8921,6 +8931,7 @@ const I18N_STRINGS = {
     featVP: 'Punti Vittoria',
     calculator: 'Calcolatrice',
     sendToDial: 'Invia al quadrante',
+    dropPhotoHint: 'Trascina qui un\'immagine o incollala',
     gameNotes: '📝 Note di gioco',
     gameNotesPh: 'Scrivi qui le tue note...',
     vpStandinTitle: 'Imposta i punteggi dei giocatori ospitati:',
@@ -9097,6 +9108,7 @@ const I18N_STRINGS = {
     featVP: 'Pontos de Vitória',
     calculator: 'Calculadora',
     sendToDial: 'Enviar ao mostrador',
+    dropPhotoHint: 'Solte uma imagem aqui ou cole-a',
     gameNotes: '📝 Notas do jogo',
     gameNotesPh: 'Escreva suas notas aqui...',
     vpStandinTitle: 'Definir pontuações dos jogadores convidados:',
@@ -19714,6 +19726,86 @@ window.handleCollectionPhotoFile = function(input) {
   reader.onerror = () => showAlert('Could not read that photo.');
   reader.readAsDataURL(file);
 };
+
+// ── COLLECTION PHOTO DRAG-DROP + PASTE (desktop: files or cross-tab images) ──
+window.cePhotoDragOver = function(e) {
+  e.preventDefault();
+  try { if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'; } catch {}
+  const z = document.getElementById('ce-photo-dropzone');
+  if (z) z.classList.add('dragover');
+};
+window.cePhotoDragLeave = function(e) {
+  const z = document.getElementById('ce-photo-dropzone');
+  if (z) z.classList.remove('dragover');
+};
+function cePhotoLoadUrl(url) {
+  if (!url) return false;
+  if (url.indexOf('data:image/') === 0) {
+    try {
+      const parts = url.split(',');
+      const mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/png';
+      const bin = atob(parts[1]);
+      const arr = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      window.handleCollectionPhotoFile({ files: [new Blob([arr], { type: mime })], value: '' });
+      return true;
+    } catch (err) { showAlert('Could not read that photo.'); return true; }
+  }
+  if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) {
+    fetch(url, { mode: 'cors' }).then((r) => {
+      if (!r.ok) throw new Error('bad status');
+      return r.blob();
+    }).then((b) => {
+      window.handleCollectionPhotoFile({ files: [b], value: '' });
+    }).catch(() => {
+      showAlert('Could not load that image (the other site may block it). Save it first, then use Gallery.');
+    });
+    return true;
+  }
+  return false;
+}
+window.cePhotoDrop = function(e) {
+  e.preventDefault();
+  const z = document.getElementById('ce-photo-dropzone');
+  if (z) z.classList.remove('dragover');
+  const dt = e.dataTransfer;
+  if (!dt) return;
+  if (dt.files && dt.files.length) {
+    window.handleCollectionPhotoFile({ files: dt.files, value: '' });
+    return;
+  }
+  // Cross-tab image drag: browsers expose the image as a URL or HTML snippet
+  let url = '';
+  try { url = dt.getData('text/uri-list') || ''; } catch {}
+  if (!url) {
+    try {
+      const html = dt.getData('text/html') || '';
+      const m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+      if (m) url = m[1];
+    } catch {}
+  }
+  if (url) url = url.trim().split('\n')[0];
+  if (url && cePhotoLoadUrl(url)) return;
+  showAlert('Could not use that drop. Try Gallery instead.');
+};
+document.addEventListener('paste', function(e) {
+  const ov = document.getElementById('collection-edit-overlay');
+  if (!ov || !ov.classList.contains('show')) return;
+  const items = (e.clipboardData && e.clipboardData.items) || [];
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].type && items[i].type.indexOf('image/') === 0) {
+      const f = items[i].getAsFile();
+      if (f) {
+        window.handleCollectionPhotoFile({ files: [f], value: '' });
+        e.preventDefault();
+      }
+      return;
+    }
+  }
+});
+// Never navigate away if a file is dropped outside the photo zone
+document.addEventListener('dragover', function(e) { e.preventDefault(); });
+document.addEventListener('drop', function(e) { e.preventDefault(); });
 
 function openCollectionPhoto(img) {
   collectionPhotoImg = img;
