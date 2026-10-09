@@ -6559,6 +6559,7 @@
     <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;">
       <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="document.getElementById('ce-photo-camera').click()">📷 Camera</button>
       <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="document.getElementById('ce-photo-file').click()">🖼️ Gallery</button>
+      <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="pasteCollectionPhoto()">📋 <span data-i18n="pasteBtn">Paste</span></button>
     </div>
     <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.6rem;">⤵ <span data-i18n="dropPhotoHint">Drop an image here or paste it</span></div>
     </div>
@@ -7871,6 +7872,7 @@ const I18N_STRINGS = {
     calculator: 'Calculator',
     sendToDial: 'Send to dial',
     dropPhotoHint: 'Drop an image here or paste it',
+    pasteBtn: 'Paste',
     gameNotes: '📝 Game Notes',
     gameNotesPh: 'Write your notes here...',
     vpStandinTitle: 'Set scores for hosted players:',
@@ -8047,6 +8049,7 @@ const I18N_STRINGS = {
     calculator: 'Calculadora',
     sendToDial: 'Enviar al dial',
     dropPhotoHint: 'Suelta una imagen aquí o pégala',
+    pasteBtn: 'Pegar',
     gameNotes: '📝 Notas del juego',
     gameNotesPh: 'Escribe tus notas aquí...',
     vpStandinTitle: 'Pon puntajes a los jugadores invitados:',
@@ -8224,6 +8227,7 @@ const I18N_STRINGS = {
     calculator: '计算器',
     sendToDial: '发送到表盘',
     dropPhotoHint: '将图片拖到此处或粘贴',
+    pasteBtn: '粘贴',
     gameNotes: '📝 游戏笔记',
     gameNotesPh: '在此写下您的笔记...',
     vpStandinTitle: '为托管玩家设置分数：',
@@ -8401,6 +8405,7 @@ const I18N_STRINGS = {
     calculator: 'Rechner',
     sendToDial: 'An Dial senden',
     dropPhotoHint: 'Bild hierher ziehen oder einfügen',
+    pasteBtn: 'Einfügen',
     gameNotes: '📝 Spielnotizen',
     gameNotesPh: 'Notizen hier schreiben...',
     vpStandinTitle: 'Punktzahlen für betreute Spieler festlegen:',
@@ -8578,6 +8583,7 @@ const I18N_STRINGS = {
     calculator: 'Calculatrice',
     sendToDial: 'Envoyer au cadran',
     dropPhotoHint: 'Déposez une image ici ou collez-la',
+    pasteBtn: 'Coller',
     gameNotes: '📝 Notes de jeu',
     gameNotesPh: 'Écrivez vos notes ici...',
     vpStandinTitle: 'Définir les scores des joueurs invités :',
@@ -8755,6 +8761,7 @@ const I18N_STRINGS = {
     calculator: '電卓',
     sendToDial: 'ダイヤルに送信',
     dropPhotoHint: '画像をドロップまたは貼り付け',
+    pasteBtn: '貼り付け',
     gameNotes: '📝 ゲームメモ',
     gameNotesPh: 'メモをここに書く...',
     vpStandinTitle: 'ホスト招待プレイヤーのスコアを入力：',
@@ -8932,6 +8939,7 @@ const I18N_STRINGS = {
     calculator: 'Calcolatrice',
     sendToDial: 'Invia al quadrante',
     dropPhotoHint: 'Trascina qui un\'immagine o incollala',
+    pasteBtn: 'Incolla',
     gameNotes: '📝 Note di gioco',
     gameNotesPh: 'Scrivi qui le tue note...',
     vpStandinTitle: 'Imposta i punteggi dei giocatori ospitati:',
@@ -9109,6 +9117,7 @@ const I18N_STRINGS = {
     calculator: 'Calculadora',
     sendToDial: 'Enviar ao mostrador',
     dropPhotoHint: 'Solte uma imagem aqui ou cole-a',
+    pasteBtn: 'Colar',
     gameNotes: '📝 Notas do jogo',
     gameNotesPh: 'Escreva suas notas aqui...',
     vpStandinTitle: 'Definir pontuações dos jogadores convidados:',
@@ -19803,6 +19812,27 @@ document.addEventListener('paste', function(e) {
     }
   }
 });
+window.pasteCollectionPhoto = async function() {
+  // Explicit clipboard read: works with Ctrl+V-style flow on PC and the
+  // system copy menu on mobile, where no text field may be focused.
+  try {
+    if (!navigator.clipboard || !navigator.clipboard.read) throw new Error('no api');
+    const items = await navigator.clipboard.read();
+    for (let i = 0; i < items.length; i++) {
+      const types = items[i].types || [];
+      for (let j = 0; j < types.length; j++) {
+        if (types[j].indexOf('image/') === 0) {
+          const blob = await items[i].getType(types[j]);
+          window.handleCollectionPhotoFile({ files: [blob], value: '' });
+          return;
+        }
+      }
+    }
+    showAlert('Clipboard has no image. Copy an image first, then tap Paste.');
+  } catch (err) {
+    showAlert('Clipboard is blocked here. Use Gallery instead, or press Ctrl+V on PC.');
+  }
+};
 // Never navigate away if a file is dropped outside the photo zone
 document.addEventListener('dragover', function(e) { e.preventDefault(); });
 document.addEventListener('drop', function(e) { e.preventDefault(); });
