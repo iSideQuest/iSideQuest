@@ -4266,7 +4266,7 @@
     color: var(--text); cursor: pointer;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    height: 3.25rem;
+    min-height: 3.25rem;
     transition: border-color 0.15s, background 0.15s;
     text-align: center;
     user-select: none;
@@ -4277,6 +4277,7 @@
   .feature-card:active { transform: none; }
   .feature-card .fc-icon { display: none; }
   .feature-card .fc-name { line-height: 1.2; font-size: 0.9rem; }
+  .feature-card .fc-desc { line-height: 1.2; font-size: 0.65rem; font-weight: 400; color: var(--muted); padding: 0 0.3rem; }
   .feature-card.added {
     border-color: var(--accent);
     background: rgba(124,92,191,0.15);
@@ -4286,6 +4287,7 @@
   .feature-card .fc-left {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100%;
@@ -5439,10 +5441,11 @@
         <div class="feature-grid" id="features-available-grid">
           <div class="feature-card" data-feature="nudge" onclick="toggleFeature('nudge')">
             <span class="fc-name" data-i18n="featNudge">Nudge</span>
-            <span class="fc-settings" data-i18n="settings">⚙ Settings</span>
+            <span class="fc-desc" data-i18n="featNudgeDesc">Hurry slow players</span>
           </div>
           <div class="feature-card" data-feature="awards" onclick="toggleFeature('awards')">
             <span class="fc-name" data-i18n="featAwards">Awards</span>
+            <span class="fc-desc" data-i18n="featAwardsDesc">End-of-game ceremony</span>
           </div>
           <div class="feature-card" data-feature="timers" onclick="toggleFeature('timers')">
             <span class="fc-name" data-i18n="featTimers">Timers</span>
@@ -5450,19 +5453,21 @@
           </div>
           <div class="feature-card" data-feature="vp" onclick="toggleFeature('vp')">
             <span class="fc-name" data-i18n="featVP">Victory Points</span>
+            <span class="fc-desc" data-i18n="featVPDesc">Collect scores, crown a winner</span>
           </div>
           <div class="feature-card" data-feature="status" onclick="toggleFeature('status')">
             <span class="fc-name" data-i18n="featStatus">Status Effects</span>
           </div>
           <div class="feature-card" data-feature="rounds" onclick="toggleFeature('rounds')">
             <span class="fc-name" data-i18n="featRounds">Rounds</span>
-            <span class="fc-settings" data-i18n="settings">⚙ Settings</span>
+            <span class="fc-desc" data-i18n="featRoundsDesc">Track the round count</span>
           </div>
           <div class="feature-card" data-feature="dnd" onclick="toggleFeature('dnd')">
             <span class="fc-name" data-i18n="featDnD">D&D</span>
           </div>
           <div class="feature-card" data-feature="undo" onclick="toggleFeature('undo')">
             <span class="fc-name" data-i18n="featUndo">Undo Pass</span>
+            <span class="fc-desc" data-i18n="featUndoDesc">Take back a pass</span>
           </div>
         </div>
 
@@ -7873,6 +7878,12 @@ const I18N_STRINGS = {
     sendToDial: 'Send to dial',
     dropPhotoHint: 'Drop an image here or paste it',
     pasteBtn: 'Paste',
+    featNudgeDesc: 'Hurry slow players',
+    featAwardsDesc: 'End-of-game ceremony',
+    featVPDesc: 'Collect scores, crown a winner',
+    featRoundsDesc: 'Track the round count',
+    featUndoDesc: 'Take back a pass',
+    featPlayerSkipDesc: 'Skip a player',
     gameNotes: '📝 Game Notes',
     gameNotesPh: 'Write your notes here...',
     vpStandinTitle: 'Set scores for hosted players:',
@@ -8050,6 +8061,12 @@ const I18N_STRINGS = {
     sendToDial: 'Enviar al dial',
     dropPhotoHint: 'Suelta una imagen aquí o pégala',
     pasteBtn: 'Pegar',
+    featNudgeDesc: 'Apura a los lentos',
+    featAwardsDesc: 'Ceremonia final',
+    featVPDesc: 'Suma puntos, corona al ganador',
+    featRoundsDesc: 'Cuenta las rondas',
+    featUndoDesc: 'Deshaz un pase',
+    featPlayerSkipDesc: 'Salta un jugador',
     gameNotes: '📝 Notas del juego',
     gameNotesPh: 'Escribe tus notas aquí...',
     vpStandinTitle: 'Pon puntajes a los jugadores invitados:',
@@ -8228,6 +8245,12 @@ const I18N_STRINGS = {
     sendToDial: '发送到表盘',
     dropPhotoHint: '将图片拖到此处或粘贴',
     pasteBtn: '粘贴',
+    featNudgeDesc: '催促慢玩家',
+    featAwardsDesc: '终场颁奖',
+    featVPDesc: '统计分数并加冕胜者',
+    featRoundsDesc: '记录轮次',
+    featUndoDesc: '撤回一次传次',
+    featPlayerSkipDesc: '跳过一名玩家',
     gameNotes: '📝 游戏笔记',
     gameNotesPh: '在此写下您的笔记...',
     vpStandinTitle: '为托管玩家设置分数：',
@@ -8406,6 +8429,12 @@ const I18N_STRINGS = {
     sendToDial: 'An Dial senden',
     dropPhotoHint: 'Bild hierher ziehen oder einfügen',
     pasteBtn: 'Einfügen',
+    featNudgeDesc: 'Langsame anstupsen',
+    featAwardsDesc: 'Siegerehrung',
+    featVPDesc: 'Punkte sammeln, Sieger küren',
+    featRoundsDesc: 'Runden zählen',
+    featUndoDesc: 'Zug zurücknehmen',
+    featPlayerSkipDesc: 'Spieler überspringen',
     gameNotes: '📝 Spielnotizen',
     gameNotesPh: 'Notizen hier schreiben...',
     vpStandinTitle: 'Punktzahlen für betreute Spieler festlegen:',
@@ -8584,6 +8613,12 @@ const I18N_STRINGS = {
     sendToDial: 'Envoyer au cadran',
     dropPhotoHint: 'Déposez une image ici ou collez-la',
     pasteBtn: 'Coller',
+    featNudgeDesc: 'Pressez les lents',
+    featAwardsDesc: 'Cérémonie finale',
+    featVPDesc: 'Compte les points, sacre un gagnant',
+    featRoundsDesc: 'Suivi des manches',
+    featUndoDesc: 'Annule un passage',
+    featPlayerSkipDesc: 'Passe un joueur',
     gameNotes: '📝 Notes de jeu',
     gameNotesPh: 'Écrivez vos notes ici...',
     vpStandinTitle: 'Définir les scores des joueurs invités :',
@@ -8762,6 +8797,12 @@ const I18N_STRINGS = {
     sendToDial: 'ダイヤルに送信',
     dropPhotoHint: '画像をドロップまたは貼り付け',
     pasteBtn: '貼り付け',
+    featNudgeDesc: '遅い人を急かす',
+    featAwardsDesc: '表彰式',
+    featVPDesc: '得点集計と優勝者',
+    featRoundsDesc: 'ラウンド管理',
+    featUndoDesc: 'パスを取り消す',
+    featPlayerSkipDesc: 'プレイヤーをスキップ',
     gameNotes: '📝 ゲームメモ',
     gameNotesPh: 'メモをここに書く...',
     vpStandinTitle: 'ホスト招待プレイヤーのスコアを入力：',
@@ -8940,6 +8981,12 @@ const I18N_STRINGS = {
     sendToDial: 'Invia al quadrante',
     dropPhotoHint: 'Trascina qui un\'immagine o incollala',
     pasteBtn: 'Incolla',
+    featNudgeDesc: 'Sollecita i lenti',
+    featAwardsDesc: 'Cerimonia finale',
+    featVPDesc: 'Raccogli punti, premia il vincitore',
+    featRoundsDesc: 'Conta i round',
+    featUndoDesc: 'Annulla un passaggio',
+    featPlayerSkipDesc: 'Salta un giocatore',
     gameNotes: '📝 Note di gioco',
     gameNotesPh: 'Scrivi qui le tue note...',
     vpStandinTitle: 'Imposta i punteggi dei giocatori ospitati:',
@@ -9118,6 +9165,12 @@ const I18N_STRINGS = {
     sendToDial: 'Enviar ao mostrador',
     dropPhotoHint: 'Solte uma imagem aqui ou cole-a',
     pasteBtn: 'Colar',
+    featNudgeDesc: 'Apresse os lentos',
+    featAwardsDesc: 'Cerimônia final',
+    featVPDesc: 'Soma pontos, coroa o vencedor',
+    featRoundsDesc: 'Conta os rounds',
+    featUndoDesc: 'Desfaz um passe',
+    featPlayerSkipDesc: 'Pula um jogador',
     gameNotes: '📝 Notas do jogo',
     gameNotesPh: 'Escreva suas notas aqui...',
     vpStandinTitle: 'Definir pontuações dos jogadores convidados:',
@@ -15361,7 +15414,7 @@ function renderFeatureGrid() {
     card.setAttribute('data-feature', def.key);
     if (locked) {
       card.onclick = () => { openUpgradeLockOverlay(); };
-      card.innerHTML = '<span class="fc-name">🔒 ' + t(featT(def.key)) + '</span>';
+      card.innerHTML = '<span class="fc-name">🔒 ' + t(featT(def.key)) + '</span><span class="fc-desc">' + t(featT(def.key) + 'Desc') + '</span>';
       avail.appendChild(card);
       return;
     }
@@ -15381,11 +15434,11 @@ function renderFeatureGrid() {
       } else if (def.key === 'timers') {
         detail = '⚙ Settings';
       }
-      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + t(featT(def.key)) + '</span></div><div class="fc-divider"></div><div class="fc-right" onclick="event.stopPropagation(); openFeatureSettings(\'' + def.settingKey + '\')"><span class="fc-edit-label">Edit</span><span class="fc-settings">' + detail + '</span></div>';
+      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + t(featT(def.key)) + '</span><span class="fc-desc">' + t(featT(def.key) + 'Desc') + '</span></div><div class="fc-divider"></div><div class="fc-right" onclick="event.stopPropagation(); openFeatureSettings(\'' + def.settingKey + '\')"><span class="fc-edit-label">Edit</span><span class="fc-settings">' + detail + '</span></div>';
     } else if (enabled) {
-      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + t(featT(def.key)) + '</span></div>';
+      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + t(featT(def.key)) + '</span><span class="fc-desc">' + t(featT(def.key) + 'Desc') + '</span></div>';
     } else {
-      card.innerHTML = '<span class="fc-name">' + t(featT(def.key)) + '</span>';
+      card.innerHTML = '<span class="fc-name">' + t(featT(def.key)) + '</span><span class="fc-desc">' + t(featT(def.key) + 'Desc') + '</span>';
     }
     avail.appendChild(card);
   });
