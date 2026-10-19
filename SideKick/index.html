@@ -2938,7 +2938,7 @@
     background: rgba(0,0,0,0.96); z-index: 8050;
     flex-direction: column; align-items: center; justify-content: center;
     padding: 2rem 1.5rem; gap: 1rem;
-    overflow-y: auto;
+   
   }
   .vp-overlay.show { display: flex; }
   .vp-overlay-title { font-size: 1.8rem; font-weight: 900; color: #fff; text-align: center; }
@@ -3109,42 +3109,6 @@
     color: #4ade80;
     pointer-events: none;
     text-shadow: 0 0 0.5rem rgba(74,222,128,0.5);
-  }
-
-  /* ── VP CALCULATOR (tally up, then send total to dial) ── */
-  .vp-calc-toggle {
-    width: min(15rem, 90vw); padding: 0.55rem;
-    background: rgba(255,255,255,0.06); color: var(--muted);
-    border: 1px solid var(--border); border-radius: 0.625rem;
-    font-size: 0.85rem; font-weight: 700; cursor: pointer;
-  }
-  .vp-calc-panel {
-    display: none; flex-direction: column; align-items: center; gap: 0.5rem;
-    width: min(15rem, 90vw);
-  }
-  .vp-calc-panel.show { display: flex; }
-  .vp-calc-display {
-    width: 100%; padding: 0.5rem 0.7rem; box-sizing: border-box;
-    background: #1a1a2e; border: 0.125rem solid var(--accent); border-radius: 0.625rem;
-    color: #fff; font-size: 1.4rem; font-weight: 800; text-align: right;
-    min-height: 2.6rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .vp-calc-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem; width: 100%;
-  }
-  .vp-calc-key {
-    padding: 0.55rem 0; border-radius: 0.5rem;
-    background: rgba(255,255,255,0.08); color: #fff;
-    border: 1px solid var(--border); font-size: 1.05rem; font-weight: 800; cursor: pointer;
-  }
-  .vp-calc-key:active { background: rgba(124,92,191,0.35); }
-  .vp-calc-key.op { color: var(--accent-light); }
-  .vp-calc-key.eq { background: var(--accent); border-color: var(--accent); }
-  .vp-calc-send {
-    width: 100%; padding: 0.6rem;
-    background: rgba(74,222,128,0.15); color: #4ade80;
-    border: 1px solid #4ade80; border-radius: 0.625rem;
-    font-size: 0.9rem; font-weight: 800; cursor: pointer;
   }
 
   /* ── NUDGE DIAL ── */
@@ -3774,7 +3738,7 @@
   body.theme-steampunk * { font-family:Georgia,'Times New Roman',serif !important; }
   body.theme-steampunk::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse at 40% 30%,rgba(218,165,32,0.06) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(200,148,42,0.04) 0%,transparent 50%); pointer-events:none; z-index:9999; }
   body.theme-steampunk::after { content:''; position:fixed; inset:0; background-image:radial-gradient(0.125rem 0.125rem at 15% 28%,rgba(218,165,32,0.25) 0%,transparent 100%),radial-gradient(0.09375rem 0.09375rem at 62% 55%,rgba(184,134,11,0.2) 0%,transparent 100%),radial-gradient(0.09375rem 0.09375rem at 85% 15%,rgba(218,165,32,0.15) 0%,transparent 100%); pointer-events:none; z-index:9998; }
-  body.theme-steampunk .card { background:linear-gradient(160deg,#141008 0%,,#1a140a 50%,,#0a0804 100%); border:1px solid #c8942a; box-shadow:0 0.25rem 1.5rem rgba(0,0,0,0.6),inset 0 0 1.25rem rgba(218,165,32,0.04); }
+  body.theme-steampunk .card { background:linear-gradient(160deg,#141008 0%,#1a140a 50%,#0a0804 100%); border:1px solid #c8942a; box-shadow:0 0.25rem 1.5rem rgba(0,0,0,0.6),inset 0 0 1.25rem rgba(218,165,32,0.04); }
   body.theme-steampunk .btn-primary { background:linear-gradient(to bottom,#daa520,#b8860b); border:1px solid #daa520; color:#1a140a; box-shadow:0 0.1875rem 0.75rem rgba(218,165,32,0.4),inset 0 1px 0 rgba(218,165,32,0.4); font-weight:600; }
   body.theme-steampunk .btn-primary:active { box-shadow:0 1px 0.375rem rgba(218,165,32,0.3) !important; }
   body.theme-steampunk .btn-secondary { background:transparent !important; border:1px solid #c8942a !important; color:#daa520 !important; box-shadow:inset 0 0 0.75rem rgba(218,165,32,0.06); }
@@ -3813,7 +3777,7 @@
   body.theme-vaporwave * { font-family:'Courier New',Courier,monospace !important; }
   body.theme-vaporwave::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse at 40% 30%,rgba(255,68,170,0.08) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(0,255,255,0.04) 0%,transparent 50%); pointer-events:none; z-index:9999; }
   body.theme-vaporwave::after { content:''; position:fixed; inset:0; background-image:radial-gradient(0.125rem 0.125rem at 15% 28%,rgba(136,255,255,0.25) 0%,transparent 100%),radial-gradient(0.09375rem 0.09375rem at 62% 55%,rgba(255,68,170,0.2) 0%,transparent 100%),radial-gradient(0.09375rem 0.09375rem at 85% 15%,rgba(136,255,255,0.15) 0%,transparent 100%); pointer-events:none; z-index:9998; }
-  body.theme-vaporwave .card { background:linear-gradient(160deg,#140028 0%,,#1a0033 50%,,#0a0014 100%); border:1px solid #cc22aa; box-shadow:0 0.25rem 1.5rem rgba(0,0,0,0.6),inset 0 0 1.25rem rgba(255,68,170,0.04); }
+  body.theme-vaporwave .card { background:linear-gradient(160deg,#140028 0%,#1a0033 50%,#0a0014 100%); border:1px solid #cc22aa; box-shadow:0 0.25rem 1.5rem rgba(0,0,0,0.6),inset 0 0 1.25rem rgba(255,68,170,0.04); }
   body.theme-vaporwave .btn-primary { background:linear-gradient(to bottom,#ff44aa,#cc2288); border:1px solid #ff44aa; color:#fff; box-shadow:0 0.1875rem 0.75rem rgba(255,68,170,0.4),inset 0 1px 0 rgba(255,68,170,0.4); font-weight:600; }
   body.theme-vaporwave .btn-primary:active { box-shadow:0 1px 0.375rem rgba(255,68,170,0.3) !important; }
   body.theme-vaporwave .btn-secondary { background:transparent !important; border:1px solid #cc22aa !important; color:#88ffff !important; box-shadow:inset 0 0 0.75rem rgba(136,255,255,0.06); }
@@ -3852,7 +3816,7 @@
   body.theme-nord * { font-family:'Inter',system-ui,sans-serif !important; }
   body.theme-nord::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse at 40% 30%,rgba(94,129,172,0.06) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(136,192,208,0.04) 0%,transparent 50%); pointer-events:none; z-index:9999; }
   body.theme-nord::after { content:''; position:fixed; inset:0; background-image:radial-gradient(0.125rem 0.125rem at 15% 28%,rgba(136,192,208,0.2) 0%,transparent 100%),radial-gradient(0.09375rem 0.09375rem at 62% 55%,rgba(94,129,172,0.15) 0%,transparent 100%),radial-gradient(0.09375rem 0.09375rem at 85% 15%,rgba(136,192,208,0.1) 0%,transparent 100%); pointer-events:none; z-index:9998; }
-  body.theme-nord .card { background:linear-gradient(160deg,#1a2332 0%,,#1f2b3e 50%,,#0f141e 100%); border:1px solid #3b4a5e; box-shadow:0 0.25rem 1.5rem rgba(0,0,0,0.6),inset 0 0 1.25rem rgba(94,129,172,0.04); }
+  body.theme-nord .card { background:linear-gradient(160deg,#1a2332 0%,#1f2b3e 50%,#0f141e 100%); border:1px solid #3b4a5e; box-shadow:0 0.25rem 1.5rem rgba(0,0,0,0.6),inset 0 0 1.25rem rgba(94,129,172,0.04); }
   body.theme-nord .btn-primary { background:linear-gradient(to bottom,#5e81ac,#3b5998); border:1px solid #88c0d0; color:#fff; box-shadow:0 0.1875rem 0.75rem rgba(94,129,172,0.4),inset 0 1px 0 rgba(136,192,208,0.4); font-weight:600; }
   body.theme-nord .btn-primary:active { box-shadow:0 1px 0.375rem rgba(94,129,172,0.3) !important; }
   body.theme-nord .btn-secondary { background:transparent !important; border:1px solid #3b4a5e !important; color:#88c0d0 !important; box-shadow:inset 0 0 0.75rem rgba(94,129,172,0.06); }
@@ -3891,7 +3855,7 @@
   body.theme-dracula * { font-family:'Inter',system-ui,sans-serif !important; }
   body.theme-dracula::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse at 40% 30%,rgba(189,147,249,0.06) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(255,121,198,0.04) 0%,transparent 50%); pointer-events:none; z-index:9999; }
   body.theme-dracula::after { content:''; position:fixed; inset:0; background-image:radial-gradient(0.125rem 0.125rem at 15% 28%,rgba(255,121,198,0.2) 0%,transparent 100%),radial-gradient(0.09375rem 0.09375rem at 62% 55%,rgba(189,147,249,0.15) 0%,transparent 100%),radial-gradient(0.09375rem 0.09375rem at 85% 15%,rgba(255,121,198,0.1) 0%,transparent 100%); pointer-events:none; z-index:9998; }
-  body.theme-dracula .card { background:linear-gradient(160deg,#282040 0%,,#332250 50%,,#1a1128 100%); border:1px solid #5555aa; box-shadow:0 0.25rem 1.5rem rgba(0,0,0,0.6),inset 0 0 1.25rem rgba(189,147,249,0.04); }
+  body.theme-dracula .card { background:linear-gradient(160deg,#282040 0%,#332250 50%,#1a1128 100%); border:1px solid #5555aa; box-shadow:0 0.25rem 1.5rem rgba(0,0,0,0.6),inset 0 0 1.25rem rgba(189,147,249,0.04); }
   body.theme-dracula .btn-primary { background:linear-gradient(to bottom,#bd93f9,#8b5cf6); border:1px solid #bd93f9; color:#fff; box-shadow:0 0.1875rem 0.75rem rgba(189,147,249,0.4),inset 0 1px 0 rgba(189,147,249,0.4); font-weight:600; }
   body.theme-dracula .btn-primary:active { box-shadow:0 1px 0.375rem rgba(189,147,249,0.3) !important; }
   body.theme-dracula .btn-secondary { background:transparent !important; border:1px solid #5555aa !important; color:#ff79c6 !important; box-shadow:inset 0 0 0.75rem rgba(255,121,198,0.06); }
@@ -3930,7 +3894,7 @@
   body.theme-gothic * { font-family:Georgia,'Times New Roman',serif !important; }
   body.theme-gothic::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse at 40% 30%,rgba(192,192,192,0.04) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(128,128,128,0.03) 0%,transparent 50%); pointer-events:none; z-index:9999; }
   body.theme-gothic::after { content:''; position:fixed; inset:0; background-image:radial-gradient(0.125rem 0.125rem at 15% 28%,rgba(224,224,224,0.15) 0%,transparent 100%),radial-gradient(0.09375rem 0.09375rem at 62% 55%,rgba(192,192,192,0.1) 0%,transparent 100%),radial-gradient(0.09375rem 0.09375rem at 85% 15%,rgba(224,224,224,0.08) 0%,transparent 100%); pointer-events:none; z-index:9998; }
-  body.theme-gothic .card { background:linear-gradient(160deg,#141414 0%,,#1a1a1a 50%,,#0a0a0a 100%); border:1px solid #333333; box-shadow:0 0.25rem 1.5rem rgba(0,0,0,0.6),inset 0 0 1.25rem rgba(192,192,192,0.03); }
+  body.theme-gothic .card { background:linear-gradient(160deg,#141414 0%,#1a1a1a 50%,#0a0a0a 100%); border:1px solid #333333; box-shadow:0 0.25rem 1.5rem rgba(0,0,0,0.6),inset 0 0 1.25rem rgba(192,192,192,0.03); }
   body.theme-gothic .btn-primary { background:linear-gradient(to bottom,#888888,#444444); border:1px solid #c0c0c0; color:#fff; box-shadow:0 0.1875rem 0.75rem rgba(192,192,192,0.2),inset 0 1px 0 rgba(224,224,224,0.3); font-weight:600; }
   body.theme-gothic .btn-primary:active { box-shadow:0 1px 0.375rem rgba(192,192,192,0.15) !important; }
   body.theme-gothic .btn-secondary { background:transparent !important; border:1px solid #333333 !important; color:#c0c0c0 !important; box-shadow:inset 0 0 0.75rem rgba(192,192,192,0.04); }
@@ -4266,7 +4230,7 @@
     color: var(--text); cursor: pointer;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    min-height: 3.25rem;
+    height: 3.25rem;
     transition: border-color 0.15s, background 0.15s;
     text-align: center;
     user-select: none;
@@ -4277,7 +4241,6 @@
   .feature-card:active { transform: none; }
   .feature-card .fc-icon { display: none; }
   .feature-card .fc-name { line-height: 1.2; font-size: 0.9rem; }
-  .feature-card .fc-desc { line-height: 1.2; font-size: 0.65rem; font-weight: 400; color: var(--muted); padding: 0 0.3rem; }
   .feature-card.added {
     border-color: var(--accent);
     background: rgba(124,92,191,0.15);
@@ -4287,7 +4250,6 @@
   .feature-card .fc-left {
     flex: 1;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100%;
@@ -4866,7 +4828,6 @@
 
   /* ── MY COLLECTION ── */
   .collection-chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-  #ce-photo-dropzone.dragover { border-color: var(--accent-light) !important; background: rgba(124,92,191,0.12); }
   .collection-chip {
     background: rgba(255,255,255,0.04); border: 1px solid var(--border);
     color: var(--muted); border-radius: 1rem; padding: 0.22rem 0.55rem;
@@ -5347,6 +5308,7 @@
       <button onclick="openDonateOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--accent);border-radius:999rem;background:rgba(124,92,191,0.15);color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="donate">Donate</button>
       <button onclick="openContactOverlay()" style="flex:1;min-width:0;width:auto;padding:0.55rem 0.3rem;border:1px solid var(--border);border-radius:999rem;background:transparent;color:var(--text);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-i18n="contact">Contact</button>
     </div>
+    <div id="app-version" style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:0.35rem;opacity:0.8;">v305</div>
   </div>
 </div>
 
@@ -5441,11 +5403,10 @@
         <div class="feature-grid" id="features-available-grid">
           <div class="feature-card" data-feature="nudge" onclick="toggleFeature('nudge')">
             <span class="fc-name" data-i18n="featNudge">Nudge</span>
-            <span class="fc-desc" data-i18n="featNudgeDesc">Hurry slow players</span>
+            <span class="fc-settings" data-i18n="settings">⚙ Settings</span>
           </div>
           <div class="feature-card" data-feature="awards" onclick="toggleFeature('awards')">
             <span class="fc-name" data-i18n="featAwards">Awards</span>
-            <span class="fc-desc" data-i18n="featAwardsDesc">End-of-game ceremony</span>
           </div>
           <div class="feature-card" data-feature="timers" onclick="toggleFeature('timers')">
             <span class="fc-name" data-i18n="featTimers">Timers</span>
@@ -5453,21 +5414,19 @@
           </div>
           <div class="feature-card" data-feature="vp" onclick="toggleFeature('vp')">
             <span class="fc-name" data-i18n="featVP">Victory Points</span>
-            <span class="fc-desc" data-i18n="featVPDesc">Collect scores, crown a winner</span>
           </div>
           <div class="feature-card" data-feature="status" onclick="toggleFeature('status')">
             <span class="fc-name" data-i18n="featStatus">Status Effects</span>
           </div>
           <div class="feature-card" data-feature="rounds" onclick="toggleFeature('rounds')">
             <span class="fc-name" data-i18n="featRounds">Rounds</span>
-            <span class="fc-desc" data-i18n="featRoundsDesc">Track the round count</span>
+            <span class="fc-settings" data-i18n="settings">⚙ Settings</span>
           </div>
           <div class="feature-card" data-feature="dnd" onclick="toggleFeature('dnd')">
             <span class="fc-name" data-i18n="featDnD">D&D</span>
           </div>
           <div class="feature-card" data-feature="undo" onclick="toggleFeature('undo')">
             <span class="fc-name" data-i18n="featUndo">Undo Pass</span>
-            <span class="fc-desc" data-i18n="featUndoDesc">Take back a pass</span>
           </div>
         </div>
 
@@ -6064,32 +6023,6 @@
         <div class="vp-dial-center" id="vp-dial-center"></div>
       </div>
     </div>
-    <button class="vp-calc-toggle" id="vp-calc-toggle" onclick="toggleVPCalc()">&#129518; <span data-i18n="calculator">Calculator</span></button>
-    <div class="vp-calc-panel" id="vp-calc-panel">
-      <div class="vp-calc-display" id="vp-calc-display">0</div>
-      <div class="vp-calc-grid">
-        <button class="vp-calc-key op" onclick="vpCalcClear()">C</button>
-        <button class="vp-calc-key op" onclick="vpCalcBack()">&#9003;</button>
-        <button class="vp-calc-key op" onclick="vpCalcOp('/')">&divide;</button>
-        <button class="vp-calc-key op" onclick="vpCalcOp('*')">&times;</button>
-        <button class="vp-calc-key" onclick="vpCalcDigit('7')">7</button>
-        <button class="vp-calc-key" onclick="vpCalcDigit('8')">8</button>
-        <button class="vp-calc-key" onclick="vpCalcDigit('9')">9</button>
-        <button class="vp-calc-key op" onclick="vpCalcOp('-')">&minus;</button>
-        <button class="vp-calc-key" onclick="vpCalcDigit('4')">4</button>
-        <button class="vp-calc-key" onclick="vpCalcDigit('5')">5</button>
-        <button class="vp-calc-key" onclick="vpCalcDigit('6')">6</button>
-        <button class="vp-calc-key op" onclick="vpCalcOp('+')">+</button>
-        <button class="vp-calc-key" onclick="vpCalcDigit('1')">1</button>
-        <button class="vp-calc-key" onclick="vpCalcDigit('2')">2</button>
-        <button class="vp-calc-key" onclick="vpCalcDigit('3')">3</button>
-        <button class="vp-calc-key eq" onclick="vpCalcEq()">=</button>
-        <button class="vp-calc-key" style="grid-column:span 2;" onclick="vpCalcDigit('0')">0</button>
-        <button class="vp-calc-key" onclick="vpCalcDot()">.</button>
-        <button class="vp-calc-key op" onclick="vpCalcNeg()">&plusmn;</button>
-      </div>
-      <button class="vp-calc-send" onclick="vpCalcToDial()">&#10148; <span data-i18n="sendToDial">Send to dial</span></button>
-    </div>
     <button class="vp-submit-btn" onclick="submitVP()" style="margin-top:0.75rem;">Submit Points</button>
     <button id="vp-back-btn" onclick="confirmVPBack()" style="display:none;margin-top:0.5rem;width:100%;padding:0.6rem;border-radius:0.625rem;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;"><span class="play-tri">◀</span> Back to Room</button>
   </div>
@@ -6556,17 +6489,13 @@
 
     <textarea id="ce-notes" placeholder="Notes (optional)" rows="2" style="margin-bottom:0.6rem;"></textarea>
     <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.3rem;">Photo (only visible to you · tap photo to re-crop)</div>
-    <div id="ce-photo-dropzone" ondragover="cePhotoDragOver(event)" ondragleave="cePhotoDragLeave(event)" ondrop="cePhotoDrop(event)" style="border:1.5px dashed transparent;border-radius:0.75rem;padding:0.35rem;margin-bottom:0.1rem;">
     <div id="ce-photo-preview-wrap" style="display:none;text-align:center;margin-bottom:0.5rem;">
       <img id="ce-photo-preview" alt="" onclick="recropCollectionPhoto()" style="display:block;max-width:12rem;max-height:10rem;width:auto;height:auto;border-radius:0.75rem;border:1px solid var(--border);margin:0 auto;cursor:pointer;">
       <div><button type="button" class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="removeCollectionPhoto()">Remove Photo</button></div>
     </div>
-    <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;">
+    <div style="display:flex;gap:0.5rem;margin-bottom:0.6rem;">
       <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="document.getElementById('ce-photo-camera').click()">📷 Camera</button>
       <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="document.getElementById('ce-photo-file').click()">🖼️ Gallery</button>
-      <button type="button" class="btn-secondary btn-sm" style="flex:1;" onclick="pasteCollectionPhoto()">📋 <span data-i18n="pasteBtn">Paste</span></button>
-    </div>
-    <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.6rem;">⤵ <span data-i18n="dropPhotoHint">Drop an image here or paste it</span></div>
     </div>
     <input type="file" id="ce-photo-camera" accept="image/*" capture="environment" style="display:none;" onchange="handleCollectionPhotoFile(this)">
     <input type="file" id="ce-photo-file" accept="image/*" style="display:none;" onchange="handleCollectionPhotoFile(this)">
@@ -6842,7 +6771,7 @@
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin:0.6rem 0;">
-      <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openVideoPopup()"><span>What Is SideKick?</span></button>
+      <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openWhatisChoice()"><span>What Is SideKick?</span></button>
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="closeSidekickInfo(); startTutorial()"><span>Quick Start<br>Tour</span></button>
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="closeSidekickInfo(); startInDepthTour()"><span>Home<br>Page</span></button>
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openHostingTour()"><span>Host Room</span></button>
@@ -6857,6 +6786,15 @@
     <div class="tools-modal-title">What Is SideKick?</div>
     <video controls preload="metadata" playsinline style="display:block;width:auto;max-width:100%;height:auto;max-height:55vh;margin:0 auto;border-radius:0.625rem;border:1px solid var(--border);background:#000;" src="Video/HostTutorial.mp4"></video>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeVideoPopup()" data-i18n="close">Close</button>
+  </div>
+</div>
+<div class="tools-overlay" id="whatis-choice-overlay" style="z-index:9655;">
+  <div class="tools-modal" style="max-width:21.25rem; text-align:center;">
+    <div class="tools-modal-title">What Is SideKick?</div>
+    <div style="font-size:0.9rem;color:var(--muted);margin:0.4rem 0 0.2rem;">Watch it or walk it - your pick.</div>
+    <button class="btn-primary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeWhatisChoice();openVideoPopup()">Watch the Video</button>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeWhatisChoice();openQuickTour()">Take the Quick Tour</button>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeWhatisChoice()" data-i18n="close">Close</button>
   </div>
 </div>
 <div class="tools-overlay" id="donate-overlay">
@@ -7874,16 +7812,6 @@ const I18N_STRINGS = {
     featAwards: 'Awards',
     featTimers: 'Timers',
     featVP: 'Victory Points',
-    calculator: 'Calculator',
-    sendToDial: 'Send to dial',
-    dropPhotoHint: 'Drop an image here or paste it',
-    pasteBtn: 'Paste',
-    featNudgeDesc: 'Hurry slow players',
-    featAwardsDesc: 'End-of-game ceremony',
-    featVPDesc: 'Collect scores, crown a winner',
-    featRoundsDesc: 'Track the round count',
-    featUndoDesc: 'Take back a pass',
-    featPlayerSkipDesc: 'Skip a player',
     gameNotes: '📝 Game Notes',
     gameNotesPh: 'Write your notes here...',
     vpStandinTitle: 'Set scores for hosted players:',
@@ -8057,16 +7985,6 @@ const I18N_STRINGS = {
     featAwards: 'Premios',
     featTimers: 'Temporizadores',
     featVP: 'Puntos de Victoria',
-    calculator: 'Calculadora',
-    sendToDial: 'Enviar al dial',
-    dropPhotoHint: 'Suelta una imagen aquí o pégala',
-    pasteBtn: 'Pegar',
-    featNudgeDesc: 'Apura a los lentos',
-    featAwardsDesc: 'Ceremonia final',
-    featVPDesc: 'Suma puntos, corona al ganador',
-    featRoundsDesc: 'Cuenta las rondas',
-    featUndoDesc: 'Deshaz un pase',
-    featPlayerSkipDesc: 'Salta un jugador',
     gameNotes: '📝 Notas del juego',
     gameNotesPh: 'Escribe tus notas aquí...',
     vpStandinTitle: 'Pon puntajes a los jugadores invitados:',
@@ -8241,16 +8159,6 @@ const I18N_STRINGS = {
     featAwards: '奖项',
     featTimers: '计时器',
     featVP: '胜利点数',
-    calculator: '计算器',
-    sendToDial: '发送到表盘',
-    dropPhotoHint: '将图片拖到此处或粘贴',
-    pasteBtn: '粘贴',
-    featNudgeDesc: '催促慢玩家',
-    featAwardsDesc: '终场颁奖',
-    featVPDesc: '统计分数并加冕胜者',
-    featRoundsDesc: '记录轮次',
-    featUndoDesc: '撤回一次传次',
-    featPlayerSkipDesc: '跳过一名玩家',
     gameNotes: '📝 游戏笔记',
     gameNotesPh: '在此写下您的笔记...',
     vpStandinTitle: '为托管玩家设置分数：',
@@ -8425,16 +8333,6 @@ const I18N_STRINGS = {
     featAwards: 'Auszeichnungen',
     featTimers: 'Timer',
     featVP: 'Siegpunkte',
-    calculator: 'Rechner',
-    sendToDial: 'An Dial senden',
-    dropPhotoHint: 'Bild hierher ziehen oder einfügen',
-    pasteBtn: 'Einfügen',
-    featNudgeDesc: 'Langsame anstupsen',
-    featAwardsDesc: 'Siegerehrung',
-    featVPDesc: 'Punkte sammeln, Sieger küren',
-    featRoundsDesc: 'Runden zählen',
-    featUndoDesc: 'Zug zurücknehmen',
-    featPlayerSkipDesc: 'Spieler überspringen',
     gameNotes: '📝 Spielnotizen',
     gameNotesPh: 'Notizen hier schreiben...',
     vpStandinTitle: 'Punktzahlen für betreute Spieler festlegen:',
@@ -8609,16 +8507,6 @@ const I18N_STRINGS = {
     featAwards: 'Récompenses',
     featTimers: 'Minuteurs',
     featVP: 'Points de victoire',
-    calculator: 'Calculatrice',
-    sendToDial: 'Envoyer au cadran',
-    dropPhotoHint: 'Déposez une image ici ou collez-la',
-    pasteBtn: 'Coller',
-    featNudgeDesc: 'Pressez les lents',
-    featAwardsDesc: 'Cérémonie finale',
-    featVPDesc: 'Compte les points, sacre un gagnant',
-    featRoundsDesc: 'Suivi des manches',
-    featUndoDesc: 'Annule un passage',
-    featPlayerSkipDesc: 'Passe un joueur',
     gameNotes: '📝 Notes de jeu',
     gameNotesPh: 'Écrivez vos notes ici...',
     vpStandinTitle: 'Définir les scores des joueurs invités :',
@@ -8793,16 +8681,6 @@ const I18N_STRINGS = {
     featAwards: 'アワード',
     featTimers: 'タイマー',
     featVP: '勝利ポイント',
-    calculator: '電卓',
-    sendToDial: 'ダイヤルに送信',
-    dropPhotoHint: '画像をドロップまたは貼り付け',
-    pasteBtn: '貼り付け',
-    featNudgeDesc: '遅い人を急かす',
-    featAwardsDesc: '表彰式',
-    featVPDesc: '得点集計と優勝者',
-    featRoundsDesc: 'ラウンド管理',
-    featUndoDesc: 'パスを取り消す',
-    featPlayerSkipDesc: 'プレイヤーをスキップ',
     gameNotes: '📝 ゲームメモ',
     gameNotesPh: 'メモをここに書く...',
     vpStandinTitle: 'ホスト招待プレイヤーのスコアを入力：',
@@ -8977,16 +8855,6 @@ const I18N_STRINGS = {
     featAwards: 'Premi',
     featTimers: 'Timer',
     featVP: 'Punti Vittoria',
-    calculator: 'Calcolatrice',
-    sendToDial: 'Invia al quadrante',
-    dropPhotoHint: 'Trascina qui un\'immagine o incollala',
-    pasteBtn: 'Incolla',
-    featNudgeDesc: 'Sollecita i lenti',
-    featAwardsDesc: 'Cerimonia finale',
-    featVPDesc: 'Raccogli punti, premia il vincitore',
-    featRoundsDesc: 'Conta i round',
-    featUndoDesc: 'Annulla un passaggio',
-    featPlayerSkipDesc: 'Salta un giocatore',
     gameNotes: '📝 Note di gioco',
     gameNotesPh: 'Scrivi qui le tue note...',
     vpStandinTitle: 'Imposta i punteggi dei giocatori ospitati:',
@@ -9161,16 +9029,6 @@ const I18N_STRINGS = {
     featAwards: 'Prêmios',
     featTimers: 'Cronômetros',
     featVP: 'Pontos de Vitória',
-    calculator: 'Calculadora',
-    sendToDial: 'Enviar ao mostrador',
-    dropPhotoHint: 'Solte uma imagem aqui ou cole-a',
-    pasteBtn: 'Colar',
-    featNudgeDesc: 'Apresse os lentos',
-    featAwardsDesc: 'Cerimônia final',
-    featVPDesc: 'Soma pontos, coroa o vencedor',
-    featRoundsDesc: 'Conta os rounds',
-    featUndoDesc: 'Desfaz um passe',
-    featPlayerSkipDesc: 'Pula um jogador',
     gameNotes: '📝 Notas do jogo',
     gameNotesPh: 'Escreva suas notas aqui...',
     vpStandinTitle: 'Definir pontuações dos jogadores convidados:',
@@ -9980,6 +9838,13 @@ window.closeVideoPopup = function() {
   const overlay = document.getElementById('video-popup-overlay');
   if (overlay) overlay.querySelectorAll('video').forEach(v => { try { v.pause(); } catch {} });
   if (overlay) overlay.classList.remove('show');
+};
+window.openWhatisChoice = function() {
+  document.getElementById('whatis-choice-overlay').classList.add('show');
+  haptic(5);
+};
+window.closeWhatisChoice = function() {
+  document.getElementById('whatis-choice-overlay').classList.remove('show');
 };
 window.openDonateOverlay = function() {
   document.getElementById('donate-overlay').classList.add('show');
@@ -12951,6 +12816,9 @@ if (window.visualViewport) {
 }
 renderKb();
 applyCustomKbMode();
+// App version shown in the home footer — bump with each release alongside sw.js CACHE_NAME
+const APP_VERSION = 'v305';
+try { document.getElementById('app-version').textContent = APP_VERSION; } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
   document.documentElement.style.setProperty('--app-height', h + 'px');
@@ -15414,7 +15282,7 @@ function renderFeatureGrid() {
     card.setAttribute('data-feature', def.key);
     if (locked) {
       card.onclick = () => { openUpgradeLockOverlay(); };
-      card.innerHTML = '<span class="fc-name">🔒 ' + t(featT(def.key)) + '</span><span class="fc-desc">' + t(featT(def.key) + 'Desc') + '</span>';
+      card.innerHTML = '<span class="fc-name">🔒 ' + t(featT(def.key)) + '</span>';
       avail.appendChild(card);
       return;
     }
@@ -15434,11 +15302,11 @@ function renderFeatureGrid() {
       } else if (def.key === 'timers') {
         detail = '⚙ Settings';
       }
-      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + t(featT(def.key)) + '</span><span class="fc-desc">' + t(featT(def.key) + 'Desc') + '</span></div><div class="fc-divider"></div><div class="fc-right" onclick="event.stopPropagation(); openFeatureSettings(\'' + def.settingKey + '\')"><span class="fc-edit-label">Edit</span><span class="fc-settings">' + detail + '</span></div>';
+      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + t(featT(def.key)) + '</span></div><div class="fc-divider"></div><div class="fc-right" onclick="event.stopPropagation(); openFeatureSettings(\'' + def.settingKey + '\')"><span class="fc-edit-label">Edit</span><span class="fc-settings">' + detail + '</span></div>';
     } else if (enabled) {
-      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + t(featT(def.key)) + '</span><span class="fc-desc">' + t(featT(def.key) + 'Desc') + '</span></div>';
+      card.innerHTML = '<div class="fc-left" onclick="event.stopPropagation(); toggleFeature(\'' + def.key + '\')"><span class="fc-name">' + t(featT(def.key)) + '</span></div>';
     } else {
-      card.innerHTML = '<span class="fc-name">' + t(featT(def.key)) + '</span><span class="fc-desc">' + t(featT(def.key) + 'Desc') + '</span>';
+      card.innerHTML = '<span class="fc-name">' + t(featT(def.key)) + '</span>';
     }
     avail.appendChild(card);
   });
@@ -19789,107 +19657,6 @@ window.handleCollectionPhotoFile = function(input) {
   reader.readAsDataURL(file);
 };
 
-// ── COLLECTION PHOTO DRAG-DROP + PASTE (desktop: files or cross-tab images) ──
-window.cePhotoDragOver = function(e) {
-  e.preventDefault();
-  try { if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'; } catch {}
-  const z = document.getElementById('ce-photo-dropzone');
-  if (z) z.classList.add('dragover');
-};
-window.cePhotoDragLeave = function(e) {
-  const z = document.getElementById('ce-photo-dropzone');
-  if (z) z.classList.remove('dragover');
-};
-function cePhotoLoadUrl(url) {
-  if (!url) return false;
-  if (url.indexOf('data:image/') === 0) {
-    try {
-      const parts = url.split(',');
-      const mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/png';
-      const bin = atob(parts[1]);
-      const arr = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-      window.handleCollectionPhotoFile({ files: [new Blob([arr], { type: mime })], value: '' });
-      return true;
-    } catch (err) { showAlert('Could not read that photo.'); return true; }
-  }
-  if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) {
-    fetch(url, { mode: 'cors' }).then((r) => {
-      if (!r.ok) throw new Error('bad status');
-      return r.blob();
-    }).then((b) => {
-      window.handleCollectionPhotoFile({ files: [b], value: '' });
-    }).catch(() => {
-      showAlert('Could not load that image (the other site may block it). Save it first, then use Gallery.');
-    });
-    return true;
-  }
-  return false;
-}
-window.cePhotoDrop = function(e) {
-  e.preventDefault();
-  const z = document.getElementById('ce-photo-dropzone');
-  if (z) z.classList.remove('dragover');
-  const dt = e.dataTransfer;
-  if (!dt) return;
-  if (dt.files && dt.files.length) {
-    window.handleCollectionPhotoFile({ files: dt.files, value: '' });
-    return;
-  }
-  // Cross-tab image drag: browsers expose the image as a URL or HTML snippet
-  let url = '';
-  try { url = dt.getData('text/uri-list') || ''; } catch {}
-  if (!url) {
-    try {
-      const html = dt.getData('text/html') || '';
-      const m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
-      if (m) url = m[1];
-    } catch {}
-  }
-  if (url) url = url.trim().split('\n')[0];
-  if (url && cePhotoLoadUrl(url)) return;
-  showAlert('Could not use that drop. Try Gallery instead.');
-};
-document.addEventListener('paste', function(e) {
-  const ov = document.getElementById('collection-edit-overlay');
-  if (!ov || !ov.classList.contains('show')) return;
-  const items = (e.clipboardData && e.clipboardData.items) || [];
-  for (let i = 0; i < items.length; i++) {
-    if (items[i].type && items[i].type.indexOf('image/') === 0) {
-      const f = items[i].getAsFile();
-      if (f) {
-        window.handleCollectionPhotoFile({ files: [f], value: '' });
-        e.preventDefault();
-      }
-      return;
-    }
-  }
-});
-window.pasteCollectionPhoto = async function() {
-  // Explicit clipboard read: works with Ctrl+V-style flow on PC and the
-  // system copy menu on mobile, where no text field may be focused.
-  try {
-    if (!navigator.clipboard || !navigator.clipboard.read) throw new Error('no api');
-    const items = await navigator.clipboard.read();
-    for (let i = 0; i < items.length; i++) {
-      const types = items[i].types || [];
-      for (let j = 0; j < types.length; j++) {
-        if (types[j].indexOf('image/') === 0) {
-          const blob = await items[i].getType(types[j]);
-          window.handleCollectionPhotoFile({ files: [blob], value: '' });
-          return;
-        }
-      }
-    }
-    showAlert('Clipboard has no image. Copy an image first, then tap Paste.');
-  } catch (err) {
-    showAlert('Clipboard is blocked here. Use Gallery instead, or press Ctrl+V on PC.');
-  }
-};
-// Never navigate away if a file is dropped outside the photo zone
-document.addEventListener('dragover', function(e) { e.preventDefault(); });
-document.addEventListener('drop', function(e) { e.preventDefault(); });
-
 function openCollectionPhoto(img) {
   collectionPhotoImg = img;
   // Start with a centered square covering the smaller side
@@ -21429,94 +21196,11 @@ function vpDialClick() {
 function vpDialReset() {
   vpDialValue = 0;
   vpDialUpdateDisplay();
-  vpCalcReset();
   const inputSection = document.getElementById('vp-input-section');
   const waitSection  = document.getElementById('vp-waiting-section');
   if (inputSection) inputSection.style.display = '';
   if (waitSection)  waitSection.style.display  = 'none';
 }
-
-// ── VP CALCULATOR (tally up points, then send the total to the dial) ──
-let vpCalcCur = '0';
-let vpCalcPrev = null;
-let vpCalcOp = null;
-let vpCalcFresh = true;
-
-function vpCalcRender() {
-  const el = document.getElementById('vp-calc-display');
-  if (el) el.textContent = vpCalcCur;
-}
-function vpCalcReset() {
-  vpCalcCur = '0'; vpCalcPrev = null; vpCalcOp = null; vpCalcFresh = true;
-  vpCalcRender();
-}
-function vpCalcFormat(v) {
-  if (!isFinite(v)) return 'Error';
-  let s = String(Math.round(v * 10000) / 10000);
-  if (s.length > 12) s = v.toExponential(5);
-  return s;
-}
-function vpCalcCompute(a, b, op) {
-  if (op === '+') return a + b;
-  if (op === '-') return a - b;
-  if (op === '*') return a * b;
-  if (op === '/') return b === 0 ? NaN : a / b;
-  return b;
-}
-window.toggleVPCalc = function() {
-  const p = document.getElementById('vp-calc-panel');
-  if (p) p.classList.toggle('show');
-  try { haptic(5); } catch {}
-};
-window.vpCalcDigit = function(d) {
-  if (vpCalcCur === 'Error' || vpCalcFresh || vpCalcCur === '0') { vpCalcCur = d; vpCalcFresh = false; }
-  else if (vpCalcCur.replace(/[-.]/g, '').length < 9) { vpCalcCur += d; }
-  vpCalcRender();
-};
-window.vpCalcDot = function() {
-  if (vpCalcCur === 'Error' || vpCalcFresh) { vpCalcCur = '0.'; vpCalcFresh = false; }
-  else if (vpCalcCur.indexOf('.') === -1) { vpCalcCur += '.'; }
-  vpCalcRender();
-};
-window.vpCalcOp = function(op) {
-  const v = parseFloat(vpCalcCur);
-  if (vpCalcPrev !== null && vpCalcOp && !vpCalcFresh) {
-    const r = vpCalcCompute(vpCalcPrev, isNaN(v) ? 0 : v, vpCalcOp);
-    vpCalcPrev = (r !== r || !isFinite(r)) ? null : r;
-    vpCalcCur = vpCalcFormat(r);
-  } else if (!isNaN(v)) {
-    vpCalcPrev = v;
-  }
-  vpCalcOp = op; vpCalcFresh = true;
-  vpCalcRender();
-};
-window.vpCalcEq = function() {
-  if (vpCalcPrev === null || !vpCalcOp) return;
-  const v = parseFloat(vpCalcCur);
-  const r = vpCalcCompute(vpCalcPrev, isNaN(v) ? 0 : v, vpCalcOp);
-  vpCalcCur = vpCalcFormat(r);
-  vpCalcPrev = null; vpCalcOp = null; vpCalcFresh = true;
-  vpCalcRender();
-};
-window.vpCalcClear = function() { vpCalcReset(); };
-window.vpCalcBack = function() {
-  if (vpCalcCur === 'Error' || vpCalcFresh) { vpCalcReset(); return; }
-  vpCalcCur = vpCalcCur.slice(0, -1);
-  if (vpCalcCur === '' || vpCalcCur === '-') vpCalcCur = '0';
-  vpCalcRender();
-};
-window.vpCalcNeg = function() {
-  if (vpCalcCur === 'Error' || vpCalcCur === '0') return;
-  vpCalcCur = vpCalcCur.charAt(0) === '-' ? vpCalcCur.slice(1) : '-' + vpCalcCur;
-  vpCalcRender();
-};
-window.vpCalcToDial = function() {
-  const v = parseFloat(vpCalcCur);
-  if (isNaN(v) || !isFinite(v)) return;
-  vpDialValue = Math.round(v);
-  vpDialUpdateDisplay();
-  try { haptic(10); } catch {}
-};
 
 window.submitVP = async function() {
   if (!db || !roomCode) return;
