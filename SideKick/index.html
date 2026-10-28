@@ -2277,6 +2277,23 @@
     transition: background 0.2s;
   }
   .active-sound-btn:active { background: rgba(124,92,191,0.5); }
+  .sound-mode-menu {
+    position: fixed; z-index: 9000;
+    background: rgba(10,10,15,0.96); border: 1px solid var(--border);
+    border-radius: 0.75rem; padding: 0.35rem;
+    display: none; flex-direction: column; gap: 0.25rem;
+    min-width: 9.5rem; box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.5);
+  }
+  .sound-mode-menu.show { display: flex; }
+  .sound-mode-opt {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem 0.7rem; border-radius: 0.5rem;
+    background: transparent; border: none; color: var(--text);
+    font-size: 0.85rem; font-weight: 700; cursor: pointer; text-align: left;
+  }
+  .sound-mode-opt:active { background: rgba(124,92,191,0.25); }
+  .sound-mode-opt.active { background: rgba(124,92,191,0.35); color: var(--accent-light); }
+  .sound-mode-opt .smo-icon { font-size: 1.1rem; width: 1.4rem; text-align: center; }
 
   /* ── UI TOGGLE BUTTON ── */
   .active-ui-btn {
@@ -5733,7 +5750,7 @@
       <div class="active-room-code-value" id="active-room-code-val"></div>
     </div>
   </div>
-  <button class="active-sound-btn" id="active-sound-btn" onclick="toggleSound()">🔊</button>
+  <button class="active-sound-btn" id="active-sound-btn" onclick="openSoundModeMenu(this)">🔊</button>
   <button class="active-ui-btn" id="active-ui-btn" onclick="window.toggleUIMode()">Table</button>
   <button class="active-skip-btn" id="active-skip-btn" onclick="window.toggleSelfSkip()" style="display:none;">Skip</button>
   <!-- Wheel overlay (shown when wheel UI mode is active) -->
@@ -5828,7 +5845,7 @@
       <div class="active-room-code-value" id="active-room-code-wait-val"></div>
     </div>
   </div>
-  <button class="active-sound-btn" id="active-sound-btn-wait" onclick="toggleSound()">🔊</button>
+  <button class="active-sound-btn" id="active-sound-btn-wait" onclick="openSoundModeMenu(this)">🔊</button>
   <button class="active-ui-btn" id="active-ui-btn-wait" onclick="window.toggleUIMode()">Table</button>
   <button class="active-skip-btn" id="active-skip-btn-wait" onclick="window.toggleSelfSkip()" style="display:none;">Skip</button>
   <!-- Wheel overlay (shown when wheel UI mode is active) -->
@@ -12951,6 +12968,7 @@ if (window.visualViewport) {
 }
 renderKb();
 applyCustomKbMode();
+try { updateSoundButtons(); } catch {}
 function updateAppHeight() {
   const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
   document.documentElement.style.setProperty('--app-height', h + 'px');
@@ -15684,7 +15702,7 @@ function syncNudgeToActiveScreen(room) {
   if (newCount > activeNudgeCount) {
     const diff = newCount - activeNudgeCount;
     activeNudgeCount = newCount;
-    if (soundEnabled) playNudgeSound();
+    if (soundMode !== 'mute') playNudgeSound();
     for (let i = 0; i < Math.min(diff, 6); i++) {
       setTimeout(() => spawnNudgeFloat(floatContainer), i * 100);
     }
@@ -16619,18 +16637,74 @@ window.closeSettingsOverlay = function() {
   document.getElementById('settings-overlay').classList.remove('show');
 };
 
-// ── SOUND TOGGLE ──────────────────────────────
-let soundEnabled = true;
-window.toggleSound = function() {
-  soundEnabled = !soundEnabled;
-  const icon = soundEnabled ? '🔊' : '🔇';
+// ── SOUND MODE (Tone / Name / Mute) ─────────
+let soundMode = 'tone'; // 'tone' | 'name' | 'mute'
+try { const m = localStorage.getItem('sk_sound_mode'); if (m === 'tone' || m === 'name' || m === 'mute') soundMode = m; } catch {}
+function soundModeIcon() { return soundMode === 'mute' ? '🔇' : (soundMode === 'name' ? '🗣️' : '🔊'); }
+function soundModeEnabled() { return soundMode !== 'mute'; }
+window.openSoundModeMenu = function(anchor) {
+  const menu = document.getElementById('sound-mode-menu');
+  if (!menu) return;
+  // position near the tapped button
+  const btn = anchor || document.activeElement;
+  let top = 60, right = 12;
+  if (btn && btn.getBoundingClientRect) {
+    const r = btn.getBoundingClientRect();
+    top = Math.max(8, r.bottom + 6);
+    right = Math.max(8, window.innerWidth - r.right);
+  }
+  menu.style.top = top + 'px';
+  menu.style.right = right + 'px';
+  menu.style.left = 'auto';
+  menu.classList.add('show');
+  // highlight active
+  menu.querySelectorAll('.sound-mode-opt').forEach(o => {
+    o.classList.toggle('active', o.getAttribute('data-mode') === soundMode);
+  });
+  // close on outside tap
+  setTimeout(() => {
+    const closer = (ev) => {
+      if (!menu.contains(ev.target)) { menu.classList.remove('show'); document.removeEventListener('click', closer, true); document.removeEventListener('touchstart', closer, true); }
+    };
+    document.addEventListener('click', closer, true);
+    document.addEventListener('touchstart', closer, true);
+  }, 0);
+  try { haptic(5); } catch {}
+};
+window.setSoundMode = function(mode) {
+  if (mode !== 'tone' && mode !== 'name' && mode !== 'mute') return;
+  soundMode = mode;
+  try { localStorage.setItem('sk_sound_mode', mode); } catch {}
+  const menu = document.getElementById('sound-mode-menu');
+  if (menu) menu.classList.remove('show');
+  updateSoundButtons();
+  try { haptic(5); } catch {}
+};
+function updateSoundButtons() {
+  const icon = soundModeIcon();
   const btn = document.getElementById('sound-toggle');
-  if (btn) { btn.textContent = icon; btn.classList.toggle('active-ctrl', soundEnabled); }
+  if (btn) { btn.textContent = icon; btn.classList.toggle('active-ctrl', soundMode !== 'mute'); }
   const activeBtn = document.getElementById('active-sound-btn');
   if (activeBtn) activeBtn.textContent = icon;
   const waitBtn = document.getElementById('active-sound-btn-wait');
   if (waitBtn) waitBtn.textContent = icon;
-};
+}
+// Back-compat alias used by older code paths
+window.toggleSound = function() { openSoundModeMenu(); };
+function speakName(name) {
+  try {
+    if (!('speechSynthesis' in window)) return;
+    const txt = (name || '').trim();
+    if (!txt) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(txt);
+    const v = (typeof tourPickVoice === 'function') ? tourPickVoice() : null;
+    if (v) u.voice = v;
+    try { u.lang = (typeof lang !== 'undefined' && lang) || 'en'; } catch {}
+    u.pitch = 1.1; u.rate = 0.95; u.volume = 1;
+    speechSynthesis.speak(u);
+  } catch {}
+}
 
 // ── ORIENTATION CONTROL ──────────────────────
 function resetOrientation() {
@@ -18732,12 +18806,20 @@ function listenGameState() {
       const activeRC = document.getElementById('active-room-code-val');
       if (activeRC && roomCode) activeRC.textContent = roomCode;
       const activeSB = document.getElementById('active-sound-btn');
-      if (activeSB) { activeSB.textContent = soundEnabled ? '🔊' : '🔇'; }
+      if (activeSB) { activeSB.textContent = soundModeIcon(); }
       // Wheel UI: apply mode if needed
       window._currentActivePlayerId = activePlayer.id;
       if (wheelUIMode) { clearWheelTapZones('active'); applyUIMode(); renderWheel('active', localPlayers, activePlayer.id, myId, passDirection, true); }
       requestWakeLock();
-      if (soundEnabled && !suppressNextTurnSound && (turnChanged || firstTurn)) playTurnSound();
+      if (soundMode !== 'mute' && !suppressNextTurnSound && (turnChanged || firstTurn)) {
+        if (soundMode === 'name') {
+          // Speak this player's own name (the active player on this device)
+          const nm = (activePlayer && (activePlayer.name || activePlayer.displayName)) || myName || '';
+          if (nm) speakName(nm);
+        } else {
+          playTurnSound();
+        }
+      }
       suppressNextTurnSound = false;
       // Status Effects: alert this player of any active statuses at turn start
       if (turnChanged || firstTurn) checkStatusEffectsOnTurnStart(room);
@@ -18821,7 +18903,7 @@ function listenGameState() {
       const waitRC = document.getElementById('active-room-code-wait-val');
       if (waitRC && roomCode) waitRC.textContent = roomCode;
       const waitSB = document.getElementById('active-sound-btn-wait');
-      if (waitSB) waitSB.textContent = soundEnabled ? '🔊' : '🔇';
+      if (waitSB) waitSB.textContent = soundModeIcon();
       // Wheel UI: apply mode if needed
       window._currentActivePlayerId = activePlayer.id;
       if (wheelUIMode) { clearWheelTapZones('wait'); applyUIMode(); renderWheel('wait', localPlayers, activePlayer.id, myId, passDirection, false); }
@@ -22593,7 +22675,7 @@ if ('serviceWorker' in navigator) {
     <!-- Sound -->
     <div class="ctrl-row" style="justify-content:space-between; margin-bottom:0.75rem;">
       <span style="font-size:0.9rem; font-weight:600; color:var(--text);">Sound</span>
-      <button class="ctrl-btn active-ctrl" id="sound-toggle" onclick="toggleSound()" title="Toggle Sound" style="width:3rem;height:3rem;font-size:1.1rem;">🔊</button>
+      <button class="ctrl-btn active-ctrl" id="sound-toggle" onclick="openSoundModeMenu(this)" title="Sound Mode" style="width:3rem;height:3rem;font-size:1.1rem;">🔊</button>
     </div>
     <div style="height:1px; background:var(--border); margin-bottom:0.75rem;"></div>
 
@@ -22714,6 +22796,13 @@ if ('serviceWorker' in navigator) {
 <audio id="bg-keep-alive" loop preload="none" style="display:none;">
   <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
 </audio>
+
+<!-- Sound mode menu (Tone / Name / Mute) -->
+<div class="sound-mode-menu" id="sound-mode-menu">
+  <button class="sound-mode-opt" data-mode="tone" onclick="setSoundMode('tone')"><span class="smo-icon">🔊</span> Tone</button>
+  <button class="sound-mode-opt" data-mode="name" onclick="setSoundMode('name')"><span class="smo-icon">🗣️</span> Name</button>
+  <button class="sound-mode-opt" data-mode="mute" onclick="setSoundMode('mute')"><span class="smo-icon">🔇</span> Mute</button>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js" defer></script>
