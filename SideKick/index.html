@@ -16650,8 +16650,21 @@ window.openSoundModeMenu = function(anchor) {
   let top = 60, right = 12;
   if (btn && btn.getBoundingClientRect) {
     const r = btn.getBoundingClientRect();
-    top = Math.max(8, r.bottom + 6);
     right = Math.max(8, window.innerWidth - r.right);
+    // Measure menu height (show off-screen first) so we can flip above the
+    // button when there isn't room below (button sits at the bottom of screen).
+    menu.style.visibility = 'hidden';
+    menu.style.top = '0px';
+    menu.classList.add('show');
+    const mh = menu.offsetHeight || 150;
+    menu.classList.remove('show');
+    menu.style.visibility = '';
+    const spaceBelow = window.innerHeight - r.bottom;
+    if (spaceBelow >= mh + 12) {
+      top = Math.max(8, r.bottom + 6);
+    } else {
+      top = Math.max(8, r.top - mh - 6);
+    }
   }
   menu.style.top = top + 'px';
   menu.style.right = right + 'px';
