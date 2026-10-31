@@ -5694,6 +5694,7 @@
         </div>
       </div>
       <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;" data-i18n="startGame">Start Game &#9654;</button>
+      <button class="btn-secondary btn-sm" id="table-setup-btn" onclick="openTableSetup()" style="width:100%;margin-top:0.4rem;display:none;">🪑 Table Setup</button>
     </div>
 
   </div>
@@ -6643,6 +6644,22 @@
   </div>
 </div>
 
+<!-- TABLE SETUP (host only) -->
+<div class="tools-overlay" id="table-setup-overlay" style="z-index:9650;">
+  <div class="tools-modal" style="max-width:26rem; text-align:center; max-height:90vh; overflow-y:auto;">
+    <div class="tools-modal-title">Table Setup</div>
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.6rem;">Arrange players around the table. Tap two seats to swap.</div>
+    <div style="font-size:0.75rem;font-weight:700;color:var(--text);margin-bottom:0.3rem;">Template</div>
+    <div id="table-setup-templates" style="display:flex;flex-wrap:wrap;gap:0.4rem;justify-content:center;margin-bottom:0.7rem;"></div>
+    <svg id="table-setup-svg" viewBox="0 0 400 400" style="width:100%;max-width:18rem;height:auto;margin:0 auto;display:block;"></svg>
+    <div id="table-setup-legend" style="font-size:0.72rem;color:var(--muted);margin:0.5rem 0;text-align:center;"></div>
+    <div style="display:flex;gap:0.5rem;margin-top:0.6rem;">
+      <button class="btn-secondary btn-sm" style="flex:1;" onclick="autoFillTableSlots()">Auto-fill</button>
+      <button class="btn-primary btn-sm" style="flex:1;" onclick="applyTableSetup()">Apply</button>
+    </div>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeTableSetup()" data-i18n="close">Close</button>
+  </div>
+</div>
 <!-- COLLECTION PHOTO CROP -->
 <div class="tools-overlay" id="collection-photo-overlay">
   <div class="tools-modal" style="text-align:center;">
@@ -17020,33 +17037,88 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
 
     const N = players.length;
     const CX = 200, CY = 200;
-    const SEAT_R = 150;          // radius of seat positions around the table
-    const TABLE_RX = 95, TABLE_RY = 55; // table surface ellipse
     const AVATAR_R = 26;
 
-    const myIdx = players.findIndex(p => p.id === myIdParam);
-    const myAngleDeg = (myIdx >= 0 ? myIdx : 0) * (360 / N) + (360 / N) / 2;
-    const rotationOffset = 90 - myAngleDeg;
-    const SEG_DEG = 360 / N;
+    // ── Determine seat positions (layout-aware) ──
+    const layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
+    let seatAngles = [];   // angle (deg) for each player slot, indexed by player order in `players`
+    let tableRx = 95, tableRy = 55;
+    let seatR = 150;
+
+    if (layout && Array.isArray(layout.slots) && layout.slots.length > 0) {
+      const tmpl = TABLE_TEMPLATES[layout.template] || TABLE_TEMPLATES.round4;
+      tableRx = tmpl.rx; tableRy = tmpl.ry; seatR = tmpl.rx; // use rx as seat radius
+      const nSlots = tmpl.n;
+      // base angle for each slot
+      const slotAngles = [];
+      for (let i = 0; i < nSlots; i++) slotAngles.push((i / nSlots) * 360 - 90);
+      // map playerId -> slot index
+      const slotOf = {};
+      layout.slots.forEach((pid, idx) => { if (pid) slotOf[pid] = idx; });
+      // For each player in `players`, find their slot angle (or auto-assign)
+      const assigned = new Set();
+      players.forEach(p => {
+        if (slotOf[p.id] != null) { assigned.add(p.id); return; }
+        // unassigned: find first empty slot
+        for (let i = 0; i < nSlots; i++) {
+          if (!layout.slots[i] || !players.find(pp => pp.id === layout.slots[i])) {
+            // empty slot
+            if (layout.slots[i] == null || !players.find(pp => pp.id === layout.slots[i])) {
+              // check not already taken
+              if (!Object.values(slotOf).includes(i)) {
+                slotOf[p.id] = i;
+                assigned.add(p.id);
+                break;
+              }
+            }
+          }
+        }
+      });
+      // Build seatAngles array aligned with players
+      players.forEach(p => {
+        const si = slotOf[p.id];
+        if (si != null && si < nSlots) seatAngles.push(slotAngles[si]);
+        else seatAngles.push(null);
+      });
+      // Fallback for unassigned: evenly space
+      let fallbackIdx = 0;
+      players.forEach((p, i) => {
+        if (seatAngles[i] == null) {
+          // find an unused angle
+          seatAngles[i] = (fallbackIdx / players.length) * 360 - 90;
+          fallbackIdx++;
+        }
+      });
+    } else {
+      // Auto-derived (original behavior)
+      const SEG_DEG = 360 / N;
+      const myIdx = players.findIndex(p => p.id === myIdParam);
+      const myAngleDeg = (myIdx >= 0 ? myIdx : 0) * SEG_DEG + SEG_DEG / 2;
+      // we'll compute rotationOffset below using seatAngles
+      for (let i = 0; i < N; i++) seatAngles.push(i * SEG_DEG + SEG_DEG / 2);
+      tableRx = 95; tableRy = 55; seatR = 150;
+    }
+
+    // Rotation so viewer (myIdParam) is at bottom (90 deg)
+    const mySeatIdx = players.findIndex(p => p.id === myIdParam);
+    const mySeatAngle = (mySeatIdx >= 0 && seatAngles[mySeatIdx] != null) ? seatAngles[mySeatIdx] : (seatAngles[0] || 0);
+    const rotationOffset = 90 - mySeatAngle;
+
+    // Table surface radii: use template's if layout, else default oval
+    if (!layout || !Array.isArray(layout.slots)) {
+      tableRx = 95; tableRy = 55; seatR = 150;
+    }
 
     let svgContent = '';
-
-    // Table surface (oval)
-    svgContent += '<ellipse cx="' + CX + '" cy="' + CY + '" rx="' + TABLE_RX + '" ry="' + TABLE_RY + '" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
-    // subtle inner highlight
-    svgContent += '<ellipse cx="' + CX + '" cy="' + (CY - 6) + '" rx="' + (TABLE_RX - 12) + '" ry="' + (TABLE_RY - 8) + '" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>';
-
-    // Pass direction arrow in center
-    const arrowText = (passDir === 'left' || passDir === 'counterclockwise') ? '↺' : (passDir === 'right' || passDir === 'clockwise') ? '↻' : '↔';
-    svgContent += '<text x="' + CX + '" y="' + CY + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.35)" font-family="Inter,sans-serif" font-size="28" font-weight="800">' + arrowText + '</text>';
 
     players.forEach((p, i) => {
       const isActive = p.id === activePlayerId;
       const isSelf = p.id === myIdParam;
-      const midDeg = rotationOffset + (i + 0.5) * SEG_DEG;
+      const baseAngle = seatAngles[i];
+      const midDeg = baseAngle + rotationOffset;
       const midRad = midDeg * Math.PI / 180;
-      const sx = CX + SEAT_R * Math.cos(midRad);
-      const sy = CY + SEAT_R * Math.sin(midRad);
+      const sx = CX + (tableRx + 55) * Math.cos(midRad);
+      const sy = CY + (tableRy + 55) * Math.sin(midRad);
       const color = p.color || '#7c5cbf';
       const name = isSelf ? 'You' : (p.name || 'Player');
       const initial = (name || '?').charAt(0).toUpperCase();
@@ -17073,6 +17145,15 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
         svgContent += '<line x1="' + (sx + cr) + '" y1="' + (sy - cr) + '" x2="' + (sx - cr) + '" y2="' + (sy + cr) + '" stroke="#ef4444" stroke-width="3" stroke-linecap="round" opacity="0.85"/>';
       }
     });
+
+    // Table surface (oval) - use template radii
+    svgContent = '<ellipse cx="' + CX + '" cy="' + CY + '" rx="' + tableRx + '" ry="' + tableRy + '" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>' +
+      '<ellipse cx="' + CX + '" cy="' + (CY - 6) + '" rx="' + (tableRx - 12) + '" ry="' + (tableRy - 8) + '" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>' +
+      svgContent;
+
+    // Pass direction arrow in center
+    const arrowText = (passDir === 'left' || passDir === 'counterclockwise') ? '↺' : (passDir === 'right' || passDir === 'clockwise') ? '↻' : '↔';
+    svgContent += '<text x="' + CX + '" y="' + CY + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.35)" font-family="Inter,sans-serif" font-size="28" font-weight="800">' + arrowText + '</text>';
 
     // Glow filter def
     const defs = '<defs><filter id="tableglow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
@@ -17103,6 +17184,199 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
     }
   } catch(e) { console.error('[SideKick] renderTable error:', e); }
 }
+
+// ── TABLE SETUP (host assigns players to table slots) ──
+const TABLE_TEMPLATES = {
+  round4: { name: 'Round 4', n: 4, rx: 150, ry: 150 },
+  round6: { name: 'Round 6', n: 6, rx: 150, ry: 150 },
+  round8: { name: 'Round 8', n: 8, rx: 150, ry: 150 },
+  oval6:  { name: 'Oval 6',  n: 6, rx: 170, ry: 95 },
+  oval8:  { name: 'Oval 8',  n: 8, rx: 180, ry: 105 }
+};
+let tableSetupState = { template: 'round4', slots: [], selected: null };
+
+function tableLayoutSlots(layout) {
+  // Returns array of {x, y} positions for each slot given a template
+  const t = TABLE_TEMPLATES[layout && layout.template] || TABLE_TEMPLATES.round4;
+  const n = t.n;
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const ang = (i / n) * 2 * Math.PI - Math.PI / 2; // start at top
+    out.push({ x: 200 + t.rx * Math.cos(ang), y: 200 + t.ry * Math.sin(ang) });
+  }
+  return out;
+}
+
+window.openTableSetup = function() {
+  const ov = document.getElementById('table-setup-overlay');
+  if (!ov) return;
+  // Initialize state from existing layout or auto
+  let layout = null;
+  try { layout = (window._tableLayout) || null; } catch {}
+  if (!layout) layout = { template: 'round4', slots: [] };
+  tableSetupState.template = layout.template || 'round4';
+  const t = TABLE_TEMPLATES[tableSetupState.template];
+  const n = t.n;
+  tableSetupState.slots = new Array(n).fill(null);
+  if (Array.isArray(layout.slots)) {
+    for (let i = 0; i < Math.min(n, layout.slots.length); i++) tableSetupState.slots[i] = layout.slots[i];
+  }
+  // Auto-fill empty slots with unassigned players in join order
+  autoFillTableSlots(false);
+  tableSetupState.selected = null;
+  renderTableSetup();
+  ov.classList.add('show');
+  try { haptic(5); } catch {}
+};
+
+function renderTableSetup() {
+  // Templates
+  const tplContainer = document.getElementById('table-setup-templates');
+  if (tplContainer) {
+    tplContainer.innerHTML = Object.keys(TABLE_TEMPLATES).map(k => {
+      const t = TABLE_TEMPLATES[k];
+      const active = k === tableSetupState.template;
+      return '<button class="btn-secondary btn-sm" style="padding:0.3rem 0.6rem;font-size:0.75rem;' + (active ? 'background:var(--accent);border-color:var(--accent);color:#fff;' : '') + '" onclick="selectTableTemplate(\'' + k + '\')">' + t.name + '</button>';
+    }).join('');
+  }
+  // SVG
+  const svg = document.getElementById('table-setup-svg');
+  if (!svg) return;
+  const t = TABLE_TEMPLATES[tableSetupState.template];
+  const positions = tableLayoutSlots({ template: tableSetupState.template });
+  const players = (typeof localPlayers !== 'undefined' && Array.isArray(localPlayers)) ? localPlayers : [];
+  const byId = {};
+  players.forEach(p => { byId[p.id] = p; });
+  let content = '';
+  // table surface
+  content += '<ellipse cx="200" cy="200" rx="' + t.rx + '" ry="' + t.ry + '" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
+  positions.forEach((pos, i) => {
+    const pid = tableSetupState.slots[i];
+    const p = pid ? byId[pid] : null;
+    const name = p ? (p.name || 'Player') : 'empty';
+    const color = p ? (p.color || '#7c5cbf') : 'rgba(255,255,255,0.15)';
+    const initial = p ? (name.charAt(0).toUpperCase()) : '+';
+    const sel = tableSetupState.selected === i;
+    content += '<circle cx="' + pos.x.toFixed(1) + '" cy="' + pos.y.toFixed(1) + '" r="24" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;" onclick="selectTableSlot(' + i + ')"/>';
+    content += '<text x="' + pos.x.toFixed(1) + '" y="' + pos.y.toFixed(1) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="14" font-weight="800" style="pointer-events:none;">' + (p ? initial : '+') + '</text>';
+    content += '<text x="' + pos.x.toFixed(1) + '" y="' + (pos.y + 34).toFixed(1) + '" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="Inter,sans-serif" font-size="10" font-weight="700" style="pointer-events:none;">' + (p ? (name.length > 8 ? name.substring(0,7) + '\u2026' : name) : 'empty') + '</text>';
+  });
+  svg.innerHTML = content;
+  // Legend
+  const legend = document.getElementById('table-setup-legend');
+  if (legend) {
+    const assigned = tableSetupState.slots.filter(s => s).length;
+    legend.textContent = assigned + ' of ' + tableSetupState.slots.length + ' seats filled';
+  }
+}
+
+window.selectTableTemplate = function(key) {
+  if (!TABLE_TEMPLATES[key]) return;
+  const oldN = tableSetupState.slots.length;
+  tableSetupState.template = key;
+  const newN = TABLE_TEMPLATES[key].n;
+  // Preserve existing assignments into new slot array
+  const newSlots = new Array(newN).fill(null);
+  for (let i = 0; i < Math.min(oldN, newN); i++) newSlots[i] = tableSetupState.slots[i];
+  tableSetupState.slots = newSlots;
+  autoFillTableSlots(false);
+  tableSetupState.selected = null;
+  renderTableSetup();
+  try { haptic(5); } catch {}
+};
+
+window.selectTableSlot = function(i) {
+  if (tableSetupState.selected === null) {
+    tableSetupState.selected = i;
+  } else if (tableSetupState.selected === i) {
+    tableSetupState.selected = null;
+  } else {
+    // swap
+    const a = tableSetupState.selected;
+    const tmp = tableSetupState.slots[a];
+    tableSetupState.slots[a] = tableSetupState.slots[i];
+    tableSetupState.slots[i] = tmp;
+    tableSetupState.selected = null;
+  }
+  renderTableSetup();
+  try { haptic(5); } catch {}
+};
+
+window.autoFillTableSlots = function(show) {
+  const players = (typeof localPlayers !== 'undefined' && Array.isArray(localPlayers)) ? localPlayers : [];
+  const assigned = new Set(tableSetupState.slots.filter(s => s));
+  // Fill empty slots with unassigned players in join order
+  let pi = 0;
+  for (let i = 0; i < tableSetupState.slots.length; i++) {
+    if (tableSetupState.slots[i]) continue;
+    // find next unassigned player
+    while (pi < players.length && assigned.has(players[pi].id)) pi++;
+    if (pi < players.length) {
+      tableSetupState.slots[i] = players[pi].id;
+      assigned.add(players[pi].id);
+      pi++;
+    }
+  }
+  if (show !== false) renderTableSetup();
+};
+
+window.applyTableSetup = async function() {
+  const layout = { template: tableSetupState.template, slots: tableSetupState.slots.slice() };
+  window._tableLayout = layout;
+  // Persist to Firebase
+  if (db && roomCode) {
+    try { await update(ref(db, `rooms/${roomCode}`), { tableLayout: layout }); } catch(e) { console.error('tableLayout save failed', e); }
+  }
+  closeTableSetup();
+  // Re-render table view if active
+  try {
+    if (uiMode === 'table' && window._currentActivePlayerId && localPlayers && localPlayers.length && myId) {
+      const isAct = document.getElementById('screen-active') && document.getElementById('screen-active').classList.contains('active');
+      const isWait = document.getElementById('screen-waiting') && document.getElementById('screen-waiting').classList.contains('active');
+      if (isAct) renderCurrentUI('active', localPlayers, window._currentActivePlayerId, myId, passDirection || 'both', true);
+      else if (isWait) renderCurrentUI('wait', localPlayers, window._currentActivePlayerId, myId, passDirection || 'both', false);
+    }
+  } catch(e) {}
+  try { haptic(10); } catch {}
+};
+
+window.closeTableSetup = function() {
+  const ov = document.getElementById('table-setup-overlay');
+  if (ov) ov.classList.remove('show');
+};
+
+// Load table layout from Firebase room data (called when room updates)
+function syncTableLayoutFromRoom(room) {
+  if (room && room.tableLayout) {
+    window._tableLayout = room.tableLayout;
+    // Reconcile: remove departed players, auto-add new ones to empty slots
+    reconcileTableLayout(room);
+  } else {
+    window._tableLayout = null;
+  }
+}
+
+function reconcileTableLayout(room) {
+  const layout = window._tableLayout;
+  if (!layout || !Array.isArray(layout.slots)) return;
+  const players = (typeof localPlayers !== 'undefined' && Array.isArray(localPlayers)) ? localPlayers : [];
+  const ids = new Set(players.map(p => p.id));
+  // Remove departed
+  for (let i = 0; i < layout.slots.length; i++) {
+    if (layout.slots[i] && !ids.has(layout.slots[i])) layout.slots[i] = null;
+  }
+  // Auto-add new players to empty slots
+  const assigned = new Set(layout.slots.filter(s => s));
+  players.forEach(p => {
+    if (assigned.has(p.id)) return;
+    const emptyIdx = layout.slots.indexOf(null);
+    if (emptyIdx >= 0) { layout.slots[emptyIdx] = p.id; assigned.add(p.id); }
+  });
+  window._tableLayout = layout;
+}
+
+// ── make renderTable use layout when available ──
+// (patched below: renderTable checks window._tableLayout)
 
 // Build SVG arc path for a donut wedge (single closed subpath)
 function wheelArcPath(cx, cy, rIn, rOut, startDeg, endDeg) {
@@ -17724,9 +17998,9 @@ function listenLobby() {
 
     const players = room.players || {};
     localPlayers = buildOrderedPlayers(players);
-    roomTapFirstId = room.tapFirstId || null;
-
-    // One-time sync: push avatar to Firebase if missing
+    syncTableLayoutFromRoom(room);
+    const tsBtn = document.getElementById('table-setup-btn');
+    if (tsBtn) tsBtn.style.display = isHost ? '' : 'none';
     if (players[myId] && !players[myId].avatar) {
       const myAvatar = roomAvatarSelection || getSavedAvatar() || '👤';
       set(ref(db, `rooms/${roomCode}/players/${myId}/avatar`), myAvatar).catch(() => {});
@@ -17794,8 +18068,7 @@ function listenWaitingLobby() {
 
     const players = room.players || {};
     localPlayers = buildOrderedPlayers(players);
-
-    // One-time sync: push avatar to Firebase if missing
+    syncTableLayoutFromRoom(room);
     if (players[myId] && !players[myId].avatar) {
       const myAvatar = roomAvatarSelection || getSavedAvatar() || '👤';
       set(ref(db, `rooms/${roomCode}/players/${myId}/avatar`), myAvatar).catch(() => {});
@@ -17910,10 +18183,10 @@ window.startGame = async function() {
   const roomData = snap.val();
   const players = roomData.players || {};
   localPlayers = buildOrderedPlayers(players);
-
   const firstIdx = firstPlayerOption === 'random'
     ? Math.floor(Math.random() * localPlayers.length)
     : 0;
+  syncTableLayoutFromRoom(roomData);
 
   // If Duel was chosen and there's a duel winner, use their index instead
   let actualFirstIdx = firstIdx;
@@ -18850,7 +19123,7 @@ function listenGameState() {
     if (room.status !== 'playing' && room.status !== 'ceremony' && room.status !== 'vp-entry' && room.status !== 'vp-ceremony' && room.status !== 'round-vp-entry') { showScreen('home'); return; }
 
     localPlayers = buildOrderedPlayers(room.players || {});
-    const activeIdx = room.activePlayerIndex || 0;
+    syncTableLayoutFromRoom(room);
     const activePlayer = localPlayers[activeIdx];
     if (!activePlayer) return;
 
