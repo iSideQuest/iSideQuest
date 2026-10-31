@@ -17205,6 +17205,17 @@ window.toggleLobbyView = function() {
   else renderLobbyWheel(localPlayers || []);
 };
 
+window.lobbyTableTapSeat = function(pid) {
+  if (!tapArmed || firstPlayerOption !== 'spot1') return;
+  tapFirstId = pid;
+  tapArmed = false;
+  try { if (db && roomCode) set(ref(db, `rooms/${roomCode}/tapFirstId`), pid).catch(() => {}); } catch {}
+  haptic(10);
+  hideFirstOptHint();
+  renderLobbyView(localPlayers || []);
+  updateStartButton();
+};
+
 function renderLobbyView(players) {
   const wheelSvg = document.getElementById('lobby-wheel-svg');
   const tableSvg = document.getElementById('lobby-table-svg');
@@ -17217,11 +17228,9 @@ function renderLobbyView(players) {
     if (tableSvg) tableSvg.style.display = 'none';
     renderLobbyWheel(players);
   }
-  // sync toggle button label
   const btn = document.getElementById('lobby-view-toggle');
   if (btn) btn.textContent = lobbyViewMode ? '🎡 Circle' : '🪑 Table';
 }
-
 function renderLobbyTable(players) {
   try {
     const svg = document.getElementById('lobby-table-svg');
@@ -17265,11 +17274,13 @@ function renderLobbyTable(players) {
       const color = p.color || '#7c5cbf';
       const name = p.id === myId ? 'You' : (p.name || 'Player');
       const initial = (name || '?').charAt(0).toUpperCase();
-      content += '<circle cx="' + sx.toFixed(1) + '" cy="' + sy.toFixed(1) + '" r="' + AVATAR_R + '" fill="' + color + '" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>';
-      content += '<text x="' + sx.toFixed(1) + '" y="' + sy.toFixed(1) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="16" font-weight="800">' + esc(initial) + '</text>';
+      const tapHandler = (typeof tapArmed !== 'undefined' && tapArmed && firstPlayerOption === 'spot1') ? ' onclick="lobbyTableTapSeat(\'' + p.id + '\')"' : '';
+      const cursor = tapArmed ? 'cursor:pointer;' : '';
+      content += '<circle cx="' + sx.toFixed(1) + '" cy="' + sy.toFixed(1) + '" r="' + AVATAR_R + '" fill="' + color + '" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" style="pointer-events:all;' + cursor + '"' + tapHandler + '/>';
+      content += '<text x="' + sx.toFixed(1) + '" y="' + sy.toFixed(1) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="16" font-weight="800" style="pointer-events:none;">' + esc(initial) + '</text>';
       const labelY = sy + AVATAR_R + 14;
       const shortName = name.length > 10 ? name.substring(0, 9) + '\u2026' : name;
-      content += '<text x="' + sx.toFixed(1) + '" y="' + labelY.toFixed(1) + '" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="Inter,sans-serif" font-size="11" font-weight="700">' + esc(shortName) + '</text>';
+      content += '<text x="' + sx.toFixed(1) + '" y="' + labelY.toFixed(1) + '" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="Inter,sans-serif" font-size="11" font-weight="700" style="pointer-events:none;">' + esc(shortName) + '</text>';
     });
     const defs = '<defs><filter id="lobbytableglow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
     svg.innerHTML = defs + content;
@@ -17299,7 +17310,7 @@ let tableSetupState = { template: 'r4', slots: [], selected: null };
 
 function tableLayoutSlots(layout) {
   // Returns array of {x, y} positions for each slot given a template
-  const t = TABLE_TEMPLATES[layout && layout.template] || TABLE_TEMPLATES.round4;
+  const t = TABLE_TEMPLATES[layout && layout.template] || TABLE_TEMPLATES.r4;
   const n = t.n;
   const out = [];
   for (let i = 0; i < n; i++) {
@@ -17311,12 +17322,15 @@ function tableLayoutSlots(layout) {
 
 window.openTableSetup = function() {
   const ov = document.getElementById('table-setup-overlay');
-  if (!ov) return;
+  if (!ov) { console.error('[TS] overlay not found'); return; }
+  try {
   // Initialize state from existing layout or auto
   let layout = null;
   try { layout = (window._tableLayout) || null; } catch {}
-  if (!layout) layout = { template: 'round4', slots: [] };
-  tableSetupState.template = layout.template || 'round4';
+  if (!layout) layout = { template: 'r4', slots: [] };
+  tableSetupState.template = layout.template || 'r4';
+  // migrate old template names
+  if (!TABLE_TEMPLATES[tableSetupState.template]) tableSetupState.template = 'r4';
   const t = TABLE_TEMPLATES[tableSetupState.template];
   const n = t.n;
   tableSetupState.slots = new Array(n).fill(null);
@@ -17329,6 +17343,7 @@ window.openTableSetup = function() {
   renderTableSetup();
   ov.classList.add('show');
   try { haptic(5); } catch {}
+  } catch (e) { console.error('[TS] openTableSetup error:', e); }
 };
 
 function renderTableSetup() {
@@ -17377,7 +17392,7 @@ function renderTableSetup() {
     const color = p ? (p.color || '#7c5cbf') : 'rgba(255,255,255,0.15)';
     const initial = p ? (name.charAt(0).toUpperCase()) : '+';
     const sel = tableSetupState.selected === i;
-    content += '<circle cx="' + pos.x.toFixed(1) + '" cy="' + pos.y.toFixed(1) + '" r="24" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;" onclick="selectTableSlot(' + i + ')" onpointerdown="tableSetupPointerDown(event,' + i + ')"/>';
+    content += '<circle cx="' + pos.x.toFixed(1) + '" cy="' + pos.y.toFixed(1) + '" r="24" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;pointer-events:all;" onclick="selectTableSlot(' + i + ')" onpointerdown="tableSetupPointerDown(event,' + i + ')"/>';
     content += '<text x="' + pos.x.toFixed(1) + '" y="' + pos.y.toFixed(1) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="14" font-weight="800" style="pointer-events:none;">' + (p ? initial : '+') + '</text>';
     content += '<text x="' + pos.x.toFixed(1) + '" y="' + (pos.y + 34).toFixed(1) + '" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="Inter,sans-serif" font-size="10" font-weight="700" style="pointer-events:none;">' + (p ? (name.length > 8 ? name.substring(0,7) + '\u2026' : name) : 'empty') + '</text>';
   });
