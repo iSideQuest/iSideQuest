@@ -18375,7 +18375,8 @@ function resetFirstPlayerOption() {
 
 // ── START GAME ──────────────────────────────
 window.startGame = async function() {
-  if (!db || !roomCode) return;
+  if (!db || !roomCode) { console.error('[SK] startGame: no db/roomCode', !!db, roomCode); return; }
+  try {
   const roomRef = ref(db, `rooms/${roomCode}`);
   const snap = await get(roomRef);
   if (!snap.exists()) return;
@@ -18426,6 +18427,7 @@ window.startGame = async function() {
 
   await update(ref(db), updates);
   haptic(20);
+  } catch (e) { console.error('[SK] startGame error:', e); }
 };
 
 // ── DUEL FOR 1ST PLAYER ──────────────────────────
