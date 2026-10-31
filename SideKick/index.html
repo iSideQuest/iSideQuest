@@ -17257,7 +17257,7 @@ function renderTableSetup() {
     const color = p ? (p.color || '#7c5cbf') : 'rgba(255,255,255,0.15)';
     const initial = p ? (name.charAt(0).toUpperCase()) : '+';
     const sel = tableSetupState.selected === i;
-    content += '<circle cx="' + pos.x.toFixed(1) + '" cy="' + pos.y.toFixed(1) + '" r="24" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;" onclick="selectTableSlot(' + i + ')"/>';
+    content += '<circle cx="' + pos.x.toFixed(1) + '" cy="' + pos.y.toFixed(1) + '" r="24" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;" onclick="selectTableSlot(' + i + ')" onpointerdown="tableSetupPointerDown(event,' + i + ')"/>';
     content += '<text x="' + pos.x.toFixed(1) + '" y="' + pos.y.toFixed(1) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="14" font-weight="800" style="pointer-events:none;">' + (p ? initial : '+') + '</text>';
     content += '<text x="' + pos.x.toFixed(1) + '" y="' + (pos.y + 34).toFixed(1) + '" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="Inter,sans-serif" font-size="10" font-weight="700" style="pointer-events:none;">' + (p ? (name.length > 8 ? name.substring(0,7) + '\u2026' : name) : 'empty') + '</text>';
   });
@@ -17377,6 +17377,70 @@ function reconcileTableLayout(room) {
 
 // ── make renderTable use layout when available ──
 // (patched below: renderTable checks window._tableLayout)
+
+// ── Phase 3: drag-and-drop in table setup ──
+let tableDrag = { from: null, ghost: null };
+
+// Called from seat onclick's pointerdown (we hook via renderTableSetup injecting onpointerdown)
+window.tableSetupPointerDown = function(e, slotIdx) {
+  const pid = tableSetupState.slots[slotIdx];
+  if (!pid) return; // only drag filled seats
+  try { e.preventDefault(); } catch {}
+  tableDrag.from = slotIdx;
+  // create ghost
+  const ghost = document.createElement('div');
+  ghost.style.cssText = 'position:fixed;pointer-events:none;z-index:9999;width:48px;height:48px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;box-shadow:0 4px 12px rgba(0,0,0,0.4);transform:translate(-50%,-50%);';
+  const players = (typeof localPlayers !== 'undefined' && Array.isArray(localPlayers)) ? localPlayers : [];
+  const p = players.find(pp => pp.id === pid);
+  ghost.textContent = p ? (p.name || '?').charAt(0).toUpperCase() : '?';
+  document.body.appendChild(ghost);
+  tableDrag.ghost = ghost;
+  moveGhost(e);
+  try { haptic(5); } catch {}
+};
+
+function moveGhost(e) {
+  if (!tableDrag.ghost) return;
+  const pt = e.touches ? e.touches[0] : e;
+  tableDrag.ghost.style.left = pt.clientX + 'px';
+  tableDrag.ghost.style.top = pt.clientY + 'px';
+}
+
+function endDrag(e) {
+  if (tableDrag.from === null) return;
+  const pt = (e && e.changedTouches) ? e.changedTouches[0] : e;
+  // find nearest slot
+  const svg = document.getElementById('table-setup-svg');
+  if (svg && pt) {
+    const rect = svg.getBoundingClientRect();
+    const vb = svg.viewBox.baseVal;
+    const sx = (pt.clientX - rect.left) / rect.width * vb.width;
+    const sy = (pt.clientY - rect.top) / rect.height * vb.height;
+    const positions = tableLayoutSlots({ template: tableSetupState.template });
+    let best = -1, bestD = Infinity;
+    positions.forEach((pos, i) => {
+      const d = Math.hypot(pos.x - sx, pos.y - sy);
+      if (d < bestD) { bestD = d; best = i; }
+    });
+    if (best >= 0 && best !== tableDrag.from && bestD < 60) {
+      // swap
+      const tmp = tableSetupState.slots[tableDrag.from];
+      tableSetupState.slots[tableDrag.from] = tableSetupState.slots[best];
+      tableSetupState.slots[best] = tmp;
+      renderTableSetup();
+      try { haptic(5); } catch {}
+    }
+  }
+  // cleanup
+  if (tableDrag.ghost) { try { tableDrag.ghost.remove(); } catch {} }
+  tableDrag = { from: null, ghost: null };
+}
+
+// Hook global move/up
+document.addEventListener('pointermove', function(e) { if (tableDrag.from !== null) moveGhost(e); });
+document.addEventListener('pointerup', function(e) { if (tableDrag.from !== null) endDrag(e); });
+document.addEventListener('touchmove', function(e) { if (tableDrag.from !== null) { moveGhost(e); e.preventDefault(); } }, { passive: false });
+document.addEventListener('touchend', function(e) { if (tableDrag.from !== null) endDrag(e); });
 
 // Build SVG arc path for a donut wedge (single closed subpath)
 function wheelArcPath(cx, cy, rIn, rOut, startDeg, endDeg) {
