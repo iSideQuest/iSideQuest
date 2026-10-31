@@ -17557,10 +17557,13 @@ function renderTableSetup() {
   // Templates
   const tplContainer = document.getElementById('table-setup-templates');
   if (tplContainer) {
-    const groups = { round: [], square: [] };
+    const groups = { round: [], square: [], grid: [] };
     Object.keys(TABLE_TEMPLATES).forEach(k => {
       const t = TABLE_TEMPLATES[k];
-      groups[t.shape || 'round'].push(k);
+      const shape = t.shape || 'round';
+      if (shape === 'grid') return; // handled separately
+      if (!groups[shape]) groups[shape] = [];
+      groups[shape].push(k);
     });
     let html = '';
     html += '<div style="width:100%;font-size:0.7rem;font-weight:700;color:var(--muted);margin-bottom:0.2rem;">Round</div>';
