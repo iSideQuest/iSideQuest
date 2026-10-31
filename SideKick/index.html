@@ -5678,8 +5678,12 @@
     </div>
     <div id="lobby-wheel-wrap" class="lobby-wheel-wrap">
       <svg id="lobby-wheel-svg" viewBox="0 0 400 400"></svg>
+      <svg id="lobby-table-svg" viewBox="0 0 400 400" style="display:none;"></svg>
       <div class="lobby-wheel-center" id="lobby-wheel-center"></div>
       <div id="lobby-wheel-kicks"></div>
+    </div>
+    <div style="text-align:center;margin-top:0.4rem;">
+      <button class="btn-secondary btn-sm" id="lobby-view-toggle" onclick="toggleLobbyView()" style="padding:0.3rem 0.8rem;font-size:0.75rem;">🪑 Table</button>
     </div>
 
     <!-- Fixed bottom bar -->
@@ -17185,15 +17189,113 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
   } catch(e) { console.error('[SideKick] renderTable error:', e); }
 }
 
+// ── LOBBY VIEW TOGGLE (circle pie vs table) ──
+let lobbyViewMode = localStorage.getItem('sk_lobby_view') === 'table';
+
+window.toggleLobbyView = function() {
+  lobbyViewMode = !lobbyViewMode;
+  try { localStorage.setItem('sk_lobby_view', lobbyViewMode ? 'table' : 'circle'); } catch {}
+  const btn = document.getElementById('lobby-view-toggle');
+  if (btn) btn.textContent = lobbyViewMode ? '🎡 Circle' : '🪑 Table';
+  const wheelSvg = document.getElementById('lobby-wheel-svg');
+  const tableSvg = document.getElementById('lobby-table-svg');
+  if (wheelSvg) wheelSvg.style.display = lobbyViewMode ? 'none' : '';
+  if (tableSvg) tableSvg.style.display = lobbyViewMode ? '' : 'none';
+  if (lobbyViewMode) renderLobbyTable(localPlayers || []);
+  else renderLobbyWheel(localPlayers || []);
+};
+
+function renderLobbyView(players) {
+  const wheelSvg = document.getElementById('lobby-wheel-svg');
+  const tableSvg = document.getElementById('lobby-table-svg');
+  if (lobbyViewMode) {
+    if (wheelSvg) wheelSvg.style.display = 'none';
+    if (tableSvg) tableSvg.style.display = '';
+    renderLobbyTable(players);
+  } else {
+    if (wheelSvg) wheelSvg.style.display = '';
+    if (tableSvg) tableSvg.style.display = 'none';
+    renderLobbyWheel(players);
+  }
+  // sync toggle button label
+  const btn = document.getElementById('lobby-view-toggle');
+  if (btn) btn.textContent = lobbyViewMode ? '🎡 Circle' : '🪑 Table';
+}
+
+function renderLobbyTable(players) {
+  try {
+    const svg = document.getElementById('lobby-table-svg');
+    if (!svg) return;
+    const list = (players || []).slice();
+    if (!list.length) { svg.innerHTML = ''; return; }
+    const CX = 200, CY = 200;
+    const AVATAR_R = 26;
+    const layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
+    let seatAngles = [];
+    let tableRx = 95, tableRy = 55;
+    if (layout && Array.isArray(layout.slots) && layout.slots.length > 0) {
+      const tmpl = TABLE_TEMPLATES[layout.template] || TABLE_TEMPLATES.r4;
+      tableRx = tmpl.rx; tableRy = tmpl.ry;
+      const nSlots = tmpl.n;
+      const slotAngles = [];
+      for (let i = 0; i < nSlots; i++) slotAngles.push((i / nSlots) * 360 - 90);
+      const slotOf = {};
+      layout.slots.forEach((pid, idx) => { if (pid) slotOf[pid] = idx; });
+      list.forEach(p => {
+        if (slotOf[p.id] != null) { seatAngles.push(slotAngles[slotOf[p.id]]); return; }
+        // unassigned: find empty slot
+        for (let i = 0; i < nSlots; i++) {
+          if (!Object.values(slotOf).includes(i)) { slotOf[p.id] = i; seatAngles.push(slotAngles[i]); return; }
+        }
+        seatAngles.push((seatAngles.length / list.length) * 360 - 90);
+      });
+    } else {
+      const SEG = 360 / list.length;
+      list.forEach((p, i) => seatAngles.push(i * SEG + SEG / 2));
+    }
+    const myIdx = list.findIndex(p => p.id === myId);
+    const myAngle = (myIdx >= 0 && seatAngles[myIdx] != null) ? seatAngles[myIdx] : (seatAngles[0] || 0);
+    const rot = 90 - myAngle;
+    let content = '';
+    content += '<ellipse cx="' + CX + '" cy="' + CY + '" rx="' + tableRx + '" ry="' + tableRy + '" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
+    list.forEach((p, i) => {
+      const ang = (seatAngles[i] + rot) * Math.PI / 180;
+      const sx = CX + (tableRx + 55) * Math.cos(ang);
+      const sy = CY + (tableRy + 55) * Math.sin(ang);
+      const color = p.color || '#7c5cbf';
+      const name = p.id === myId ? 'You' : (p.name || 'Player');
+      const initial = (name || '?').charAt(0).toUpperCase();
+      content += '<circle cx="' + sx.toFixed(1) + '" cy="' + sy.toFixed(1) + '" r="' + AVATAR_R + '" fill="' + color + '" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>';
+      content += '<text x="' + sx.toFixed(1) + '" y="' + sy.toFixed(1) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="16" font-weight="800">' + esc(initial) + '</text>';
+      const labelY = sy + AVATAR_R + 14;
+      const shortName = name.length > 10 ? name.substring(0, 9) + '\u2026' : name;
+      content += '<text x="' + sx.toFixed(1) + '" y="' + labelY.toFixed(1) + '" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="Inter,sans-serif" font-size="11" font-weight="700">' + esc(shortName) + '</text>';
+    });
+    const defs = '<defs><filter id="lobbytableglow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+    svg.innerHTML = defs + content;
+  } catch (e) { console.error('[SideKick] renderLobbyTable error:', e); }
+}
+
+// also update the tap-swap callback to re-render lobby view
+// (patched: line renderLobbyWheel(localPlayers) -> renderLobbyView(localPlayers))
 // ── TABLE SETUP (host assigns players to table slots) ──
 const TABLE_TEMPLATES = {
-  round4: { name: 'Round 4', n: 4, rx: 150, ry: 150 },
-  round6: { name: 'Round 6', n: 6, rx: 150, ry: 150 },
-  round8: { name: 'Round 8', n: 8, rx: 150, ry: 150 },
-  oval6:  { name: 'Oval 6',  n: 6, rx: 170, ry: 95 },
-  oval8:  { name: 'Oval 8',  n: 8, rx: 180, ry: 105 }
+  // Round
+  r3: { name: '3', n: 3, rx: 150, ry: 150, shape: 'round' },
+  r4: { name: '4', n: 4, rx: 150, ry: 150, shape: 'round' },
+  r5: { name: '5', n: 5, rx: 150, ry: 150, shape: 'round' },
+  r6: { name: '6', n: 6, rx: 150, ry: 150, shape: 'round' },
+  r7: { name: '7', n: 7, rx: 150, ry: 150, shape: 'round' },
+  r8: { name: '8', n: 8, rx: 150, ry: 150, shape: 'round' },
+  // Square
+  s3: { name: '3', n: 3, rx: 170, ry: 95, shape: 'square' },
+  s4: { name: '4', n: 4, rx: 170, ry: 95, shape: 'square' },
+  s5: { name: '5', n: 5, rx: 170, ry: 95, shape: 'square' },
+  s6: { name: '6', n: 6, rx: 170, ry: 95, shape: 'square' },
+  s7: { name: '7', n: 7, rx: 170, ry: 95, shape: 'square' },
+  s8: { name: '8', n: 8, rx: 170, ry: 95, shape: 'square' }
 };
-let tableSetupState = { template: 'round4', slots: [], selected: null };
+let tableSetupState = { template: 'r4', slots: [], selected: null };
 
 function tableLayoutSlots(layout) {
   // Returns array of {x, y} positions for each slot given a template
@@ -17233,11 +17335,29 @@ function renderTableSetup() {
   // Templates
   const tplContainer = document.getElementById('table-setup-templates');
   if (tplContainer) {
-    tplContainer.innerHTML = Object.keys(TABLE_TEMPLATES).map(k => {
+    const groups = { round: [], square: [] };
+    Object.keys(TABLE_TEMPLATES).forEach(k => {
+      const t = TABLE_TEMPLATES[k];
+      groups[t.shape || 'round'].push(k);
+    });
+    let html = '';
+    html += '<div style="width:100%;font-size:0.7rem;font-weight:700;color:var(--muted);margin-bottom:0.2rem;">Round</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;justify-content:center;margin-bottom:0.5rem;">';
+    groups.round.forEach(k => {
       const t = TABLE_TEMPLATES[k];
       const active = k === tableSetupState.template;
-      return '<button class="btn-secondary btn-sm" style="padding:0.3rem 0.6rem;font-size:0.75rem;' + (active ? 'background:var(--accent);border-color:var(--accent);color:#fff;' : '') + '" onclick="selectTableTemplate(\'' + k + '\')">' + t.name + '</button>';
-    }).join('');
+      html += '<button class="btn-secondary btn-sm" style="padding:0.25rem 0.5rem;font-size:0.72rem;min-width:2rem;' + (active ? 'background:var(--accent);border-color:var(--accent);color:#fff;' : '') + '" onclick="selectTableTemplate(\'' + k + '\')">' + t.name + '</button>';
+    });
+    html += '</div>';
+    html += '<div style="width:100%;font-size:0.7rem;font-weight:700;color:var(--muted);margin-bottom:0.2rem;">Square</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;justify-content:center;">';
+    groups.square.forEach(k => {
+      const t = TABLE_TEMPLATES[k];
+      const active = k === tableSetupState.template;
+      html += '<button class="btn-secondary btn-sm" style="padding:0.25rem 0.5rem;font-size:0.72rem;min-width:2rem;' + (active ? 'background:var(--accent);border-color:var(--accent);color:#fff;' : '') + '" onclick="selectTableTemplate(\'' + k + '\')">' + t.name + '</button>';
+    });
+    html += '</div>';
+    tplContainer.innerHTML = html;
   }
   // SVG
   const svg = document.getElementById('table-setup-svg');
@@ -18062,7 +18182,7 @@ function listenLobby() {
 
     const players = room.players || {};
     localPlayers = buildOrderedPlayers(players);
-    syncTableLayoutFromRoom(room);
+    try { syncTableLayoutFromRoom(room); } catch (e) { console.error('[SK] syncTableLayout', e); }
     const tsBtn = document.getElementById('table-setup-btn');
     if (tsBtn) tsBtn.style.display = isHost ? '' : 'none';
     if (players[myId] && !players[myId].avatar) {
@@ -18132,7 +18252,7 @@ function listenWaitingLobby() {
 
     const players = room.players || {};
     localPlayers = buildOrderedPlayers(players);
-    syncTableLayoutFromRoom(room);
+    try { syncTableLayoutFromRoom(room); } catch (e) { console.error('[SK] syncTableLayout', e); }
     if (players[myId] && !players[myId].avatar) {
       const myAvatar = roomAvatarSelection || getSavedAvatar() || '👤';
       set(ref(db, `rooms/${roomCode}/players/${myId}/avatar`), myAvatar).catch(() => {});
@@ -19187,7 +19307,7 @@ function listenGameState() {
     if (room.status !== 'playing' && room.status !== 'ceremony' && room.status !== 'vp-entry' && room.status !== 'vp-ceremony' && room.status !== 'round-vp-entry') { showScreen('home'); return; }
 
     localPlayers = buildOrderedPlayers(room.players || {});
-    syncTableLayoutFromRoom(room);
+    try { syncTableLayoutFromRoom(room); } catch (e) { console.error('[SK] syncTableLayout', e); }
     const activePlayer = localPlayers[activeIdx];
     if (!activePlayer) return;
 
@@ -21455,7 +21575,7 @@ function buildOrderedPlayers(players) {
 
 
 function renderLobbyList(players) {
-  renderLobbyWheel(players || []);
+  renderLobbyView(players || []);
   requestAnimationFrame(rescaleCurrentScreen);
 }
 
@@ -21654,7 +21774,7 @@ function renderLobbyWheel(players, ids, opts) {
             try { if (db && roomCode) set(ref(db, `rooms/${roomCode}/tapFirstId`), src).catch(() => {}); } catch {}
             haptic(10);
             hideFirstOptHint();
-            renderLobbyWheel(localPlayers);
+            renderLobbyView(localPlayers);
             updateStartButton();
             return;
           }
