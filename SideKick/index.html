@@ -17077,6 +17077,30 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
     // Glow filter def
     const defs = '<defs><filter id="tableglow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
     svg.innerHTML = defs + svgContent;
+
+    // Tap-to-pass zones (only when it's this player's turn on the active screen)
+    const ovId = ctx === 'active' ? 'table-overlay-active' : 'table-overlay-wait';
+    const ov = document.getElementById(ovId);
+    if (ov) {
+      ov.querySelectorAll('.wheel-tap-zone, .wheel-full-tap-left, .wheel-full-tap-right').forEach(el => el.remove());
+      if (ctx === 'active' && isMyTurn) {
+        if (passDir === 'both' || !passDir) {
+          const zL = document.createElement('div');
+          zL.className = 'wheel-full-tap-left';
+          zL.addEventListener('pointerup', function() { passTurn('left'); });
+          ov.appendChild(zL);
+          const zR = document.createElement('div');
+          zR.className = 'wheel-full-tap-right';
+          zR.addEventListener('pointerup', function() { passTurn('right'); });
+          ov.appendChild(zR);
+        } else {
+          const z = document.createElement('div');
+          z.className = 'wheel-tap-zone';
+          z.addEventListener('pointerup', function() { passTurnSingle(); });
+          ov.appendChild(z);
+        }
+      }
+    }
   } catch(e) { console.error('[SideKick] renderTable error:', e); }
 }
 
@@ -17247,8 +17271,15 @@ function renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
 function clearWheelTapZones(ctx) {
   const ovId = ctx === 'active' ? 'wheel-overlay-active' : 'wheel-overlay-wait';
   const ov = document.getElementById(ovId);
-  if (!ov) return;
-  ov.querySelectorAll('.wheel-tap-zone, .wheel-tap-zone-left, .wheel-tap-zone-right, .wheel-full-tap-left, .wheel-full-tap-right').forEach(el => el.remove());
+  if (ov) {
+    ov.querySelectorAll('.wheel-tap-zone, .wheel-tap-zone-left, .wheel-tap-zone-right, .wheel-full-tap-left, .wheel-full-tap-right').forEach(el => el.remove());
+  }
+  // Also clear table overlay tap zones
+  const tovId = ctx === 'active' ? 'table-overlay-active' : 'table-overlay-wait';
+  const tov = document.getElementById(tovId);
+  if (tov) {
+    tov.querySelectorAll('.wheel-tap-zone, .wheel-full-tap-left, .wheel-full-tap-right').forEach(el => el.remove());
+  }
   // Also clear direction area content
   const dirId = ctx === 'active' ? 'wheel-dir-active' : 'wheel-dir-wait';
   const dir = document.getElementById(dirId);
