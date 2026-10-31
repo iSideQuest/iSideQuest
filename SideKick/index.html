@@ -17037,9 +17037,10 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
   try {
     const svgId = ctx === 'active' ? 'table-svg-active' : 'table-svg-wait';
     const svg = document.getElementById(svgId);
-    if (!svg || !players || !players.length) return;
+    if (!svg) { console.error('[renderTable] svg not found', svgId); return; }
+    if (!players || !players.length) { console.error('[renderTable] no players'); return; }
     const activePlayer = players.find(p => p.id === activePlayerId);
-    if (!activePlayer) return;
+    if (!activePlayer) { console.error('[renderTable] activePlayer not found', activePlayerId); return; }
 
     const layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
 
@@ -17345,9 +17346,9 @@ function renderLobbyView(players) {
 function renderLobbyTable(players) {
   try {
     const svg = document.getElementById('lobby-table-svg');
-    if (!svg) return;
+    if (!svg) { console.error('[renderLobbyTable] svg not found'); return; }
     const list = (players || []).slice();
-    if (!list.length) { svg.innerHTML = ''; return; }
+    if (!list.length) { svg.innerHTML = ''; console.error('[renderLobbyTable] no players'); return; }
     const CX = 200, CY = 200;
     const AVATAR_R = 26;
     const layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
@@ -17515,6 +17516,7 @@ function tableLayoutSlots(layout) {
 window.openTableSetup = function() {
   const ov = document.getElementById('table-setup-overlay');
   if (!ov) { console.error('[TS] overlay not found'); return; }
+  ov.classList.add('show'); // show immediately so user sees feedback
   try {
   // Initialize state from existing layout or auto
   let layout = null;
@@ -17524,16 +17526,29 @@ window.openTableSetup = function() {
   // migrate old template names
   if (!TABLE_TEMPLATES[tableSetupState.template]) tableSetupState.template = 'r4';
   const t = TABLE_TEMPLATES[tableSetupState.template];
-  const n = t.n;
-  tableSetupState.slots = new Array(n).fill(null);
-  if (Array.isArray(layout.slots)) {
-    for (let i = 0; i < Math.min(n, layout.slots.length); i++) tableSetupState.slots[i] = layout.slots[i];
+  const n = (tableSetupState.template === 'grid') ? 0 : t.n;
+  if (tableSetupState.template !== 'grid') {
+    tableSetupState.slots = new Array(n).fill(null);
+    if (Array.isArray(layout.slots)) {
+      for (let i = 0; i < Math.min(n, layout.slots.length); i++) tableSetupState.slots[i] = layout.slots[i];
+    }
+    autoFillTableSlots(false);
+  } else {
+    if (!Array.isArray(tableSetupState.grid) || tableSetupState.grid.length !== 25) {
+      tableSetupState.grid = new Array(25).fill(false);
+      for (let r = 1; r <= 2; r++) for (let c = 1; c <= 3; c++) tableSetupState.grid[r*5+c] = true;
+    }
+    const gn = tableSetupState.grid.filter(x => x).length;
+    if (!Array.isArray(tableSetupState.slots) || tableSetupState.slots.length !== gn) {
+      const old = tableSetupState.slots || [];
+      const ns = new Array(gn).fill(null);
+      for (let i = 0; i < Math.min(old.length, gn); i++) ns[i] = old[i];
+      tableSetupState.slots = ns;
+      autoFillTableSlots(false);
+    }
   }
-  // Auto-fill empty slots with unassigned players in join order
-  autoFillTableSlots(false);
   tableSetupState.selected = null;
   renderTableSetup();
-  ov.classList.add('show');
   try { haptic(5); } catch {}
   } catch (e) { console.error('[TS] openTableSetup error:', e); }
 };
