@@ -13020,6 +13020,7 @@ if (window.visualViewport) {
 }
 renderKb();
 applyCustomKbMode();
+let uiMode = 'classic'; // hoisted default; reassigned below from localStorage
 try { updateSoundButtons(); } catch {}
 try { applyUIMode(); } catch {}
 function updateAppHeight() {
@@ -16924,7 +16925,8 @@ function _playNudgeSoundSynth() {
 
 
 // ── UI MODE (Classic / Wheel / Table) ─────────
-let uiMode = (function(){ const v = localStorage.getItem('sk_ui_mode'); return (v === 'wheel' || v === 'table') ? v : 'classic'; })();
+uiMode = (function(){ const v = localStorage.getItem('sk_ui_mode'); return (v === 'wheel' || v === 'table') ? v : 'classic'; })();
+try { applyUIMode(); } catch {}
 
 window.openUIModeMenu = function(anchor) {
   const menu = document.getElementById('ui-mode-menu');
@@ -17047,11 +17049,13 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
     const layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
     let seatAngles = [];   // angle (deg) for each player slot, indexed by player order in `players`
     let tableRx = 95, tableRy = 55;
+    let tableShape = 'round';
     let seatR = 150;
 
     if (layout && Array.isArray(layout.slots) && layout.slots.length > 0) {
       const tmpl = TABLE_TEMPLATES[layout.template] || TABLE_TEMPLATES.round4;
       tableRx = tmpl.rx; tableRy = tmpl.ry; seatR = tmpl.rx; // use rx as seat radius
+      tableShape = tmpl.shape || 'round';
       const nSlots = tmpl.n;
       // base angle for each slot
       const slotAngles = [];
@@ -17150,10 +17154,18 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
       }
     });
 
-    // Table surface (oval) - use template radii
-    svgContent = '<ellipse cx="' + CX + '" cy="' + CY + '" rx="' + tableRx + '" ry="' + tableRy + '" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>' +
-      '<ellipse cx="' + CX + '" cy="' + (CY - 6) + '" rx="' + (tableRx - 12) + '" ry="' + (tableRy - 8) + '" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>' +
-      svgContent;
+    // Table surface - round or square based on template shape
+    let surfaceSvg = '';
+    if (tableShape === 'square') {
+      const w = tableRx * 2, h = tableRy * 2;
+      const x = CX - tableRx, y = CY - tableRy;
+      surfaceSvg = '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="18" ry="18" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>' +
+        '<rect x="' + (x + 12) + '" y="' + (y + 8) + '" width="' + (w - 24) + '" height="' + (h - 16) + '" rx="12" ry="12" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>';
+    } else {
+      surfaceSvg = '<ellipse cx="' + CX + '" cy="' + CY + '" rx="' + tableRx + '" ry="' + tableRy + '" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>' +
+        '<ellipse cx="' + CX + '" cy="' + (CY - 6) + '" rx="' + (tableRx - 12) + '" ry="' + (tableRy - 8) + '" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>';
+    }
+    svgContent = surfaceSvg + svgContent;
 
     // Pass direction arrow in center
     const arrowText = (passDir === 'left' || passDir === 'counterclockwise') ? '↺' : (passDir === 'right' || passDir === 'clockwise') ? '↻' : '↔';
@@ -17242,9 +17254,11 @@ function renderLobbyTable(players) {
     const layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
     let seatAngles = [];
     let tableRx = 95, tableRy = 55;
+    let tableShape = 'round';
     if (layout && Array.isArray(layout.slots) && layout.slots.length > 0) {
       const tmpl = TABLE_TEMPLATES[layout.template] || TABLE_TEMPLATES.r4;
       tableRx = tmpl.rx; tableRy = tmpl.ry;
+      tableShape = tmpl.shape || 'round';
       const nSlots = tmpl.n;
       const slotAngles = [];
       for (let i = 0; i < nSlots; i++) slotAngles.push((i / nSlots) * 360 - 90);
@@ -17266,7 +17280,13 @@ function renderLobbyTable(players) {
     const myAngle = (myIdx >= 0 && seatAngles[myIdx] != null) ? seatAngles[myIdx] : (seatAngles[0] || 0);
     const rot = 90 - myAngle;
     let content = '';
-    content += '<ellipse cx="' + CX + '" cy="' + CY + '" rx="' + tableRx + '" ry="' + tableRy + '" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
+    if (tableShape === 'square') {
+      const w = tableRx * 2, h = tableRy * 2;
+      const x = CX - tableRx, y = CY - tableRy;
+      content += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="18" ry="18" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
+    } else {
+      content += '<ellipse cx="' + CX + '" cy="' + CY + '" rx="' + tableRx + '" ry="' + tableRy + '" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
+    }
     list.forEach((p, i) => {
       const ang = (seatAngles[i] + rot) * Math.PI / 180;
       const sx = CX + (tableRx + 55) * Math.cos(ang);
@@ -17292,19 +17312,19 @@ function renderLobbyTable(players) {
 // ── TABLE SETUP (host assigns players to table slots) ──
 const TABLE_TEMPLATES = {
   // Round
-  r3: { name: '3', n: 3, rx: 150, ry: 150, shape: 'round' },
-  r4: { name: '4', n: 4, rx: 150, ry: 150, shape: 'round' },
-  r5: { name: '5', n: 5, rx: 150, ry: 150, shape: 'round' },
-  r6: { name: '6', n: 6, rx: 150, ry: 150, shape: 'round' },
-  r7: { name: '7', n: 7, rx: 150, ry: 150, shape: 'round' },
-  r8: { name: '8', n: 8, rx: 150, ry: 150, shape: 'round' },
+  r3: { name: '3', n: 3, rx: 95, ry: 95, shape: 'round' },
+  r4: { name: '4', n: 4, rx: 95, ry: 95, shape: 'round' },
+  r5: { name: '5', n: 5, rx: 95, ry: 95, shape: 'round' },
+  r6: { name: '6', n: 6, rx: 95, ry: 95, shape: 'round' },
+  r7: { name: '7', n: 7, rx: 95, ry: 95, shape: 'round' },
+  r8: { name: '8', n: 8, rx: 95, ry: 95, shape: 'round' },
   // Square
-  s3: { name: '3', n: 3, rx: 170, ry: 95, shape: 'square' },
-  s4: { name: '4', n: 4, rx: 170, ry: 95, shape: 'square' },
-  s5: { name: '5', n: 5, rx: 170, ry: 95, shape: 'square' },
-  s6: { name: '6', n: 6, rx: 170, ry: 95, shape: 'square' },
-  s7: { name: '7', n: 7, rx: 170, ry: 95, shape: 'square' },
-  s8: { name: '8', n: 8, rx: 170, ry: 95, shape: 'square' }
+  s3: { name: '3', n: 3, rx: 95, ry: 95, shape: 'square' },
+  s4: { name: '4', n: 4, rx: 95, ry: 95, shape: 'square' },
+  s5: { name: '5', n: 5, rx: 95, ry: 95, shape: 'square' },
+  s6: { name: '6', n: 6, rx: 95, ry: 95, shape: 'square' },
+  s7: { name: '7', n: 7, rx: 95, ry: 95, shape: 'square' },
+  s8: { name: '8', n: 8, rx: 95, ry: 95, shape: 'square' }
 };
 let tableSetupState = { template: 'r4', slots: [], selected: null };
 
@@ -19325,6 +19345,7 @@ function listenGameState() {
 
     localPlayers = buildOrderedPlayers(room.players || {});
     try { syncTableLayoutFromRoom(room); } catch (e) { console.error('[SK] syncTableLayout', e); }
+    const activeIdx = room.activePlayerIndex ?? 0;
     const activePlayer = localPlayers[activeIdx];
     if (!activePlayer) return;
 
