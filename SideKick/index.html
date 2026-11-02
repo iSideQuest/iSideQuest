@@ -17044,13 +17044,17 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
 
     const layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
 
-    // ── Grid layout: absolute positions, rotated per viewer ──
+    // ── Grid layout: 2x8 + end seats, absolute positions, rotated per viewer ──
     if (layout && layout.template === 'grid' && Array.isArray(layout.grid)) {
-      const cellSize = 400 / 5;
+      const cellW = 40; // half of 80 for a 400-wide grid... use 80 for full
       const raw = []; // raw {x,y} per slot (in 400x400 coords)
-      for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) {
-        if (layout.grid[r*5+c]) raw.push({ x: c*cellSize + cellSize/2, y: r*cellSize + cellSize/2 });
+      // side seats (2x8)
+      for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) {
+        if (layout.grid[r*8+c]) raw.push({ x: c * 50 + 25, y: r * 200 + 100 });
       }
+      // end seats
+      if (layout.endLeft) raw.push({ x: -25, y: 200 });
+      if (layout.endRight) raw.push({ x: 425, y: 200 });
       if (!raw.length) { svg.innerHTML = ''; return; }
       // map playerId -> raw index
       const slots = Array.isArray(layout.slots) ? layout.slots : [];
@@ -17075,18 +17079,20 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
       const myAngle = Math.atan2(myRaw.y - 200, myRaw.x - 200);
       const rot = (90 * Math.PI / 180) - myAngle;
 
-      // table surface bounding box (of raw positions, then rotated? keep axis-aligned-ish: use raw bbox)
+      // center the raw positions (shift so bbox center = 200,200)
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
       raw.forEach(p => { minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x); minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y); });
-      const pad = 24;
-      const rx = (maxX - minX) / 2 + pad, ry = (maxY - minY) / 2 + pad;
       const cx0 = (minX + maxX) / 2, cy0 = (minY + maxY) / 2;
+      const dx = 200 - cx0, dy = 200 - cy0;
+      raw.forEach(p => { p.x += dx; p.y += dy; });
 
       const AVATAR_R = 22;
       let svgContent = '';
-      // table surface (rounded rect covering bbox, rotated? keep simple: axis-aligned rect)
-      const sx0 = cx0 - (maxX-minX)/2 - pad, sy0 = cy0 - (maxY-minY)/2 - pad;
-      const sw = (maxX-minX) + pad*2, sh = (maxY-minY) + pad*2;
+      // table surface (bounding box)
+      const pad = 24;
+      let bminX = Infinity, bmaxX = -Infinity, bminY = Infinity, bmaxY = -Infinity;
+      raw.forEach(p => { bminX = Math.min(bminX, p.x); bmaxX = Math.max(bmaxX, p.x); bminY = Math.min(bminY, p.y); bmaxY = Math.max(bmaxY, p.y); });
+      const sx0 = bminX - pad, sy0 = bminY - pad, sw = (bmaxX - bminX) + pad*2, sh = (bmaxY - bminY) + pad*2;
       svgContent += '<rect x="' + sx0 + '" y="' + sy0 + '" width="' + sw + '" height="' + sh + '" rx="14" ry="14" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
       // pass arrow
       const arrowText = (passDir === 'left' || passDir === 'counterclockwise') ? '↺' : (passDir === 'right' || passDir === 'clockwise') ? '↻' : '↔';
@@ -17096,9 +17102,9 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
         if (si == null) return;
         const rp = raw[si];
         // rotate around center
-        const dx = rp.x - 200, dy = rp.y - 200;
-        const rx_ = dx * Math.cos(rot) - dy * Math.sin(rot);
-        const ry_ = dx * Math.sin(rot) + dy * Math.cos(rot);
+        const rdx = rp.x - 200, rdy = rp.y - 200;
+        const rx_ = rdx * Math.cos(rot) - rdy * Math.sin(rot);
+        const ry_ = rdx * Math.sin(rot) + rdy * Math.cos(rot);
         const sx = 200 + rx_, sy = 200 + ry_;
         const color = p.color || '#7c5cbf';
         const name = p.id === myIdParam ? 'You' : (p.name || 'Player');
@@ -17491,7 +17497,7 @@ const TABLE_TEMPLATES = {
   // Custom Grid
   grid: { name: 'Custom Grid', n: 0, rx: 0, ry: 0, shape: 'grid' }
 };
-let tableSetupState = { template: 'r4', slots: [], selected: null };
+let tableSetupState = { template: 'r4', slots: [], selected: null, grid: null, endLeft: false, endRight: false, endSeatsEnabled: false };
 
 function tableLayoutSlots(layout) {
   // Returns array of {x, y} positions for each slot given a template
@@ -17585,37 +17591,47 @@ function renderTableSetup() {
       const active = k === tableSetupState.template;
       html += '<button class="btn-secondary btn-sm" style="padding:0.25rem 0.5rem;font-size:0.72rem;min-width:2rem;' + (active ? 'background:var(--accent);border-color:var(--accent);color:#fff;' : '') + '" onclick="selectTableTemplate(\'' + k + '\')">' + t.name + '</button>';
     });
+    html += '</div>';
     html += '<div style="width:100%;font-size:0.7rem;font-weight:700;color:var(--muted);margin-bottom:0.2rem;">Custom</div>';
     html += '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;justify-content:center;margin-bottom:0.5rem;">';
     const gActive = tableSetupState.template === 'grid';
     html += '<button class="btn-secondary btn-sm" style="padding:0.25rem 0.5rem;font-size:0.72rem;min-width:6rem;' + (gActive ? 'background:var(--accent);border-color:var(--accent);color:#fff;' : '') + '" onclick="selectTableTemplate(\'grid\')">Custom Grid</button>';
     html += '</div>';
     tplContainer.innerHTML = html;
+  }
   // SVG
   const svg = document.getElementById('table-setup-svg');
   if (!svg) return;
-  // Grid mode: show a 5x5 cell editor instead of the oval preview
+  // Grid mode: 2 rows x 8 columns + optional end seats
   if (tableSetupState.template === 'grid') {
-    if (!Array.isArray(tableSetupState.grid) || tableSetupState.grid.length !== 25) {
-      tableSetupState.grid = new Array(25).fill(false);
-      // default: a 2x3 rectangle in the middle
-      for (let r = 1; r <= 2; r++) for (let c = 1; c <= 3; c++) tableSetupState.grid[r*5+c] = true;
+    if (!Array.isArray(tableSetupState.grid) || tableSetupState.grid.length !== 16) {
+      tableSetupState.grid = new Array(16).fill(false);
+      // default: 2x2 in the middle
+      tableSetupState.grid[1*8+3] = true;
+      tableSetupState.grid[1*8+4] = true;
+      tableSetupState.grid[0*8+3] = true;
+      tableSetupState.grid[0*8+4] = true;
     }
-    const cellSize = 400 / 5;
-    let content = '';
-    // grid lines
-    for (let i = 0; i <= 5; i++) {
-      content += '<line x1="0" y1="' + (i*cellSize) + '" x2="400" y2="' + (i*cellSize) + '" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>';
-      content += '<line x1="' + (i*cellSize) + '" y1="0" x2="' + (i*cellSize) + '" y2="400" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>';
-    }
+    if (typeof tableSetupState.endLeft !== 'boolean') tableSetupState.endLeft = false;
+    if (typeof tableSetupState.endRight !== 'boolean') tableSetupState.endRight = false;
+    if (typeof tableSetupState.endSeatsEnabled !== 'boolean') tableSetupState.endSeatsEnabled = false;
+
+    const cellW = 400 / 8; // 50
+    const cellH = 400 / 2; // 200
     const players = (typeof localPlayers !== 'undefined' && Array.isArray(localPlayers)) ? localPlayers : [];
     const byId = {};
     players.forEach(p => { byId[p.id] = p; });
-    // seats = true cells in row-major order
+
+    // seats = true cells in row-major order, then left end, then right end
     const seatCells = [];
-    for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) if (tableSetupState.grid[r*5+c]) seatCells.push({r, c, idx: seatCells.length});
-    // reconcile slots length
-    const n = seatCells.length;
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) if (tableSetupState.grid[r*8+c]) seatCells.push({r, c, idx: seatCells.length, type: 'side'});
+    const endSeats = [];
+    if (tableSetupState.endSeatsEnabled) {
+      if (tableSetupState.endLeft) endSeats.push({type: 'endLeft', idx: seatCells.length + endSeats.length});
+      if (tableSetupState.endRight) endSeats.push({type: 'endRight', idx: seatCells.length + endSeats.length});
+    }
+    const allSeats = seatCells.concat(endSeats);
+    const n = allSeats.length;
     if (!Array.isArray(tableSetupState.slots) || tableSetupState.slots.length !== n) {
       const old = tableSetupState.slots || [];
       const ns = new Array(n).fill(null);
@@ -17623,38 +17639,84 @@ function renderTableSetup() {
       tableSetupState.slots = ns;
       autoFillTableSlots(false);
     }
-    // render cells
+
+    let content = '';
+    // grid lines (2 rows x 8 cols)
+    for (let i = 0; i <= 2; i++) content += '<line x1="0" y1="' + (i*cellH) + '" x2="400" y2="' + (i*cellH) + '" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>';
+    for (let i = 0; i <= 8; i++) content += '<line x1="' + (i*cellW) + '" y1="0" x2="' + (i*cellW) + '" y2="400" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>';
+
+    // render side seats
     seatCells.forEach((sc, i) => {
-      const cx = sc.c * cellSize + cellSize/2;
-      const cy = sc.r * cellSize + cellSize/2;
+      const cx = sc.c * cellW + cellW/2;
+      const cy = sc.r * cellH + cellH/2;
       const pid = tableSetupState.slots[i];
       const p = pid ? byId[pid] : null;
       const color = p ? (p.color || '#7c5cbf') : 'rgba(255,255,255,0.15)';
       const sel = tableSetupState.selected === i;
-      content += '<rect x="' + (sc.c*cellSize+4) + '" y="' + (sc.r*cellSize+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="8" ry="8" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;pointer-events:all;" onclick="selectTableSlot(' + i + ')" onpointerdown="tableSetupPointerDown(event,' + i + ')"/>';
-      if (p) {
-        content += svgAvatar(cx, cy, 16, p.avatar, color);
-      } else {
-        content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="20" font-weight="800" style="pointer-events:none;">+</text>';
-      }
+      content += '<rect x="' + (sc.c*cellW+3) + '" y="' + (sc.r*cellH+3) + '" width="' + (cellW-6) + '" height="' + (cellH-6) + '" rx="6" ry="6" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;pointer-events:all;" onclick="selectTableSlot(' + i + ')" onpointerdown="tableSetupPointerDown(event,' + i + ')"/>';
+      if (p) content += svgAvatar(cx, cy, 14, p.avatar, color);
+      else content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="16" font-weight="800" style="pointer-events:none;">+</text>';
     });
-    // also render toggle cells (empty grid cells) as faint tappable
-    for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) {
-      if (tableSetupState.grid[r*5+c]) continue;
-      const cx = c*cellSize + cellSize/2;
-      const cy = r*cellSize + cellSize/2;
-      content += '<rect x="' + (c*cellSize+12) + '" y="' + (r*cellSize+12) + '" width="' + (cellSize-24) + '" height="' + (cellSize-24) + '" rx="6" ry="6" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="4 3" style="cursor:pointer;pointer-events:all;" onclick="toggleGridCell(' + r + ',' + c + ')"/>';
-      content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.25)" font-family="Inter,sans-serif" font-size="18" font-weight="800" style="pointer-events:none;">+</text>';
+    // render empty side cells as tappable
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) {
+      if (tableSetupState.grid[r*8+c]) continue;
+      const cx = c*cellW + cellW/2;
+      const cy = r*cellH + cellH/2;
+      content += '<rect x="' + (c*cellW+8) + '" y="' + (r*cellH+8) + '" width="' + (cellW-16) + '" height="' + (cellH-16) + '" rx="4" ry="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="4 3" style="cursor:pointer;pointer-events:all;" onclick="toggleGridCell(' + r + ',' + c + ')"/>';
+      content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.2)" font-family="Inter,sans-serif" font-size="14" font-weight="800" style="pointer-events:none;">+</text>';
     }
+    // render end seats (left/right, between rows)
+    const endStartIdx = seatCells.length;
+    if (tableSetupState.endSeatsEnabled) {
+      // left end
+      if (tableSetupState.endLeft) {
+        const i = endStartIdx;
+        const pid = tableSetupState.slots[i];
+        const p = pid ? byId[pid] : null;
+        const color = p ? (p.color || '#7c5cbf') : 'rgba(255,255,255,0.15)';
+        const cx = -cellW/2;
+        const cy = cellH; // between the 2 rows
+        const sel = tableSetupState.selected === i;
+        content += '<rect x="' + (-cellW+8) + '" y="' + (cellH/2+8) + '" width="' + (cellW-16) + '" height="' + (cellH-16) + '" rx="6" ry="6" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;pointer-events:all;" onclick="selectTableSlot(' + i + ')" onpointerdown="tableSetupPointerDown(event,' + i + ')"/>';
+        if (p) content += svgAvatar(cx, cy, 14, p.avatar, color);
+        else content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="16" font-weight="800" style="pointer-events:none;">+</text>';
+      } else {
+        // tappable placeholder
+        const cx = -cellW/2;
+        const cy = cellH;
+        content += '<rect x="' + (-cellW+12) + '" y="' + (cellH/2+12) + '" width="' + (cellW-24) + '" height="' + (cellH-24) + '" rx="4" ry="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="4 3" style="cursor:pointer;pointer-events:all;" onclick="toggleEndSeat(0)"/>';
+        content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.2)" font-family="Inter,sans-serif" font-size="14" font-weight="800" style="pointer-events:none;">+</text>';
+      }
+      // right end
+      if (tableSetupState.endRight) {
+        const i = tableSetupState.endLeft ? endStartIdx + 1 : endStartIdx;
+        const pid = tableSetupState.slots[i];
+        const p = pid ? byId[pid] : null;
+        const color = p ? (p.color || '#7c5cbf') : 'rgba(255,255,255,0.15)';
+        const cx = 400 + cellW/2;
+        const cy = cellH;
+        const sel = tableSetupState.selected === i;
+        content += '<rect x="' + (400+8) + '" y="' + (cellH/2+8) + '" width="' + (cellW-16) + '" height="' + (cellH-16) + '" rx="6" ry="6" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;pointer-events:all;" onclick="selectTableSlot(' + i + ')" onpointerdown="tableSetupPointerDown(event,' + i + ')"/>';
+        if (p) content += svgAvatar(cx, cy, 14, p.avatar, color);
+        else content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="16" font-weight="800" style="pointer-events:none;">+</text>';
+      } else {
+        const cx = 400 + cellW/2;
+        const cy = cellH;
+        content += '<rect x="' + (400+12) + '" y="' + (cellH/2+12) + '" width="' + (cellW-24) + '" height="' + (cellH-24) + '" rx="4" ry="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="4 3" style="cursor:pointer;pointer-events:all;" onclick="toggleEndSeat(1)"/>';
+        content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.2)" font-family="Inter,sans-serif" font-size="14" font-weight="800" style="pointer-events:none;">+</text>';
+      }
+    }
+    svg.setAttribute('viewBox', '-50 0 500 400');
     svg.innerHTML = content;
+    // legend
     const legend = document.getElementById('table-setup-legend');
     if (legend) {
       const assigned = tableSetupState.slots.filter(s => s).length;
-      legend.textContent = assigned + ' of ' + tableSetupState.slots.length + ' seats filled · tap empty cells to add seats';
+      const toggleLabel = tableSetupState.endSeatsEnabled ? 'End Seats: ON' : 'End Seats: OFF';
+      legend.innerHTML = assigned + ' of ' + tableSetupState.slots.length + ' seats filled &middot; <button class="btn-secondary btn-sm" style="padding:0.2rem 0.5rem;font-size:0.7rem;margin-left:0.5rem;" onclick="toggleEndSeatsMode()">' + toggleLabel + '</button>';
     }
     return;
   }
-  const t = TABLE_TEMPLATES[tableSetupState.template];
   const positions = tableLayoutSlots({ template: tableSetupState.template });
   const players = (typeof localPlayers !== 'undefined' && Array.isArray(localPlayers)) ? localPlayers : [];
   const byId = {};
@@ -17731,21 +17793,12 @@ window.selectTableSlot = function(i) {
   try { haptic(5); } catch {}
 };
 
-window.toggleGridCell = function(r, c) {
-  if (!tableSetupState.grid) tableSetupState.grid = new Array(25).fill(false);
-  tableSetupState.grid[r*5+c] = !tableSetupState.grid[r*5+c];
-  // rebuild slots
-  autoFillTableSlots(false);
-  renderTableSetup();
-  try { haptic(5); } catch {}
-};
+window.autoFillTableSlots = function(show) {
   const players = (typeof localPlayers !== 'undefined' && Array.isArray(localPlayers)) ? localPlayers : [];
-  const assigned = new Set(tableSetupState.slots.filter(s => s));
-  // Fill empty slots with unassigned players in join order
+  const assigned = new Set((tableSetupState.slots || []).filter(s => s));
   let pi = 0;
-  for (let i = 0; i < tableSetupState.slots.length; i++) {
+  for (let i = 0; i < (tableSetupState.slots || []).length; i++) {
     if (tableSetupState.slots[i]) continue;
-    // find next unassigned player
     while (pi < players.length && assigned.has(players[pi].id)) pi++;
     if (pi < players.length) {
       tableSetupState.slots[i] = players[pi].id;
@@ -17754,6 +17807,30 @@ window.toggleGridCell = function(r, c) {
     }
   }
   if (show !== false) renderTableSetup();
+};
+window.toggleGridCell = function(r, c) {
+  if (!tableSetupState.grid) tableSetupState.grid = new Array(16).fill(false);
+  tableSetupState.grid[r*8+c] = !tableSetupState.grid[r*8+c];
+  autoFillTableSlots(false);
+  renderTableSetup();
+  try { haptic(5); } catch {}
+};
+window.toggleEndSeatsMode = function() {
+  tableSetupState.endSeatsEnabled = !tableSetupState.endSeatsEnabled;
+  if (!tableSetupState.endSeatsEnabled) {
+    tableSetupState.endLeft = false;
+    tableSetupState.endRight = false;
+  }
+  autoFillTableSlots(false);
+  renderTableSetup();
+  try { haptic(5); } catch {}
+};
+window.toggleEndSeat = function(side) {
+  if (side === 0) tableSetupState.endLeft = !tableSetupState.endLeft;
+  else if (side === 1) tableSetupState.endRight = !tableSetupState.endRight;
+  autoFillTableSlots(false);
+  renderTableSetup();
+  try { haptic(5); } catch {}
 };
 
 window.applyTableSetup = async function() {
