@@ -5,6 +5,7 @@ const collectionListServices = {
   escapeHtml: value => value == null ? '' : String(value),
   showAlert: message => { if (window.showAlert) window.showAlert(message); },
   openCollectionDetail: id => { if (window.openCollectionDetail) window.openCollectionDetail(id); },
+  haptic: () => {},
 };
 export function configureCollectionList(services = {}) {
   Object.assign(collectionListServices, services);
@@ -161,7 +162,10 @@ export function buildCollectionGameRow(game, opts) {
   const readOnly = !!(opts && opts.readonly);
   if (!readOnly) {
     card.style.cursor = 'pointer';
-    card.onclick = () => collectionListServices.openCollectionDetail(game.id);
+    card.onclick = () => {
+      try { collectionListServices.haptic(5); } catch {}
+      collectionListServices.openCollectionDetail(game.id);
+    };
   }
   const ratingVal = typeof game.rating === 'number' ? game.rating : 0;
   const playersLine = (game.minPlayers && game.maxPlayers) ? '👥 ' + game.minPlayers + '-' + game.maxPlayers : '';

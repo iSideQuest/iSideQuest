@@ -2560,7 +2560,7 @@
 import { soundMode, soundModeIcon, soundModeEnabled, openSoundModeMenu, setSoundMode, updateSoundButtons, toggleSound, speakName, playTurnSound, playNudgeSound, playBuzzerSound, getAudioContext, resetOrientation, requestWakeLock, releaseWakeLock, getCustomAudio, configureSoundServices } from './js/sound.js?v=346';
 import { I18N_STRINGS } from './js/i18n-data.js?v=347';
 import { collectionState, configureCollectionStore, collectionPath, loadCollection, saveCollectionLocal } from './js/collection-store.js?v=349';
-import { COLLECTION_CATEGORIES, COLLECTION_MECHANICS, configureCollectionList, renderCollectionFilters, renderCollection, buildCollectionGameRow, starsHTML, formatRating } from './js/collection-list.js?v=350';
+import { COLLECTION_CATEGORIES, COLLECTION_MECHANICS, configureCollectionList, renderCollectionFilters, renderCollection, buildCollectionGameRow, starsHTML, formatRating } from './js/collection-list.js?v=351';
 import { FEATURE_DEFS_GRID, HIDDEN_FEATURES, FEATURE_INFO } from './js/feature-data.js?v=348';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, onValue, update, remove, push, serverTimestamp, runTransaction, goOffline, goOnline }
@@ -6449,7 +6449,7 @@ window.saveConfig = function() {
 let auth = null;
 let currentUser = null; // Firebase Auth user object, or null if signed out
 configureCollectionStore({ getDb: () => db, getCurrentUser: () => currentUser, ref, get, set, update });
-configureCollectionList({ escapeHtml, showAlert: message => window.showAlert(message), openCollectionDetail: id => window.openCollectionDetail(id) });
+configureCollectionList({ escapeHtml, showAlert: message => window.showAlert(message), openCollectionDetail: id => window.openCollectionDetail(id), haptic });
 
 function initFirebase(cfg) {
   try {
