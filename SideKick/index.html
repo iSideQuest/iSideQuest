@@ -506,7 +506,7 @@
     </div>
 
     <div style="text-align:center;margin-bottom:0.3rem;">
-      <span style="font-size:0.85rem;font-weight:700;color:var(--text);" data-i18n="playerListDrag">Player List (Drag to Reorder)</span>
+      <span id="lobby-player-list-label" style="font-size:0.85rem;font-weight:700;color:var(--text);" data-i18n="playerListDrag">Player List (Drag to Reorder)</span>
     </div>
     <div id="lobby-wheel-wrap" class="lobby-wheel-wrap">
       <svg id="lobby-wheel-svg" viewBox="0 0 400 400"></svg>
@@ -514,6 +514,7 @@
       <div class="lobby-wheel-center" id="lobby-wheel-center"></div>
       <div id="lobby-wheel-kicks"></div>
     </div>
+    <div id="lobby-table-unseated" class="lobby-table-unseated" style="display:none;"></div>
     <div style="text-align:center;margin-top:0.4rem;">
       <button class="btn-secondary btn-sm" id="lobby-view-toggle" onclick="toggleLobbyView()" style="padding:0.3rem 0.8rem;font-size:0.75rem;">🪑 Table</button>
     </div>
@@ -521,6 +522,7 @@
     <!-- Fixed bottom bar -->
     <div style="position:relative;width:100%;max-width:30rem;margin:0 auto;padding:0.3rem 0.5rem calc(3.4rem + env(safe-area-inset-bottom, 0.3rem));flex-shrink:0;">
       <div id="first-opt-hint" style="display:none;position:absolute;bottom:100%;left:0;right:0;margin-bottom:0.5rem;padding:0.55rem 0.75rem;border-radius:0.625rem;border:1px solid var(--accent);background:rgba(20,20,32,0.95);box-shadow:0 0.25rem 1.25rem rgba(0,0,0,0.5);font-size:0.82rem;font-weight:700;color:var(--text);text-align:center;z-index:5;pointer-events:none;"></div>
+      <div id="table-capacity-warning" role="alert" style="display:none;color:#ff7777;font-size:0.8rem;font-weight:800;text-align:center;margin:0.2rem auto 0.45rem;max-width:30rem;"></div>
     <div id="first-opt-card" class="card" style="max-width:30rem;margin:0 auto 0.6rem;padding:0.6rem 0.7rem;border-radius:0.625rem;background:var(--lobby-list-bg);">
         <div style="position:relative;text-align:center;font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;"><span data-i18n="chooseFirst">Choose Option For 1st Player</span><span style="position:absolute;right:0;top:50%;transform:translateY(-50%);">👑</span></div>
         <div style="display:flex;gap:0.5rem;">
@@ -1484,15 +1486,15 @@
 <div class="tools-overlay" id="table-setup-overlay" style="z-index:9650;">
   <div class="tools-modal" style="max-width:26rem; text-align:center; max-height:90vh; overflow-y:auto;">
     <div class="tools-modal-title">Table Setup</div>
-    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.6rem;">Arrange players around the table. Tap two seats to swap.</div>
-    <div style="font-size:0.75rem;font-weight:700;color:var(--text);margin-bottom:0.3rem;">Template</div>
-    <div id="table-setup-templates" style="display:flex;flex-wrap:wrap;gap:0.4rem;justify-content:center;margin-bottom:0.7rem;"></div>
-    <svg id="table-setup-svg" viewBox="0 0 400 400" style="width:100%;max-width:18rem;height:auto;margin:0 auto;display:block;"></svg>
-    <div id="table-setup-legend" style="font-size:0.72rem;color:var(--muted);margin:0.5rem 0;text-align:center;"></div>
-    <div style="display:flex;gap:0.5rem;margin-top:0.6rem;">
-      <button class="btn-secondary btn-sm" style="flex:1;" onclick="autoFillTableSlots()">Auto-fill</button>
-      <button class="btn-primary btn-sm" style="flex:1;" onclick="applyTableSetup()">Apply</button>
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.5rem;">Tap squares to turn seats on or off. Assign players by dragging them in the lobby.</div>
+    <div style="font-size:0.75rem;font-weight:700;color:var(--text);margin-bottom:0.25rem;">Custom Grid (2 x 8)</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:0.55rem;margin:0.4rem 0 0.5rem;">
+      <span style="font-size:0.75rem;color:var(--muted);">Optional paired end seats</span>
+      <button class="btn-secondary btn-sm" id="table-end-seats-toggle" onclick="toggleEndSeatsMode()" aria-pressed="false">End Seats: OFF</button>
     </div>
+    <svg id="table-setup-svg" viewBox="-50 0 500 100" style="width:100%;max-width:22rem;height:auto;margin:0 auto;display:block;"></svg>
+    <div id="table-setup-legend" style="font-size:0.72rem;color:var(--muted);margin:0.5rem 0;text-align:center;"></div>
+    <button class="btn-primary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="applyTableSetup()">Apply</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeTableSetup()" data-i18n="close">Close</button>
   </div>
 </div>
@@ -10137,8 +10139,10 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
         if (layout.grid[r*8+c]) raw.push({ x: c * 50 + 25, y: r * 200 + 100 });
       }
       // end seats
-      if (layout.endLeft) raw.push({ x: -25, y: 200 });
-      if (layout.endRight) raw.push({ x: 425, y: 200 });
+      if (tableLayoutHasEndSeats(layout)) {
+        raw.push({ x: -25, y: 200 });
+        raw.push({ x: 425, y: 200 });
+      }
       if (!raw.length) { svg.innerHTML = ''; return; }
       // map playerId -> raw index
       const slots = Array.isArray(layout.slots) ? layout.slots : [];
@@ -10178,6 +10182,12 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
       raw.forEach(p => { bminX = Math.min(bminX, p.x); bmaxX = Math.max(bmaxX, p.x); bminY = Math.min(bminY, p.y); bmaxY = Math.max(bmaxY, p.y); });
       const sx0 = bminX - pad, sy0 = bminY - pad, sw = (bmaxX - bminX) + pad*2, sh = (bmaxY - bminY) + pad*2;
       svgContent += '<rect x="' + sx0 + '" y="' + sy0 + '" width="' + sw + '" height="' + sh + '" rx="14" ry="14" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
+      raw.forEach(p => {
+        const dx = p.x - 200, dy = p.y - 200;
+        const x = 200 + dx * Math.cos(rot) - dy * Math.sin(rot);
+        const y = 200 + dx * Math.sin(rot) + dy * Math.cos(rot);
+        svgContent += '<rect x="' + (x - 24).toFixed(1) + '" y="' + (y - 24).toFixed(1) + '" width="48" height="48" rx="5" ry="5" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>';
+      });
       // pass arrow
       const arrowText = (passDir === 'left' || passDir === 'counterclockwise') ? '↺' : (passDir === 'right' || passDir === 'clockwise') ? '↻' : '↔';
       svgContent += '<text x="200" y="200" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.35)" font-family="Inter,sans-serif" font-size="28" font-weight="800">' + arrowText + '</text>';
@@ -10194,8 +10204,8 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
         const name = p.id === myIdParam ? 'You' : (p.name || 'Player');
         const isActive = p.id === activePlayerId;
         const glow = isActive ? ' filter="url(#tableglow)"' : '';
-        svgContent += '<circle cx="' + sx.toFixed(1) + '" cy="' + sy.toFixed(1) + '" r="' + AVATAR_R + '" fill="' + color + '" stroke="' + (isActive ? '#fff' : 'rgba(255,255,255,0.25)') + '" stroke-width="' + (isActive ? 3 : 1.5) + '"' + glow + '/>';
-        svgContent += svgAvatar(sx, sy, AVATAR_R - 2, p.avatar, color);
+        svgContent += '<rect x="' + (sx - AVATAR_R).toFixed(1) + '" y="' + (sy - AVATAR_R).toFixed(1) + '" width="' + (AVATAR_R * 2).toFixed(1) + '" height="' + (AVATAR_R * 2).toFixed(1) + '" rx="5" ry="5" fill="' + color + '" stroke="' + (isActive ? '#fff' : 'rgba(255,255,255,0.45)') + '" stroke-width="' + (isActive ? 3 : 1.5) + '"' + glow + '/>';
+        svgContent += svgAvatar(sx, sy, AVATAR_R - 5, p.avatar, color);
         const shortName = name.length > 10 ? name.substring(0, 9) + '\u2026' : name;
         svgContent += '<text x="' + sx.toFixed(1) + '" y="' + (sy + AVATAR_R + 14).toFixed(1) + '" text-anchor="middle" fill="' + (isActive ? color : 'rgba(255,255,255,0.8)') + '" font-family="Inter,sans-serif" font-size="11" font-weight="700">' + esc(shortName) + '</text>';
         if (isActive) svgContent += '<circle cx="' + sx.toFixed(1) + '" cy="' + sy.toFixed(1) + '" r="' + (AVATAR_R + 6) + '" fill="none" stroke="' + color + '" stroke-width="2" opacity="0.6"/>';
@@ -10397,14 +10407,7 @@ let lobbyViewMode = localStorage.getItem('sk_lobby_view') === 'table';
 window.toggleLobbyView = function() {
   lobbyViewMode = !lobbyViewMode;
   try { localStorage.setItem('sk_lobby_view', lobbyViewMode ? 'table' : 'circle'); } catch {}
-  const btn = document.getElementById('lobby-view-toggle');
-  if (btn) btn.textContent = lobbyViewMode ? '🎡 Circle' : '🪑 Table';
-  const wheelSvg = document.getElementById('lobby-wheel-svg');
-  const tableSvg = document.getElementById('lobby-table-svg');
-  if (wheelSvg) wheelSvg.style.display = lobbyViewMode ? 'none' : '';
-  if (tableSvg) tableSvg.style.display = lobbyViewMode ? '' : 'none';
-  if (lobbyViewMode) renderLobbyTable(localPlayers || []);
-  else renderLobbyWheel(localPlayers || []);
+  renderLobbyView(localPlayers || []);
 };
 
 window.lobbyTableTapSeat = function(pid) {
@@ -10422,27 +10425,39 @@ function renderLobbyView(players) {
   try {
     const wheelSvg = document.getElementById('lobby-wheel-svg');
     const tableSvg = document.getElementById('lobby-table-svg');
+    const wrap = document.getElementById('lobby-wheel-wrap');
+    const center = document.getElementById('lobby-wheel-center');
+    const kicks = document.getElementById('lobby-wheel-kicks');
+    const tray = document.getElementById('lobby-table-unseated');
     if (lobbyViewMode) {
       if (wheelSvg) wheelSvg.style.display = 'none';
       if (tableSvg) tableSvg.style.display = '';
-      renderLobbyTable(players);
+      if (center) center.style.display = 'none';
+      if (kicks) kicks.style.display = 'none';
+      if (wrap) wrap.classList.add('table-layout-active');
+      renderLobbyTable(players || []);
     } else {
       if (wheelSvg) wheelSvg.style.display = '';
       if (tableSvg) tableSvg.style.display = 'none';
-      renderLobbyWheel(players);
+      if (center) center.style.display = '';
+      if (kicks) kicks.style.display = '';
+      if (wrap) { wrap.classList.remove('table-layout-active'); wrap.style.aspectRatio = ''; }
+      if (tray) { tray.style.display = 'none'; tray.innerHTML = ''; }
+      renderLobbyWheel(players || []);
     }
+    const label = document.getElementById('lobby-player-list-label');
+    if (label) label.textContent = lobbyViewMode ? 'Players & Seats (Drag to Assign)' : 'Player List (Drag to Reorder)';
     const btn = document.getElementById('lobby-view-toggle');
     if (btn) btn.textContent = lobbyViewMode ? '🎡 Circle' : '🪑 Table';
-  } catch (e) {
-    console.error('[SK] renderLobbyView error:', e);
-  }
+  } catch (e) { console.error('[SK] renderLobbyView error:', e); }
 }
 function renderLobbyTable(players) {
   try {
     const svg = document.getElementById('lobby-table-svg');
     if (!svg) { console.error('[renderLobbyTable] svg not found'); return; }
     const list = (players || []).slice();
-    if (!list.length) { svg.innerHTML = ''; console.error('[renderLobbyTable] no players'); return; }
+    const activeLayout = window._tableLayout || null;
+    if (!list.length && !(activeLayout && activeLayout.template === 'grid')) { svg.innerHTML = ''; return; }
     const CX = 200, CY = 200;
     const AVATAR_R = 26;
     const layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
@@ -10450,66 +10465,41 @@ function renderLobbyTable(players) {
     let tableRx = 95, tableRy = 55;
     let tableShape = 'round';
 
-    // Grid layout (2x8 + end seats)
+    // Custom grid: square seat chips are assigned by the host via drag-and-drop in this lobby.
     if (layout && layout.template === 'grid' && Array.isArray(layout.grid)) {
-      const cellW = 50;
-      const cellH = 50;
-      const raw = [];
-      for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) if (layout.grid[r*8+c]) raw.push({ x: c * 50 + 25, y: r * 50 + 25 });
-      if (layout.endLeft) raw.push({ x: -25, y: 50 });
-      if (layout.endRight) raw.push({ x: 425, y: 50 });
-      if (!raw.length) { svg.innerHTML = ''; return; }
-      const slots = Array.isArray(layout.slots) ? layout.slots : [];
-      const slotOf = {};
-      slots.forEach((pid, idx) => { if (pid) slotOf[pid] = idx; });
-      const assigned = new Set(Object.keys(slotOf));
-      list.forEach(p => {
-        if (assigned.has(p.id)) return;
-        for (let i = 0; i < raw.length; i++) {
-          if (!Object.values(slotOf).includes(i)) { slotOf[p.id] = i; assigned.add(p.id); break; }
-        }
+      const grid = normalizeTableGrid(layout.grid);
+      const seats = [];
+      for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) if (grid[r * 8 + c]) seats.push({ x: c * 50 + 25, y: r * 50 + 25 });
+      const ends = tableLayoutHasEndSeats(layout);
+      if (ends) seats.push({ x: -25, y: 50 }, { x: 425, y: 50 });
+      const slots = resizeTableSlots(layout.slots, seats.length);
+      const byId = Object.fromEntries(list.map(p => [p.id, p]));
+      const seated = new Set(slots.filter(pid => pid && byId[pid]));
+      const unseated = list.filter(p => !seated.has(p.id));
+      const wrap = document.getElementById('lobby-wheel-wrap');
+      const viewBox = ends ? '-50 0 500 100' : '0 0 400 100';
+      svg.setAttribute('viewBox', viewBox);
+      if (wrap) wrap.style.aspectRatio = ends ? '5 / 1' : '4 / 1';
+      let content = '<rect x="' + (ends ? -45 : 5) + '" y="5" width="' + (ends ? 490 : 390) + '" height="90" rx="10" ry="10" fill="rgba(124,92,191,0.08)" stroke="rgba(124,92,191,0.35)" stroke-width="1.5"/>';
+      if (!seats.length) content += '<text x="200" y="50" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.65)" font-family="Inter,sans-serif" font-size="14" font-weight="700">Turn on seats in Table Setup</text>';
+      seats.forEach((seat, i) => {
+        const pid = slots[i], p = pid ? byId[pid] : null;
+        const color = p ? (p.color || '#7c5cbf') : 'rgba(255,255,255,0.07)';
+        const first = p && (p.id === tapFirstId || p.id === roomTapFirstId);
+        content += '<g class="table-lobby-seat" data-lobby-table-seat="' + i + '" onpointerdown="lobbyTableSeatPointerDown(event,' + i + ')">';
+        content += '<rect x="' + (seat.x - 21) + '" y="' + (seat.y - 21) + '" width="42" height="42" rx="5" ry="5" fill="' + color + '" stroke="' + (first ? '#fff' : (p ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.24)')) + '" stroke-width="' + (first ? 3 : 1.5) + '"' + (p ? '' : ' stroke-dasharray="4 3"') + '/>';
+        if (p) {
+          const name = p.id === myId ? 'You' : (p.name || 'Player');
+          content += svgAvatar(seat.x, seat.y - 5, 10, p.avatar, color);
+          content += '<text x="' + seat.x + '" y="' + (seat.y + 15) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="7" font-weight="800" style="pointer-events:none;">' + esc(name.length > 7 ? name.substring(0, 6) + '\u2026' : name) + '</text>';
+        } else content += '<text x="' + seat.x + '" y="' + seat.y + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.62)" font-family="Inter,sans-serif" font-size="16" font-weight="800" style="pointer-events:none;">+</text>';
+        content += '</g>';
       });
-      const myIdx = list.findIndex(p => p.id === myId);
-      const mySlot = (myIdx >= 0 && slotOf[list[myIdx].id] != null) ? slotOf[list[myIdx].id] : 0;
-      const myRaw = raw[mySlot] || raw[0];
-      const myAngle = Math.atan2(myRaw.y - 200, myRaw.x - 200);
-      const rot = (90 * Math.PI / 180) - myAngle;
-      // center
-      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-      raw.forEach(p => { minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x); minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y); });
-      const cx0 = (minX + maxX) / 2, cy0 = (minY + maxY) / 2;
-      const dx = 200 - cx0, dy = 200 - cy0;
-      raw.forEach(p => { p.x += dx; p.y += dy; });
-      let content = '';
-      // table surface bbox
-      let bminX = Infinity, bmaxX = -Infinity, bminY = Infinity, bmaxY = -Infinity;
-      raw.forEach(p => { bminX = Math.min(bminX, p.x); bmaxX = Math.max(bmaxX, p.x); bminY = Math.min(bminY, p.y); bmaxY = Math.max(bmaxY, p.y); });
-      const pad = 24;
-      const sx0 = bminX - pad, sy0 = bminY - pad, sw = (bmaxX - bminX) + pad*2, sh = (bmaxY - bminY) + pad*2;
-      content += '<rect x="' + sx0 + '" y="' + sy0 + '" width="' + sw + '" height="' + sh + '" rx="14" ry="14" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
-      list.forEach(p => {
-        const si = slotOf[p.id];
-        if (si == null) return;
-        const rp = raw[si];
-        const rdx = rp.x - 200, rdy = rp.y - 200;
-        const rx_ = rdx * Math.cos(rot) - rdy * Math.sin(rot);
-        const ry_ = rdx * Math.sin(rot) + rdy * Math.cos(rot);
-        const sx = 200 + rx_, sy = 200 + ry_;
-        const color = p.color || '#7c5cbf';
-        const name = p.id === myId ? 'You' : (p.name || 'Player');
-        const tapHandler = (typeof tapArmed !== 'undefined' && tapArmed && firstPlayerOption === 'spot1') ? ' onclick="lobbyTableTapSeat(\'' + p.id + '\')"' : '';
-        const cursor = tapArmed ? 'cursor:pointer;' : '';
-        content += '<circle cx="' + sx.toFixed(1) + '" cy="' + sy.toFixed(1) + '" r="' + AVATAR_R + '" fill="' + color + '" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" style="pointer-events:all;' + cursor + '"' + tapHandler + '/>';
-        content += svgAvatar(sx, sy, AVATAR_R - 2, p.avatar, color);
-        const labelY = sy + AVATAR_R + 14;
-        const shortName = name.length > 10 ? name.substring(0, 9) + '\u2026' : name;
-        content += '<text x="' + sx.toFixed(1) + '" y="' + labelY.toFixed(1) + '" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="Inter,sans-serif" font-size="11" font-weight="700" style="pointer-events:none;">' + esc(shortName) + '</text>';
-      });
-      const defs = '<defs><filter id="lobbytableglow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
-      svg.innerHTML = defs + content;
+      svg.innerHTML = content;
+      renderLobbyTableUnseated(unseated);
       return;
     }
-
+    renderLobbyTableUnseated([]);
     if (layout && Array.isArray(layout.slots) && layout.slots.length > 0) {
       const tmpl = TABLE_TEMPLATES[layout.template] || TABLE_TEMPLATES.r4;
       tableRx = tmpl.rx; tableRy = tmpl.ry;
@@ -10593,418 +10583,193 @@ const TABLE_TEMPLATES = {
   // Custom Grid
   grid: { name: 'Custom Grid', n: 0, rx: 0, ry: 0, shape: 'grid' }
 };
-let tableSetupState = { template: 'r4', slots: [], selected: null, grid: null, endLeft: false, endRight: false, endSeatsEnabled: false };
-let gridDrag = { active: false, mode: null, lastCell: null };
-
+let tableSetupState = { grid: null, slots: [], endSeatsEnabled: false };
+const TABLE_GRID_SIZE = 16;
+function defaultTableGrid() {
+  const grid = new Array(TABLE_GRID_SIZE).fill(false);
+  [3, 4, 11, 12].forEach(i => { grid[i] = true; });
+  return grid;
+}
+function normalizeTableGrid(grid) {
+  if (!Array.isArray(grid) || grid.length < TABLE_GRID_SIZE) return defaultTableGrid();
+  return grid.slice(0, TABLE_GRID_SIZE).map(Boolean);
+}
+function tableLayoutHasEndSeats(layout) {
+  return !!(layout && (layout.endSeatsEnabled || layout.endLeft || layout.endRight));
+}
+function tableSeatKeys(grid, endSeats) {
+  const keys = [];
+  normalizeTableGrid(grid).forEach((on, i) => { if (on) keys.push('grid:' + i); });
+  if (endSeats) keys.push('end:left', 'end:right');
+  return keys;
+}
+function tableSeatCapacity(layout) {
+  if (!layout) return null;
+  if (layout.template === 'grid') return normalizeTableGrid(layout.grid).filter(Boolean).length + (tableLayoutHasEndSeats(layout) ? 2 : 0);
+  const legacy = TABLE_TEMPLATES[layout.template];
+  if (legacy && legacy.shape !== 'grid') return legacy.n || (Array.isArray(layout.slots) ? layout.slots.length : 0);
+  return null;
+}
+function tableCapacityIssue(playerCount, layout) {
+  const capacity = tableSeatCapacity(layout);
+  if (capacity === null || playerCount <= capacity) return null;
+  const missing = playerCount - capacity;
+  return { capacity, playerCount, missing, message: 'Table Setup has ' + capacity + ' seats for ' + playerCount + ' players. Add ' + missing + ' seat' + (missing === 1 ? '' : 's') + ' before starting.' };
+}
+function resizeTableSlots(slots, count) {
+  const next = new Array(Math.max(0, count)).fill(null);
+  if (Array.isArray(slots)) for (let i = 0; i < Math.min(slots.length, next.length); i++) next[i] = slots[i] || null;
+  return next;
+}
+function remapTableSlots(oldGrid, oldEnds, newGrid, newEnds, slots) {
+  const oldKeys = tableSeatKeys(oldGrid, oldEnds);
+  const byKey = new Map(oldKeys.map((key, i) => [key, (slots || [])[i] || null]));
+  return tableSeatKeys(newGrid, newEnds).map(key => byKey.get(key) || null);
+}
 function tableLayoutSlots(layout) {
-  // Returns array of {x, y} positions for each slot given a template
-  if (layout && layout.template === 'grid' && Array.isArray(layout.grid)) {
-    const raw = [];
-    for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) if (layout.grid[r*8+c]) raw.push({ x: c * 50 + 25, y: r * 50 + 25 });
-    if (layout.endLeft) raw.push({ x: -25, y: 50 });
-    if (layout.endRight) raw.push({ x: 425, y: 50 });
-    return raw;
+  if (layout && layout.template === 'grid') {
+    const positions = [];
+    const grid = normalizeTableGrid(layout.grid);
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) if (grid[r * 8 + c]) positions.push({ x: c * 50 + 25, y: r * 50 + 25 });
+    if (tableLayoutHasEndSeats(layout)) positions.push({ x: -25, y: 50 }, { x: 425, y: 50 });
+    return positions;
   }
   const t = TABLE_TEMPLATES[layout && layout.template] || TABLE_TEMPLATES.r4;
   const n = t.n || (layout && Array.isArray(layout.slots) ? layout.slots.length : 4);
-  const out = [];
-  for (let i = 0; i < n; i++) {
-    const ang = (i / n) * 2 * Math.PI - Math.PI / 2;
-    out.push({ x: 200 + t.rx * Math.cos(ang), y: 200 + t.ry * Math.sin(ang) });
-  }
-  return out;
+  return Array.from({ length: n }, (_, i) => {
+    const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+    return { x: 200 + t.rx * Math.cos(angle), y: 200 + t.ry * Math.sin(angle) };
+  });
 }
 
 window.openTableSetup = function() {
-  const ov = document.getElementById('table-setup-overlay');
-  if (!ov) { console.error('[TS] overlay not found'); return; }
-  ov.classList.add('show'); // show immediately so user sees feedback
-  try {
-  // Initialize state from existing layout or auto
-  let layout = null;
-  try { layout = (window._tableLayout) || null; } catch {}
-  if (!layout) layout = { template: 'r4', slots: [] };
-  tableSetupState.template = layout.template || 'r4';
-  // migrate old template names
-  if (!TABLE_TEMPLATES[tableSetupState.template]) tableSetupState.template = 'r4';
-  const t = TABLE_TEMPLATES[tableSetupState.template];
-  const n = (tableSetupState.template === 'grid') ? 0 : t.n;
-  if (tableSetupState.template !== 'grid') {
-    tableSetupState.slots = new Array(n).fill(null);
-    if (Array.isArray(layout.slots)) {
-      for (let i = 0; i < Math.min(n, layout.slots.length); i++) tableSetupState.slots[i] = layout.slots[i];
-    }
-    autoFillTableSlots(false);
-  } else {
-    if (!Array.isArray(tableSetupState.grid) || tableSetupState.grid.length !== 25) {
-      tableSetupState.grid = new Array(25).fill(false);
-      for (let r = 1; r <= 2; r++) for (let c = 1; c <= 3; c++) tableSetupState.grid[r*5+c] = true;
-    }
-    const gn = tableSetupState.grid.filter(x => x).length;
-    if (!Array.isArray(tableSetupState.slots) || tableSetupState.slots.length !== gn) {
-      const old = tableSetupState.slots || [];
-      const ns = new Array(gn).fill(null);
-      for (let i = 0; i < Math.min(old.length, gn); i++) ns[i] = old[i];
-      tableSetupState.slots = ns;
-      autoFillTableSlots(false);
-    }
-  }
-  tableSetupState.selected = null;
+  const overlay = document.getElementById('table-setup-overlay');
+  if (!overlay) return;
+  overlay.classList.add('show');
+  const saved = window._tableLayout || null;
+  const savedGrid = !!(saved && saved.template === 'grid' && Array.isArray(saved.grid));
+  const grid = savedGrid ? normalizeTableGrid(saved.grid) : defaultTableGrid();
+  const ends = savedGrid && tableLayoutHasEndSeats(saved);
+  const oldSlots = saved && Array.isArray(saved.slots) ? saved.slots : [];
+  tableSetupState = {
+    grid,
+    endSeatsEnabled: ends,
+    slots: savedGrid ? remapTableSlots(grid, ends, grid, ends, oldSlots) : resizeTableSlots(oldSlots, grid.filter(Boolean).length)
+  };
   renderTableSetup();
   try { haptic(5); } catch {}
-  } catch (e) { console.error('[TS] openTableSetup error:', e); }
 };
 
 function renderTableSetup() {
-  // Templates
-  const tplContainer = document.getElementById('table-setup-templates');
-  if (tplContainer) {
-    const groups = { round: [], square: [], grid: [] };
-    Object.keys(TABLE_TEMPLATES).forEach(k => {
-      const t = TABLE_TEMPLATES[k];
-      const shape = t.shape || 'round';
-      if (shape === 'grid') return; // handled separately
-      if (!groups[shape]) groups[shape] = [];
-      groups[shape].push(k);
-    });
-    let html = '';
-    html += '<div style="width:100%;font-size:0.7rem;font-weight:700;color:var(--muted);margin-bottom:0.2rem;">Round</div>';
-    html += '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;justify-content:center;margin-bottom:0.5rem;">';
-    groups.round.forEach(k => {
-      const t = TABLE_TEMPLATES[k];
-      const active = k === tableSetupState.template;
-      html += '<button class="btn-secondary btn-sm" style="padding:0.25rem 0.5rem;font-size:0.72rem;min-width:2rem;' + (active ? 'background:var(--accent);border-color:var(--accent);color:#fff;' : '') + '" onclick="selectTableTemplate(\'' + k + '\')">' + t.name + '</button>';
-    });
-    html += '</div>';
-    html += '<div style="width:100%;font-size:0.7rem;font-weight:700;color:var(--muted);margin-bottom:0.2rem;">Square</div>';
-    html += '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;justify-content:center;">';
-    groups.square.forEach(k => {
-      const t = TABLE_TEMPLATES[k];
-      const active = k === tableSetupState.template;
-      html += '<button class="btn-secondary btn-sm" style="padding:0.25rem 0.5rem;font-size:0.72rem;min-width:2rem;' + (active ? 'background:var(--accent);border-color:var(--accent);color:#fff;' : '') + '" onclick="selectTableTemplate(\'' + k + '\')">' + t.name + '</button>';
-    });
-    html += '</div>';
-    html += '<div style="width:100%;font-size:0.7rem;font-weight:700;color:var(--muted);margin-bottom:0.2rem;">Custom</div>';
-    html += '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;justify-content:center;margin-bottom:0.5rem;">';
-    const gActive = tableSetupState.template === 'grid';
-    html += '<button class="btn-secondary btn-sm" style="padding:0.25rem 0.5rem;font-size:0.72rem;min-width:6rem;' + (gActive ? 'background:var(--accent);border-color:var(--accent);color:#fff;' : '') + '" onclick="selectTableTemplate(\'grid\')">Custom Grid</button>';
-    html += '</div>';
-    tplContainer.innerHTML = html;
-  }
-  // SVG
   const svg = document.getElementById('table-setup-svg');
   if (!svg) return;
-  // Grid mode: 2 rows x 8 columns + optional end seats
-  if (tableSetupState.template === 'grid') {
-    if (!Array.isArray(tableSetupState.grid) || tableSetupState.grid.length !== 16) {
-      tableSetupState.grid = new Array(16).fill(false);
-      // default: 2x2 in the middle
-      tableSetupState.grid[1*8+3] = true;
-      tableSetupState.grid[1*8+4] = true;
-      tableSetupState.grid[0*8+3] = true;
-      tableSetupState.grid[0*8+4] = true;
-    }
-    if (typeof tableSetupState.endLeft !== 'boolean') tableSetupState.endLeft = false;
-    if (typeof tableSetupState.endRight !== 'boolean') tableSetupState.endRight = false;
-    if (typeof tableSetupState.endSeatsEnabled !== 'boolean') tableSetupState.endSeatsEnabled = false;
-
-    const cellW = 50;
-    const cellH = 50;
-    const players = (typeof localPlayers !== 'undefined' && Array.isArray(localPlayers)) ? localPlayers : [];
-    const byId = {};
-    players.forEach(p => { byId[p.id] = p; });
-
-    // seats = true cells in row-major order, then left end, then right end
-    const seatCells = [];
-    for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) if (tableSetupState.grid[r*8+c]) seatCells.push({r, c, idx: seatCells.length, type: 'side'});
-    const endSeats = [];
-    if (tableSetupState.endSeatsEnabled) {
-      if (tableSetupState.endLeft) endSeats.push({type: 'endLeft', idx: seatCells.length + endSeats.length});
-      if (tableSetupState.endRight) endSeats.push({type: 'endRight', idx: seatCells.length + endSeats.length});
-    }
-    const allSeats = seatCells.concat(endSeats);
-    const n = allSeats.length;
-    if (!Array.isArray(tableSetupState.slots) || tableSetupState.slots.length !== n) {
-      const old = tableSetupState.slots || [];
-      const ns = new Array(n).fill(null);
-      for (let i = 0; i < Math.min(old.length, n); i++) ns[i] = old[i];
-      tableSetupState.slots = ns;
-      autoFillTableSlots(false);
-    }
-
-    let content = '';
-    // grid lines (2 rows x 8 cols)
-    for (let i = 0; i <= 2; i++) content += '<line x1="0" y1="' + (i*cellH) + '" x2="400" y2="' + (i*cellH) + '" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>';
-    for (let i = 0; i <= 8; i++) content += '<line x1="' + (i*cellW) + '" y1="0" x2="' + (i*cellW) + '" y2="400" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>';
-
-    // render side seats
-    seatCells.forEach((sc, i) => {
-      const cx = sc.c * cellW + cellW/2;
-      const cy = sc.r * cellH + cellH/2;
-      const pid = tableSetupState.slots[i];
-      const p = pid ? byId[pid] : null;
-      const color = p ? (p.color || '#7c5cbf') : 'rgba(255,255,255,0.15)';
-      const sel = tableSetupState.selected === i;
-      content += '<rect x="' + (sc.c*cellW+3) + '" y="' + (sc.r*cellH+3) + '" width="' + (cellW-6) + '" height="' + (cellH-6) + '" rx="6" ry="6" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;pointer-events:all;touch-action:none;" onclick="selectTableSlot(' + i + ')" onpointerdown="tableSetupPointerDown(event,' + i + ')"/>';
-      if (p) content += svgAvatar(cx, cy, 14, p.avatar, color);
-      else content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="16" font-weight="800" style="pointer-events:none;">+</text>';
-    });
-    // render empty side cells as tappable
-    for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) {
-      if (tableSetupState.grid[r*8+c]) continue;
-      const cx = c*cellW + cellW/2;
-      const cy = r*cellH + cellH/2;
-      content += '<rect x="' + (c*cellW+8) + '" y="' + (r*cellH+8) + '" width="' + (cellW-16) + '" height="' + (cellH-16) + '" rx="4" ry="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="4 3" style="cursor:pointer;pointer-events:all;touch-action:none;" onpointerdown="gridCellPointerDown(event,' + r + ',' + c + ')" onpointermove="gridCellPointerMove(event,' + r + ',' + c + ')" onpointerup="gridCellPointerUp(event)" onclick="toggleGridCell(' + r + ',' + c + ')"/>';
-      content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.2)" font-family="Inter,sans-serif" font-size="14" font-weight="800" style="pointer-events:none;">+</text>';
-    }
-    // render end seats (left/right, between rows)
-    const endStartIdx = seatCells.length;
-    if (tableSetupState.endSeatsEnabled) {
-      // left end
-      if (tableSetupState.endLeft) {
-        const i = endStartIdx;
-        const pid = tableSetupState.slots[i];
-        const p = pid ? byId[pid] : null;
-        const color = p ? (p.color || '#7c5cbf') : 'rgba(255,255,255,0.15)';
-        const cx = -cellW/2;
-        const cy = cellH; // between the 2 rows
-        const sel = tableSetupState.selected === i;
-        content += '<rect x="' + (-cellW+8) + '" y="' + (cellH/2+8) + '" width="' + (cellW-16) + '" height="' + (cellH-16) + '" rx="6" ry="6" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;pointer-events:all;" onclick="selectTableSlot(' + i + ')" onpointerdown="tableSetupPointerDown(event,' + i + ')"/>';
-        if (p) content += svgAvatar(cx, cy, 14, p.avatar, color);
-        else content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="16" font-weight="800" style="pointer-events:none;">+</text>';
-      } else {
-        // tappable placeholder
-        const cx = -cellW/2;
-        const cy = cellH;
-        content += '<rect x="' + (-cellW+12) + '" y="' + (cellH/2+12) + '" width="' + (cellW-24) + '" height="' + (cellH-24) + '" rx="4" ry="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="4 3" style="cursor:pointer;pointer-events:all;" onclick="toggleEndSeat(0)"/>';
-        content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.2)" font-family="Inter,sans-serif" font-size="14" font-weight="800" style="pointer-events:none;">+</text>';
-      }
-      // right end
-      if (tableSetupState.endRight) {
-        const i = tableSetupState.endLeft ? endStartIdx + 1 : endStartIdx;
-        const pid = tableSetupState.slots[i];
-        const p = pid ? byId[pid] : null;
-        const color = p ? (p.color || '#7c5cbf') : 'rgba(255,255,255,0.15)';
-        const cx = 400 + cellW/2;
-        const cy = cellH;
-        const sel = tableSetupState.selected === i;
-        content += '<rect x="' + (400+8) + '" y="' + (cellH/2+8) + '" width="' + (cellW-16) + '" height="' + (cellH-16) + '" rx="6" ry="6" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;pointer-events:all;" onclick="selectTableSlot(' + i + ')" onpointerdown="tableSetupPointerDown(event,' + i + ')"/>';
-        if (p) content += svgAvatar(cx, cy, 14, p.avatar, color);
-        else content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="16" font-weight="800" style="pointer-events:none;">+</text>';
-      } else {
-        const cx = 400 + cellW/2;
-        const cy = cellH;
-        content += '<rect x="' + (400+12) + '" y="' + (cellH/2+12) + '" width="' + (cellW-24) + '" height="' + (cellH-24) + '" rx="4" ry="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="4 3" style="cursor:pointer;pointer-events:all;" onclick="toggleEndSeat(1)"/>';
-        content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.2)" font-family="Inter,sans-serif" font-size="14" font-weight="800" style="pointer-events:none;">+</text>';
-      }
-    }
-    svg.setAttribute('viewBox', '-50 0 500 200');
-    svg.innerHTML = content;
-    // legend
-    const legend = document.getElementById('table-setup-legend');
-    if (legend) {
-      const assigned = tableSetupState.slots.filter(s => s).length;
-      const toggleLabel = tableSetupState.endSeatsEnabled ? 'End Seats: ON' : 'End Seats: OFF';
-      legend.innerHTML = assigned + ' of ' + tableSetupState.slots.length + ' seats filled &middot; <button class="btn-secondary btn-sm" style="padding:0.2rem 0.5rem;font-size:0.7rem;margin-left:0.5rem;" onclick="toggleEndSeatsMode()">' + toggleLabel + '</button>';
-    }
-    return;
-  }
-  const positions = tableLayoutSlots({ template: tableSetupState.template });
-  const players = (typeof localPlayers !== 'undefined' && Array.isArray(localPlayers)) ? localPlayers : [];
-  const byId = {};
-  players.forEach(p => { byId[p.id] = p; });
+  const grid = normalizeTableGrid(tableSetupState.grid);
+  tableSetupState.grid = grid;
   let content = '';
-  // table surface
-  content += '<ellipse cx="200" cy="200" rx="' + t.rx + '" ry="' + t.ry + '" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
-  positions.forEach((pos, i) => {
-    const pid = tableSetupState.slots[i];
-    const p = pid ? byId[pid] : null;
-    const name = p ? (p.name || 'Player') : 'empty';
-    const color = p ? (p.color || '#7c5cbf') : 'rgba(255,255,255,0.15)';
-    const initial = p ? (name.charAt(0).toUpperCase()) : '+';
-    const sel = tableSetupState.selected === i;
-    content += '<circle cx="' + pos.x.toFixed(1) + '" cy="' + pos.y.toFixed(1) + '" r="24" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;pointer-events:all;" onclick="selectTableSlot(' + i + ')" onpointerdown="tableSetupPointerDown(event,' + i + ')"/>';
-    content += svgAvatar(pos.x, pos.y, 20, p ? p.avatar : null, color);
-    content += '<text x="' + pos.x.toFixed(1) + '" y="' + (pos.y + 34).toFixed(1) + '" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="Inter,sans-serif" font-size="10" font-weight="700" style="pointer-events:none;">' + (p ? (name.length > 8 ? name.substring(0,7) + '\u2026' : name) : 'empty') + '</text>';
+  let seatNo = 0;
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) {
+    const i = r * 8 + c, on = !!grid[i];
+    if (on) seatNo++;
+    const x = c * 50 + 2, y = r * 50 + 2;
+    content += '<rect x="' + x + '" y="' + y + '" width="46" height="46" rx="5" ry="5" fill="' + (on ? 'rgba(124,92,191,0.82)' : 'rgba(255,255,255,0.045)') + '" stroke="' + (on ? 'rgba(190,160,255,0.95)' : 'rgba(255,255,255,0.2)') + '" stroke-width="' + (on ? 2 : 1) + '"' + (on ? '' : ' stroke-dasharray="4 3"') + ' style="cursor:pointer;touch-action:manipulation;" onclick="toggleGridCell(' + r + ',' + c + ')"/>';
+    content += '<text x="' + (c * 50 + 25) + '" y="' + (r * 50 + 25) + '" text-anchor="middle" dominant-baseline="central" fill="' + (on ? '#fff' : 'rgba(255,255,255,0.38)') + '" font-family="Inter,sans-serif" font-size="' + (on ? 12 : 16) + '" font-weight="800" style="pointer-events:none;">' + (on ? seatNo : '+') + '</text>';
+  }
+  const ends = !!tableSetupState.endSeatsEnabled;
+  [{ x: -25, label: 'E1' }, { x: 425, label: 'E2' }].forEach(end => {
+    content += '<rect x="' + (end.x - 22) + '" y="28" width="44" height="44" rx="5" ry="5" fill="' + (ends ? 'rgba(124,92,191,0.82)' : 'rgba(255,255,255,0.025)') + '" stroke="' + (ends ? 'rgba(190,160,255,0.95)' : 'rgba(255,255,255,0.2)') + '" stroke-width="' + (ends ? 2 : 1) + '"' + (ends ? '' : ' stroke-dasharray="4 3"') + '/>';
+    content += '<text x="' + end.x + '" y="50" text-anchor="middle" dominant-baseline="central" fill="' + (ends ? '#fff' : 'rgba(255,255,255,0.35)') + '" font-family="Inter,sans-serif" font-size="10" font-weight="800">' + end.label + '</text>';
   });
+  svg.setAttribute('viewBox', '-50 0 500 100');
   svg.innerHTML = content;
-  // Legend
+  const endButton = document.getElementById('table-end-seats-toggle');
+  if (endButton) {
+    endButton.textContent = ends ? 'End Seats: ON (+2)' : 'End Seats: OFF';
+    endButton.setAttribute('aria-pressed', String(ends));
+    endButton.classList.toggle('active-ctrl', ends);
+  }
+  const count = grid.filter(Boolean).length + (ends ? 2 : 0);
+  const players = Array.isArray(localPlayers) ? localPlayers.length : 0;
   const legend = document.getElementById('table-setup-legend');
   if (legend) {
-    const assigned = tableSetupState.slots.filter(s => s).length;
-    legend.textContent = assigned + ' of ' + tableSetupState.slots.length + ' seats filled';
+    legend.textContent = grid.filter(Boolean).length + ' grid seats' + (ends ? ' + 2 end seats' : '') + ' = ' + count + ' total · ' + players + ' players';
+    legend.style.color = players > count ? '#ff7777' : 'var(--muted)';
   }
 }
 
-window.selectTableTemplate = function(key) {
-  if (!TABLE_TEMPLATES[key] && key !== 'grid') return;
-  const oldN = (tableSetupState.slots || []).length;
-  tableSetupState.template = key;
-  if (key === 'grid') {
-    if (!Array.isArray(tableSetupState.grid) || tableSetupState.grid.length !== 25) {
-      tableSetupState.grid = new Array(25).fill(false);
-      for (let r = 1; r <= 2; r++) for (let c = 1; c <= 3; c++) tableSetupState.grid[r*5+c] = true;
-    }
-    const n = tableSetupState.grid.filter(x => x).length;
-    const newSlots = new Array(n).fill(null);
-    const old = tableSetupState.slots || [];
-    for (let i = 0; i < Math.min(old.length, n); i++) newSlots[i] = old[i];
-    tableSetupState.slots = newSlots;
-    autoFillTableSlots(false);
-    tableSetupState.selected = null;
-    renderTableSetup();
-    try { haptic(5); } catch {}
-    return;
-  }
-  const newN = TABLE_TEMPLATES[key].n;
-  // Preserve existing assignments into new slot array
-  const newSlots = new Array(newN).fill(null);
-  const old = tableSetupState.slots || [];
-  for (let i = 0; i < Math.min(old.length, newN); i++) newSlots[i] = old[i];
-  tableSetupState.slots = newSlots;
-  autoFillTableSlots(false);
-  tableSetupState.selected = null;
-  renderTableSetup();
-  try { haptic(5); } catch {}
-};
-
-window.selectTableSlot = function(i) {
-  if (tableSetupState.selected === null) {
-    tableSetupState.selected = i;
-  } else if (tableSetupState.selected === i) {
-    tableSetupState.selected = null;
-  } else {
-    // swap
-    const a = tableSetupState.selected;
-    const tmp = tableSetupState.slots[a];
-    tableSetupState.slots[a] = tableSetupState.slots[i];
-    tableSetupState.slots[i] = tmp;
-    tableSetupState.selected = null;
-  }
-  renderTableSetup();
-  try { haptic(5); } catch {}
-};
-
-window.autoFillTableSlots = function(show) {
-  const players = (typeof localPlayers !== 'undefined' && Array.isArray(localPlayers)) ? localPlayers : [];
-  const assigned = new Set((tableSetupState.slots || []).filter(s => s));
-  let pi = 0;
-  for (let i = 0; i < (tableSetupState.slots || []).length; i++) {
-    if (tableSetupState.slots[i]) continue;
-    while (pi < players.length && assigned.has(players[pi].id)) pi++;
-    if (pi < players.length) {
-      tableSetupState.slots[i] = players[pi].id;
-      assigned.add(players[pi].id);
-      pi++;
-    }
-  }
-  if (show !== false) renderTableSetup();
-};
-window.toggleGridCell = function(r, c) {
-  if (!tableSetupState.grid) tableSetupState.grid = new Array(16).fill(false);
-  tableSetupState.grid[r*8+c] = !tableSetupState.grid[r*8+c];
-  autoFillTableSlots(false);
+window.toggleGridCell = function(row, col) {
+  if (row < 0 || row > 1 || col < 0 || col > 7) return;
+  const oldGrid = normalizeTableGrid(tableSetupState.grid), ends = !!tableSetupState.endSeatsEnabled;
+  const grid = oldGrid.slice(), i = row * 8 + col;
+  grid[i] = !grid[i];
+  tableSetupState.slots = remapTableSlots(oldGrid, ends, grid, ends, tableSetupState.slots);
+  tableSetupState.grid = grid;
   renderTableSetup();
   try { haptic(5); } catch {}
 };
 window.toggleEndSeatsMode = function() {
-  tableSetupState.endSeatsEnabled = !tableSetupState.endSeatsEnabled;
-  if (!tableSetupState.endSeatsEnabled) {
-    tableSetupState.endLeft = false;
-    tableSetupState.endRight = false;
-  }
-  autoFillTableSlots(false);
+  const grid = normalizeTableGrid(tableSetupState.grid), oldEnds = !!tableSetupState.endSeatsEnabled;
+  const ends = !oldEnds;
+  tableSetupState.slots = remapTableSlots(grid, oldEnds, grid, ends, tableSetupState.slots);
+  tableSetupState.endSeatsEnabled = ends;
   renderTableSetup();
   try { haptic(5); } catch {}
 };
-window.toggleEndSeat = function(side) {
-  if (side === 0) tableSetupState.endLeft = !tableSetupState.endLeft;
-  else if (side === 1) tableSetupState.endRight = !tableSetupState.endRight;
-  autoFillTableSlots(false);
-  renderTableSetup();
-  try { haptic(5); } catch {}
-};
-
-// Drag-to-select in grid
-window.gridCellPointerDown = function(e, r, c) {
-  e.preventDefault();
-  gridDrag.active = true;
-  gridDrag.lastCell = r * 8 + c;
-  const currentlySelected = tableSetupState.grid && tableSetupState.grid[r*8+c];
-  gridDrag.mode = currentlySelected ? 'deselect' : 'select';
-  if (!tableSetupState.grid) tableSetupState.grid = new Array(16).fill(false);
-  tableSetupState.grid[r*8+c] = (gridDrag.mode === 'select');
-  autoFillTableSlots(false);
-  renderTableSetup();
-};
-window.gridCellPointerMove = function(e, r, c) {
-  if (!gridDrag.active) return;
-  const cellIdx = r * 8 + c;
-  if (cellIdx === gridDrag.lastCell) return;
-  gridDrag.lastCell = cellIdx;
-  if (!tableSetupState.grid) tableSetupState.grid = new Array(16).fill(false);
-  tableSetupState.grid[cellIdx] = (gridDrag.mode === 'select');
-  autoFillTableSlots(false);
-  renderTableSetup();
-};
-window.gridCellPointerUp = function(e) {
-  gridDrag.active = false;
-  gridDrag.lastCell = null;
-  gridDrag.mode = null;
-};
-
 window.applyTableSetup = async function() {
-  const layout = { template: tableSetupState.template, slots: tableSetupState.slots.slice() };
+  const grid = normalizeTableGrid(tableSetupState.grid), ends = !!tableSetupState.endSeatsEnabled;
+  const layout = {
+    template: 'grid', grid, endSeatsEnabled: ends,
+    slots: resizeTableSlots(tableSetupState.slots, grid.filter(Boolean).length + (ends ? 2 : 0))
+  };
   window._tableLayout = layout;
-  // Persist to Firebase
+  lobbyViewMode = true;
+  try { localStorage.setItem('sk_lobby_view', 'table'); } catch {}
+  let saved = true;
   if (db && roomCode) {
-    try { await update(ref(db, `rooms/${roomCode}`), { tableLayout: layout }); } catch(e) { console.error('tableLayout save failed', e); }
+    try { await update(ref(db, 'rooms/' + roomCode), { tableLayout: layout }); }
+    catch (e) { saved = false; console.error('tableLayout save failed', e); }
   }
-  closeTableSetup();
-  // Re-render table view if active
-  try {
-    if (uiMode === 'table' && window._currentActivePlayerId && localPlayers && localPlayers.length && myId) {
-      const isAct = document.getElementById('screen-active') && document.getElementById('screen-active').classList.contains('active');
-      const isWait = document.getElementById('screen-waiting') && document.getElementById('screen-waiting').classList.contains('active');
-      if (isAct) renderCurrentUI('active', localPlayers, window._currentActivePlayerId, myId, passDirection || 'both', true);
-      else if (isWait) renderCurrentUI('wait', localPlayers, window._currentActivePlayerId, myId, passDirection || 'both', false);
-    }
-  } catch(e) {}
+  window.closeTableSetup();
+  renderLobbyList(localPlayers || []);
+  updateStartButton();
+  if (!saved && window.showAlert) window.showAlert('Could not save Table Setup. Please try again.');
   try { haptic(10); } catch {}
 };
-
 window.closeTableSetup = function() {
-  const ov = document.getElementById('table-setup-overlay');
-  if (ov) ov.classList.remove('show');
+  const overlay = document.getElementById('table-setup-overlay');
+  if (overlay) overlay.classList.remove('show');
 };
 
-// Load table layout from Firebase room data (called when room updates)
 function syncTableLayoutFromRoom(room) {
-  if (room && room.tableLayout) {
-    window._tableLayout = room.tableLayout;
-    // Reconcile: remove departed players, auto-add new ones to empty slots
-    reconcileTableLayout(room);
-  } else {
-    window._tableLayout = null;
-  }
+  if (!room || !room.tableLayout) { window._tableLayout = null; return; }
+  window._tableLayout = room.tableLayout;
+  reconcileTableLayout(room);
 }
-
 function reconcileTableLayout(room) {
   const layout = window._tableLayout;
   if (!layout || !Array.isArray(layout.slots)) return;
-  const players = (typeof localPlayers !== 'undefined' && Array.isArray(localPlayers)) ? localPlayers : [];
+  const players = Array.isArray(localPlayers) ? localPlayers : [];
   const ids = new Set(players.map(p => p.id));
-  // Remove departed
-  for (let i = 0; i < layout.slots.length; i++) {
-    if (layout.slots[i] && !ids.has(layout.slots[i])) layout.slots[i] = null;
+  if (layout.template === 'grid') {
+    const oldGrid = Array.isArray(layout.grid) ? layout.grid.slice(0, 16) : defaultTableGrid();
+    const grid = normalizeTableGrid(layout.grid);
+    const ends = tableLayoutHasEndSeats(layout);
+    // Preserve occupants by physical seat when a legacy 25-cell grid is normalized to 2×8.
+    const oldGridForKeys = oldGrid.length >= 16 ? oldGrid : grid;
+    layout.grid = grid;
+    layout.endSeatsEnabled = ends;
+    delete layout.endLeft;
+    delete layout.endRight;
+    layout.slots = resizeTableSlots(layout.slots, tableSeatCapacity(layout));
+    for (let i = 0; i < layout.slots.length; i++) if (layout.slots[i] && !ids.has(layout.slots[i])) layout.slots[i] = null;
+  } else {
+    for (let i = 0; i < layout.slots.length; i++) if (layout.slots[i] && !ids.has(layout.slots[i])) layout.slots[i] = null;
+    const assigned = new Set(layout.slots.filter(Boolean));
+    players.forEach(p => {
+      if (assigned.has(p.id)) return;
+      const empty = layout.slots.indexOf(null);
+      if (empty >= 0) { layout.slots[empty] = p.id; assigned.add(p.id); }
+    });
   }
-  // Auto-add new players to empty slots
-  const assigned = new Set(layout.slots.filter(s => s));
-  players.forEach(p => {
-    if (assigned.has(p.id)) return;
-    const emptyIdx = layout.slots.indexOf(null);
-    if (emptyIdx >= 0) { layout.slots[emptyIdx] = p.id; assigned.add(p.id); }
-  });
   window._tableLayout = layout;
 }
 
@@ -11012,68 +10777,85 @@ function reconcileTableLayout(room) {
 // (patched below: renderTable checks window._tableLayout)
 
 // ── Phase 3: drag-and-drop in table setup ──
-let tableDrag = { from: null, ghost: null };
-
-// Called from seat onclick's pointerdown (we hook via renderTableSetup injecting onpointerdown)
-window.tableSetupPointerDown = function(e, slotIdx) {
-  const pid = tableSetupState.slots[slotIdx];
-  if (!pid) return; // only drag filled seats
-  try { e.preventDefault(); } catch {}
-  tableDrag.from = slotIdx;
-  // create ghost
-  const ghost = document.createElement('div');
-  ghost.style.cssText = 'position:fixed;pointer-events:none;z-index:9999;width:48px;height:48px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;box-shadow:0 4px 12px rgba(0,0,0,0.4);transform:translate(-50%,-50%);';
-  const players = (typeof localPlayers !== 'undefined' && Array.isArray(localPlayers)) ? localPlayers : [];
-  const p = players.find(pp => pp.id === pid);
-  ghost.textContent = p ? (p.name || '?').charAt(0).toUpperCase() : '?';
-  document.body.appendChild(ghost);
-  tableDrag.ghost = ghost;
-  moveGhost(e);
-  try { haptic(5); } catch {}
-};
-
-function moveGhost(e) {
-  if (!tableDrag.ghost) return;
-  const pt = e.touches ? e.touches[0] : e;
-  tableDrag.ghost.style.left = pt.clientX + 'px';
-  tableDrag.ghost.style.top = pt.clientY + 'px';
+function renderLobbyTableUnseated(players) {
+  const tray = document.getElementById('lobby-table-unseated');
+  if (!tray) return;
+  tray.innerHTML = '';
+  if (!players.length) { tray.style.display = 'none'; return; }
+  tray.style.display = 'flex';
+  const label = document.createElement('div');
+  label.className = 'lobby-table-unseated-label';
+  label.textContent = isHost ? 'Drag players to seats' : 'Waiting for host to seat players';
+  tray.appendChild(label);
+  players.forEach(p => {
+    const chip = document.createElement('div');
+    chip.className = 'lobby-table-unseated-player';
+    chip.innerHTML = avatarHTML(p.avatar || '👤', 22) + '<span>' + esc(p.name || 'Player') + '</span>';
+    if (isHost) chip.addEventListener('pointerdown', e => lobbyTablePlayerPointerDown(e, p.id));
+    tray.appendChild(chip);
+  });
 }
 
-function endDrag(e) {
-  if (tableDrag.from === null) return;
-  const pt = (e && e.changedTouches) ? e.changedTouches[0] : e;
-  // find nearest slot
-  const svg = document.getElementById('table-setup-svg');
-  if (svg && pt) {
-    const rect = svg.getBoundingClientRect();
-    const vb = svg.viewBox.baseVal;
-    const sx = (pt.clientX - rect.left) / rect.width * vb.width;
-    const sy = (pt.clientY - rect.top) / rect.height * vb.height;
-    const positions = tableLayoutSlots({ template: tableSetupState.template });
-    let best = -1, bestD = Infinity;
-    positions.forEach((pos, i) => {
-      const d = Math.hypot(pos.x - sx, pos.y - sy);
-      if (d < bestD) { bestD = d; best = i; }
-    });
-    if (best >= 0 && best !== tableDrag.from && bestD < 60) {
-      // swap
-      const tmp = tableSetupState.slots[tableDrag.from];
-      tableSetupState.slots[tableDrag.from] = tableSetupState.slots[best];
-      tableSetupState.slots[best] = tmp;
-      renderTableSetup();
-      try { haptic(5); } catch {}
-    }
+let lobbyTableDrag = null;
+function lobbyTablePlayerPointerDown(e, playerId) {
+  const firstPick = tapArmed && firstPlayerOption === 'spot1';
+  if (!isHost && !firstPick) return;
+  e.preventDefault();
+  lobbyTableDrag = { kind: firstPick ? 'first' : 'unseated', playerId, from: null, x: e.clientX, y: e.clientY, moved: false };
+}
+window.lobbyTableSeatPointerDown = function(e, seatIndex) {
+  const layout = window._tableLayout;
+  const playerId = layout && Array.isArray(layout.slots) ? layout.slots[seatIndex] : null;
+  const firstPick = tapArmed && firstPlayerOption === 'spot1';
+  if (firstPick && playerId) {
+    e.preventDefault();
+    lobbyTableDrag = { kind: 'first', playerId, from: seatIndex, x: e.clientX, y: e.clientY, moved: false };
+    return;
   }
-  // cleanup
-  if (tableDrag.ghost) { try { tableDrag.ghost.remove(); } catch {} }
-  tableDrag = { from: null, ghost: null };
-}
-
-// Hook global move/up
-document.addEventListener('pointermove', function(e) { if (tableDrag.from !== null) moveGhost(e); });
-document.addEventListener('pointerup', function(e) { if (tableDrag.from !== null) endDrag(e); });
-document.addEventListener('touchmove', function(e) { if (tableDrag.from !== null) { moveGhost(e); e.preventDefault(); } }, { passive: false });
-document.addEventListener('touchend', function(e) { if (tableDrag.from !== null) endDrag(e); });
+  if (!isHost || !playerId) return;
+  e.preventDefault();
+  lobbyTableDrag = { kind: 'seated', playerId, from: seatIndex, x: e.clientX, y: e.clientY, moved: false };
+};
+document.addEventListener('pointermove', e => {
+  if (lobbyTableDrag && Math.hypot(e.clientX - lobbyTableDrag.x, e.clientY - lobbyTableDrag.y) > 10) lobbyTableDrag.moved = true;
+});
+document.addEventListener('pointerup', e => {
+  const drag = lobbyTableDrag;
+  if (!drag) return;
+  lobbyTableDrag = null;
+  const moved = drag.moved || Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 10;
+  if (drag.kind === 'first') { if (!moved) window.lobbyTableTapSeat(drag.playerId); return; }
+  if (!isHost || !moved) return;
+  const hit = document.elementFromPoint(e.clientX, e.clientY);
+  const seatEl = hit && hit.closest('[data-lobby-table-seat]');
+  const tray = hit && hit.closest('#lobby-table-unseated');
+  const layout = window._tableLayout;
+  if (!layout || layout.template !== 'grid') return;
+  const slots = resizeTableSlots(layout.slots, tableSeatCapacity(layout));
+  let changed = false;
+  if (seatEl) {
+    const to = Number(seatEl.getAttribute('data-lobby-table-seat'));
+    if (!Number.isInteger(to) || to < 0 || to >= slots.length) return;
+    if (drag.kind === 'seated' && to === drag.from) return;
+    if (drag.kind === 'seated') {
+      const displaced = slots[to];
+      slots[to] = drag.playerId;
+      slots[drag.from] = displaced || null;
+    } else slots[to] = drag.playerId;
+    changed = true;
+  } else if (tray && drag.kind === 'seated') {
+    slots[drag.from] = null;
+    changed = true;
+  }
+  if (!changed) return;
+  layout.slots = slots;
+  window._tableLayout = layout;
+  renderLobbyView(localPlayers || []);
+  updateStartButton();
+  try { haptic(5); } catch {}
+  if (db && roomCode) update(ref(db, 'rooms/' + roomCode), { tableLayout: layout }).catch(e => console.error('[SK] table seat save failed', e));
+});
+document.addEventListener('pointercancel', () => { lobbyTableDrag = null; });
 
 // Build SVG arc path for a donut wedge (single closed subpath)
 function wheelArcPath(cx, cy, rIn, rOut, startDeg, endDeg) {
@@ -11835,21 +11617,29 @@ window.selectFirstPlayerOption = function(opt) {
   renderLobbyList(localPlayers);
 };
 
+let lastTableCapacityNotice = '';
+function updateTableCapacityWarning() {
+  const issue = tableCapacityIssue((localPlayers || []).length, window._tableLayout);
+  const warning = document.getElementById('table-capacity-warning');
+  const show = !!(isHost && issue);
+  if (warning) { warning.style.display = show ? 'block' : 'none'; warning.textContent = show ? issue.message : ''; }
+  if (show) {
+    const key = issue.playerCount + ':' + issue.capacity;
+    if (key !== lastTableCapacityNotice && window.showAlert) window.showAlert(issue.message);
+    lastTableCapacityNotice = key;
+  } else lastTableCapacityNotice = '';
+  return !!issue;
+}
 function updateStartButton() {
   const btn = document.getElementById('start-btn');
   if (!btn) return;
-  const count = localPlayers.length;
-  let allowed = count >= 2;
+  const overCapacity = updateTableCapacityWarning();
+  let allowed = (localPlayers || []).length >= 2 && !overCapacity;
   if (allowed) {
-    if (firstPlayerOption === 'random') {
-      allowed = true;
-    } else if (firstPlayerOption === 'spot1') {
-      allowed = !!tapFirstId;
-    } else if (firstPlayerOption === 'duel') {
-      allowed = !!duelWinnerId;
-    } else {
-      allowed = false;
-    }
+    if (firstPlayerOption === 'random') allowed = true;
+    else if (firstPlayerOption === 'spot1') allowed = !!tapFirstId;
+    else if (firstPlayerOption === 'duel') allowed = !!duelWinnerId;
+    else allowed = false;
   }
   btn.disabled = !allowed;
 }
@@ -11885,6 +11675,11 @@ window.startGame = async function() {
     ? Math.floor(Math.random() * localPlayers.length)
     : 0;
   syncTableLayoutFromRoom(roomData);
+  const capacityIssue = tableCapacityIssue(localPlayers.length, window._tableLayout);
+  if (capacityIssue) {
+    updateStartButton();
+    return;
+  }
 
   // If Duel was chosen and there's a duel winner, use their index instead
   let actualFirstIdx = firstIdx;
