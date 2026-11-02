@@ -1,5 +1,5 @@
 // Collection library list/filter UI. Edit, search, barcode, and photo flows remain in index.html.
-import { collectionState } from './collection-store.js?v=349';
+import { collectionState } from './collection-store.js?v=352';
 
 const collectionListServices = {
   escapeHtml: value => value == null ? '' : String(value),

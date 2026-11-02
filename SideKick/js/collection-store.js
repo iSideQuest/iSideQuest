@@ -80,3 +80,41 @@ export async function loadCollection() {
   collectionState.games = loadCollectionLocal();
   return collectionState.games;
 }
+
+export async function saveCollectionRecord(game, photoDataUrl) {
+  const index = collectionState.games.findIndex(item => item.id === game.id);
+  if (index === -1) collectionState.games.push(game);
+  else collectionState.games[index] = game;
+  saveCollectionLocal(collectionState.games);
+  const user = collectionServices.getCurrentUser();
+  const db = collectionServices.getDb();
+  if (db && user) {
+    try {
+      const gameCopy = Object.assign({}, game);
+      delete gameCopy.photo;
+      await collectionServices.set(collectionServices.ref(db, collectionPath() + '/' + game.id), gameCopy);
+      const photoRef = collectionServices.ref(db, `privatePhotos/${user.uid}/${game.id}`);
+      if (photoDataUrl) await collectionServices.set(photoRef, photoDataUrl);
+      else await collectionServices.remove(photoRef);
+    } catch (e) {
+      return e;
+    }
+  }
+  return null;
+}
+
+export async function deleteCollectionRecord(id) {
+  collectionState.games = collectionState.games.filter(game => game.id !== id);
+  saveCollectionLocal(collectionState.games);
+  const user = collectionServices.getCurrentUser();
+  const db = collectionServices.getDb();
+  if (db && user) {
+    try {
+      await collectionServices.remove(collectionServices.ref(db, collectionPath() + '/' + id));
+      await collectionServices.remove(collectionServices.ref(db, `privatePhotos/${user.uid}/${id}`));
+    } catch (e) {
+      return e;
+    }
+  }
+  return null;
+}
