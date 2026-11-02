@@ -1,7 +1,7 @@
 ﻿// SideKick Service Worker
 
 // âš ï¸ Bump this on every release so the new version takes effect for all users.
-const CACHE_NAME = 'sidekick-v348';
+const CACHE_NAME = 'sidekick-v349';
 
 // Files to cache on install â€” the core app shell (relative paths)
 const PRECACHE = [
@@ -11,6 +11,7 @@ const PRECACHE = [
   './js/sound.js?v=346',
   './js/i18n-data.js?v=347',
   './js/feature-data.js?v=348',
+  './js/collection-store.js?v=349',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',

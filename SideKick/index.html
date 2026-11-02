@@ -2559,6 +2559,7 @@
 <script type="module">
 import { soundMode, soundModeIcon, soundModeEnabled, openSoundModeMenu, setSoundMode, updateSoundButtons, toggleSound, speakName, playTurnSound, playNudgeSound, playBuzzerSound, getAudioContext, resetOrientation, requestWakeLock, releaseWakeLock, getCustomAudio, configureSoundServices } from './js/sound.js?v=346';
 import { I18N_STRINGS } from './js/i18n-data.js?v=347';
+import { collectionState, configureCollectionStore, collectionPath, loadCollection, saveCollectionLocal } from './js/collection-store.js?v=349';
 import { FEATURE_DEFS_GRID, HIDDEN_FEATURES, FEATURE_INFO } from './js/feature-data.js?v=348';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, onValue, update, remove, push, serverTimestamp, runTransaction, goOffline, goOnline }
@@ -6446,6 +6447,7 @@ window.saveConfig = function() {
 
 let auth = null;
 let currentUser = null; // Firebase Auth user object, or null if signed out
+configureCollectionStore({ getDb: () => db, getCurrentUser: () => currentUser, ref, get, set, update });
 
 function initFirebase(cfg) {
   try {
@@ -13288,70 +13290,6 @@ let collectionPickId = null;
 let collectionEditingId = null;
 let collectionEditCats = new Set();
 let collectionEditMechs = new Set();
-let collectionGames = []; // in-memory cache of the user's games
-
-function getCollectionKey() {
-  return 'sk_collection_' + (currentUser && currentUser.uid ? currentUser.uid : 'guest');
-}
-function collectionPath() {
-  return 'users/' + (currentUser && currentUser.uid ? currentUser.uid : 'guest') + '/collection';
-}
-function loadCollectionLocal() {
-  try { return JSON.parse(localStorage.getItem(getCollectionKey()) || '[]'); } catch (e) { return []; }
-}
-function saveCollectionLocal(list) {
-  try { localStorage.setItem(getCollectionKey(), JSON.stringify(list)); } catch (e) {}
-}
-// Loads the collection into the in-memory cache. Signed in hosts read from
-// Firebase; guests fall back to localStorage. Always mirrors to localStorage
-// so the list still works offline / while signed out.
-async function loadCollection() {
-  const uid = currentUser && currentUser.uid ? currentUser.uid : 'guest';
-  if (db && currentUser) {
-    try {
-      const snap = await get(ref(db, collectionPath()));
-      if (snap.exists()) {
-        const obj = snap.val();
-        collectionGames = Object.keys(obj).map(k => Object.assign({ id: k }, obj[k]));
-        // Photos live owner-only under privatePhotos: attach them here and
-        // migrate any legacy inline photo out of the friend-readable node.
-        try {
-          const psnap = await get(ref(db, `privatePhotos/${uid}`));
-          const photos = (psnap && psnap.val()) || {};
-          const localMap = {};
-          loadCollectionLocal().forEach(g => { if (g && g.id && g.photo) localMap[g.id] = g.photo; });
-          for (const g of collectionGames) {
-            if (g.photo) {
-              try {
-                await set(ref(db, `privatePhotos/${uid}/${g.id}`), g.photo);
-                const strip = {};
-                strip[collectionPath() + '/' + g.id + '/photo'] = null;
-                await update(ref(db), strip);
-              } catch {}
-              photos[g.id] = g.photo;
-            }
-            if (!photos[g.id] && localMap[g.id]) {
-              try {
-                await set(ref(db, `privatePhotos/${uid}/${g.id}`), localMap[g.id]);
-                photos[g.id] = localMap[g.id];
-              } catch {}
-            }
-            if (photos[g.id]) g.photo = photos[g.id];
-            else delete g.photo;
-          }
-        } catch {}
-        saveCollectionLocal(collectionGames);
-        return collectionGames;
-      }
-      // Firebase has no collection yet — keep any local cache instead of wiping it
-    } catch (e) {
-      // fall through to local cache
-    }
-  }
-  collectionGames = loadCollectionLocal();
-  return collectionGames;
-}
-
 window.openMyCollection = async function() {
   document.getElementById('collection-library').style.display = '';
   document.getElementById('collection-detail').style.display = 'none';
@@ -13497,7 +13435,7 @@ async function handleScannedUPC(rawCode) {
   closeBarcodeScanner();
   if (!code) return;
   // 1) Already in your library?
-  const owned = collectionGames.find(g => g.upc && normUPC(g.upc) === normUPC(code));
+  const owned = collectionState.games.find(g => g.upc && normUPC(g.upc) === normUPC(code));
   if (owned) {
     showAlert('You already own this game.');
     openCollectionDetail(owned.id);
@@ -13540,7 +13478,7 @@ window.searchGameDatabase = function() {
     resultsEl.innerHTML = '<div style="color:var(--muted);font-size:0.82rem;text-align:center;padding:0.5rem;">Database still loading…</div>';
     return;
   }
-  const existingNames = new Set(collectionGames.map(g => (g.name || '').toLowerCase()));
+  const existingNames = new Set(collectionState.games.map(g => (g.name || '').toLowerCase()));
   const matches = gameDatabaseCache.filter(g => {
     const name = (g.name || '').toLowerCase();
     return name.indexOf(query) !== -1;
@@ -13657,7 +13595,7 @@ window.clearCollectionFilters = function() {
 window.pickRandomGame = function() {
   const searchEl = document.getElementById('collection-search');
   collectionFilter.search = (searchEl && searchEl.value || '').trim().toLowerCase();
-  const matches = collectionGames.filter(game => {
+  const matches = collectionState.games.filter(game => {
     if (collectionFilter.search && (game.name || '').toLowerCase().indexOf(collectionFilter.search) === -1) return false;
     if (collectionFilter.players) {
       const p = collectionFilter.players;
@@ -13681,7 +13619,7 @@ window.renderCollection = function() {
   if (!listEl) return;
   const searchEl = document.getElementById('collection-search');
   collectionFilter.search = (searchEl && searchEl.value || '').trim().toLowerCase();
-  const all = collectionGames;
+  const all = collectionState.games;
   const matches = all.filter(game => {
     if (collectionFilter.search && (game.name || '').toLowerCase().indexOf(collectionFilter.search) === -1) return false;
     if (collectionFilter.players) {
@@ -13827,7 +13765,7 @@ window.clearCollectionRating = function() {
 
 // ── COLLECTION GAME DETAIL (bigger view, Back + Edit) ──
 window.openCollectionDetail = function(id) {
-  const game = collectionGames.find(g => g.id === id);
+  const game = collectionState.games.find(g => g.id === id);
   if (!game) return;
   const ratingVal = typeof game.rating === 'number' ? game.rating : 0;
   const metaBits = [];
@@ -13867,7 +13805,7 @@ window.closeCollectionDetail = function() {
 
 window.openCollectionEdit = function(id) {
   collectionEditingId = id || null;
-  const game = id ? collectionGames.find(g => g.id === id) : null;
+  const game = id ? collectionState.games.find(g => g.id === id) : null;
   document.getElementById('collection-edit-title').textContent = game ? 'Edit Game' : 'Add Game';
   document.getElementById('ce-name').value = game ? game.name : '';
   document.getElementById('ce-min').value = game ? (game.minPlayers || 2) : 2;
@@ -13945,12 +13883,12 @@ window.saveCollectionGame = async function() {
     ...(collectionEditUPC ? { upc: collectionEditUPC } : {})
   };
   if (collectionEditingId) {
-    const idx = collectionGames.findIndex(g => g.id === collectionEditingId);
-    if (idx !== -1) collectionGames[idx] = game; else collectionGames.push(game);
+    const idx = collectionState.games.findIndex(g => g.id === collectionEditingId);
+    if (idx !== -1) collectionState.games[idx] = game; else collectionState.games.push(game);
   } else {
-    collectionGames.push(game);
+    collectionState.games.push(game);
   }
-  saveCollectionLocal(collectionGames);
+  saveCollectionLocal(collectionState.games);
   const uid = currentUser && currentUser.uid ? currentUser.uid : null;
   if (db && uid) {
     try {
@@ -13972,8 +13910,8 @@ window.saveCollectionGame = async function() {
 
 window.deleteCollectionGame = async function(id) {
   if (!await showConfirm('Remove this game from your collection?')) return;
-  collectionGames = collectionGames.filter(g => g.id !== id);
-  saveCollectionLocal(collectionGames);
+  collectionState.games = collectionState.games.filter(g => g.id !== id);
+  saveCollectionLocal(collectionState.games);
   const uid = currentUser && currentUser.uid ? currentUser.uid : null;
   if (db && uid) {
     try {
