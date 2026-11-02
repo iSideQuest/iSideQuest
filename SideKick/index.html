@@ -17362,6 +17362,9 @@ function renderLobbyTable(players) {
     const CX = 200, CY = 200;
     const AVATAR_R = 26;
     const layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
+    let seatAngles = [];
+    let tableRx = 95, tableRy = 55;
+    let tableShape = 'round';
 
     // Grid layout
     if (layout && layout.template === 'grid' && Array.isArray(layout.grid)) {
