@@ -32,6 +32,7 @@ sw.js -----------------------> static app shell/assets
 
 - The only local ES-module edge found is `index.html` → `js/sound.js`; there are no ES-module cycles yet.
 - `sound.js` has no imports and now receives app-owned `haptic`, language, and voice-selection collaborators through `configureSoundServices(...)`; the main module configures these after their declarations. Keep the dependency direction one-way.
+- The `sound.js` import URL and service-worker precache URL carry the same version query (`?v=346`) to avoid a stale CDN/HTTP-cached module being paired with newer inline app code. Keep both URLs in sync when changing that module.
 - Sound controls use that explicit haptic callback; the global click-haptic handler excludes those controls/menu options to preserve one haptic pulse per tap.
 - `sound.js` combines audio with device lifecycle concerns (orientation, wake lock, background audio). They are separable, but moving them is not necessary until tested as a distinct change.
 - HTML `onclick` attributes and post-module classic scripts rely on `window` functions. Module-local declarations are not globals; any extraction must provide explicit imports and deliberate `window` adapters only where HTML/classic-script callers require them.
@@ -40,7 +41,7 @@ sw.js -----------------------> static app shell/assets
 ## Modularization plan (one change at a time)
 
 1. **Baseline and map (done):** record the current entry points, coupling, and smoke checks before further extraction.
-2. **Harden the existing sound boundary (adapter shipped in v345):** verify sound mode, TTS language/voice, haptics, turn/nudge/buzzer audio, wake-lock, and orientation on supported devices. Keep unrelated device behavior separate only if the resulting module is clearer.
+2. **Harden the existing sound boundary (adapter in v345; cache-busted import in v346):** verify sound mode, TTS language/voice, haptics, turn/nudge/buzzer audio, wake-lock, and orientation on supported devices. Keep unrelated device behavior separate only if the resulting module is clearer.
 3. **Choose the next low-coupling system from measured references:** prefer pure/static data or helpers. Do not select a feature based only on line count; check its state, DOM, Firebase, and `window` dependencies first.
 4. **Establish narrow shared contracts:** keep the inline module as composition root while introducing services/state boundaries incrementally. Feature modules must not import the app entry point; avoid cycles and broad global-state rewrites.
 5. **Extract Firebase-dependent features later:** first isolate adapters/repositories where practical, then move a feature at a time (for example collection or tour UI). Lobby, room, and active-game flows are last because they share the most mutable state and realtime behavior.
@@ -58,7 +59,7 @@ No package manifest, bundler, automated test runner, or browser-test suite was f
 
 The longer human checklist at the source path is `C:\Users\brian\Desktop\SideKick\SMOKE-CHECKLIST.md`. Its version checks mention `APP_VERSION`/`#app-version`, which were not found in the deployed `index.html` during this review; verify the actual version mechanism before relying on those checks.
 
-**v345 sound-boundary change:** `configureSoundServices` injects haptic, language, and voice callbacks. Syntax checks and a focused Node harness for injected haptic, TTS language/voice, and synthesized turn tones passed. Phone/browser verification is still required; automated checks do not prove audible output or device haptics.
+**v346 sound-boundary release:** `configureSoundServices` injects haptic, language, and voice callbacks; the sound import and worker precache share a cache-busting version. Syntax checks and a focused Node harness for injected haptic, TTS language/voice, and synthesized turn tones passed. Phone/browser verification is still required; automated checks do not prove audible output or device haptics.
 
 ## Low-token AI workflow
 
