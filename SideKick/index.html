@@ -17619,8 +17619,8 @@ function renderTableSetup() {
     if (typeof tableSetupState.endRight !== 'boolean') tableSetupState.endRight = false;
     if (typeof tableSetupState.endSeatsEnabled !== 'boolean') tableSetupState.endSeatsEnabled = false;
 
-    const cellW = 400 / 8; // 50
-    const cellH = 400 / 2; // 200
+    const cellW = 50;
+    const cellH = 50;
     const players = (typeof localPlayers !== 'undefined' && Array.isArray(localPlayers)) ? localPlayers : [];
     const byId = {};
     players.forEach(p => { byId[p.id] = p; });
@@ -17709,7 +17709,7 @@ function renderTableSetup() {
         content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.2)" font-family="Inter,sans-serif" font-size="14" font-weight="800" style="pointer-events:none;">+</text>';
       }
     }
-    svg.setAttribute('viewBox', '-50 0 500 400');
+    svg.setAttribute('viewBox', '-50 0 500 200');
     svg.innerHTML = content;
     // legend
     const legend = document.getElementById('table-setup-legend');
