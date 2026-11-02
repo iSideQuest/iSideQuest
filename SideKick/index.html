@@ -2557,7 +2557,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
-import { soundMode, soundModeIcon, soundModeEnabled, openSoundModeMenu, setSoundMode, updateSoundButtons, toggleSound, speakName, playTurnSound, playNudgeSound, playBuzzerSound, getAudioContext, resetOrientation, requestWakeLock, releaseWakeLock, getCustomAudio } from './js/sound.js';
+import { soundMode, soundModeIcon, soundModeEnabled, openSoundModeMenu, setSoundMode, updateSoundButtons, toggleSound, speakName, playTurnSound, playNudgeSound, playBuzzerSound, getAudioContext, resetOrientation, requestWakeLock, releaseWakeLock, getCustomAudio, configureSoundServices } from './js/sound.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, onValue, update, remove, push, serverTimestamp, runTransaction, goOffline, goOnline }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -2674,6 +2674,8 @@ function haptic(ms, el) {
     const t = e.target.closest(sel);
     if (!t || t.disabled || t.closest('[disabled]')) return;
     if (t.closest('.custom-kb')) return; // custom keyboard vibrates explicitly per key
+    // Sound controls use sound.js's explicit short haptic; avoid a second global tap buzz.
+    if (t.matches('#sound-toggle, #active-sound-btn, #active-sound-btn-wait') || t.closest('#sound-mode-menu')) return;
     window._lastHapticTarget = t;
     // Respect vibrate mode
     if (!shouldVibrateForElement(t)) return;
@@ -5467,6 +5469,7 @@ function tourPickVoice() {
         || list[0];
   } catch { return null; }
 }
+configureSoundServices({ haptic, getLanguage: () => lang, pickVoice: tourPickVoice });
 function tourStopVoice() {
   try { speechSynthesis.cancel(); } catch {}
   try { const au = document.getElementById('tour-audio'); if (au) au.pause(); } catch {}

@@ -16,6 +16,18 @@ export function playBuzzerSound() {
 }
 
 // ── SOUND MODE (Tone / Name / Mute) ─────────
+// App-provided collaborators; defaults keep the module safe when used standalone.
+const soundServices = {
+  haptic: () => {},
+  getLanguage: () => 'en',
+  pickVoice: () => null,
+};
+export function configureSoundServices(services = {}) {
+  if (typeof services.haptic === 'function') soundServices.haptic = services.haptic;
+  if (typeof services.getLanguage === 'function') soundServices.getLanguage = services.getLanguage;
+  if (typeof services.pickVoice === 'function') soundServices.pickVoice = services.pickVoice;
+}
+
 export let soundMode = 'tone'; // 'tone' | 'name' | 'mute'
 try { const m = localStorage.getItem('sk_sound_mode'); if (m === 'tone' || m === 'name' || m === 'mute') soundMode = m; } catch {}
 export function soundModeIcon() { return soundMode === 'mute' ? '🔇' : (soundMode === 'name' ? '🗣️' : '🔊'); }
@@ -60,7 +72,7 @@ export function openSoundModeMenu(anchor) {
     document.addEventListener('click', closer, true);
     document.addEventListener('touchstart', closer, true);
   }, 0);
-  try { haptic(5); } catch {}
+  try { soundServices.haptic(5); } catch {}
 };
 export function setSoundMode(mode) {
   if (mode !== 'tone' && mode !== 'name' && mode !== 'mute') return;
@@ -69,7 +81,7 @@ export function setSoundMode(mode) {
   const menu = document.getElementById('sound-mode-menu');
   if (menu) menu.classList.remove('show');
   updateSoundButtons();
-  try { haptic(5); } catch {}
+  try { soundServices.haptic(5); } catch {}
 };
 export function updateSoundButtons() {
   const icon = soundModeIcon();
@@ -90,9 +102,10 @@ export function speakName(name) {
     if (!txt) return;
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(txt);
-    const v = (typeof tourPickVoice === 'function') ? tourPickVoice() : null;
-    if (v) u.voice = v;
-    try { u.lang = (typeof lang !== 'undefined' && lang) || 'en'; } catch {}
+    let voice = null;
+    try { voice = soundServices.pickVoice(); } catch {}
+    if (voice) u.voice = voice;
+    try { u.lang = soundServices.getLanguage() || 'en'; } catch { u.lang = 'en'; }
     u.pitch = 1.1; u.rate = 0.95; u.volume = 1;
     speechSynthesis.speak(u);
   } catch {}
