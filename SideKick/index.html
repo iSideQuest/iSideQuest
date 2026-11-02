@@ -17366,11 +17366,14 @@ function renderLobbyTable(players) {
     let tableRx = 95, tableRy = 55;
     let tableShape = 'round';
 
-    // Grid layout
+    // Grid layout (2x8 + end seats)
     if (layout && layout.template === 'grid' && Array.isArray(layout.grid)) {
-      const cellSize = 400 / 5;
+      const cellW = 50;
+      const cellH = 50;
       const raw = [];
-      for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) if (layout.grid[r*5+c]) raw.push({ x: c*cellSize + cellSize/2, y: r*cellSize + cellSize/2 });
+      for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) if (layout.grid[r*8+c]) raw.push({ x: c * 50 + 25, y: r * 50 + 25 });
+      if (layout.endLeft) raw.push({ x: -25, y: 50 });
+      if (layout.endRight) raw.push({ x: 425, y: 50 });
       if (!raw.length) { svg.innerHTML = ''; return; }
       const slots = Array.isArray(layout.slots) ? layout.slots : [];
       const slotOf = {};
@@ -17387,20 +17390,26 @@ function renderLobbyTable(players) {
       const myRaw = raw[mySlot] || raw[0];
       const myAngle = Math.atan2(myRaw.y - 200, myRaw.x - 200);
       const rot = (90 * Math.PI / 180) - myAngle;
-      let content = '';
-      // table surface bbox
+      // center
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
       raw.forEach(p => { minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x); minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y); });
+      const cx0 = (minX + maxX) / 2, cy0 = (minY + maxY) / 2;
+      const dx = 200 - cx0, dy = 200 - cy0;
+      raw.forEach(p => { p.x += dx; p.y += dy; });
+      let content = '';
+      // table surface bbox
+      let bminX = Infinity, bmaxX = -Infinity, bminY = Infinity, bmaxY = -Infinity;
+      raw.forEach(p => { bminX = Math.min(bminX, p.x); bmaxX = Math.max(bmaxX, p.x); bminY = Math.min(bminY, p.y); bmaxY = Math.max(bmaxY, p.y); });
       const pad = 24;
-      const sx0 = minX - pad, sy0 = minY - pad, sw = (maxX - minX) + pad*2, sh = (maxY - minY) + pad*2;
+      const sx0 = bminX - pad, sy0 = bminY - pad, sw = (bmaxX - bminX) + pad*2, sh = (bmaxY - bminY) + pad*2;
       content += '<rect x="' + sx0 + '" y="' + sy0 + '" width="' + sw + '" height="' + sh + '" rx="14" ry="14" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
       list.forEach(p => {
         const si = slotOf[p.id];
         if (si == null) return;
         const rp = raw[si];
-        const dx = rp.x - 200, dy = rp.y - 200;
-        const rx_ = dx * Math.cos(rot) - dy * Math.sin(rot);
-        const ry_ = dx * Math.sin(rot) + dy * Math.cos(rot);
+        const rdx = rp.x - 200, rdy = rp.y - 200;
+        const rx_ = rdx * Math.cos(rot) - rdy * Math.sin(rot);
+        const ry_ = rdx * Math.sin(rot) + rdy * Math.cos(rot);
         const sx = 200 + rx_, sy = 200 + ry_;
         const color = p.color || '#7c5cbf';
         const name = p.id === myId ? 'You' : (p.name || 'Player');
@@ -17501,20 +17510,16 @@ const TABLE_TEMPLATES = {
   grid: { name: 'Custom Grid', n: 0, rx: 0, ry: 0, shape: 'grid' }
 };
 let tableSetupState = { template: 'r4', slots: [], selected: null, grid: null, endLeft: false, endRight: false, endSeatsEnabled: false };
+let gridDrag = { active: false, mode: null, lastCell: null };
 
 function tableLayoutSlots(layout) {
   // Returns array of {x, y} positions for each slot given a template
   if (layout && layout.template === 'grid' && Array.isArray(layout.grid)) {
-    const out = [];
-    const cellSize = 400 / 5; // 80
-    for (let r = 0; r < 5; r++) {
-      for (let c = 0; c < 5; c++) {
-        if (layout.grid[r * 5 + c]) {
-          out.push({ x: c * cellSize + cellSize / 2, y: r * cellSize + cellSize / 2 });
-        }
-      }
-    }
-    return out;
+    const raw = [];
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) if (layout.grid[r*8+c]) raw.push({ x: c * 50 + 25, y: r * 50 + 25 });
+    if (layout.endLeft) raw.push({ x: -25, y: 50 });
+    if (layout.endRight) raw.push({ x: 425, y: 50 });
+    return raw;
   }
   const t = TABLE_TEMPLATES[layout && layout.template] || TABLE_TEMPLATES.r4;
   const n = t.n || (layout && Array.isArray(layout.slots) ? layout.slots.length : 4);
@@ -17656,7 +17661,7 @@ function renderTableSetup() {
       const p = pid ? byId[pid] : null;
       const color = p ? (p.color || '#7c5cbf') : 'rgba(255,255,255,0.15)';
       const sel = tableSetupState.selected === i;
-      content += '<rect x="' + (sc.c*cellW+3) + '" y="' + (sc.r*cellH+3) + '" width="' + (cellW-6) + '" height="' + (cellH-6) + '" rx="6" ry="6" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;pointer-events:all;" onclick="selectTableSlot(' + i + ')" onpointerdown="tableSetupPointerDown(event,' + i + ')"/>';
+      content += '<rect x="' + (sc.c*cellW+3) + '" y="' + (sc.r*cellH+3) + '" width="' + (cellW-6) + '" height="' + (cellH-6) + '" rx="6" ry="6" fill="' + color + '" stroke="' + (sel ? '#fff' : 'rgba(255,255,255,0.3)') + '" stroke-width="' + (sel ? 3 : 1.5) + '" style="cursor:pointer;pointer-events:all;touch-action:none;" onclick="selectTableSlot(' + i + ')" onpointerdown="tableSetupPointerDown(event,' + i + ')"/>';
       if (p) content += svgAvatar(cx, cy, 14, p.avatar, color);
       else content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="16" font-weight="800" style="pointer-events:none;">+</text>';
     });
@@ -17665,7 +17670,7 @@ function renderTableSetup() {
       if (tableSetupState.grid[r*8+c]) continue;
       const cx = c*cellW + cellW/2;
       const cy = r*cellH + cellH/2;
-      content += '<rect x="' + (c*cellW+8) + '" y="' + (r*cellH+8) + '" width="' + (cellW-16) + '" height="' + (cellH-16) + '" rx="4" ry="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="4 3" style="cursor:pointer;pointer-events:all;" onclick="toggleGridCell(' + r + ',' + c + ')"/>';
+      content += '<rect x="' + (c*cellW+8) + '" y="' + (r*cellH+8) + '" width="' + (cellW-16) + '" height="' + (cellH-16) + '" rx="4" ry="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="4 3" style="cursor:pointer;pointer-events:all;touch-action:none;" onpointerdown="gridCellPointerDown(event,' + r + ',' + c + ')" onpointermove="gridCellPointerMove(event,' + r + ',' + c + ')" onpointerup="gridCellPointerUp(event)" onclick="toggleGridCell(' + r + ',' + c + ')"/>';
       content += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.2)" font-family="Inter,sans-serif" font-size="14" font-weight="800" style="pointer-events:none;">+</text>';
     }
     // render end seats (left/right, between rows)
@@ -17834,6 +17839,34 @@ window.toggleEndSeat = function(side) {
   autoFillTableSlots(false);
   renderTableSetup();
   try { haptic(5); } catch {}
+};
+
+// Drag-to-select in grid
+window.gridCellPointerDown = function(e, r, c) {
+  e.preventDefault();
+  gridDrag.active = true;
+  gridDrag.lastCell = r * 8 + c;
+  const currentlySelected = tableSetupState.grid && tableSetupState.grid[r*8+c];
+  gridDrag.mode = currentlySelected ? 'deselect' : 'select';
+  if (!tableSetupState.grid) tableSetupState.grid = new Array(16).fill(false);
+  tableSetupState.grid[r*8+c] = (gridDrag.mode === 'select');
+  autoFillTableSlots(false);
+  renderTableSetup();
+};
+window.gridCellPointerMove = function(e, r, c) {
+  if (!gridDrag.active) return;
+  const cellIdx = r * 8 + c;
+  if (cellIdx === gridDrag.lastCell) return;
+  gridDrag.lastCell = cellIdx;
+  if (!tableSetupState.grid) tableSetupState.grid = new Array(16).fill(false);
+  tableSetupState.grid[cellIdx] = (gridDrag.mode === 'select');
+  autoFillTableSlots(false);
+  renderTableSetup();
+};
+window.gridCellPointerUp = function(e) {
+  gridDrag.active = false;
+  gridDrag.lastCell = null;
+  gridDrag.mode = null;
 };
 
 window.applyTableSetup = async function() {
