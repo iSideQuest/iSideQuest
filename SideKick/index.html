@@ -17329,19 +17329,23 @@ window.lobbyTableTapSeat = function(pid) {
 };
 
 function renderLobbyView(players) {
-  const wheelSvg = document.getElementById('lobby-wheel-svg');
-  const tableSvg = document.getElementById('lobby-table-svg');
-  if (lobbyViewMode) {
-    if (wheelSvg) wheelSvg.style.display = 'none';
-    if (tableSvg) tableSvg.style.display = '';
-    renderLobbyTable(players);
-  } else {
-    if (wheelSvg) wheelSvg.style.display = '';
-    if (tableSvg) tableSvg.style.display = 'none';
-    renderLobbyWheel(players);
+  try {
+    const wheelSvg = document.getElementById('lobby-wheel-svg');
+    const tableSvg = document.getElementById('lobby-table-svg');
+    if (lobbyViewMode) {
+      if (wheelSvg) wheelSvg.style.display = 'none';
+      if (tableSvg) tableSvg.style.display = '';
+      renderLobbyTable(players);
+    } else {
+      if (wheelSvg) wheelSvg.style.display = '';
+      if (tableSvg) tableSvg.style.display = 'none';
+      renderLobbyWheel(players);
+    }
+    const btn = document.getElementById('lobby-view-toggle');
+    if (btn) btn.textContent = lobbyViewMode ? '🎡 Circle' : '🪑 Table';
+  } catch (e) {
+    console.error('[SK] renderLobbyView error:', e);
   }
-  const btn = document.getElementById('lobby-view-toggle');
-  if (btn) btn.textContent = lobbyViewMode ? '🎡 Circle' : '🪑 Table';
 }
 function renderLobbyTable(players) {
   try {
@@ -17586,6 +17590,7 @@ function renderTableSetup() {
     const gActive = tableSetupState.template === 'grid';
     html += '<button class="btn-secondary btn-sm" style="padding:0.25rem 0.5rem;font-size:0.72rem;min-width:6rem;' + (gActive ? 'background:var(--accent);border-color:var(--accent);color:#fff;' : '') + '" onclick="selectTableTemplate(\'grid\')">Custom Grid</button>';
     html += '</div>';
+    tplContainer.innerHTML = html;
   // SVG
   const svg = document.getElementById('table-setup-svg');
   if (!svg) return;
@@ -21889,7 +21894,11 @@ function buildOrderedPlayers(players) {
 
 
 function renderLobbyList(players) {
-  renderLobbyView(players || []);
+  try {
+    renderLobbyView(players || []);
+  } catch (e) {
+    console.error('[SK] renderLobbyList error:', e);
+  }
   requestAnimationFrame(rescaleCurrentScreen);
 }
 
