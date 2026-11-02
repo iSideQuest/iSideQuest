@@ -1488,9 +1488,14 @@
     <div class="tools-modal-title">Table Setup</div>
     <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.5rem;">Tap squares to turn seats on or off. Assign players by dragging them in the lobby.</div>
     <div style="font-size:0.75rem;font-weight:700;color:var(--text);margin-bottom:0.25rem;">Custom Grid (2 x 8)</div>
-    <div style="display:flex;align-items:center;justify-content:center;gap:0.55rem;margin:0.4rem 0 0.5rem;">
-      <span style="font-size:0.75rem;color:var(--muted);">Optional paired end seats</span>
-      <button class="btn-secondary btn-sm" id="table-end-seats-toggle" onclick="toggleEndSeatsMode()" aria-pressed="false">End Seats: OFF</button>
+    <div style="display:flex;align-items:center;justify-content:center;gap:0.55rem;margin:0.4rem 0 0.35rem;">
+      <span style="font-size:0.75rem;color:var(--muted);">Optional single end seat</span>
+      <button class="btn-secondary btn-sm" id="table-end-seat-toggle" onclick="toggleEndSeatsMode()" aria-pressed="false">End Seat: OFF</button>
+    </div>
+    <div id="table-end-seat-side-controls" style="display:none;align-items:center;justify-content:center;gap:0.35rem;margin-bottom:0.5rem;">
+      <span style="font-size:0.72rem;color:var(--muted);margin-right:0.15rem;">Host seated at bottom:</span>
+      <button class="btn-secondary btn-sm table-end-seat-side-btn" id="table-end-seat-left" onclick="selectTableEndSeatSide('left')" aria-pressed="false">Left</button>
+      <button class="btn-secondary btn-sm table-end-seat-side-btn" id="table-end-seat-right" onclick="selectTableEndSeatSide('right')" aria-pressed="false">Right</button>
     </div>
     <svg id="table-setup-svg" viewBox="-50 0 500 100" style="width:100%;max-width:22rem;height:auto;margin:0 auto;display:block;"></svg>
     <div id="table-setup-legend" style="font-size:0.72rem;color:var(--muted);margin:0.5rem 0;text-align:center;"></div>
@@ -10130,76 +10135,58 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
 
     const layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
 
-    // ── Grid layout: 2x8 + end seats, absolute positions, rotated per viewer ──
+    // ── Grid layout: seats rotate so each player sees their own place at screen bottom ──
     if (layout && layout.template === 'grid' && Array.isArray(layout.grid)) {
-      const cellW = 40; // half of 80 for a 400-wide grid... use 80 for full
-      const raw = []; // raw {x,y} per slot (in 400x400 coords)
-      // side seats (2x8)
+      const gridSeats = [];
+      const grid = normalizeTableGrid(layout.grid);
       for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) {
-        if (layout.grid[r*8+c]) raw.push({ x: c * 50 + 25, y: r * 200 + 100 });
+        if (grid[r * 8 + c]) gridSeats.push({ x: c * 50 + 25, y: r * 200 + 100 });
       }
-      // end seats
-      if (tableLayoutHasEndSeats(layout)) {
-        raw.push({ x: -25, y: 200 });
-        raw.push({ x: 425, y: 200 });
-      }
-      if (!raw.length) { svg.innerHTML = ''; return; }
-      // map playerId -> raw index
-      const slots = Array.isArray(layout.slots) ? layout.slots : [];
-      const byId = {};
-      players.forEach(p => byId[p.id] = p);
+      const hasEndSeat = tableLayoutHasEndSeat(layout);
+      const seatCount = gridSeats.length + (hasEndSeat ? 1 : 0);
+      const slots = resizeTableSlots(layout.slots, seatCount);
+      const validIds = new Set(players.map(p => p.id));
       const slotOf = {};
-      slots.forEach((pid, idx) => { if (pid) slotOf[pid] = idx; });
-      // assign unassigned players to empty slots
-      const assigned = new Set(Object.keys(slotOf));
-      players.forEach(p => {
-        if (assigned.has(p.id)) return;
-        for (let i = 0; i < raw.length; i++) {
-          if (!slots[i] || !players.find(pp => pp.id === slots[i])) {
-            if (!Object.values(slotOf).includes(i)) { slotOf[p.id] = i; assigned.add(p.id); break; }
-          }
+      const occupiedSlots = new Set();
+      slots.forEach((pid, i) => {
+        if (pid && validIds.has(pid) && slotOf[pid] == null && i < seatCount) {
+          slotOf[pid] = i;
+          occupiedSlots.add(i);
         }
       });
-
-      // viewer's slot position
-      const mySlotIdx = (myIdParam && slotOf[myIdParam] != null) ? slotOf[myIdParam] : 0;
-      const myRaw = raw[mySlotIdx] || raw[0];
-      const myAngle = Math.atan2(myRaw.y - 200, myRaw.x - 200);
-      const rot = (90 * Math.PI / 180) - myAngle;
-
-      // center the raw positions (shift so bbox center = 200,200)
-      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-      raw.forEach(p => { minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x); minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y); });
-      const cx0 = (minX + maxX) / 2, cy0 = (minY + maxY) / 2;
-      const dx = 200 - cx0, dy = 200 - cy0;
-      raw.forEach(p => { p.x += dx; p.y += dy; });
-
-      const AVATAR_R = 22;
-      let svgContent = '';
-      // table surface (bounding box)
-      const pad = 24;
-      let bminX = Infinity, bmaxX = -Infinity, bminY = Infinity, bmaxY = -Infinity;
-      raw.forEach(p => { bminX = Math.min(bminX, p.x); bmaxX = Math.max(bmaxX, p.x); bminY = Math.min(bminY, p.y); bmaxY = Math.max(bmaxY, p.y); });
-      const sx0 = bminX - pad, sy0 = bminY - pad, sw = (bmaxX - bminX) + pad*2, sh = (bmaxY - bminY) + pad*2;
-      svgContent += '<rect x="' + sx0 + '" y="' + sy0 + '" width="' + sw + '" height="' + sh + '" rx="14" ry="14" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
-      raw.forEach(p => {
-        const dx = p.x - 200, dy = p.y - 200;
-        const x = 200 + dx * Math.cos(rot) - dy * Math.sin(rot);
-        const y = 200 + dx * Math.sin(rot) + dy * Math.cos(rot);
-        svgContent += '<rect x="' + (x - 24).toFixed(1) + '" y="' + (y - 24).toFixed(1) + '" width="48" height="48" rx="5" ry="5" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>';
+      players.forEach(p => {
+        if (slotOf[p.id] != null) return;
+        const empty = slots.findIndex((_, i) => i < seatCount && !occupiedSlots.has(i));
+        if (empty >= 0) { slotOf[p.id] = empty; occupiedSlots.add(empty); }
       });
-      // pass arrow
+      const raw = gridSeats.slice();
+      if (hasEndSeat) {
+        const hostSlot = layout.hostPlayerId ? slotOf[layout.hostPlayerId] : -1;
+        raw.push({ x: hostRelativeEndSeatX(tableLayoutEndSeatSide(layout), gridSeats, hostSlot), y: 200 });
+      }
+      if (!raw.length) { svg.innerHTML = ''; return; }
+
+      const mySlotIdx = myIdParam && slotOf[myIdParam] != null ? slotOf[myIdParam] : 0;
+      const oriented = orientGridSeatPositions(raw, mySlotIdx).seats;
+      const AVATAR_R = 22;
+      let minX = 200, maxX = 200, minY = 200, maxY = 200;
+      oriented.forEach(p => {
+        minX = Math.min(minX, p.x - AVATAR_R - 8); maxX = Math.max(maxX, p.x + AVATAR_R + 8);
+        minY = Math.min(minY, p.y - AVATAR_R - 8); maxY = Math.max(maxY, p.y + AVATAR_R + 8);
+      });
+      const viewX = minX - 12, viewY = minY - 12;
+      const viewW = maxX - minX + 24, viewH = maxY - minY + 24;
+      svg.setAttribute('viewBox', viewX + ' ' + viewY + ' ' + viewW + ' ' + viewH);
+      let svgContent = '<rect x="' + minX + '" y="' + minY + '" width="' + (maxX - minX) + '" height="' + (maxY - minY) + '" rx="14" ry="14" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
+      oriented.forEach(p => {
+        svgContent += '<rect x="' + (p.x - 24).toFixed(1) + '" y="' + (p.y - 24).toFixed(1) + '" width="48" height="48" rx="5" ry="5" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>';
+      });
       const arrowText = (passDir === 'left' || passDir === 'counterclockwise') ? '↺' : (passDir === 'right' || passDir === 'clockwise') ? '↻' : '↔';
       svgContent += '<text x="200" y="200" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.35)" font-family="Inter,sans-serif" font-size="28" font-weight="800">' + arrowText + '</text>';
       players.forEach(p => {
         const si = slotOf[p.id];
-        if (si == null) return;
-        const rp = raw[si];
-        // rotate around center
-        const rdx = rp.x - 200, rdy = rp.y - 200;
-        const rx_ = rdx * Math.cos(rot) - rdy * Math.sin(rot);
-        const ry_ = rdx * Math.sin(rot) + rdy * Math.cos(rot);
-        const sx = 200 + rx_, sy = 200 + ry_;
+        if (si == null || !oriented[si]) return;
+        const { x: sx, y: sy } = oriented[si];
         const color = p.color || '#7c5cbf';
         const name = p.id === myIdParam ? 'You' : (p.name || 'Player');
         const isActive = p.id === activePlayerId;
@@ -10215,15 +10202,12 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
           svgContent += '<line x1="' + (sx+cr) + '" y1="' + (sy-cr) + '" x2="' + (sx-cr) + '" y2="' + (sy+cr) + '" stroke="#ef4444" stroke-width="3" stroke-linecap="round" opacity="0.85"/>';
         }
       });
-      // pass labels for both
       if (ctx === 'active' && isMyTurn && (passDir === 'both' || !passDir)) {
-        svgContent += '<text x="30" y="200" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="12" font-weight="700">Pass Left</text>';
-        svgContent += '<text x="370" y="200" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="12" font-weight="700">Pass Right</text>';
+        svgContent += '<text x="' + (viewX + 8) + '" y="200" text-anchor="start" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="12" font-weight="700">Pass Left</text>';
+        svgContent += '<text x="' + (viewX + viewW - 8) + '" y="200" text-anchor="end" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="12" font-weight="700">Pass Right</text>';
       }
       const defs = '<defs><filter id="tableglow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
       svg.innerHTML = defs + svgContent;
-
-      // tap zones
       const ovId = ctx === 'active' ? 'table-overlay-active' : 'table-overlay-wait';
       const ov = document.getElementById(ovId);
       if (ov) {
@@ -10470,8 +10454,9 @@ function renderLobbyTable(players) {
       const grid = normalizeTableGrid(layout.grid);
       const seats = [];
       for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) if (grid[r * 8 + c]) seats.push({ x: c * 50 + 25, y: r * 50 + 25 });
-      const ends = tableLayoutHasEndSeats(layout);
-      if (ends) seats.push({ x: -25, y: 50 }, { x: 425, y: 50 });
+      const ends = tableLayoutHasEndSeat(layout);
+      const endSide = tableLayoutEndSeatSide(layout);
+      if (ends) seats.push({ x: endSide === 'right' ? 425 : -25, y: 50 });
       const slots = resizeTableSlots(layout.slots, seats.length);
       const byId = Object.fromEntries(list.map(p => [p.id, p]));
       const seated = new Set(slots.filter(pid => pid && byId[pid]));
@@ -10583,7 +10568,7 @@ const TABLE_TEMPLATES = {
   // Custom Grid
   grid: { name: 'Custom Grid', n: 0, rx: 0, ry: 0, shape: 'grid' }
 };
-let tableSetupState = { grid: null, slots: [], endSeatsEnabled: false };
+let tableSetupState = { grid: null, slots: [], endSeatEnabled: false, endSeatSide: 'left' };
 const TABLE_GRID_SIZE = 16;
 function defaultTableGrid() {
   const grid = new Array(TABLE_GRID_SIZE).fill(false);
@@ -10594,18 +10579,33 @@ function normalizeTableGrid(grid) {
   if (!Array.isArray(grid) || grid.length < TABLE_GRID_SIZE) return defaultTableGrid();
   return grid.slice(0, TABLE_GRID_SIZE).map(Boolean);
 }
-function tableLayoutHasEndSeats(layout) {
-  return !!(layout && (layout.endSeatsEnabled || layout.endLeft || layout.endRight));
+function tableLayoutEndSeatSide(layout) {
+  if (layout && (layout.endSeatSide === 'left' || layout.endSeatSide === 'right')) return layout.endSeatSide;
+  if (layout && layout.endLeft && !layout.endRight) return 'left';
+  if (layout && layout.endRight && !layout.endLeft) return 'right';
+  // v355 stored two end-seat slots. Keep the occupied side if only one was assigned.
+  if (layout && layout.endSeatsEnabled && typeof layout.endSeatEnabled !== 'boolean') {
+    const gridCount = normalizeTableGrid(layout.grid).filter(Boolean).length;
+    const oldSlots = tableSlotsArray(layout.slots, gridCount + 2);
+    if (!oldSlots[gridCount] && oldSlots[gridCount + 1]) return 'right';
+  }
+  return 'left';
 }
-function tableSeatKeys(grid, endSeats) {
+function tableLayoutHasEndSeat(layout) {
+  if (!layout) return false;
+  if (typeof layout.endSeatEnabled === 'boolean') return layout.endSeatEnabled;
+  return !!(layout.endSeatsEnabled || layout.endLeft || layout.endRight);
+}
+function tableLayoutHasEndSeats(layout) { return tableLayoutHasEndSeat(layout); }
+function tableSeatKeys(grid, endSeatEnabled, endSeatSide) {
   const keys = [];
   normalizeTableGrid(grid).forEach((on, i) => { if (on) keys.push('grid:' + i); });
-  if (endSeats) keys.push('end:left', 'end:right');
+  if (endSeatEnabled) keys.push('end:' + (endSeatSide === 'right' ? 'right' : 'left'));
   return keys;
 }
 function tableSeatCapacity(layout) {
   if (!layout) return null;
-  if (layout.template === 'grid') return normalizeTableGrid(layout.grid).filter(Boolean).length + (tableLayoutHasEndSeats(layout) ? 2 : 0);
+  if (layout.template === 'grid') return normalizeTableGrid(layout.grid).filter(Boolean).length + (tableLayoutHasEndSeat(layout) ? 1 : 0);
   const legacy = TABLE_TEMPLATES[layout.template];
   if (legacy && legacy.shape !== 'grid') return legacy.n || (Array.isArray(layout.slots) ? layout.slots.length : 0);
   return null;
@@ -10616,22 +10616,60 @@ function tableCapacityIssue(playerCount, layout) {
   const missing = playerCount - capacity;
   return { capacity, playerCount, missing, message: 'Table Setup has ' + capacity + ' seats for ' + playerCount + ' players. Add ' + missing + ' seat' + (missing === 1 ? '' : 's') + ' before starting.' };
 }
-function resizeTableSlots(slots, count) {
+function tableSlotsArray(slots, count) {
   const next = new Array(Math.max(0, count)).fill(null);
-  if (Array.isArray(slots)) for (let i = 0; i < Math.min(slots.length, next.length); i++) next[i] = slots[i] || null;
+  if (Array.isArray(slots)) {
+    for (let i = 0; i < Math.min(slots.length, next.length); i++) next[i] = slots[i] || null;
+  } else if (slots && typeof slots === 'object') {
+    Object.keys(slots).forEach(key => {
+      if (/^(0|[1-9]\d*)$/.test(key)) {
+        const i = Number(key);
+        if (i >= 0 && i < next.length) next[i] = slots[key] || null;
+      }
+    });
+  }
   return next;
 }
-function remapTableSlots(oldGrid, oldEnds, newGrid, newEnds, slots) {
-  const oldKeys = tableSeatKeys(oldGrid, oldEnds);
+function resizeTableSlots(slots, count) { return tableSlotsArray(slots, count); }
+function remapTableSlots(oldGrid, oldEnds, oldSide, newGrid, newEnds, newSide, slots) {
+  const oldKeys = tableSeatKeys(oldGrid, oldEnds, oldSide);
   const byKey = new Map(oldKeys.map((key, i) => [key, (slots || [])[i] || null]));
-  return tableSeatKeys(newGrid, newEnds).map(key => byKey.get(key) || null);
+  const oldEndPlayer = oldEnds ? (byKey.get('end:' + (oldSide === 'right' ? 'right' : 'left')) || null) : null;
+  return tableSeatKeys(newGrid, newEnds, newSide).map(key => {
+    if (key.startsWith('end:')) return byKey.get(key) || oldEndPlayer || null;
+    return byKey.get(key) || null;
+  });
+}
+function normalizeGridSlotsFromLayout(layout, grid, endEnabled, endSide) {
+  const oldGrid = normalizeTableGrid(layout && layout.grid);
+  const oldGridCount = oldGrid.filter(Boolean).length;
+  const oldHasEnd = tableLayoutHasEndSeat(layout);
+  const oldPair = oldHasEnd && typeof layout.endSeatEnabled !== 'boolean' &&
+    (!!layout.endSeatsEnabled || (!!layout.endLeft && !!layout.endRight));
+  const oldEndCount = oldPair ? 2 : (oldHasEnd ? 1 : 0);
+  const slots = tableSlotsArray(layout && layout.slots, oldGridCount + oldEndCount);
+  const byCell = new Map();
+  let slotIndex = 0;
+  oldGrid.forEach((on, cellIndex) => { if (on) byCell.set(cellIndex, slots[slotIndex++] || null); });
+  const next = [];
+  normalizeTableGrid(grid).forEach((on, cellIndex) => { if (on) next.push(byCell.get(cellIndex) || null); });
+  if (endEnabled) {
+    let endPlayer = null;
+    if (oldPair) {
+      const leftPlayer = slots[oldGridCount] || null;
+      const rightPlayer = slots[oldGridCount + 1] || null;
+      endPlayer = endSide === 'right' ? (rightPlayer || leftPlayer) : (leftPlayer || rightPlayer);
+    } else if (oldHasEnd) endPlayer = slots[oldGridCount] || null;
+    next.push(endPlayer);
+  }
+  return next;
 }
 function tableLayoutSlots(layout) {
   if (layout && layout.template === 'grid') {
     const positions = [];
     const grid = normalizeTableGrid(layout.grid);
     for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) if (grid[r * 8 + c]) positions.push({ x: c * 50 + 25, y: r * 50 + 25 });
-    if (tableLayoutHasEndSeats(layout)) positions.push({ x: -25, y: 50 }, { x: 425, y: 50 });
+    if (tableLayoutHasEndSeat(layout)) positions.push({ x: tableLayoutEndSeatSide(layout) === 'right' ? 425 : -25, y: 50 });
     return positions;
   }
   const t = TABLE_TEMPLATES[layout && layout.template] || TABLE_TEMPLATES.r4;
@@ -10641,6 +10679,45 @@ function tableLayoutSlots(layout) {
     return { x: 200 + t.rx * Math.cos(angle), y: 200 + t.ry * Math.sin(angle) };
   });
 }
+function tableLayoutForFirebase(layout) {
+  const saved = { ...layout };
+  if (saved.template === 'grid') {
+    saved.grid = normalizeTableGrid(saved.grid);
+    saved.endSeatEnabled = tableLayoutHasEndSeat(saved);
+    saved.endSeatSide = tableLayoutEndSeatSide(saved);
+    delete saved.endSeatsEnabled;
+    delete saved.endLeft;
+    delete saved.endRight;
+  }
+  const count = tableSeatCapacity(saved) || 0;
+  saved.slots = resizeTableSlots(saved.slots, count).map(playerId => playerId || '');
+  return saved;
+}
+function orientGridSeatPositions(raw, mySlotIndex) {
+  if (!raw.length) return { seats: [], rotation: 0 };
+  const ownSeat = raw[mySlotIndex] || raw[0];
+  const ownAngle = Math.atan2(ownSeat.y - 200, ownSeat.x - 200);
+  const rotation = Math.PI / 2 - ownAngle;
+  const cos = Math.cos(rotation), sin = Math.sin(rotation);
+  return {
+    rotation,
+    seats: raw.map(p => {
+      const x = p.x - 200, y = p.y - 200;
+      return { x: 200 + x * cos - y * sin, y: 200 + x * sin + y * cos };
+    })
+  };
+}
+function hostRelativeEndSeatX(side, gridSeats, hostSlotIndex) {
+  let canonicalLeft = side !== 'right';
+  const hostSeat = Number.isInteger(hostSlotIndex) && hostSlotIndex >= 0 && hostSlotIndex < gridSeats.length ? gridSeats[hostSlotIndex] : null;
+  if (hostSeat) {
+    const hostAngle = Math.atan2(hostSeat.y - 200, hostSeat.x - 200);
+    const hostRotation = Math.PI / 2 - hostAngle;
+    const canonicalLeftAppearsOnHostLeft = Math.cos(hostRotation) >= 0;
+    canonicalLeft = side === 'left' ? canonicalLeftAppearsOnHostLeft : !canonicalLeftAppearsOnHostLeft;
+  }
+  return canonicalLeft ? -25 : 425;
+}
 
 window.openTableSetup = function() {
   const overlay = document.getElementById('table-setup-overlay');
@@ -10649,13 +10726,12 @@ window.openTableSetup = function() {
   const saved = window._tableLayout || null;
   const savedGrid = !!(saved && saved.template === 'grid' && Array.isArray(saved.grid));
   const grid = savedGrid ? normalizeTableGrid(saved.grid) : defaultTableGrid();
-  const ends = savedGrid && tableLayoutHasEndSeats(saved);
-  const oldSlots = saved && Array.isArray(saved.slots) ? saved.slots : [];
-  tableSetupState = {
-    grid,
-    endSeatsEnabled: ends,
-    slots: savedGrid ? remapTableSlots(grid, ends, grid, ends, oldSlots) : resizeTableSlots(oldSlots, grid.filter(Boolean).length)
-  };
+  const ends = savedGrid && tableLayoutHasEndSeat(saved);
+  const endSide = savedGrid ? tableLayoutEndSeatSide(saved) : 'left';
+  const slots = savedGrid
+    ? normalizeGridSlotsFromLayout(saved, grid, ends, endSide)
+    : resizeTableSlots(saved && saved.slots, grid.filter(Boolean).length);
+  tableSetupState = { grid, slots, endSeatEnabled: ends, endSeatSide: endSide };
   renderTableSetup();
   try { haptic(5); } catch {}
 };
@@ -10674,58 +10750,81 @@ function renderTableSetup() {
     content += '<rect x="' + x + '" y="' + y + '" width="46" height="46" rx="5" ry="5" fill="' + (on ? 'rgba(124,92,191,0.82)' : 'rgba(255,255,255,0.045)') + '" stroke="' + (on ? 'rgba(190,160,255,0.95)' : 'rgba(255,255,255,0.2)') + '" stroke-width="' + (on ? 2 : 1) + '"' + (on ? '' : ' stroke-dasharray="4 3"') + ' style="cursor:pointer;touch-action:manipulation;" onclick="toggleGridCell(' + r + ',' + c + ')"/>';
     content += '<text x="' + (c * 50 + 25) + '" y="' + (r * 50 + 25) + '" text-anchor="middle" dominant-baseline="central" fill="' + (on ? '#fff' : 'rgba(255,255,255,0.38)') + '" font-family="Inter,sans-serif" font-size="' + (on ? 12 : 16) + '" font-weight="800" style="pointer-events:none;">' + (on ? seatNo : '+') + '</text>';
   }
-  const ends = !!tableSetupState.endSeatsEnabled;
-  [{ x: -25, label: 'E1' }, { x: 425, label: 'E2' }].forEach(end => {
-    content += '<rect x="' + (end.x - 22) + '" y="28" width="44" height="44" rx="5" ry="5" fill="' + (ends ? 'rgba(124,92,191,0.82)' : 'rgba(255,255,255,0.025)') + '" stroke="' + (ends ? 'rgba(190,160,255,0.95)' : 'rgba(255,255,255,0.2)') + '" stroke-width="' + (ends ? 2 : 1) + '"' + (ends ? '' : ' stroke-dasharray="4 3"') + '/>';
-    content += '<text x="' + end.x + '" y="50" text-anchor="middle" dominant-baseline="central" fill="' + (ends ? '#fff' : 'rgba(255,255,255,0.35)') + '" font-family="Inter,sans-serif" font-size="10" font-weight="800">' + end.label + '</text>';
+  const ends = !!tableSetupState.endSeatEnabled;
+  const side = tableSetupState.endSeatSide === 'right' ? 'right' : 'left';
+  [{ x: -25, label: 'L', side: 'left' }, { x: 425, label: 'R', side: 'right' }].forEach(end => {
+    const selected = ends && side === end.side;
+    content += '<rect x="' + (end.x - 22) + '" y="28" width="44" height="44" rx="5" ry="5" fill="' + (selected ? 'rgba(124,92,191,0.82)' : 'rgba(255,255,255,0.025)') + '" stroke="' + (selected ? 'rgba(190,160,255,0.95)' : 'rgba(255,255,255,0.2)') + '" stroke-width="' + (selected ? 2 : 1) + '"' + (selected ? '' : ' stroke-dasharray="4 3"') + '/>';
+    content += '<text x="' + end.x + '" y="50" text-anchor="middle" dominant-baseline="central" fill="' + (selected ? '#fff' : 'rgba(255,255,255,0.35)') + '" font-family="Inter,sans-serif" font-size="10" font-weight="800">Host ' + end.label + '</text>';
   });
   svg.setAttribute('viewBox', '-50 0 500 100');
   svg.innerHTML = content;
-  const endButton = document.getElementById('table-end-seats-toggle');
+  const endButton = document.getElementById('table-end-seat-toggle');
   if (endButton) {
-    endButton.textContent = ends ? 'End Seats: ON (+2)' : 'End Seats: OFF';
+    endButton.textContent = ends ? 'End Seat: ON (+1)' : 'End Seat: OFF';
     endButton.setAttribute('aria-pressed', String(ends));
     endButton.classList.toggle('active-ctrl', ends);
   }
-  const count = grid.filter(Boolean).length + (ends ? 2 : 0);
+  const sideControls = document.getElementById('table-end-seat-side-controls');
+  if (sideControls) sideControls.style.display = ends ? 'flex' : 'none';
+  ['left', 'right'].forEach(which => {
+    const button = document.getElementById('table-end-seat-' + which);
+    if (button) {
+      button.classList.toggle('active-ctrl', ends && side === which);
+      button.setAttribute('aria-pressed', String(ends && side === which));
+    }
+  });
+  const count = grid.filter(Boolean).length + (ends ? 1 : 0);
   const players = Array.isArray(localPlayers) ? localPlayers.length : 0;
   const legend = document.getElementById('table-setup-legend');
   if (legend) {
-    legend.textContent = grid.filter(Boolean).length + ' grid seats' + (ends ? ' + 2 end seats' : '') + ' = ' + count + ' total · ' + players + ' players';
+    legend.textContent = grid.filter(Boolean).length + ' grid seats' + (ends ? ' + 1 end seat (' + (side === 'left' ? "host's left" : "host's right") + ')' : '') + ' = ' + count + ' total · ' + players + ' players';
     legend.style.color = players > count ? '#ff7777' : 'var(--muted)';
   }
 }
 
 window.toggleGridCell = function(row, col) {
   if (row < 0 || row > 1 || col < 0 || col > 7) return;
-  const oldGrid = normalizeTableGrid(tableSetupState.grid), ends = !!tableSetupState.endSeatsEnabled;
+  const oldGrid = normalizeTableGrid(tableSetupState.grid);
+  const ends = !!tableSetupState.endSeatEnabled, side = tableSetupState.endSeatSide;
   const grid = oldGrid.slice(), i = row * 8 + col;
   grid[i] = !grid[i];
-  tableSetupState.slots = remapTableSlots(oldGrid, ends, grid, ends, tableSetupState.slots);
+  tableSetupState.slots = remapTableSlots(oldGrid, ends, side, grid, ends, side, tableSetupState.slots);
   tableSetupState.grid = grid;
   renderTableSetup();
   try { haptic(5); } catch {}
 };
 window.toggleEndSeatsMode = function() {
-  const grid = normalizeTableGrid(tableSetupState.grid), oldEnds = !!tableSetupState.endSeatsEnabled;
+  const grid = normalizeTableGrid(tableSetupState.grid);
+  const oldEnds = !!tableSetupState.endSeatEnabled, side = tableSetupState.endSeatSide;
   const ends = !oldEnds;
-  tableSetupState.slots = remapTableSlots(grid, oldEnds, grid, ends, tableSetupState.slots);
-  tableSetupState.endSeatsEnabled = ends;
+  tableSetupState.slots = remapTableSlots(grid, oldEnds, side, grid, ends, side, tableSetupState.slots);
+  tableSetupState.endSeatEnabled = ends;
+  renderTableSetup();
+  try { haptic(5); } catch {}
+};
+window.selectTableEndSeatSide = function(side) {
+  if (side !== 'left' && side !== 'right') return;
+  const grid = normalizeTableGrid(tableSetupState.grid), ends = !!tableSetupState.endSeatEnabled;
+  tableSetupState.slots = remapTableSlots(grid, ends, tableSetupState.endSeatSide, grid, ends, side, tableSetupState.slots);
+  tableSetupState.endSeatSide = side;
   renderTableSetup();
   try { haptic(5); } catch {}
 };
 window.applyTableSetup = async function() {
-  const grid = normalizeTableGrid(tableSetupState.grid), ends = !!tableSetupState.endSeatsEnabled;
+  const grid = normalizeTableGrid(tableSetupState.grid), ends = !!tableSetupState.endSeatEnabled;
   const layout = {
-    template: 'grid', grid, endSeatsEnabled: ends,
-    slots: resizeTableSlots(tableSetupState.slots, grid.filter(Boolean).length + (ends ? 2 : 0))
+    template: 'grid', grid, endSeatEnabled: ends,
+    endSeatSide: tableSetupState.endSeatSide === 'right' ? 'right' : 'left',
+    hostPlayerId: myId || null,
+    slots: resizeTableSlots(tableSetupState.slots, grid.filter(Boolean).length + (ends ? 1 : 0))
   };
   window._tableLayout = layout;
   lobbyViewMode = true;
   try { localStorage.setItem('sk_lobby_view', 'table'); } catch {}
   let saved = true;
   if (db && roomCode) {
-    try { await update(ref(db, 'rooms/' + roomCode), { tableLayout: layout }); }
+    try { await update(ref(db, 'rooms/' + roomCode), { tableLayout: tableLayoutForFirebase(layout) }); }
     catch (e) { saved = false; console.error('tableLayout save failed', e); }
   }
   window.closeTableSetup();
@@ -10742,26 +10841,28 @@ window.closeTableSetup = function() {
 function syncTableLayoutFromRoom(room) {
   if (!room || !room.tableLayout) { window._tableLayout = null; return; }
   window._tableLayout = room.tableLayout;
+  if (!window._tableLayout.hostPlayerId && room.host) window._tableLayout.hostPlayerId = room.host;
   reconcileTableLayout(room);
 }
 function reconcileTableLayout(room) {
   const layout = window._tableLayout;
-  if (!layout || !Array.isArray(layout.slots)) return;
+  if (!layout) return;
   const players = Array.isArray(localPlayers) ? localPlayers : [];
   const ids = new Set(players.map(p => p.id));
   if (layout.template === 'grid') {
-    const oldGrid = Array.isArray(layout.grid) ? layout.grid.slice(0, 16) : defaultTableGrid();
     const grid = normalizeTableGrid(layout.grid);
-    const ends = tableLayoutHasEndSeats(layout);
-    // Preserve occupants by physical seat when a legacy 25-cell grid is normalized to 2×8.
-    const oldGridForKeys = oldGrid.length >= 16 ? oldGrid : grid;
+    const endSeatEnabled = tableLayoutHasEndSeat(layout);
+    const endSeatSide = tableLayoutEndSeatSide(layout);
+    layout.slots = normalizeGridSlotsFromLayout(layout, grid, endSeatEnabled, endSeatSide);
     layout.grid = grid;
-    layout.endSeatsEnabled = ends;
+    layout.endSeatEnabled = endSeatEnabled;
+    layout.endSeatSide = endSeatSide;
+    delete layout.endSeatsEnabled;
     delete layout.endLeft;
     delete layout.endRight;
-    layout.slots = resizeTableSlots(layout.slots, tableSeatCapacity(layout));
     for (let i = 0; i < layout.slots.length; i++) if (layout.slots[i] && !ids.has(layout.slots[i])) layout.slots[i] = null;
   } else {
+    layout.slots = resizeTableSlots(layout.slots, tableSeatCapacity(layout) || 0);
     for (let i = 0; i < layout.slots.length; i++) if (layout.slots[i] && !ids.has(layout.slots[i])) layout.slots[i] = null;
     const assigned = new Set(layout.slots.filter(Boolean));
     players.forEach(p => {
@@ -10797,55 +10898,85 @@ function renderLobbyTableUnseated(players) {
 }
 
 let lobbyTableDrag = null;
+function beginLobbyTableDrag(e, kind, playerId, seatIndex) {
+  try { e.preventDefault(); } catch {}
+  const source = e.currentTarget || e.target;
+  lobbyTableDrag = {
+    kind, playerId, from: seatIndex,
+    firstPick: !!(tapArmed && firstPlayerOption === 'spot1'),
+    pointerId: e.pointerId,
+    x: e.clientX || 0, y: e.clientY || 0,
+    moved: false, source
+  };
+}
 function lobbyTablePlayerPointerDown(e, playerId) {
-  const firstPick = tapArmed && firstPlayerOption === 'spot1';
-  if (!isHost && !firstPick) return;
-  e.preventDefault();
-  lobbyTableDrag = { kind: firstPick ? 'first' : 'unseated', playerId, from: null, x: e.clientX, y: e.clientY, moved: false };
+  if (!isHost) return;
+  beginLobbyTableDrag(e, 'unseated', playerId, null);
 }
 window.lobbyTableSeatPointerDown = function(e, seatIndex) {
   const layout = window._tableLayout;
-  const playerId = layout && Array.isArray(layout.slots) ? layout.slots[seatIndex] : null;
-  const firstPick = tapArmed && firstPlayerOption === 'spot1';
-  if (firstPick && playerId) {
-    e.preventDefault();
-    lobbyTableDrag = { kind: 'first', playerId, from: seatIndex, x: e.clientX, y: e.clientY, moved: false };
-    return;
-  }
+  const slots = layout && Array.isArray(layout.slots) ? resizeTableSlots(layout.slots, tableSeatCapacity(layout)) : [];
+  const playerId = slots[seatIndex];
   if (!isHost || !playerId) return;
-  e.preventDefault();
-  lobbyTableDrag = { kind: 'seated', playerId, from: seatIndex, x: e.clientX, y: e.clientY, moved: false };
+  beginLobbyTableDrag(e, 'seated', playerId, seatIndex);
 };
-document.addEventListener('pointermove', e => {
-  if (lobbyTableDrag && Math.hypot(e.clientX - lobbyTableDrag.x, e.clientY - lobbyTableDrag.y) > 10) lobbyTableDrag.moved = true;
-});
-document.addEventListener('pointerup', e => {
+function lobbyTableSeatAtPoint(clientX, clientY, layout) {
+  const svg = document.getElementById('lobby-table-svg');
+  if (!svg || !svg.createSVGPoint || !svg.getScreenCTM) return -1;
+  try {
+    const matrix = svg.getScreenCTM();
+    if (!matrix) return -1;
+    const point = svg.createSVGPoint();
+    point.x = clientX; point.y = clientY;
+    const local = point.matrixTransform(matrix.inverse());
+    const positions = tableLayoutSlots(layout);
+    let best = -1, bestDistance = Infinity;
+    positions.forEach((seat, i) => {
+      const distance = Math.hypot(seat.x - local.x, seat.y - local.y);
+      if (distance < bestDistance) { bestDistance = distance; best = i; }
+    });
+    return bestDistance <= 38 ? best : -1;
+  } catch { return -1; }
+}
+function finishLobbyTableDrag(e) {
   const drag = lobbyTableDrag;
   if (!drag) return;
+  if (drag.pointerId != null && e.pointerId != null && drag.pointerId !== e.pointerId) return;
   lobbyTableDrag = null;
-  const moved = drag.moved || Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 10;
-  if (drag.kind === 'first') { if (!moved) window.lobbyTableTapSeat(drag.playerId); return; }
-  if (!isHost || !moved) return;
+  if (drag.source && drag.source.classList) drag.source.classList.remove('lobby-table-dragging');
+  const moved = drag.moved || Math.hypot((e.clientX || 0) - drag.x, (e.clientY || 0) - drag.y) > 8;
+  if (!moved) {
+    if (drag.firstPick) window.lobbyTableTapSeat(drag.playerId);
+    return;
+  }
+  if (!isHost) return;
   const hit = document.elementFromPoint(e.clientX, e.clientY);
-  const seatEl = hit && hit.closest('[data-lobby-table-seat]');
-  const tray = hit && hit.closest('#lobby-table-unseated');
   const layout = window._tableLayout;
   if (!layout || layout.template !== 'grid') return;
   const slots = resizeTableSlots(layout.slots, tableSeatCapacity(layout));
+  const trayEl = document.getElementById('lobby-table-unseated');
+  const trayRect = trayEl && trayEl.getBoundingClientRect();
+  const droppedInTray = !!(trayRect && trayEl.style.display !== 'none' &&
+    e.clientX >= trayRect.left && e.clientX <= trayRect.right &&
+    e.clientY >= trayRect.top && e.clientY <= trayRect.bottom);
   let changed = false;
-  if (seatEl) {
-    const to = Number(seatEl.getAttribute('data-lobby-table-seat'));
-    if (!Number.isInteger(to) || to < 0 || to >= slots.length) return;
-    if (drag.kind === 'seated' && to === drag.from) return;
-    if (drag.kind === 'seated') {
-      const displaced = slots[to];
-      slots[to] = drag.playerId;
-      slots[drag.from] = displaced || null;
-    } else slots[to] = drag.playerId;
-    changed = true;
-  } else if (tray && drag.kind === 'seated') {
-    slots[drag.from] = null;
-    changed = true;
+  if (droppedInTray) {
+    if (drag.kind === 'seated') { slots[drag.from] = null; changed = true; }
+  } else {
+    let to = lobbyTableSeatAtPoint(e.clientX, e.clientY, layout);
+    if (to < 0) {
+      const seatEl = hit && hit.closest('[data-lobby-table-seat]');
+      if (seatEl) to = Number(seatEl.getAttribute('data-lobby-table-seat'));
+    }
+    if (Number.isInteger(to) && to >= 0 && to < slots.length) {
+      if (drag.kind === 'seated') {
+        if (to === drag.from) return;
+        const displaced = slots[to];
+        slots[to] = drag.playerId;
+        slots[drag.from] = displaced || null;
+      } else slots[to] = drag.playerId;
+      changed = true;
+    }
   }
   if (!changed) return;
   layout.slots = slots;
@@ -10853,9 +10984,27 @@ document.addEventListener('pointerup', e => {
   renderLobbyView(localPlayers || []);
   updateStartButton();
   try { haptic(5); } catch {}
-  if (db && roomCode) update(ref(db, 'rooms/' + roomCode), { tableLayout: layout }).catch(e => console.error('[SK] table seat save failed', e));
+  if (db && roomCode) {
+    update(ref(db, 'rooms/' + roomCode), { tableLayout: tableLayoutForFirebase(layout) })
+      .catch(e => { console.error('[SK] table seat save failed', e); if (window.showAlert) window.showAlert('Could not save player seating. Please try again.'); });
+  }
+}
+document.addEventListener('pointermove', e => {
+  if (!lobbyTableDrag) return;
+  if (lobbyTableDrag.pointerId != null && e.pointerId != null && lobbyTableDrag.pointerId !== e.pointerId) return;
+  if (Math.hypot((e.clientX || 0) - lobbyTableDrag.x, (e.clientY || 0) - lobbyTableDrag.y) > 8) {
+    lobbyTableDrag.moved = true;
+    if (lobbyTableDrag.source && lobbyTableDrag.source.classList) lobbyTableDrag.source.classList.add('lobby-table-dragging');
+  }
+  if (e.cancelable) e.preventDefault();
+}, { passive: false });
+document.addEventListener('pointerup', finishLobbyTableDrag);
+document.addEventListener('pointercancel', e => {
+  if (lobbyTableDrag && (lobbyTableDrag.pointerId == null || e.pointerId == null || lobbyTableDrag.pointerId === e.pointerId)) {
+    if (lobbyTableDrag.source && lobbyTableDrag.source.classList) lobbyTableDrag.source.classList.remove('lobby-table-dragging');
+    lobbyTableDrag = null;
+  }
 });
-document.addEventListener('pointercancel', () => { lobbyTableDrag = null; });
 
 // Build SVG arc path for a donut wedge (single closed subpath)
 function wheelArcPath(cx, cy, rIn, rOut, startDeg, endDeg) {
