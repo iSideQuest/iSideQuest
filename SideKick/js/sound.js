@@ -114,14 +114,14 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
 
 // ── WAKE LOCK (keep screen on at all times) ──────────────
 let wakeLock = null;
-async export function requestWakeLock() {
+export async function requestWakeLock() {
   try {
     if ('wakeLock' in navigator) {
       wakeLock = await navigator.wakeLock.request('screen');
     }
   } catch(e) {}
 }
-async export function releaseWakeLock() {
+export async function releaseWakeLock() {
   try { if (wakeLock) { await wakeLock.release(); wakeLock = null; } } catch(e) {}
 }
 document.addEventListener('visibilitychange', async () => {
