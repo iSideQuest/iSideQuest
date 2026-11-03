@@ -505,18 +505,42 @@
       </div>
     </div>
 
+    <div class="card lobby-table-select-card" id="lobby-table-select-card" style="display:none;">
+      <div class="lobby-table-select-title">Select Your Table</div>
+      <div class="lobby-table-select-options">
+        <button class="btn-secondary lobby-table-select-choice" id="lobby-select-circle" onclick="selectLobbyTableType('circle')" aria-pressed="false">
+          <span class="lobby-table-select-icon">◯</span><span>Circle</span>
+        </button>
+        <span class="lobby-table-select-or">Or</span>
+        <button class="btn-secondary lobby-table-select-choice" id="lobby-select-square" onclick="selectLobbyTableType('square')" aria-pressed="false">
+          <span class="lobby-table-select-icon">▦</span><span>Square</span>
+        </button>
+      </div>
+    </div>
+    <div class="card lobby-square-controls" id="lobby-square-controls" style="display:none;">
+      <div class="lobby-square-controls-title">Custom Grid (2 × 4)</div>
+      <div class="lobby-square-controls-hint">Tap an empty square to add or remove a seat. Drag players onto seats.</div>
+      <div class="lobby-end-mode-label">End Seats</div>
+      <div class="lobby-end-mode-options" role="group" aria-label="End seat selection">
+        <button class="btn-secondary btn-sm lobby-end-mode-btn" data-end-mode="off" onclick="setTableEndSeatMode('off')" aria-pressed="false">Off</button>
+        <button class="btn-secondary btn-sm lobby-end-mode-btn" data-end-mode="left" onclick="setTableEndSeatMode('left')" aria-pressed="false">Left</button>
+        <button class="btn-secondary btn-sm lobby-end-mode-btn" data-end-mode="right" onclick="setTableEndSeatMode('right')" aria-pressed="false">Right</button>
+        <button class="btn-secondary btn-sm lobby-end-mode-btn" data-end-mode="both" onclick="setTableEndSeatMode('both')" aria-pressed="false">Both</button>
+      </div>
+      <div id="lobby-grid-seat-count" class="lobby-grid-seat-count"></div>
+    </div>
     <div style="text-align:center;margin-bottom:0.3rem;">
       <span id="lobby-player-list-label" style="font-size:0.85rem;font-weight:700;color:var(--text);" data-i18n="playerListDrag">Player List (Drag to Reorder)</span>
     </div>
     <div id="lobby-wheel-wrap" class="lobby-wheel-wrap">
       <svg id="lobby-wheel-svg" viewBox="0 0 400 400"></svg>
-      <svg id="lobby-table-svg" viewBox="0 0 400 400" style="display:none;"></svg>
+      <svg id="lobby-table-svg" viewBox="0 0 200 100" style="display:none;"></svg>
       <div class="lobby-wheel-center" id="lobby-wheel-center"></div>
       <div id="lobby-wheel-kicks"></div>
     </div>
     <div id="lobby-table-unseated" class="lobby-table-unseated" style="display:none;"></div>
     <div style="text-align:center;margin-top:0.4rem;">
-      <button class="btn-secondary btn-sm" id="lobby-view-toggle" onclick="toggleLobbyView()" style="padding:0.3rem 0.8rem;font-size:0.75rem;">🪑 Table</button>
+      <button class="btn-secondary btn-sm" id="lobby-view-toggle" onclick="toggleLobbyView()" style="padding:0.3rem 0.8rem;font-size:0.75rem;">▦ Square</button>
     </div>
 
     <!-- Fixed bottom bar -->
@@ -532,7 +556,6 @@
         </div>
       </div>
       <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;" data-i18n="startGame">Start Game &#9654;</button>
-      <button class="btn-secondary btn-sm" id="table-setup-btn" onclick="openTableSetup()" style="width:100%;margin-top:0.4rem;display:none;">🪑 Table Setup</button>
     </div>
 
   </div>
@@ -552,10 +575,13 @@
     <p style="color:var(--muted); font-size:0.9rem;" data-i18n="waitingHost">Waiting for host to start…</p>
     <div id="wl-wheel-wrap" class="lobby-wheel-wrap" style="margin-top:1rem;">
       <svg id="wl-wheel-svg" viewBox="0 0 400 400"></svg>
+      <svg id="wl-table-svg" viewBox="0 0 200 100" style="display:none;"></svg>
       <div class="lobby-wheel-center" id="wl-wheel-center"></div>
       <div id="wl-wheel-kicks"></div>
     </div>
-    <button class="btn-secondary btn-sm" onclick="confirmLeaveRoom()" style="margin-top:1.5rem;" data-i18n="leave">Leave</button>
+    <div id="wl-table-unseated" class="lobby-table-unseated" style="display:none;"></div>
+    <button class="btn-secondary btn-sm" id="wl-view-toggle" onclick="toggleWaitingLobbyView()" style="margin-top:0.6rem;">▦ Square</button>
+    <button class="btn-secondary btn-sm" onclick="confirmLeaveRoom()" style="margin-top:0.75rem;" data-i18n="leave">Leave</button>
   </div>
   </div>
 </div>
@@ -1482,27 +1508,6 @@
   </div>
 </div>
 
-<!-- TABLE SETUP (host only) -->
-<div class="tools-overlay" id="table-setup-overlay" style="z-index:9650;">
-  <div class="tools-modal" style="max-width:26rem; text-align:center; max-height:90vh; overflow-y:auto;">
-    <div class="tools-modal-title">Table Setup</div>
-    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.5rem;">Tap squares to turn seats on or off. Assign players by dragging them in the lobby.</div>
-    <div style="font-size:0.75rem;font-weight:700;color:var(--text);margin-bottom:0.25rem;">Custom Grid (2 x 8)</div>
-    <div style="display:flex;align-items:center;justify-content:center;gap:0.55rem;margin:0.4rem 0 0.35rem;">
-      <span style="font-size:0.75rem;color:var(--muted);">Optional single end seat</span>
-      <button class="btn-secondary btn-sm" id="table-end-seat-toggle" onclick="toggleEndSeatsMode()" aria-pressed="false">End Seat: OFF</button>
-    </div>
-    <div id="table-end-seat-side-controls" style="display:none;align-items:center;justify-content:center;gap:0.35rem;margin-bottom:0.5rem;">
-      <span style="font-size:0.72rem;color:var(--muted);margin-right:0.15rem;">Host seated at bottom:</span>
-      <button class="btn-secondary btn-sm table-end-seat-side-btn" id="table-end-seat-left" onclick="selectTableEndSeatSide('left')" aria-pressed="false">Left</button>
-      <button class="btn-secondary btn-sm table-end-seat-side-btn" id="table-end-seat-right" onclick="selectTableEndSeatSide('right')" aria-pressed="false">Right</button>
-    </div>
-    <svg id="table-setup-svg" viewBox="-50 0 500 100" style="width:100%;max-width:22rem;height:auto;margin:0 auto;display:block;"></svg>
-    <div id="table-setup-legend" style="font-size:0.72rem;color:var(--muted);margin:0.5rem 0;text-align:center;"></div>
-    <button class="btn-primary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="applyTableSetup()">Apply</button>
-    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeTableSetup()" data-i18n="close">Close</button>
-  </div>
-</div>
 <!-- COLLECTION PHOTO CROP -->
 <div class="tools-overlay" id="collection-photo-overlay">
   <div class="tools-modal" style="text-align:center;">
@@ -10135,15 +10140,15 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
 
     const layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
 
-    // ── Grid layout: seats rotate so each player sees their own place at screen bottom ──
+    // ── Grid layout: 2x4 seats plus up to two end seats, rotated for each viewer ──
     if (layout && layout.template === 'grid' && Array.isArray(layout.grid)) {
       const gridSeats = [];
       const grid = normalizeTableGrid(layout.grid);
-      for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) {
-        if (grid[r * 8 + c]) gridSeats.push({ x: c * 50 + 25, y: r * 200 + 100 });
+      for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) {
+        if (grid[r * 4 + c]) gridSeats.push({ x: c * 58 + 113, y: r * 72 + 164 });
       }
-      const hasEndSeat = tableLayoutHasEndSeat(layout);
-      const seatCount = gridSeats.length + (hasEndSeat ? 1 : 0);
+      const endSides = tableLayoutEndSeatSides(layout);
+      const seatCount = gridSeats.length + endSides.length;
       const slots = resizeTableSlots(layout.slots, seatCount);
       const validIds = new Set(players.map(p => p.id));
       const slotOf = {};
@@ -10160,10 +10165,7 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
         if (empty >= 0) { slotOf[p.id] = empty; occupiedSlots.add(empty); }
       });
       const raw = gridSeats.slice();
-      if (hasEndSeat) {
-        const hostSlot = layout.hostPlayerId ? slotOf[layout.hostPlayerId] : -1;
-        raw.push({ x: hostRelativeEndSeatX(tableLayoutEndSeatSide(layout), gridSeats, hostSlot), y: 200 });
-      }
+      endSides.forEach(side => raw.push({ x: side === 'left' ? 55 : 345, y: 200 }));
       if (!raw.length) { svg.innerHTML = ''; return; }
 
       const mySlotIdx = myIdParam && slotOf[myIdParam] != null ? slotOf[myIdParam] : 0;
@@ -10385,13 +10387,47 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
   } catch(e) { console.error('[SideKick] renderTable error:', e); }
 }
 
-// ── LOBBY VIEW TOGGLE (circle pie vs table) ──
+// ── LOBBY VIEW TOGGLE (circle pie vs square table) ──
 let lobbyViewMode = localStorage.getItem('sk_lobby_view') === 'table';
+let roomTableMode = 'circle';
+let lastRoomTableMode = null;
+
+function applyRoomTableMode(mode) {
+  roomTableMode = mode === 'square' ? 'square' : 'circle';
+  if (lastRoomTableMode === roomTableMode) return;
+  lastRoomTableMode = roomTableMode;
+  lobbyViewMode = roomTableMode === 'square';
+  try { localStorage.setItem('sk_lobby_view', lobbyViewMode ? 'table' : 'circle'); } catch {}
+}
+
+window.selectLobbyTableType = function(type) {
+  if (!isHost || (type !== 'circle' && type !== 'square')) return;
+  roomTableMode = type;
+  lastRoomTableMode = type;
+  if (type === 'square') {
+    const layout = ensureGridTableLayout();
+    window._tableLayout = layout;
+    persistTableLayout(layout);
+  }
+  lobbyViewMode = type === 'square';
+  try { localStorage.setItem('sk_lobby_view', lobbyViewMode ? 'table' : 'circle'); } catch {}
+  if (db && roomCode) update(ref(db, 'rooms/' + roomCode), { tableMode: type }).catch(() => {});
+  renderLobbyList(localPlayers || []);
+  updateStartButton();
+  try { haptic(10); } catch {}
+};
 
 window.toggleLobbyView = function() {
   lobbyViewMode = !lobbyViewMode;
+  if (lobbyViewMode && isHost) ensureGridTableLayout();
   try { localStorage.setItem('sk_lobby_view', lobbyViewMode ? 'table' : 'circle'); } catch {}
   renderLobbyView(localPlayers || []);
+};
+
+window.toggleWaitingLobbyView = function() {
+  lobbyViewMode = !lobbyViewMode;
+  try { localStorage.setItem('sk_lobby_view', lobbyViewMode ? 'table' : 'circle'); } catch {}
+  renderWaitingLobbyView(localPlayers || []);
 };
 
 window.lobbyTableTapSeat = function(pid) {
@@ -10413,12 +10449,15 @@ function renderLobbyView(players) {
     const center = document.getElementById('lobby-wheel-center');
     const kicks = document.getElementById('lobby-wheel-kicks');
     const tray = document.getElementById('lobby-table-unseated');
+    const selector = document.getElementById('lobby-table-select-card');
+    const controls = document.getElementById('lobby-square-controls');
     if (lobbyViewMode) {
       if (wheelSvg) wheelSvg.style.display = 'none';
       if (tableSvg) tableSvg.style.display = '';
       if (center) center.style.display = 'none';
       if (kicks) kicks.style.display = 'none';
       if (wrap) wrap.classList.add('table-layout-active');
+      if (controls) controls.style.display = isHost ? '' : 'none';
       renderLobbyTable(players || []);
     } else {
       if (wheelSvg) wheelSvg.style.display = '';
@@ -10427,64 +10466,139 @@ function renderLobbyView(players) {
       if (kicks) kicks.style.display = '';
       if (wrap) { wrap.classList.remove('table-layout-active'); wrap.style.aspectRatio = ''; }
       if (tray) { tray.style.display = 'none'; tray.innerHTML = ''; }
+      if (controls) controls.style.display = 'none';
       renderLobbyWheel(players || []);
     }
+    if (selector) selector.style.display = isHost ? '' : 'none';
+    const circleBtn = document.getElementById('lobby-select-circle');
+    const squareBtn = document.getElementById('lobby-select-square');
+    const chosen = roomTableMode === 'square' ? 'square' : 'circle';
+    if (circleBtn) { circleBtn.classList.toggle('active-ctrl', chosen === 'circle'); circleBtn.setAttribute('aria-pressed', String(chosen === 'circle')); }
+    if (squareBtn) { squareBtn.classList.toggle('active-ctrl', chosen === 'square'); squareBtn.setAttribute('aria-pressed', String(chosen === 'square')); }
     const label = document.getElementById('lobby-player-list-label');
     if (label) label.textContent = lobbyViewMode ? 'Players & Seats (Drag to Assign)' : 'Player List (Drag to Reorder)';
     const btn = document.getElementById('lobby-view-toggle');
-    if (btn) btn.textContent = lobbyViewMode ? '🎡 Circle' : '🪑 Table';
+    if (btn) btn.textContent = lobbyViewMode ? '🎡 Circle' : '▦ Square';
   } catch (e) { console.error('[SK] renderLobbyView error:', e); }
 }
-function renderLobbyTable(players) {
+function renderWaitingLobbyView(players) {
   try {
-    const svg = document.getElementById('lobby-table-svg');
+    const wheel = document.getElementById('wl-wheel-svg');
+    const table = document.getElementById('wl-table-svg');
+    const wrap = document.getElementById('wl-wheel-wrap');
+    const center = document.getElementById('wl-wheel-center');
+    const kicks = document.getElementById('wl-wheel-kicks');
+    const tray = document.getElementById('wl-table-unseated');
+    if (lobbyViewMode) {
+      if (wheel) wheel.style.display = 'none';
+      if (table) table.style.display = '';
+      if (center) center.style.display = 'none';
+      if (kicks) kicks.style.display = 'none';
+      if (wrap) wrap.classList.add('table-layout-active');
+      renderLobbyTable(players || [], { wrap: 'wl-wheel-wrap', svg: 'wl-table-svg', tray: 'wl-table-unseated' });
+    } else {
+      if (wheel) wheel.style.display = '';
+      if (table) table.style.display = 'none';
+      if (center) center.style.display = '';
+      if (kicks) kicks.style.display = '';
+      if (wrap) { wrap.classList.remove('table-layout-active'); wrap.style.aspectRatio = ''; }
+      if (tray) { tray.style.display = 'none'; tray.innerHTML = ''; }
+      renderLobbyWheel(players || [], { wrap: 'wl-wheel-wrap', svg: 'wl-wheel-svg', center: 'wl-wheel-center', kicks: 'wl-wheel-kicks' });
+    }
+    const btn = document.getElementById('wl-view-toggle');
+    if (btn) btn.textContent = lobbyViewMode ? '🎡 Circle' : '▦ Square';
+  } catch (e) { console.error('[SK] renderWaitingLobbyView error:', e); }
+}
+function renderLobbyTable(players, ids) {
+  try {
+    ids = ids || {};
+    const svg = document.getElementById(ids.svg || 'lobby-table-svg');
     if (!svg) { console.error('[renderLobbyTable] svg not found'); return; }
     const list = (players || []).slice();
-    const activeLayout = window._tableLayout || null;
-    if (!list.length && !(activeLayout && activeLayout.template === 'grid')) { svg.innerHTML = ''; return; }
+    const layout = resolveActiveTableLayout();
+    if (!list.length && !(layout && layout.template === 'grid')) { svg.innerHTML = ''; return; }
     const CX = 200, CY = 200;
     const AVATAR_R = 26;
-    const layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
     let seatAngles = [];
     let tableRx = 95, tableRy = 55;
     let tableShape = 'round';
 
-    // Custom grid: square seat chips are assigned by the host via drag-and-drop in this lobby.
+    // Custom grid: 2 x 4 editable cells, plus up to two end seats.
     if (layout && layout.template === 'grid' && Array.isArray(layout.grid)) {
       const grid = normalizeTableGrid(layout.grid);
+      const mode = tableLayoutEndSeatMode(layout);
+      const endSides = tableLayoutEndSeatSides(mode);
       const seats = [];
-      for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) if (grid[r * 8 + c]) seats.push({ x: c * 50 + 25, y: r * 50 + 25 });
-      const ends = tableLayoutHasEndSeat(layout);
-      const endSide = tableLayoutEndSeatSide(layout);
-      if (ends) seats.push({ x: endSide === 'right' ? 425 : -25, y: 50 });
+      for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) {
+        const cell = r * 4 + c;
+        if (grid[cell]) seats.push({ x: c * 50 + 25, y: r * 50 + 25, row: r, col: c, cell, kind: 'grid' });
+      }
+      endSides.forEach(side => seats.push({ x: side === 'left' ? -25 : 225, y: 50, side, kind: 'end' }));
+
       const slots = resizeTableSlots(layout.slots, seats.length);
       const byId = Object.fromEntries(list.map(p => [p.id, p]));
       const seated = new Set(slots.filter(pid => pid && byId[pid]));
       const unseated = list.filter(p => !seated.has(p.id));
-      const wrap = document.getElementById('lobby-wheel-wrap');
-      const viewBox = ends ? '-50 0 500 100' : '0 0 400 100';
-      svg.setAttribute('viewBox', viewBox);
-      if (wrap) wrap.style.aspectRatio = ends ? '5 / 1' : '4 / 1';
-      let content = '<rect x="' + (ends ? -45 : 5) + '" y="5" width="' + (ends ? 490 : 390) + '" height="90" rx="10" ry="10" fill="rgba(124,92,191,0.08)" stroke="rgba(124,92,191,0.35)" stroke-width="1.5"/>';
-      if (!seats.length) content += '<text x="200" y="50" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.65)" font-family="Inter,sans-serif" font-size="14" font-weight="700">Turn on seats in Table Setup</text>';
-      seats.forEach((seat, i) => {
-        const pid = slots[i], p = pid ? byId[pid] : null;
-        const color = p ? (p.color || '#7c5cbf') : 'rgba(255,255,255,0.07)';
+      const wrap = document.getElementById(ids.wrap || 'lobby-wheel-wrap');
+      const hasEnds = endSides.length > 0;
+      svg.setAttribute('viewBox', hasEnds ? '-50 0 300 100' : '0 0 200 100');
+      if (wrap) wrap.style.aspectRatio = hasEnds ? '3 / 1' : '2 / 1';
+
+      let content = '<rect x="' + (hasEnds ? -45 : 5) + '" y="5" width="' + (hasEnds ? 290 : 190) + '" height="90" rx="10" ry="10" fill="rgba(124,92,191,0.08)" stroke="rgba(124,92,191,0.35)" stroke-width="1.5"/>';
+
+      let seatIndex = 0;
+      for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) {
+        const cell = r * 4 + c, enabled = !!grid[cell];
+        const x = c * 50 + 25, y = r * 50 + 25;
+        if (!enabled) {
+          if (!isHost) continue;
+          content += '<g class="lobby-grid-empty" onclick="toggleGridCell(' + r + ',' + c + ')" style="cursor:pointer;touch-action:manipulation;">';
+          content += '<rect x="' + (x - 21) + '" y="' + (y - 21) + '" width="42" height="42" rx="5" ry="5" fill="rgba(255,255,255,0.018)" stroke="rgba(255,255,255,0.16)" stroke-width="1" stroke-dasharray="4 3"/>';
+          content += '<text x="' + x + '" y="' + y + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.3)" font-family="Inter,sans-serif" font-size="13" font-weight="800" style="pointer-events:none;">+</text>';
+          content += '</g>';
+          continue;
+        }
+        const i = seatIndex++, pid = slots[i], p = pid ? byId[pid] : null;
+        const color = p ? (p.color || '#7c5cbf') : 'rgba(124,92,191,0.22)';
         const first = p && (p.id === tapFirstId || p.id === roomTapFirstId);
-        content += '<g class="table-lobby-seat" data-lobby-table-seat="' + i + '" onpointerdown="lobbyTableSeatPointerDown(event,' + i + ')">';
-        content += '<rect x="' + (seat.x - 21) + '" y="' + (seat.y - 21) + '" width="42" height="42" rx="5" ry="5" fill="' + color + '" stroke="' + (first ? '#fff' : (p ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.24)')) + '" stroke-width="' + (first ? 3 : 1.5) + '"' + (p ? '' : ' stroke-dasharray="4 3"') + '/>';
+        content += '<g class="table-lobby-seat" data-lobby-table-seat="' + i + '" onpointerdown="lobbyTableSeatPointerDown(event,' + i + ')" onclick="lobbyGridSeatClick(event,' + i + ',' + r + ',' + c + ')">';
+        content += '<rect x="' + (x - 21) + '" y="' + (y - 21) + '" width="42" height="42" rx="5" ry="5" fill="' + color + '" stroke="' + (first ? '#fff' : (p ? 'rgba(255,255,255,0.45)' : 'rgba(190,160,255,0.7)')) + '" stroke-width="' + (first ? 3 : 1.5) + '"/>';
+        if (p) {
+          const name = p.id === myId ? 'You' : (p.name || 'Player');
+          content += svgAvatar(x, y - 5, 10, p.avatar, color);
+          content += '<text x="' + x + '" y="' + (y + 15) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="7" font-weight="800" style="pointer-events:none;">' + esc(name.length > 7 ? name.substring(0, 6) + '\u2026' : name) + '</text>';
+        } else content += '<text x="' + x + '" y="' + y + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.9)" font-family="Inter,sans-serif" font-size="12" font-weight="800" style="pointer-events:none;">' + (i + 1) + '</text>';
+        content += '</g>';
+      }
+      endSides.forEach(side => {
+        const seat = seats[seatIndex], i = seatIndex++, pid = slots[i], p = pid ? byId[pid] : null;
+        const color = p ? (p.color || '#7c5cbf') : 'rgba(124,92,191,0.22)';
+        const first = p && (p.id === tapFirstId || p.id === roomTapFirstId);
+        content += '<g class="table-lobby-seat lobby-end-seat" data-lobby-table-seat="' + i + '" onpointerdown="lobbyTableSeatPointerDown(event,' + i + ')" onclick="lobbyEndSeatClick(event,' + i + ')">';
+        content += '<rect x="' + (seat.x - 21) + '" y="' + (seat.y - 21) + '" width="42" height="42" rx="5" ry="5" fill="' + color + '" stroke="' + (first ? '#fff' : (p ? 'rgba(255,255,255,0.45)' : 'rgba(190,160,255,0.7)')) + '" stroke-width="' + (first ? 3 : 1.5) + '"/>';
         if (p) {
           const name = p.id === myId ? 'You' : (p.name || 'Player');
           content += svgAvatar(seat.x, seat.y - 5, 10, p.avatar, color);
           content += '<text x="' + seat.x + '" y="' + (seat.y + 15) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="7" font-weight="800" style="pointer-events:none;">' + esc(name.length > 7 ? name.substring(0, 6) + '\u2026' : name) + '</text>';
-        } else content += '<text x="' + seat.x + '" y="' + seat.y + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.62)" font-family="Inter,sans-serif" font-size="16" font-weight="800" style="pointer-events:none;">+</text>';
+        } else content += '<text x="' + seat.x + '" y="' + seat.y + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.9)" font-family="Inter,sans-serif" font-size="12" font-weight="800" style="pointer-events:none;">' + (i + 1) + '</text>';
         content += '</g>';
       });
+
+      if (!seats.length) content += '<text x="100" y="50" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.65)" font-family="Inter,sans-serif" font-size="10" font-weight="700">Tap a square to add a seat</text>';
       svg.innerHTML = content;
-      renderLobbyTableUnseated(unseated);
+
+      const countEl = document.getElementById('lobby-grid-seat-count');
+      if (countEl) countEl.textContent = grid.filter(Boolean).length + ' grid seats + ' + endSides.length + ' end seats = ' + seats.length + ' total · ' + list.length + (list.length === 1 ? ' player' : ' players');
+      document.querySelectorAll('.lobby-end-mode-btn').forEach(btn => {
+        const selected = btn.getAttribute('data-end-mode') === mode;
+        btn.classList.toggle('active-ctrl', selected);
+        btn.setAttribute('aria-pressed', String(selected));
+      });
+      renderLobbyTableUnseated(unseated, ids.tray || 'lobby-table-unseated');
       return;
     }
-    renderLobbyTableUnseated([]);
+    // Legacy round/square layouts keep their saved seating.
+    renderLobbyTableUnseated([], ids.tray || 'lobby-table-unseated');
     if (layout && Array.isArray(layout.slots) && layout.slots.length > 0) {
       const tmpl = TABLE_TEMPLATES[layout.template] || TABLE_TEMPLATES.r4;
       tableRx = tmpl.rx; tableRy = tmpl.ry;
@@ -10568,53 +10682,68 @@ const TABLE_TEMPLATES = {
   // Custom Grid
   grid: { name: 'Custom Grid', n: 0, rx: 0, ry: 0, shape: 'grid' }
 };
-let tableSetupState = { grid: null, slots: [], endSeatEnabled: false, endSeatSide: 'left' };
-const TABLE_GRID_SIZE = 16;
+const TABLE_GRID_SIZE = 8; // 2 rows x 4 columns
+const TABLE_GRID_COLS = 4;
+const TABLE_END_MODES = ['off', 'left', 'right', 'both'];
+
+function resolveActiveTableLayout() {
+  if (roomTableMode !== 'square') return null;
+  return window._tableLayout || null;
+}
+
 function defaultTableGrid() {
   const grid = new Array(TABLE_GRID_SIZE).fill(false);
-  [3, 4, 11, 12].forEach(i => { grid[i] = true; });
+  [1, 2, 5, 6].forEach(i => { grid[i] = true; });
   return grid;
 }
 function normalizeTableGrid(grid) {
-  if (!Array.isArray(grid) || grid.length < TABLE_GRID_SIZE) return defaultTableGrid();
-  return grid.slice(0, TABLE_GRID_SIZE).map(Boolean);
-}
-function tableLayoutEndSeatSide(layout) {
-  if (layout && (layout.endSeatSide === 'left' || layout.endSeatSide === 'right')) return layout.endSeatSide;
-  if (layout && layout.endLeft && !layout.endRight) return 'left';
-  if (layout && layout.endRight && !layout.endLeft) return 'right';
-  // v355 stored two end-seat slots. Keep the occupied side if only one was assigned.
-  if (layout && layout.endSeatsEnabled && typeof layout.endSeatEnabled !== 'boolean') {
-    const gridCount = normalizeTableGrid(layout.grid).filter(Boolean).length;
-    const oldSlots = tableSlotsArray(layout.slots, gridCount + 2);
-    if (!oldSlots[gridCount] && oldSlots[gridCount + 1]) return 'right';
+  if (Array.isArray(grid) && grid.length === TABLE_GRID_SIZE) return grid.map(Boolean);
+  if (Array.isArray(grid) && grid.length >= 16) {
+    // Migrate the published 2x8 layout to the middle four columns of the 2x4 table.
+    const next = new Array(TABLE_GRID_SIZE).fill(false);
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) next[r * 4 + c] = !!grid[r * 8 + c + 2];
+    return next;
   }
-  return 'left';
+  return defaultTableGrid();
 }
-function tableLayoutHasEndSeat(layout) {
-  if (!layout) return false;
-  if (typeof layout.endSeatEnabled === 'boolean') return layout.endSeatEnabled;
-  return !!(layout.endSeatsEnabled || layout.endLeft || layout.endRight);
+function tableLayoutEndSeatMode(layout) {
+  if (!layout) return 'off';
+  if (TABLE_END_MODES.includes(layout.endSeatMode)) return layout.endSeatMode;
+  if (typeof layout.endSeatEnabled === 'boolean') {
+    return layout.endSeatEnabled ? (layout.endSeatSide === 'right' ? 'right' : 'left') : 'off';
+  }
+  if (layout.endSeatsEnabled) return 'both';
+  const left = !!layout.endLeft, right = !!layout.endRight;
+  return left && right ? 'both' : left ? 'left' : right ? 'right' : 'off';
 }
+function tableLayoutEndSeatSides(layoutOrMode) {
+  const mode = typeof layoutOrMode === 'string' ? layoutOrMode : tableLayoutEndSeatMode(layoutOrMode);
+  if (mode === 'both') return ['left', 'right'];
+  return (mode === 'left' || mode === 'right') ? [mode] : [];
+}
+// Backwards-compatible helpers used by older call sites.
+function tableLayoutEndSeatSide(layout) { return tableLayoutEndSeatSides(layout)[0] || 'left'; }
+function tableLayoutHasEndSeat(layout) { return tableLayoutEndSeatSides(layout).length > 0; }
 function tableLayoutHasEndSeats(layout) { return tableLayoutHasEndSeat(layout); }
-function tableSeatKeys(grid, endSeatEnabled, endSeatSide) {
+function tableSeatKeys(grid, mode) {
   const keys = [];
   normalizeTableGrid(grid).forEach((on, i) => { if (on) keys.push('grid:' + i); });
-  if (endSeatEnabled) keys.push('end:' + (endSeatSide === 'right' ? 'right' : 'left'));
+  tableLayoutEndSeatSides(mode).forEach(side => keys.push('end:' + side));
   return keys;
 }
 function tableSeatCapacity(layout) {
   if (!layout) return null;
-  if (layout.template === 'grid') return normalizeTableGrid(layout.grid).filter(Boolean).length + (tableLayoutHasEndSeat(layout) ? 1 : 0);
+  if (layout.template === 'grid') return normalizeTableGrid(layout.grid).filter(Boolean).length + tableLayoutEndSeatSides(layout).length;
   const legacy = TABLE_TEMPLATES[layout.template];
   if (legacy && legacy.shape !== 'grid') return legacy.n || (Array.isArray(layout.slots) ? layout.slots.length : 0);
   return null;
 }
 function tableCapacityIssue(playerCount, layout) {
+  if (roomTableMode === 'circle') return null;
   const capacity = tableSeatCapacity(layout);
   if (capacity === null || playerCount <= capacity) return null;
   const missing = playerCount - capacity;
-  return { capacity, playerCount, missing, message: 'Table Setup has ' + capacity + ' seats for ' + playerCount + ' players. Add ' + missing + ' seat' + (missing === 1 ? '' : 's') + ' before starting.' };
+  return { capacity, playerCount, missing, message: 'Square table has ' + capacity + ' of ' + playerCount + ' seats. Add ' + missing + ' more seat' + (missing === 1 ? '' : 's') + ' before starting.' };
 }
 function tableSlotsArray(slots, count) {
   const next = new Array(Math.max(0, count)).fill(null);
@@ -10631,45 +10760,49 @@ function tableSlotsArray(slots, count) {
   return next;
 }
 function resizeTableSlots(slots, count) { return tableSlotsArray(slots, count); }
-function remapTableSlots(oldGrid, oldEnds, oldSide, newGrid, newEnds, newSide, slots) {
-  const oldKeys = tableSeatKeys(oldGrid, oldEnds, oldSide);
+function remapTableSlots(oldGrid, oldMode, newGrid, newMode, slots) {
+  const oldKeys = tableSeatKeys(oldGrid, oldMode);
   const byKey = new Map(oldKeys.map((key, i) => [key, (slots || [])[i] || null]));
-  const oldEndPlayer = oldEnds ? (byKey.get('end:' + (oldSide === 'right' ? 'right' : 'left')) || null) : null;
-  return tableSeatKeys(newGrid, newEnds, newSide).map(key => {
-    if (key.startsWith('end:')) return byKey.get(key) || oldEndPlayer || null;
+  const oldSides = tableLayoutEndSeatSides(oldMode);
+  const newSides = tableLayoutEndSeatSides(newMode);
+  let fallbackEnd = null;
+  if (oldSides.length === 1 && newSides.length === 1 && oldSides[0] !== newSides[0]) {
+    fallbackEnd = byKey.get('end:' + oldSides[0]) || null;
+  }
+  return tableSeatKeys(newGrid, newMode).map(key => {
+    if (key.startsWith('end:')) return byKey.get(key) || fallbackEnd || null;
     return byKey.get(key) || null;
   });
 }
-function normalizeGridSlotsFromLayout(layout, grid, endEnabled, endSide) {
-  const oldGrid = normalizeTableGrid(layout && layout.grid);
-  const oldGridCount = oldGrid.filter(Boolean).length;
-  const oldHasEnd = tableLayoutHasEndSeat(layout);
-  const oldPair = oldHasEnd && typeof layout.endSeatEnabled !== 'boolean' &&
-    (!!layout.endSeatsEnabled || (!!layout.endLeft && !!layout.endRight));
-  const oldEndCount = oldPair ? 2 : (oldHasEnd ? 1 : 0);
-  const slots = tableSlotsArray(layout && layout.slots, oldGridCount + oldEndCount);
-  const byCell = new Map();
-  let slotIndex = 0;
-  oldGrid.forEach((on, cellIndex) => { if (on) byCell.set(cellIndex, slots[slotIndex++] || null); });
-  const next = [];
-  normalizeTableGrid(grid).forEach((on, cellIndex) => { if (on) next.push(byCell.get(cellIndex) || null); });
-  if (endEnabled) {
-    let endPlayer = null;
-    if (oldPair) {
-      const leftPlayer = slots[oldGridCount] || null;
-      const rightPlayer = slots[oldGridCount + 1] || null;
-      endPlayer = endSide === 'right' ? (rightPlayer || leftPlayer) : (leftPlayer || rightPlayer);
-    } else if (oldHasEnd) endPlayer = slots[oldGridCount] || null;
-    next.push(endPlayer);
+function normalizeGridSlotsFromLayout(layout, grid, mode) {
+  const rawGrid = Array.isArray(layout && layout.grid) ? layout.grid : [];
+  const oldWide = rawGrid.length >= 16;
+  const oldGrid = oldWide ? rawGrid.slice(0, 16).map(Boolean) : normalizeTableGrid(rawGrid);
+  const oldCols = oldWide ? 8 : 4;
+  const oldCells = [];
+  for (let i = 0; i < oldGrid.length; i++) if (oldGrid[i]) {
+    const r = Math.floor(i / oldCols), c = i % oldCols;
+    const newCell = oldWide ? (c >= 2 && c < 6 ? r * 4 + (c - 2) : -1) : i;
+    oldCells.push({ newCell });
   }
+  const oldMode = tableLayoutEndSeatMode(layout);
+  const oldSides = tableLayoutEndSeatSides(oldMode);
+  const slots = tableSlotsArray(layout && layout.slots, oldCells.length + oldSides.length);
+  const byCell = new Map();
+  oldCells.forEach((cell, i) => { if (cell.newCell >= 0) byCell.set(cell.newCell, slots[i] || null); });
+  const byEnd = new Map();
+  oldSides.forEach((side, i) => byEnd.set(side, slots[oldCells.length + i] || null));
+  const next = [];
+  normalizeTableGrid(grid).forEach((on, cell) => { if (on) next.push(byCell.get(cell) || null); });
+  tableLayoutEndSeatSides(mode).forEach(side => next.push(byEnd.get(side) || null));
   return next;
 }
 function tableLayoutSlots(layout) {
   if (layout && layout.template === 'grid') {
     const positions = [];
     const grid = normalizeTableGrid(layout.grid);
-    for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) if (grid[r * 8 + c]) positions.push({ x: c * 50 + 25, y: r * 50 + 25 });
-    if (tableLayoutHasEndSeat(layout)) positions.push({ x: tableLayoutEndSeatSide(layout) === 'right' ? 425 : -25, y: 50 });
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) if (grid[r * 4 + c]) positions.push({ x: c * 50 + 25, y: r * 50 + 25 });
+    tableLayoutEndSeatSides(layout).forEach(side => positions.push({ x: side === 'left' ? -25 : 225, y: 50 }));
     return positions;
   }
   const t = TABLE_TEMPLATES[layout && layout.template] || TABLE_TEMPLATES.r4;
@@ -10683,8 +10816,9 @@ function tableLayoutForFirebase(layout) {
   const saved = { ...layout };
   if (saved.template === 'grid') {
     saved.grid = normalizeTableGrid(saved.grid);
-    saved.endSeatEnabled = tableLayoutHasEndSeat(saved);
-    saved.endSeatSide = tableLayoutEndSeatSide(saved);
+    saved.endSeatMode = tableLayoutEndSeatMode(saved);
+    delete saved.endSeatEnabled;
+    delete saved.endSeatSide;
     delete saved.endSeatsEnabled;
     delete saved.endLeft;
     delete saved.endRight;
@@ -10693,11 +10827,25 @@ function tableLayoutForFirebase(layout) {
   saved.slots = resizeTableSlots(saved.slots, count).map(playerId => playerId || '');
   return saved;
 }
+function persistTableLayout(layout) {
+  if (!db || !roomCode) return;
+  update(ref(db, 'rooms/' + roomCode), { tableLayout: tableLayoutForFirebase(layout) })
+    .catch(e => {
+      console.error('[SK] table layout save failed', e);
+      if (window.showAlert) window.showAlert('Could not save the table seating. Please try again.');
+    });
+}
 function orientGridSeatPositions(raw, mySlotIndex) {
   if (!raw.length) return { seats: [], rotation: 0 };
   const ownSeat = raw[mySlotIndex] || raw[0];
-  const ownAngle = Math.atan2(ownSeat.y - 200, ownSeat.x - 200);
-  const rotation = Math.PI / 2 - ownAngle;
+  // Keep the square grid horizontal for grid-seat players: top-row viewers
+  // see the table flipped 180 degrees, bottom-row viewers see it as drawn.
+  // End seats sit on the horizontal midline, so they get a 90-degree
+  // rotation and a vertical table.
+  let rotation = 0;
+  if (ownSeat.y < 190) rotation = Math.PI;
+  else if (ownSeat.y > 210) rotation = 0;
+  else rotation = ownSeat.x >= 200 ? Math.PI / 2 : -Math.PI / 2;
   const cos = Math.cos(rotation), sin = Math.sin(rotation);
   return {
     rotation,
@@ -10707,138 +10855,83 @@ function orientGridSeatPositions(raw, mySlotIndex) {
     })
   };
 }
-function hostRelativeEndSeatX(side, gridSeats, hostSlotIndex) {
-  let canonicalLeft = side !== 'right';
-  const hostSeat = Number.isInteger(hostSlotIndex) && hostSlotIndex >= 0 && hostSlotIndex < gridSeats.length ? gridSeats[hostSlotIndex] : null;
-  if (hostSeat) {
-    const hostAngle = Math.atan2(hostSeat.y - 200, hostSeat.x - 200);
-    const hostRotation = Math.PI / 2 - hostAngle;
-    const canonicalLeftAppearsOnHostLeft = Math.cos(hostRotation) >= 0;
-    canonicalLeft = side === 'left' ? canonicalLeftAppearsOnHostLeft : !canonicalLeftAppearsOnHostLeft;
+function ensureGridTableLayout() {
+  const current = window._tableLayout || null;
+  if (current && current.template === 'grid') {
+    const grid = normalizeTableGrid(current.grid);
+    const mode = tableLayoutEndSeatMode(current);
+    current.slots = normalizeGridSlotsFromLayout(current, grid, mode);
+    current.grid = grid;
+    current.endSeatMode = mode;
+    current.hostPlayerId = current.hostPlayerId || myId || null;
+    delete current.endSeatEnabled;
+    delete current.endSeatSide;
+    delete current.endSeatsEnabled;
+    delete current.endLeft;
+    delete current.endRight;
+    window._tableLayout = current;
+    return current;
   }
-  return canonicalLeft ? -25 : 425;
-}
-
-window.openTableSetup = function() {
-  const overlay = document.getElementById('table-setup-overlay');
-  if (!overlay) return;
-  overlay.classList.add('show');
-  const saved = window._tableLayout || null;
-  const savedGrid = !!(saved && saved.template === 'grid' && Array.isArray(saved.grid));
-  const grid = savedGrid ? normalizeTableGrid(saved.grid) : defaultTableGrid();
-  const ends = savedGrid && tableLayoutHasEndSeat(saved);
-  const endSide = savedGrid ? tableLayoutEndSeatSide(saved) : 'left';
-  const slots = savedGrid
-    ? normalizeGridSlotsFromLayout(saved, grid, ends, endSide)
-    : resizeTableSlots(saved && saved.slots, grid.filter(Boolean).length);
-  tableSetupState = { grid, slots, endSeatEnabled: ends, endSeatSide: endSide };
-  renderTableSetup();
-  try { haptic(5); } catch {}
-};
-
-function renderTableSetup() {
-  const svg = document.getElementById('table-setup-svg');
-  if (!svg) return;
-  const grid = normalizeTableGrid(tableSetupState.grid);
-  tableSetupState.grid = grid;
-  let content = '';
-  let seatNo = 0;
-  for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++) {
-    const i = r * 8 + c, on = !!grid[i];
-    if (on) seatNo++;
-    const x = c * 50 + 2, y = r * 50 + 2;
-    content += '<rect x="' + x + '" y="' + y + '" width="46" height="46" rx="5" ry="5" fill="' + (on ? 'rgba(124,92,191,0.82)' : 'rgba(255,255,255,0.045)') + '" stroke="' + (on ? 'rgba(190,160,255,0.95)' : 'rgba(255,255,255,0.2)') + '" stroke-width="' + (on ? 2 : 1) + '"' + (on ? '' : ' stroke-dasharray="4 3"') + ' style="cursor:pointer;touch-action:manipulation;" onclick="toggleGridCell(' + r + ',' + c + ')"/>';
-    content += '<text x="' + (c * 50 + 25) + '" y="' + (r * 50 + 25) + '" text-anchor="middle" dominant-baseline="central" fill="' + (on ? '#fff' : 'rgba(255,255,255,0.38)') + '" font-family="Inter,sans-serif" font-size="' + (on ? 12 : 16) + '" font-weight="800" style="pointer-events:none;">' + (on ? seatNo : '+') + '</text>';
-  }
-  const ends = !!tableSetupState.endSeatEnabled;
-  const side = tableSetupState.endSeatSide === 'right' ? 'right' : 'left';
-  [{ x: -25, label: 'L', side: 'left' }, { x: 425, label: 'R', side: 'right' }].forEach(end => {
-    const selected = ends && side === end.side;
-    content += '<rect x="' + (end.x - 22) + '" y="28" width="44" height="44" rx="5" ry="5" fill="' + (selected ? 'rgba(124,92,191,0.82)' : 'rgba(255,255,255,0.025)') + '" stroke="' + (selected ? 'rgba(190,160,255,0.95)' : 'rgba(255,255,255,0.2)') + '" stroke-width="' + (selected ? 2 : 1) + '"' + (selected ? '' : ' stroke-dasharray="4 3"') + '/>';
-    content += '<text x="' + end.x + '" y="50" text-anchor="middle" dominant-baseline="central" fill="' + (selected ? '#fff' : 'rgba(255,255,255,0.35)') + '" font-family="Inter,sans-serif" font-size="10" font-weight="800">Host ' + end.label + '</text>';
-  });
-  svg.setAttribute('viewBox', '-50 0 500 100');
-  svg.innerHTML = content;
-  const endButton = document.getElementById('table-end-seat-toggle');
-  if (endButton) {
-    endButton.textContent = ends ? 'End Seat: ON (+1)' : 'End Seat: OFF';
-    endButton.setAttribute('aria-pressed', String(ends));
-    endButton.classList.toggle('active-ctrl', ends);
-  }
-  const sideControls = document.getElementById('table-end-seat-side-controls');
-  if (sideControls) sideControls.style.display = ends ? 'flex' : 'none';
-  ['left', 'right'].forEach(which => {
-    const button = document.getElementById('table-end-seat-' + which);
-    if (button) {
-      button.classList.toggle('active-ctrl', ends && side === which);
-      button.setAttribute('aria-pressed', String(ends && side === which));
-    }
-  });
-  const count = grid.filter(Boolean).length + (ends ? 1 : 0);
-  const players = Array.isArray(localPlayers) ? localPlayers.length : 0;
-  const legend = document.getElementById('table-setup-legend');
-  if (legend) {
-    legend.textContent = grid.filter(Boolean).length + ' grid seats' + (ends ? ' + 1 end seat (' + (side === 'left' ? "host's left" : "host's right") + ')' : '') + ' = ' + count + ' total · ' + players + ' players';
-    legend.style.color = players > count ? '#ff7777' : 'var(--muted)';
-  }
+  const grid = defaultTableGrid();
+  const mode = 'off';
+  const layout = {
+    template: 'grid', grid, endSeatMode: mode,
+    hostPlayerId: myId || null,
+    slots: resizeTableSlots(null, grid.filter(Boolean).length + tableLayoutEndSeatSides(mode).length)
+  };
+  window._tableLayout = layout;
+  return layout;
 }
 
 window.toggleGridCell = function(row, col) {
-  if (row < 0 || row > 1 || col < 0 || col > 7) return;
-  const oldGrid = normalizeTableGrid(tableSetupState.grid);
-  const ends = !!tableSetupState.endSeatEnabled, side = tableSetupState.endSeatSide;
-  const grid = oldGrid.slice(), i = row * 8 + col;
+  if (!isHost || row < 0 || row > 1 || col < 0 || col > 3) return;
+  const layout = ensureGridTableLayout();
+  const oldGrid = normalizeTableGrid(layout.grid);
+  const mode = tableLayoutEndSeatMode(layout);
+  const grid = oldGrid.slice(), i = row * 4 + col;
   grid[i] = !grid[i];
-  tableSetupState.slots = remapTableSlots(oldGrid, ends, side, grid, ends, side, tableSetupState.slots);
-  tableSetupState.grid = grid;
-  renderTableSetup();
-  try { haptic(5); } catch {}
-};
-window.toggleEndSeatsMode = function() {
-  const grid = normalizeTableGrid(tableSetupState.grid);
-  const oldEnds = !!tableSetupState.endSeatEnabled, side = tableSetupState.endSeatSide;
-  const ends = !oldEnds;
-  tableSetupState.slots = remapTableSlots(grid, oldEnds, side, grid, ends, side, tableSetupState.slots);
-  tableSetupState.endSeatEnabled = ends;
-  renderTableSetup();
-  try { haptic(5); } catch {}
-};
-window.selectTableEndSeatSide = function(side) {
-  if (side !== 'left' && side !== 'right') return;
-  const grid = normalizeTableGrid(tableSetupState.grid), ends = !!tableSetupState.endSeatEnabled;
-  tableSetupState.slots = remapTableSlots(grid, ends, tableSetupState.endSeatSide, grid, ends, side, tableSetupState.slots);
-  tableSetupState.endSeatSide = side;
-  renderTableSetup();
-  try { haptic(5); } catch {}
-};
-window.applyTableSetup = async function() {
-  const grid = normalizeTableGrid(tableSetupState.grid), ends = !!tableSetupState.endSeatEnabled;
-  const layout = {
-    template: 'grid', grid, endSeatEnabled: ends,
-    endSeatSide: tableSetupState.endSeatSide === 'right' ? 'right' : 'left',
-    hostPlayerId: myId || null,
-    slots: resizeTableSlots(tableSetupState.slots, grid.filter(Boolean).length + (ends ? 1 : 0))
-  };
+  layout.slots = remapTableSlots(oldGrid, mode, grid, mode, layout.slots);
+  layout.grid = grid;
+  layout.slots = resizeTableSlots(layout.slots, grid.filter(Boolean).length + tableLayoutEndSeatSides(mode).length);
   window._tableLayout = layout;
-  lobbyViewMode = true;
-  try { localStorage.setItem('sk_lobby_view', 'table'); } catch {}
-  let saved = true;
-  if (db && roomCode) {
-    try { await update(ref(db, 'rooms/' + roomCode), { tableLayout: tableLayoutForFirebase(layout) }); }
-    catch (e) { saved = false; console.error('tableLayout save failed', e); }
-  }
-  window.closeTableSetup();
   renderLobbyList(localPlayers || []);
   updateStartButton();
-  if (!saved && window.showAlert) window.showAlert('Could not save Table Setup. Please try again.');
-  try { haptic(10); } catch {}
+  persistTableLayout(layout);
+  try { haptic(5); } catch {}
 };
-window.closeTableSetup = function() {
-  const overlay = document.getElementById('table-setup-overlay');
-  if (overlay) overlay.classList.remove('show');
+
+window.setTableEndSeatMode = function(mode) {
+  if (!isHost || !TABLE_END_MODES.includes(mode)) return;
+  const layout = ensureGridTableLayout();
+  const grid = normalizeTableGrid(layout.grid);
+  const oldMode = tableLayoutEndSeatMode(layout);
+  layout.slots = remapTableSlots(grid, oldMode, grid, mode, layout.slots);
+  layout.endSeatMode = mode;
+  layout.slots = resizeTableSlots(layout.slots, grid.filter(Boolean).length + tableLayoutEndSeatSides(mode).length);
+  window._tableLayout = layout;
+  renderLobbyList(localPlayers || []);
+  updateStartButton();
+  persistTableLayout(layout);
+  try { haptic(5); } catch {}
+};
+
+window.lobbyGridSeatClick = function(event, seatIndex, row, col) {
+  const layout = window._tableLayout;
+  const playerId = layout && Array.isArray(layout.slots) ? layout.slots[seatIndex] : null;
+  if (tapArmed && firstPlayerOption === 'spot1' && playerId) { window.lobbyTableTapSeat(playerId); return; }
+  if (isHost && !playerId) window.toggleGridCell(row, col);
+};
+window.lobbyEndSeatClick = function(event, seatIndex) {
+  const layout = window._tableLayout;
+  const playerId = layout && Array.isArray(layout.slots) ? layout.slots[seatIndex] : null;
+  if (tapArmed && firstPlayerOption === 'spot1' && playerId) window.lobbyTableTapSeat(playerId);
 };
 
 function syncTableLayoutFromRoom(room) {
+  const mode = room && (room.tableMode === 'circle' || room.tableMode === 'square')
+    ? room.tableMode
+    : (room && room.tableLayout && room.tableLayout.template === 'grid' ? 'square' : 'circle');
+  applyRoomTableMode(mode);
   if (!room || !room.tableLayout) { window._tableLayout = null; return; }
   window._tableLayout = room.tableLayout;
   if (!window._tableLayout.hostPlayerId && room.host) window._tableLayout.hostPlayerId = room.host;
@@ -10851,15 +10944,17 @@ function reconcileTableLayout(room) {
   const ids = new Set(players.map(p => p.id));
   if (layout.template === 'grid') {
     const grid = normalizeTableGrid(layout.grid);
-    const endSeatEnabled = tableLayoutHasEndSeat(layout);
-    const endSeatSide = tableLayoutEndSeatSide(layout);
-    layout.slots = normalizeGridSlotsFromLayout(layout, grid, endSeatEnabled, endSeatSide);
+    const mode = tableLayoutEndSeatMode(layout);
+    layout.slots = normalizeGridSlotsFromLayout(layout, grid, mode);
     layout.grid = grid;
-    layout.endSeatEnabled = endSeatEnabled;
-    layout.endSeatSide = endSeatSide;
+    layout.endSeatMode = mode;
+    layout.hostPlayerId = layout.hostPlayerId || (room && room.host) || null;
+    delete layout.endSeatEnabled;
+    delete layout.endSeatSide;
     delete layout.endSeatsEnabled;
     delete layout.endLeft;
     delete layout.endRight;
+    layout.slots = resizeTableSlots(layout.slots, grid.filter(Boolean).length + tableLayoutEndSeatSides(mode).length);
     for (let i = 0; i < layout.slots.length; i++) if (layout.slots[i] && !ids.has(layout.slots[i])) layout.slots[i] = null;
   } else {
     layout.slots = resizeTableSlots(layout.slots, tableSeatCapacity(layout) || 0);
@@ -10878,8 +10973,8 @@ function reconcileTableLayout(room) {
 // (patched below: renderTable checks window._tableLayout)
 
 // ── Phase 3: drag-and-drop in table setup ──
-function renderLobbyTableUnseated(players) {
-  const tray = document.getElementById('lobby-table-unseated');
+function renderLobbyTableUnseated(players, trayId) {
+  const tray = document.getElementById(trayId || 'lobby-table-unseated');
   if (!tray) return;
   tray.innerHTML = '';
   if (!players.length) { tray.style.display = 'none'; return; }
@@ -11627,8 +11722,6 @@ function listenLobby() {
     const players = room.players || {};
     localPlayers = buildOrderedPlayers(players);
     try { syncTableLayoutFromRoom(room); } catch (e) { console.error('[SK] syncTableLayout', e); }
-    const tsBtn = document.getElementById('table-setup-btn');
-    if (tsBtn) tsBtn.style.display = isHost ? '' : 'none';
     if (players[myId] && !players[myId].avatar) {
       const myAvatar = roomAvatarSelection || getSavedAvatar() || '👤';
       set(ref(db, `rooms/${roomCode}/players/${myId}/avatar`), myAvatar).catch(() => {});
@@ -14344,8 +14437,7 @@ function initCustomScrollbars() {
 }
 
 function renderWaitingLobbyList(players) {
-  // Guests get the same circular table, rotated so their own name is at the bottom
-  renderLobbyWheel(players || [], { wrap: 'wl-wheel-wrap', svg: 'wl-wheel-svg', center: 'wl-wheel-center', kicks: 'wl-wheel-kicks' });
+  renderWaitingLobbyView(players || []);
   requestAnimationFrame(rescaleCurrentScreen);
 }
 

@@ -78,6 +78,8 @@ The longer human checklist at the source path is `C:\Users\brian\Desktop\SideKic
 
 **v354 Collection photo release:** photo state, file/camera/paste ingestion, crop canvas, drag handling, and preview are in `collection-photo.js`; callbacks are injected into the editor. Syntax and focused photo/store/list/editor/discovery checks passed; phone camera/crop/paste verification is pending.
 
+**v358 Table selector release:** the Player Lobby host picks Circle or Square in a "Select Your Table" card (no Table Setup overlay). Square uses an editable 2×4 grid plus Off/Left/Right/Both end seats, 10 seats maximum; Circle skips the seat-capacity check. Room mode syncs as `rooms/{code}/tableMode`; the in-lobby view toggle is a per-player override. Active-game seats orient per viewer: grid rows stay horizontal (top row rotates 180°), end seats rotate ±90° for a vertical table. Legacy 2×8 grids map columns 2–5 onto the new 4 columns; legacy single-end fields map to `left`/`right` and paired ends to `both`. `Temp/test_table_grid_v358.mjs` covers model, migration, orientation, drag, and capacity; host/guest browser smoke tests passed. Phone drag and end-seat orientation verification is pending.
+
 ## Low-token AI workflow
 
 - Start from this guide and `HANDOFF.md`; do not reread the full history or entire 18k-line HTML file.
