@@ -518,7 +518,7 @@
       </div>
     </div>
     <div class="card lobby-square-controls" id="lobby-square-controls" style="display:none;">
-      <div class="lobby-square-controls-title">Custom Grid (2 × 4)</div>
+      <div class="lobby-square-controls-title">Custom Table</div>
       <div class="lobby-square-controls-hint">Tap an empty square to add or remove a seat.</div>
       <div class="lobby-square-actions" style="display:flex;gap:0.5rem;justify-content:center;margin:0.5rem 0 0.25rem;flex-wrap:wrap;">
         <button class="btn-secondary btn-sm" id="lobby-square-invite-btn" onclick="openInviteFriendsOverlay()" style="display:none;">👥 Invite Friends</button>
@@ -10138,8 +10138,16 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
     if (layout && layout.template === 'grid' && Array.isArray(layout.grid)) {
       const gridSeats = [];
       const grid = normalizeTableGrid(layout.grid);
+      const survCols = [];
+      for (let c = 0; c < 4; c++) if (grid[c] || grid[4 + c]) survCols.push(c);
+      const colMap = new Map(survCols.map((c, i) => [c, i]));
+      const emptySeats = [];
       for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) {
-        if (grid[r * 4 + c]) gridSeats.push({ x: c * 58 + 113, y: r * 72 + 164 });
+        const nc = colMap.get(c);
+        if (nc == null) continue;
+        const x = 113 + nc * 58, y = r * 72 + 164;
+        if (grid[r * 4 + c]) gridSeats.push({ x, y });
+        else emptySeats.push({ x, y });
       }
       const endSides = tableLayoutEndSeatSides(layout);
       const seatCount = gridSeats.length + endSides.length;
@@ -10158,15 +10166,21 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
         const empty = slots.findIndex((_, i) => i < seatCount && !occupiedSlots.has(i));
         if (empty >= 0) { slotOf[p.id] = empty; occupiedSlots.add(empty); }
       });
+      const K = survCols.length || 1;
       const raw = gridSeats.slice();
-      endSides.forEach(side => raw.push({ x: side === 'left' ? 55 : 345, y: 200 }));
-      if (!raw.length) { svg.innerHTML = ''; return; }
+      endSides.forEach(side => raw.push({ x: side === 'left' ? 55 : 113 + K * 58, y: 200 }));
+      if (!raw.length && !emptySeats.length) { svg.innerHTML = ''; return; }
 
       const mySlotIdx = myIdParam && slotOf[myIdParam] != null ? slotOf[myIdParam] : 0;
-      const oriented = orientGridSeatPositions(raw, mySlotIdx).seats;
+      const orientResult = orientGridSeatPositions(raw.length ? raw : emptySeats, mySlotIdx);
+      const rotation = orientResult.rotation;
+      const oriented = orientResult.seats;
+      const cos = Math.cos(rotation), sin = Math.sin(rotation);
+      const rotPt = (pt) => ({ x: 200 + (pt.x - 200) * cos - (pt.y - 200) * sin, y: 200 + (pt.x - 200) * sin + (pt.y - 200) * cos });
+      const orientedEmpty = emptySeats.map(rotPt);
       const AVATAR_R = 22;
       let minX = 200, maxX = 200, minY = 200, maxY = 200;
-      oriented.forEach(p => {
+      oriented.concat(orientedEmpty).forEach(p => {
         minX = Math.min(minX, p.x - AVATAR_R - 8); maxX = Math.max(maxX, p.x + AVATAR_R + 8);
         minY = Math.min(minY, p.y - AVATAR_R - 8); maxY = Math.max(maxY, p.y + AVATAR_R + 8);
       });
@@ -10176,6 +10190,9 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
       let svgContent = '<rect x="' + minX + '" y="' + minY + '" width="' + (maxX - minX) + '" height="' + (maxY - minY) + '" rx="14" ry="14" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
       oriented.forEach(p => {
         svgContent += '<rect x="' + (p.x - 24).toFixed(1) + '" y="' + (p.y - 24).toFixed(1) + '" width="48" height="48" rx="5" ry="5" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>';
+      });
+      orientedEmpty.forEach(p => {
+        svgContent += '<rect x="' + (p.x - 24).toFixed(1) + '" y="' + (p.y - 24).toFixed(1) + '" width="48" height="48" rx="5" ry="5" fill="rgba(255,255,255,0.018)" stroke="rgba(255,255,255,0.16)" stroke-width="1" stroke-dasharray="4 3"/>';
       });
       const arrowText = (passDir === 'left' || passDir === 'counterclockwise') ? '↺' : (passDir === 'right' || passDir === 'clockwise') ? '↻' : '↔';
       svgContent += '<text x="200" y="200" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.35)" font-family="Inter,sans-serif" font-size="28" font-weight="800">' + arrowText + '</text>';
