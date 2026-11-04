@@ -519,13 +519,10 @@
     </div>
     <div class="card lobby-square-controls" id="lobby-square-controls" style="display:none;">
       <div class="lobby-square-controls-title">Custom Grid (2 × 4)</div>
-      <div class="lobby-square-controls-hint">Tap an empty square to add or remove a seat. Drag players onto seats.</div>
-      <div class="lobby-end-mode-label">End Seats</div>
-      <div class="lobby-end-mode-options" role="group" aria-label="End seat selection">
-        <button class="btn-secondary btn-sm lobby-end-mode-btn" data-end-mode="off" onclick="setTableEndSeatMode('off')" aria-pressed="false">Off</button>
-        <button class="btn-secondary btn-sm lobby-end-mode-btn" data-end-mode="left" onclick="setTableEndSeatMode('left')" aria-pressed="false">Left</button>
-        <button class="btn-secondary btn-sm lobby-end-mode-btn" data-end-mode="right" onclick="setTableEndSeatMode('right')" aria-pressed="false">Right</button>
-        <button class="btn-secondary btn-sm lobby-end-mode-btn" data-end-mode="both" onclick="setTableEndSeatMode('both')" aria-pressed="false">Both</button>
+      <div class="lobby-square-controls-hint">Tap an empty square to add or remove a seat.</div>
+      <div class="lobby-square-actions" style="display:flex;gap:0.5rem;justify-content:center;margin:0.5rem 0 0.25rem;flex-wrap:wrap;">
+        <button class="btn-secondary btn-sm" id="lobby-square-invite-btn" onclick="openInviteFriendsOverlay()" style="display:none;">👥 Invite Friends</button>
+        <button class="btn-secondary btn-sm" id="lobby-square-create-btn" onclick="openStandinOverlay()">＋ Create Player</button>
       </div>
       <div id="lobby-grid-seat-count" class="lobby-grid-seat-count"></div>
     </div>
@@ -539,9 +536,6 @@
       <div id="lobby-wheel-kicks"></div>
     </div>
     <div id="lobby-table-unseated" class="lobby-table-unseated" style="display:none;"></div>
-    <div style="text-align:center;margin-top:0.4rem;">
-      <button class="btn-secondary btn-sm" id="lobby-view-toggle" onclick="toggleLobbyView()" style="padding:0.3rem 0.8rem;font-size:0.75rem;">▦ Square</button>
-    </div>
 
     <!-- Fixed bottom bar -->
     <div style="position:relative;width:100%;max-width:30rem;margin:0 auto;padding:0.3rem 0.5rem calc(3.4rem + env(safe-area-inset-bottom, 0.3rem));flex-shrink:0;">
@@ -10458,6 +10452,8 @@ function renderLobbyView(players) {
       if (kicks) kicks.style.display = 'none';
       if (wrap) wrap.classList.add('table-layout-active');
       if (controls) controls.style.display = isHost ? '' : 'none';
+      const inviteBtn = document.getElementById('lobby-square-invite-btn');
+      if (inviteBtn) inviteBtn.style.display = (isHost && currentUser) ? '' : 'none';
       renderLobbyTable(players || []);
     } else {
       if (wheelSvg) wheelSvg.style.display = '';
@@ -10537,8 +10533,22 @@ function renderLobbyTable(players, ids) {
 
       const slots = resizeTableSlots(layout.slots, seats.length);
       const byId = Object.fromEntries(list.map(p => [p.id, p]));
+      // Drop stale player ids that are no longer in the room.
+      slots.forEach((pid, i) => { if (pid && !byId[pid]) slots[i] = null; });
       const seated = new Set(slots.filter(pid => pid && byId[pid]));
-      const unseated = list.filter(p => !seated.has(p.id));
+      let unseated = list.filter(p => !seated.has(p.id));
+      // Auto-populate empty seats (host only): new/remaining players fill free seats.
+      let autoChanged = false;
+      if (isHost) {
+        unseated.slice().forEach(p => {
+          const empty = slots.findIndex((v, i) => i < seats.length && !v);
+          if (empty >= 0) { slots[empty] = p.id; seated.add(p.id); autoChanged = true; }
+        });
+        unseated = list.filter(p => !seated.has(p.id));
+      }
+      layout.slots = slots;
+      window._tableLayout = layout;
+      if (autoChanged && db && roomCode) persistTableLayout(layout);
       const wrap = document.getElementById(ids.wrap || 'lobby-wheel-wrap');
       const hasEnds = endSides.length > 0;
       svg.setAttribute('viewBox', hasEnds ? '-50 0 300 100' : '0 0 200 100');
@@ -10584,6 +10594,15 @@ function renderLobbyTable(players, ids) {
         content += '</g>';
       });
 
+      ['left', 'right'].forEach(side => {
+        if (endSides.includes(side)) return;
+        const x = side === 'left' ? -25 : 225, y = 50;
+        const toggleFn = side === 'left' ? 'toggleLeftEndSeat' : 'toggleRightEndSeat';
+        content += '<g class="lobby-grid-empty lobby-end-placeholder" onclick="' + toggleFn + '()" style="cursor:pointer;touch-action:manipulation;">';
+        content += '<rect x="' + (x - 21) + '" y="' + (y - 21) + '" width="42" height="42" rx="5" ry="5" fill="rgba(255,255,255,0.018)" stroke="rgba(255,255,255,0.16)" stroke-width="1" stroke-dasharray="4 3"/>';
+        content += '<text x="' + x + '" y="' + y + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.3)" font-family="Inter,sans-serif" font-size="13" font-weight="800" style="pointer-events:none;">+</text>';
+        content += '</g>';
+      });
       if (!seats.length) content += '<text x="100" y="50" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.65)" font-family="Inter,sans-serif" font-size="10" font-weight="700">Tap a square to add a seat</text>';
       svg.innerHTML = content;
 
@@ -10914,6 +10933,30 @@ window.setTableEndSeatMode = function(mode) {
   persistTableLayout(layout);
   try { haptic(5); } catch {}
 };
+function toggleEndSeatSide(side) {
+  if (!isHost || (side !== 'left' && side !== 'right')) return;
+  const layout = ensureGridTableLayout();
+  const grid = normalizeTableGrid(layout.grid);
+  const oldMode = tableLayoutEndSeatMode(layout);
+  const oldSides = tableLayoutEndSeatSides(oldMode);
+  const has = oldSides.includes(side);
+  let newMode;
+  if (side === 'left') {
+    newMode = has ? (oldSides.includes('right') ? 'right' : 'off') : (oldSides.includes('right') ? 'both' : 'left');
+  } else {
+    newMode = has ? (oldSides.includes('left') ? 'left' : 'off') : (oldSides.includes('left') ? 'both' : 'right');
+  }
+  layout.slots = remapTableSlots(grid, oldMode, grid, newMode, layout.slots);
+  layout.endSeatMode = newMode;
+  layout.slots = resizeTableSlots(layout.slots, grid.filter(Boolean).length + tableLayoutEndSeatSides(newMode).length);
+  window._tableLayout = layout;
+  renderLobbyList(localPlayers || []);
+  updateStartButton();
+  persistTableLayout(layout);
+  try { haptic(5); } catch {}
+}
+window.toggleLeftEndSeat = function() { toggleEndSeatSide('left'); };
+window.toggleRightEndSeat = function() { toggleEndSeatSide('right'); };
 
 window.lobbyGridSeatClick = function(event, seatIndex, row, col) {
   const layout = window._tableLayout;
@@ -10924,7 +10967,14 @@ window.lobbyGridSeatClick = function(event, seatIndex, row, col) {
 window.lobbyEndSeatClick = function(event, seatIndex) {
   const layout = window._tableLayout;
   const playerId = layout && Array.isArray(layout.slots) ? layout.slots[seatIndex] : null;
-  if (tapArmed && firstPlayerOption === 'spot1' && playerId) window.lobbyTableTapSeat(playerId);
+  if (tapArmed && firstPlayerOption === 'spot1' && playerId) { window.lobbyTableTapSeat(playerId); return; }
+  if (isHost && !playerId && layout && layout.template === 'grid') {
+    const grid = normalizeTableGrid(layout.grid);
+    const endSides = tableLayoutEndSeatSides(layout);
+    const gridCount = grid.filter(Boolean).length;
+    const side = endSides[seatIndex - gridCount];
+    if (side) toggleEndSeatSide(side);
+  }
 };
 
 function syncTableLayoutFromRoom(room) {
@@ -10942,6 +10992,7 @@ function reconcileTableLayout(room) {
   if (!layout) return;
   const players = Array.isArray(localPlayers) ? localPlayers : [];
   const ids = new Set(players.map(p => p.id));
+  let changed = false;
   if (layout.template === 'grid') {
     const grid = normalizeTableGrid(layout.grid);
     const mode = tableLayoutEndSeatMode(layout);
@@ -10955,18 +11006,29 @@ function reconcileTableLayout(room) {
     delete layout.endLeft;
     delete layout.endRight;
     layout.slots = resizeTableSlots(layout.slots, grid.filter(Boolean).length + tableLayoutEndSeatSides(mode).length);
-    for (let i = 0; i < layout.slots.length; i++) if (layout.slots[i] && !ids.has(layout.slots[i])) layout.slots[i] = null;
+    for (let i = 0; i < layout.slots.length; i++) if (layout.slots[i] && !ids.has(layout.slots[i])) { layout.slots[i] = null; changed = true; }
+    if (isHost) {
+      const assigned = new Set(layout.slots.filter(Boolean));
+      players.forEach(p => {
+        if (assigned.has(p.id)) return;
+        const empty = layout.slots.indexOf(null);
+        if (empty >= 0) { layout.slots[empty] = p.id; assigned.add(p.id); changed = true; }
+      });
+    }
   } else {
     layout.slots = resizeTableSlots(layout.slots, tableSeatCapacity(layout) || 0);
-    for (let i = 0; i < layout.slots.length; i++) if (layout.slots[i] && !ids.has(layout.slots[i])) layout.slots[i] = null;
-    const assigned = new Set(layout.slots.filter(Boolean));
-    players.forEach(p => {
-      if (assigned.has(p.id)) return;
-      const empty = layout.slots.indexOf(null);
-      if (empty >= 0) { layout.slots[empty] = p.id; assigned.add(p.id); }
-    });
+    for (let i = 0; i < layout.slots.length; i++) if (layout.slots[i] && !ids.has(layout.slots[i])) { layout.slots[i] = null; changed = true; }
+    if (isHost) {
+      const assigned = new Set(layout.slots.filter(Boolean));
+      players.forEach(p => {
+        if (assigned.has(p.id)) return;
+        const empty = layout.slots.indexOf(null);
+        if (empty >= 0) { layout.slots[empty] = p.id; assigned.add(p.id); changed = true; }
+      });
+    }
   }
   window._tableLayout = layout;
+  if (changed && isHost && db && roomCode) persistTableLayout(layout);
 }
 
 // ── make renderTable use layout when available ──

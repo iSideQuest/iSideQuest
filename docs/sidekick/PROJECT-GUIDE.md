@@ -80,6 +80,8 @@ The longer human checklist at the source path is `C:\Users\brian\Desktop\SideKic
 
 **v358 Table selector release:** the Player Lobby host picks Circle or Square in a "Select Your Table" card (no Table Setup overlay). Square uses an editable 2×4 grid plus Off/Left/Right/Both end seats, 10 seats maximum; Circle skips the seat-capacity check. Room mode syncs as `rooms/{code}/tableMode`; the in-lobby view toggle is a per-player override. Active-game seats orient per viewer: grid rows stay horizontal (top row rotates 180°), end seats rotate ±90° for a vertical table. Legacy 2×8 grids map columns 2–5 onto the new 4 columns; legacy single-end fields map to `left`/`right` and paired ends to `both`. `Temp/test_table_grid_v358.mjs` covers model, migration, orientation, drag, and capacity; host/guest browser smoke tests passed. Phone drag and end-seat orientation verification is pending.
 
+**v359 Lobby polish:** removed the redundant Circle/Square toggle under the lobby table. Square mode now auto-populates players into seats (including new joiners) instead of leaving them in a tray; host can still rearrange by dragging between seats. Create Player and Invite Friends are available in Square mode via the square controls card. The Custom Grid hint no longer says "Drag players onto seats." End seats are no longer Off/Left/Right/Both buttons; both sides are pictured as addable placeholders (+) in the table arrangement, and the host clicks a placeholder to add that side or an empty end seat to remove it. Auto-population persists to Firebase for all clients.
+
 ## Low-token AI workflow
 
 - Start from this guide and `HANDOFF.md`; do not reread the full history or entire 18k-line HTML file.
