@@ -524,7 +524,7 @@
         <button class="btn-secondary btn-sm" id="lobby-square-invite-btn" onclick="openInviteFriendsOverlay()" style="display:none;">👥 Invite Friends</button>
         <button class="btn-secondary btn-sm" id="lobby-square-create-btn" onclick="openStandinOverlay()">＋ Create Player</button>
       </div>
-      <div id="lobby-grid-seat-count" class="lobby-grid-seat-count"></div>
+
     </div>
     <div style="text-align:center;margin-bottom:0.3rem;">
       <span id="lobby-player-list-label" style="font-size:0.85rem;font-weight:700;color:var(--text);" data-i18n="playerListDrag">Player List (Drag to Reorder)</span>
@@ -10550,7 +10550,7 @@ function renderLobbyTable(players, ids) {
       window._tableLayout = layout;
       if (autoChanged && db && roomCode) persistTableLayout(layout);
       const wrap = document.getElementById(ids.wrap || 'lobby-wheel-wrap');
-      const hasEnds = endSides.length > 0;
+      const hasEnds = true;
       svg.setAttribute('viewBox', hasEnds ? '-50 0 300 100' : '0 0 200 100');
       if (wrap) wrap.style.aspectRatio = hasEnds ? '3 / 1' : '2 / 1';
 
@@ -10574,9 +10574,10 @@ function renderLobbyTable(players, ids) {
         content += '<g class="table-lobby-seat" data-lobby-table-seat="' + i + '" onpointerdown="lobbyTableSeatPointerDown(event,' + i + ')" onclick="lobbyGridSeatClick(event,' + i + ',' + r + ',' + c + ')">';
         content += '<rect x="' + (x - 21) + '" y="' + (y - 21) + '" width="42" height="42" rx="5" ry="5" fill="' + color + '" stroke="' + (first ? '#fff' : (p ? 'rgba(255,255,255,0.45)' : 'rgba(190,160,255,0.7)')) + '" stroke-width="' + (first ? 3 : 1.5) + '"/>';
         if (p) {
-          const name = p.id === myId ? 'You' : (p.name || 'Player');
-          content += svgAvatar(x, y - 5, 10, p.avatar, color);
-          content += '<text x="' + x + '" y="' + (y + 15) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="7" font-weight="800" style="pointer-events:none;">' + esc(name.length > 7 ? name.substring(0, 6) + '\u2026' : name) + '</text>';
+          const name = p.name || 'Player';
+          if (first) content += '<text x="' + x + '" y="' + (y - 13) + '" text-anchor="middle" dominant-baseline="central" font-size="11" style="pointer-events:none;">👑</text>';
+content += svgAvatar(x, y - 5, 10, p.avatar, color);
+          content += '<text x="' + x + '" y="' + (y + 15) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="7" font-weight="800" style="pointer-events:none;">' + esc(name.length > 9 ? name.substring(0, 8) + '\u2026' : name) + '</text>';
         } else content += '<text x="' + x + '" y="' + y + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.9)" font-family="Inter,sans-serif" font-size="12" font-weight="800" style="pointer-events:none;">' + (i + 1) + '</text>';
         content += '</g>';
       }
@@ -10587,9 +10588,10 @@ function renderLobbyTable(players, ids) {
         content += '<g class="table-lobby-seat lobby-end-seat" data-lobby-table-seat="' + i + '" onpointerdown="lobbyTableSeatPointerDown(event,' + i + ')" onclick="lobbyEndSeatClick(event,' + i + ')">';
         content += '<rect x="' + (seat.x - 21) + '" y="' + (seat.y - 21) + '" width="42" height="42" rx="5" ry="5" fill="' + color + '" stroke="' + (first ? '#fff' : (p ? 'rgba(255,255,255,0.45)' : 'rgba(190,160,255,0.7)')) + '" stroke-width="' + (first ? 3 : 1.5) + '"/>';
         if (p) {
-          const name = p.id === myId ? 'You' : (p.name || 'Player');
+          const name = p.name || 'Player';
+          if (first) content += '<text x="' + seat.x + '" y="' + (seat.y - 13) + '" text-anchor="middle" dominant-baseline="central" font-size="11" style="pointer-events:none;">👑</text>';
           content += svgAvatar(seat.x, seat.y - 5, 10, p.avatar, color);
-          content += '<text x="' + seat.x + '" y="' + (seat.y + 15) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="7" font-weight="800" style="pointer-events:none;">' + esc(name.length > 7 ? name.substring(0, 6) + '\u2026' : name) + '</text>';
+          content += '<text x="' + seat.x + '" y="' + (seat.y + 15) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="7" font-weight="800" style="pointer-events:none;">' + esc(name.length > 9 ? name.substring(0, 8) + '\u2026' : name) + '</text>';
         } else content += '<text x="' + seat.x + '" y="' + seat.y + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.9)" font-family="Inter,sans-serif" font-size="12" font-weight="800" style="pointer-events:none;">' + (i + 1) + '</text>';
         content += '</g>';
       });
@@ -10607,7 +10609,7 @@ function renderLobbyTable(players, ids) {
       svg.innerHTML = content;
 
       const countEl = document.getElementById('lobby-grid-seat-count');
-      if (countEl) countEl.textContent = grid.filter(Boolean).length + ' grid seats + ' + endSides.length + ' end seats = ' + seats.length + ' total · ' + list.length + (list.length === 1 ? ' player' : ' players');
+      if (countEl) countEl.style.display = 'none';
       document.querySelectorAll('.lobby-end-mode-btn').forEach(btn => {
         const selected = btn.getAttribute('data-end-mode') === mode;
         btn.classList.toggle('active-ctrl', selected);
@@ -10655,7 +10657,7 @@ function renderLobbyTable(players, ids) {
       const sx = CX + (tableRx + 55) * Math.cos(ang);
       const sy = CY + (tableRy + 55) * Math.sin(ang);
       const color = p.color || '#7c5cbf';
-      const name = p.id === myId ? 'You' : (p.name || 'Player');
+      const name = p.name || 'Player';
       const initial = (name || '?').charAt(0).toUpperCase();
       const tapHandler = (typeof tapArmed !== 'undefined' && tapArmed && firstPlayerOption === 'spot1') ? ' onclick="lobbyTableTapSeat(\'' + p.id + '\')"' : '';
       const cursor = tapArmed ? 'cursor:pointer;' : '';
