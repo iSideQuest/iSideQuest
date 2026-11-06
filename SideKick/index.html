@@ -495,6 +495,18 @@
     <!-- Page header -->
     <div class="logo" style="font-size:2rem;letter-spacing:0.04em;margin-bottom:0.4rem;text-align:center;" data-i18n="playerLobby">Player Lobby</div>
 
+    <div class="card lobby-table-select-card" id="lobby-table-select-card" style="display:none;">
+      <div class="lobby-table-select-title">Select Your Table</div>
+      <div class="lobby-table-select-options">
+        <button class="btn-secondary lobby-table-select-choice" id="lobby-select-circle" onclick="selectLobbyTableType('circle')" aria-pressed="false">
+          <span class="lobby-table-select-icon">◯</span><span>Circle</span>
+        </button>
+        <span class="lobby-table-select-or">Or</span>
+        <button class="btn-secondary lobby-table-select-choice" id="lobby-select-square" onclick="selectLobbyTableType('square')" aria-pressed="false">
+          <span class="lobby-table-select-icon">▦</span><span>Square</span>
+        </button>
+      </div>
+    </div>
     <!-- Combined card: QR + room code (top), Invite/Create (below) -->
     <div class="card" style="max-width:30rem;margin-bottom:0.35rem;text-align:center; padding: 0.4rem 0.5rem 0.2rem;">
       <div style="display:flex;align-items:center;justify-content:center;gap:1rem;">
@@ -509,18 +521,6 @@
       </div>
     </div>
 
-    <div class="card lobby-table-select-card" id="lobby-table-select-card" style="display:none;">
-      <div class="lobby-table-select-title">Select Your Table</div>
-      <div class="lobby-table-select-options">
-        <button class="btn-secondary lobby-table-select-choice" id="lobby-select-circle" onclick="selectLobbyTableType('circle')" aria-pressed="false">
-          <span class="lobby-table-select-icon">◯</span><span>Circle</span>
-        </button>
-        <span class="lobby-table-select-or">Or</span>
-        <button class="btn-secondary lobby-table-select-choice" id="lobby-select-square" onclick="selectLobbyTableType('square')" aria-pressed="false">
-          <span class="lobby-table-select-icon">▦</span><span>Square</span>
-        </button>
-      </div>
-    </div>
     <div class="card lobby-square-controls" id="lobby-square-controls" style="display:none;">
       <div class="lobby-square-controls-title">Custom Table</div>
       <div class="lobby-square-controls-hint">Tap an empty square to add or remove a seat.</div>
@@ -6629,6 +6629,7 @@ function initFirebase(cfg) {
       isCreator = user ? CREATOR_UIDS.includes(user.uid) : false;
       document.body.classList.toggle('user-mode', !!user && !isCreator);
       updateAccountButtonUI();
+      try { if (document.getElementById('screen-lobby')?.classList.contains('active')) renderLobbyList(localPlayers || []); } catch {}
       // Sync profile from Firebase into localStorage on login
       if (user) {
         syncProfileFromFirebase();
