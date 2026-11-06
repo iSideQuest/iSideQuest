@@ -490,7 +490,7 @@
 <!--  SCREEN: HOST LOBBY                         -->
 <!-- ═══════════════════════════════════════════ -->
 <div id="screen-lobby" class="screen" style="padding:1rem 2rem;">
-  <div class="screen-content-scaler" id="scaler-lobby" style="display:flex;flex-direction:column;height:100%;justify-content:center;">
+  <div class="screen-content-scaler" id="scaler-lobby" style="display:flex;flex-direction:column;height:100%;justify-content:flex-start;padding-top:0.5rem;">
 
     <!-- Page header -->
     <div class="logo" style="font-size:2rem;letter-spacing:0.04em;margin-bottom:0.4rem;text-align:center;" data-i18n="playerLobby">Player Lobby</div>
@@ -521,10 +521,6 @@
       </div>
     </div>
 
-    <div class="card lobby-square-controls" id="lobby-square-controls" style="display:none;">
-      <div class="lobby-square-controls-title">Custom Table</div>
-      <div class="lobby-square-controls-hint">Tap an empty square to add or remove a seat.</div>
-    </div>
     <div style="text-align:center;margin-bottom:0.3rem;">
       <span id="lobby-player-list-label" style="font-size:0.85rem;font-weight:700;color:var(--text);" data-i18n="playerListDrag">Player List (Drag to Reorder)</span>
     </div>
@@ -10508,7 +10504,7 @@ function renderLobbyView(players) {
     if (circleBtn) { circleBtn.classList.toggle('active-ctrl', chosen === 'circle'); circleBtn.setAttribute('aria-pressed', String(chosen === 'circle')); }
     if (squareBtn) { squareBtn.classList.toggle('active-ctrl', chosen === 'square'); squareBtn.setAttribute('aria-pressed', String(chosen === 'square')); }
     const label = document.getElementById('lobby-player-list-label');
-    if (label) label.textContent = lobbyViewMode ? 'Players & Seats (Drag to Assign)' : 'Player List (Drag to Reorder)';
+    if (label) label.textContent = 'Player List (Drag to Reorder)';
     const btn = document.getElementById('lobby-view-toggle');
     if (btn) btn.textContent = lobbyViewMode ? '🎡 Circle' : '▦ Square';
   } catch (e) { console.error('[SK] renderLobbyView error:', e); }
