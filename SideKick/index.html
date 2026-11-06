@@ -490,63 +490,73 @@
 <!--  SCREEN: HOST LOBBY                         -->
 <!-- ═══════════════════════════════════════════ -->
 <div id="screen-lobby" class="screen" style="padding:1rem 2rem;">
-  <div class="screen-content-scaler" id="scaler-lobby" style="display:flex;flex-direction:column;height:100%;justify-content:flex-start;padding-top:0.5rem;">
+  <div class="screen-content-scaler" id="scaler-lobby" style="display:flex;flex-direction:column;height:100%;justify-content:space-between;padding-top:0.5rem;">
 
-    <!-- Page header -->
-    <div class="logo" style="font-size:2rem;letter-spacing:0.04em;margin-bottom:0.4rem;text-align:center;" data-i18n="playerLobby">Player Lobby</div>
+    <!-- Top section: locked -->
+    <div class="lobby-top" style="flex:none;">
+      <!-- Page header -->
+      <div class="logo" style="font-size:2rem;letter-spacing:0.04em;margin-bottom:0.4rem;text-align:center;" data-i18n="playerLobby">Player Lobby</div>
 
-    <div class="card lobby-table-select-card" id="lobby-table-select-card" style="display:none;">
-      <div class="lobby-table-select-title">Select Your Table</div>
-      <div class="lobby-table-select-options">
-        <button class="btn-secondary lobby-table-select-choice" id="lobby-select-circle" onclick="selectLobbyTableType('circle')" aria-pressed="false">
-          <span class="lobby-table-select-icon">◯</span><span>Circle</span>
-        </button>
-        <span class="lobby-table-select-or">Or</span>
-        <button class="btn-secondary lobby-table-select-choice" id="lobby-select-square" onclick="selectLobbyTableType('square')" aria-pressed="false">
-          <span class="lobby-table-select-icon">▦</span><span>Square</span>
-        </button>
-      </div>
-    </div>
-    <!-- Combined card: QR + room code (top), Invite/Create (below) -->
-    <div class="card" style="max-width:30rem;margin-bottom:0.35rem;text-align:center; padding: 0.4rem 0.5rem 0.2rem;">
-      <div style="display:flex;align-items:center;justify-content:center;gap:1rem;">
-        <div style="background:#fff;border-radius:0.5rem;padding:0.2rem;display:inline-block;">
-          <div id="qr-code-lobby"></div>
+      <div class="card lobby-table-select-card" id="lobby-table-select-card" style="display:none;">
+        <div class="lobby-table-select-title">Select Your Table</div>
+        <div class="lobby-table-select-options">
+          <button class="btn-secondary lobby-table-select-choice" id="lobby-select-circle" onclick="selectLobbyTableType('circle')" aria-pressed="false">
+            <span class="lobby-table-select-icon">◯</span><span>Circle</span>
+          </button>
+          <span class="lobby-table-select-or">Or</span>
+          <button class="btn-secondary lobby-table-select-choice" id="lobby-select-square" onclick="selectLobbyTableType('square')" aria-pressed="false">
+            <span class="lobby-table-select-icon">▦</span><span>Square</span>
+          </button>
         </div>
-        <div class="room-code" id="display-code" style="margin-top:0;font-size:3.2rem;letter-spacing:0.2em;">----</div>
       </div>
-      <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.4rem;flex-wrap:wrap;">
-        <button class="btn-secondary btn-sm" id="lobby-invite-btn" onclick="openInviteFriendsOverlay()" style="display:none;">👥 Invite Friends</button>
-        <button class="btn-secondary btn-sm" id="lobby-create-btn" onclick="openStandinOverlay()">＋ Create Player</button>
+      <!-- Combined card: QR + room code (top), Invite/Create (below) -->
+      <div class="card" style="max-width:30rem;margin-bottom:0.35rem;text-align:center; padding: 0.4rem 0.5rem 0.2rem;">
+        <div style="display:flex;align-items:center;justify-content:center;gap:1rem;">
+          <div style="background:#fff;border-radius:0.5rem;padding:0.2rem;display:inline-block;">
+            <div id="qr-code-lobby"></div>
+          </div>
+          <div class="room-code" id="display-code" style="margin-top:0;font-size:3.2rem;letter-spacing:0.2em;">----</div>
+        </div>
+        <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.4rem;flex-wrap:wrap;">
+          <button class="btn-secondary btn-sm" id="lobby-invite-btn" onclick="openInviteFriendsOverlay()" style="display:none;">👥 Invite Friends</button>
+          <button class="btn-secondary btn-sm" id="lobby-create-btn" onclick="openStandinOverlay()">＋ Create Player</button>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-bottom:0.3rem;">
+        <span id="lobby-player-list-label" style="font-size:0.85rem;font-weight:700;color:var(--text);" data-i18n="playerListDrag">Player List (Drag to Reorder)</span>
       </div>
     </div>
 
-    <div style="text-align:center;margin-bottom:0.3rem;">
-      <span id="lobby-player-list-label" style="font-size:0.85rem;font-weight:700;color:var(--text);" data-i18n="playerListDrag">Player List (Drag to Reorder)</span>
-    </div>
-    <div id="lobby-wheel-wrap" class="lobby-wheel-wrap">
-      <svg id="lobby-wheel-svg" viewBox="0 0 400 400"></svg>
-      <svg id="lobby-table-svg" viewBox="0 0 200 100" style="display:none;"></svg>
-      <div class="lobby-wheel-center" id="lobby-wheel-center"></div>
-      <div id="lobby-wheel-kicks"></div>
+    <!-- Middle section: table UI scales to fit -->
+    <div class="lobby-middle" style="flex:1;display:flex;align-items:center;justify-content:center;min-height:0;">
+      <div id="lobby-wheel-wrap" class="lobby-wheel-wrap">
+        <svg id="lobby-wheel-svg" viewBox="0 0 400 400"></svg>
+        <svg id="lobby-table-svg" viewBox="0 0 200 100" style="display:none;"></svg>
+        <div class="lobby-wheel-center" id="lobby-wheel-center"></div>
+        <div id="lobby-wheel-kicks"></div>
+      </div>
     </div>
     <div id="lobby-table-unseated" class="lobby-table-unseated" style="display:none;"></div>
 
-    <!-- Card: 1st Player options + Start Game -->
-    <div id="first-opt-card" class="card" style="max-width:30rem;margin:0.6rem auto 0.6rem;padding:0.6rem 0.7rem;border-radius:0.625rem;background:var(--lobby-list-bg);">
-      <div style="position:relative;text-align:center;font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;"><span data-i18n="chooseFirst">Choose Option For 1st Player</span><span style="position:absolute;right:0;top:50%;transform:translateY(-50%);">👑</span></div>
-      <div style="display:flex;gap:0.5rem;">
-        <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-spot1" onclick="selectFirstPlayerOption('spot1')" style="flex:1;font-size:0.82rem;" data-i18n="spot1Opt">Tap Player</button>
-        <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-random" onclick="selectFirstPlayerOption('random')" style="flex:1;font-size:0.82rem;" data-i18n="randomOpt">Random</button>
-        <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-duel" onclick="selectFirstPlayerOption('duel')" style="flex:1;font-size:0.82rem;" data-i18n="duelOpt">Duel</button>
+    <!-- Bottom section: locked -->
+    <div class="lobby-bottom" style="flex:none;">
+      <!-- Card: 1st Player options + Start Game -->
+      <div id="first-opt-card" class="card" style="max-width:30rem;margin:0.6rem auto 0.6rem;padding:0.6rem 0.7rem;border-radius:0.625rem;background:var(--lobby-list-bg);">
+        <div style="position:relative;text-align:center;font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;"><span data-i18n="chooseFirst">Choose Option For 1st Player</span><span style="position:absolute;right:0;top:50%;transform:translateY(-50%);">👑</span></div>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-spot1" onclick="selectFirstPlayerOption('spot1')" style="flex:1;font-size:0.82rem;" data-i18n="spot1Opt">Tap Player</button>
+          <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-random" onclick="selectFirstPlayerOption('random')" style="flex:1;font-size:0.82rem;" data-i18n="randomOpt">Random</button>
+          <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-duel" onclick="selectFirstPlayerOption('duel')" style="flex:1;font-size:0.82rem;" data-i18n="duelOpt">Duel</button>
+        </div>
+        <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;margin-top:0.6rem;" data-i18n="startGame">Start Game &#9654;</button>
       </div>
-      <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;margin-top:0.6rem;" data-i18n="startGame">Start Game &#9654;</button>
-    </div>
 
-    <!-- Fixed bottom bar -->
-    <div style="position:relative;width:100%;max-width:30rem;margin:0 auto;padding:0.3rem 0.5rem calc(3.4rem + env(safe-area-inset-bottom, 0.3rem));flex-shrink:0;">
-      <div id="first-opt-hint" style="display:none;position:absolute;bottom:100%;left:0;right:0;margin-bottom:0.5rem;padding:0.55rem 0.75rem;border-radius:0.625rem;border:1px solid var(--accent);background:rgba(20,20,32,0.95);box-shadow:0 0.25rem 1.25rem rgba(0,0,0,0.5);font-size:0.82rem;font-weight:700;color:var(--text);text-align:center;z-index:5;pointer-events:none;"></div>
-      <div id="table-capacity-warning" role="alert" style="display:none;color:#ff7777;font-size:0.8rem;font-weight:800;text-align:center;margin:0.2rem auto 0.45rem;max-width:30rem;"></div>
+      <!-- Fixed bottom bar -->
+      <div style="position:relative;width:100%;max-width:30rem;margin:0 auto;padding:0.3rem 0.5rem calc(3.4rem + env(safe-area-inset-bottom, 0.3rem));flex-shrink:0;">
+        <div id="first-opt-hint" style="display:none;position:absolute;bottom:100%;left:0;right:0;margin-bottom:0.5rem;padding:0.55rem 0.75rem;border-radius:0.625rem;border:1px solid var(--accent);background:rgba(20,20,32,0.95);box-shadow:0 0.25rem 1.25rem rgba(0,0,0,0.5);font-size:0.82rem;font-weight:700;color:var(--text);text-align:center;z-index:5;pointer-events:none;"></div>
+        <div id="table-capacity-warning" role="alert" style="display:none;color:#ff7777;font-size:0.8rem;font-weight:800;text-align:center;margin:0.2rem auto 0.45rem;max-width:30rem;"></div>
+      </div>
     </div>
 
   </div>
@@ -10187,7 +10197,6 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
       const viewX = minX - 12, viewY = minY - 12;
       const viewW = maxX - minX + 24, viewH = maxY - minY + 24;
       svg.setAttribute('viewBox', viewX + ' ' + viewY + ' ' + viewW + ' ' + viewH);
-      let svgContent = '<rect x="' + minX + '" y="' + minY + '" width="' + (maxX - minX) + '" height="' + (maxY - minY) + '" rx="14" ry="14" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
       oriented.forEach(p => {
         svgContent += '<rect x="' + (p.x - 24).toFixed(1) + '" y="' + (p.y - 24).toFixed(1) + '" width="48" height="48" rx="5" ry="5" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>';
       });
@@ -10609,7 +10618,6 @@ function renderLobbyTable(players, ids) {
       svg.setAttribute('viewBox', hasEnds ? '-50 0 300 100' : '0 0 200 100');
       if (wrap) wrap.style.aspectRatio = hasEnds ? '3 / 1' : '2 / 1';
 
-      let content = '<rect x="' + (hasEnds ? -45 : 5) + '" y="5" width="' + (hasEnds ? 290 : 190) + '" height="90" rx="10" ry="10" fill="rgba(124,92,191,0.08)" stroke="rgba(124,92,191,0.35)" stroke-width="1.5"/>';
 
       let seatIndex = 0;
       for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) {
