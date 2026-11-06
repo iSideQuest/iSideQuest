@@ -495,6 +495,14 @@
     <!-- Page header -->
     <div class="logo" style="font-size:2rem;letter-spacing:0.04em;margin-bottom:0.4rem;text-align:center;" data-i18n="playerLobby">Player Lobby</div>
 
+    <!-- Progressive wizard step indicator -->
+    <div class="lobby-wizard-steps" style="display:flex;gap:0.4rem;max-width:30rem;margin:0 auto 0.5rem;justify-content:center;">
+      <button class="btn-secondary btn-sm lobby-wizard-step" data-step="1" onclick="setLobbyStep(1)" style="flex:1;font-size:0.75rem;padding:0.35rem 0.4rem;">1. Share</button>
+      <button class="btn-secondary btn-sm lobby-wizard-step" data-step="2" onclick="setLobbyStep(2)" style="flex:1;font-size:0.75rem;padding:0.35rem 0.4rem;">2. Arrange</button>
+      <button class="btn-secondary btn-sm lobby-wizard-step" data-step="3" onclick="setLobbyStep(3)" style="flex:1;font-size:0.75rem;padding:0.35rem 0.4rem;">3. Start</button>
+    </div>
+    <!-- Step 1 body: Share code -->
+    <div id="lobby-step-1" class="lobby-wizard-body" style="display:none;">
     <!-- Card 1: QR code + room code -->
     <div class="card" style="max-width:30rem;margin-bottom:0.35rem;text-align:center; padding: 0.4rem 0.5rem 0.2rem;">
       <div style="display:flex;align-items:center;justify-content:center;gap:1rem;">
@@ -505,6 +513,8 @@
       </div>
     </div>
 
+    </div>
+    <div id="lobby-step-2" class="lobby-wizard-body">
     <div class="card lobby-table-select-card" id="lobby-table-select-card" style="display:none;">
       <div class="lobby-table-select-title">Select Your Table</div>
       <div class="lobby-table-select-options">
@@ -529,6 +539,7 @@
     <div style="text-align:center;margin-bottom:0.3rem;">
       <span id="lobby-player-list-label" style="font-size:0.85rem;font-weight:700;color:var(--text);" data-i18n="playerListDrag">Player List (Drag to Reorder)</span>
     </div>
+    </div>
     <div id="lobby-wheel-wrap" class="lobby-wheel-wrap">
       <svg id="lobby-wheel-svg" viewBox="0 0 400 400"></svg>
       <svg id="lobby-table-svg" viewBox="0 0 200 100" style="display:none;"></svg>
@@ -541,6 +552,7 @@
     <div style="position:relative;width:100%;max-width:30rem;margin:0 auto;padding:0.3rem 0.5rem calc(3.4rem + env(safe-area-inset-bottom, 0.3rem));flex-shrink:0;">
       <div id="first-opt-hint" style="display:none;position:absolute;bottom:100%;left:0;right:0;margin-bottom:0.5rem;padding:0.55rem 0.75rem;border-radius:0.625rem;border:1px solid var(--accent);background:rgba(20,20,32,0.95);box-shadow:0 0.25rem 1.25rem rgba(0,0,0,0.5);font-size:0.82rem;font-weight:700;color:var(--text);text-align:center;z-index:5;pointer-events:none;"></div>
       <div id="table-capacity-warning" role="alert" style="display:none;color:#ff7777;font-size:0.8rem;font-weight:800;text-align:center;margin:0.2rem auto 0.45rem;max-width:30rem;"></div>
+    <div id="lobby-step-3" class="lobby-wizard-body" style="display:none;">
     <div id="first-opt-card" class="card" style="max-width:30rem;margin:0 auto 0.6rem;padding:0.6rem 0.7rem;border-radius:0.625rem;background:var(--lobby-list-bg);">
         <div style="position:relative;text-align:center;font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;"><span data-i18n="chooseFirst">Choose Option For 1st Player</span><span style="position:absolute;right:0;top:50%;transform:translateY(-50%);">👑</span></div>
         <div style="display:flex;gap:0.5rem;">
@@ -549,6 +561,7 @@
           <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-duel" onclick="selectFirstPlayerOption('duel')" style="flex:1;font-size:0.82rem;" data-i18n="duelOpt">Duel</button>
         </div>
       </div>
+    </div>
       <button class="btn-primary" id="start-btn" onclick="startGame()" disabled style="width:100%;" data-i18n="startGame">Start Game &#9654;</button>
     </div>
 
@@ -10434,6 +10447,18 @@ window.toggleLobbyView = function() {
   try { localStorage.setItem('sk_lobby_view', lobbyViewMode ? 'table' : 'circle'); } catch {}
   renderLobbyView(localPlayers || []);
 };
+window.setLobbyStep = function(n) {
+  [1, 2, 3].forEach(i => {
+    const el = document.getElementById('lobby-step-' + i);
+    if (el) el.style.display = (i === n) ? '' : 'none';
+  });
+  document.querySelectorAll('.lobby-wizard-step').forEach(btn => {
+    const active = Number(btn.getAttribute('data-step')) === n;
+    btn.classList.toggle('active-ctrl', active);
+    btn.setAttribute('aria-pressed', String(active));
+  });
+  try { localStorage.setItem('sk_lobby_step', String(n)); } catch {}
+};
 
 window.toggleWaitingLobbyView = function() {
   lobbyViewMode = !lobbyViewMode;
@@ -10452,8 +10477,14 @@ window.lobbyTableTapSeat = function(pid) {
   updateStartButton();
 };
 
+let lobbyStepInitialized = false;
 function renderLobbyView(players) {
   try {
+    if (isHost && !lobbyStepInitialized) {
+      const saved = Number(localStorage.getItem('sk_lobby_step') || 2);
+      setLobbyStep(saved >= 1 && saved <= 3 ? saved : 2);
+      lobbyStepInitialized = true;
+    }
     const wheelSvg = document.getElementById('lobby-wheel-svg');
     const tableSvg = document.getElementById('lobby-table-svg');
     const wrap = document.getElementById('lobby-wheel-wrap');
