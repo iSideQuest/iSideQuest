@@ -10594,7 +10594,8 @@ function renderLobbyTable(players, ids) {
           const name = p.name || 'Player';
           if (first) content += '<text x="' + x + '" y="' + (y - 13) + '" text-anchor="middle" dominant-baseline="central" font-size="11" style="pointer-events:none;">👑</text>';
 content += svgAvatar(x, y - 5, 10, p.avatar, color);
-          content += '<text x="' + x + '" y="' + (y + 15) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="7" font-weight="800" style="pointer-events:none;">' + esc(name.length > 9 ? name.substring(0, 8) + '\u2026' : name) + '</text>';
+          content += '<text x="' + x + '" y="' + (y + 15) + '" text-anchor="middle" dominant-baseline="central" fill="' + (isLightColor(color) ? '#000' : '#fff') + '" font-family="Inter,sans-serif" font-size="7" font-weight="800" style="pointer-events:none;">' + esc(name.length > 9 ? name.substring(0, 8) + '\u2026' : name) + '</text>';
+          if (isHost && p && p.id !== myId) content += '<text x="' + (x + 15) + '" y="' + (y - 13) + '" text-anchor="middle" dominant-baseline="central" fill="#ff7777" font-size="12" font-weight="900" style="cursor:pointer;pointer-events:auto;" onclick="event.stopPropagation();kickPlayerLobby(\'' + p.id + '\',\'' + (p.name||'Player').replace(/'/g,"\\'") + '\')">×</text>';
         } else content += '<text x="' + x + '" y="' + y + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.9)" font-family="Inter,sans-serif" font-size="12" font-weight="800" style="pointer-events:none;">' + (i + 1) + '</text>';
         content += '</g>';
       }
@@ -10608,7 +10609,8 @@ content += svgAvatar(x, y - 5, 10, p.avatar, color);
           const name = p.name || 'Player';
           if (first) content += '<text x="' + seat.x + '" y="' + (seat.y - 13) + '" text-anchor="middle" dominant-baseline="central" font-size="11" style="pointer-events:none;">👑</text>';
           content += svgAvatar(seat.x, seat.y - 5, 10, p.avatar, color);
-          content += '<text x="' + seat.x + '" y="' + (seat.y + 15) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,sans-serif" font-size="7" font-weight="800" style="pointer-events:none;">' + esc(name.length > 9 ? name.substring(0, 8) + '\u2026' : name) + '</text>';
+          content += '<text x="' + seat.x + '" y="' + (seat.y + 15) + '" text-anchor="middle" dominant-baseline="central" fill="' + (isLightColor(color) ? '#000' : '#fff') + '" font-family="Inter,sans-serif" font-size="7" font-weight="800" style="pointer-events:none;">' + esc(name.length > 9 ? name.substring(0, 8) + '\u2026' : name) + '</text>';
+        if (isHost && p && p.id !== myId) content += '<text x="' + (seat.x + 15) + '" y="' + (seat.y - 13) + '" text-anchor="middle" dominant-baseline="central" fill="#ff7777" font-size="12" font-weight="900" style="cursor:pointer;pointer-events:auto;" onclick="event.stopPropagation();kickPlayerLobby(\'' + p.id + '\',\'' + (p.name||'Player').replace(/'/g,"\\'") + '\')">×</text>';
         } else content += '<text x="' + seat.x + '" y="' + seat.y + '" text-anchor="middle" dominant-baseline="central" fill="rgba(255,255,255,0.9)" font-family="Inter,sans-serif" font-size="12" font-weight="800" style="pointer-events:none;">' + (i + 1) + '</text>';
         content += '</g>';
       });
