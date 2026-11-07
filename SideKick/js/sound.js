@@ -113,6 +113,7 @@ export function speakName(name) {
 
 // ── ORIENTATION CONTROL ──────────────────────
 export function resetOrientation() {
+  if (window.gameLandscape) return;
   try { screen.orientation.lock('portrait-primary').catch(()=>{}); } catch(e) {}
 }
 // Attempt to lock on every page interaction (iOS PWA requires user gesture)
@@ -120,6 +121,7 @@ export function resetOrientation() {
 if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   ['touchstart','click','keydown'].forEach(evt => {
     document.addEventListener(evt, () => {
+      if (window.gameLandscape) return;
       try { screen.orientation.lock('portrait-primary').catch(()=>{}); } catch(e) {}
     }, { once: false, passive: true });
   });

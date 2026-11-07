@@ -594,6 +594,7 @@
   <div class="touch-guard touch-guard-top"></div>
   <div class="touch-guard touch-guard-bottom"></div>
   <button class="exit-btn" onclick="confirmLeave()">Exit Room</button>
+  <button class="exit-btn orient-toggle-btn" id="orient-toggle-btn" onclick="toggleGameOrientation()" style="right:auto;left:0.875rem;" title="Toggle orientation">&#x21BB;</button>
   <!-- Host game menu (bottom-left) -->
   <div class="host-game-menu" id="host-game-menu-active">
     <button class="host-game-menu-btn" id="host-game-menu-btn-active" onclick="openHostCrownMenu()">Host Menu</button>
@@ -10067,6 +10068,32 @@ window.openUIModeMenu = function(anchor) {
   }, 0);
   try { haptic(5); } catch {}
 };
+window.gameLandscape = false;
+window.toggleGameOrientation = async function() {
+  try {
+    if (!window.gameLandscape) {
+      // switch to landscape
+      try { await screen.orientation.lock('landscape'); } catch(e) {}
+      window.gameLandscape = true;
+      document.body.classList.add('game-landscape');
+    } else {
+      try { await screen.orientation.lock('portrait-primary'); } catch(e) {}
+      window.gameLandscape = false;
+      document.body.classList.remove('game-landscape');
+    }
+    const btn = document.getElementById('orient-toggle-btn');
+    if (btn) btn.textContent = window.gameLandscape ? '\u21BA' : '\u21BB';
+    haptic(10);
+  } catch(e) { console.error('[SK] toggleGameOrientation', e); }
+};
+// reset orientation state when leaving game
+const _origLeaveRoom2 = window.leaveRoom;
+window.leaveRoom = async function() {
+  window.gameLandscape = false;
+  document.body.classList.remove('game-landscape');
+  try { screen.orientation.lock('portrait-primary').catch(()=>{}); } catch(e) {}
+  if (_origLeaveRoom2) await _origLeaveRoom2();
+};
 window.setUIMode = function(mode) {
   if (mode !== 'classic' && mode !== 'wheel' && mode !== 'table') return;
   uiMode = mode;
@@ -14242,6 +14269,9 @@ window.leaveRoom = async function() {
 };
 
 window.closeRoom = async function() {
+  window.gameLandscape = false;
+  document.body.classList.remove('game-landscape');
+  try { screen.orientation.lock('portrait-primary').catch(()=>{}); } catch(e) {}
   if (!db || !roomCode) return;
   releaseWakeLock();
   resetOrientation();
