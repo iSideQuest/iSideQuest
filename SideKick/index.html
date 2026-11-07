@@ -594,7 +594,7 @@
   <div class="touch-guard touch-guard-top"></div>
   <div class="touch-guard touch-guard-bottom"></div>
   <button class="exit-btn" onclick="confirmLeave()">Exit Room</button>
-  <button class="exit-btn orient-toggle-btn" id="orient-toggle-btn" onclick="toggleGameOrientation()" style="top:0.875rem;bottom:auto;right:auto;left:0.875rem;z-index:50;" title="Toggle orientation">&#x21BB;</button>
+  <button class="exit-btn orient-toggle-btn" id="orient-toggle-btn" onclick="toggleGameOrientation()" style="top:auto;bottom:0.875rem;right:auto;left:7rem;z-index:50;" title="Toggle orientation">&#x21BB;</button>
   <!-- Host game menu (bottom-left) -->
   <div class="host-game-menu" id="host-game-menu-active">
     <button class="host-game-menu-btn" id="host-game-menu-btn-active" onclick="openHostCrownMenu()">Host Menu</button>
@@ -10081,18 +10081,13 @@ window.toggleGameOrientation = async function() {
         // Fallback: rotate the active game container via inline styles
         const s = document.getElementById('screen-active');
         if (s) {
-          const cw = s.offsetWidth || window.innerWidth;
-          const ch = s.offsetHeight || window.innerHeight;
-          const rw = window.innerHeight;
-          const rh = window.innerWidth;
-          const scale = Math.min(rw / ch, rh / cw) * 0.95;
-          s.style.transform = 'rotate(90deg) scale(' + scale + ')';
-          s.style.transformOrigin = 'top left';
+          s.style.transform = 'translate(-50%, -50%) rotate(90deg)';
+          s.style.transformOrigin = 'center center';
           s.style.position = 'fixed';
-          s.style.top = '0px';
-          s.style.left = rw + 'px';
-          s.style.width = cw + 'px';
-          s.style.height = ch + 'px';
+          s.style.top = '50%';
+          s.style.left = '50%';
+          s.style.width = '100vh';
+          s.style.height = '100vw';
           s.style.zIndex = '9999';
         }
       }
