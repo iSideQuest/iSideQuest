@@ -1,4 +1,4 @@
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+﻿* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
   :root {
     --bg: #0a0a0f;
@@ -2494,7 +2494,7 @@
     pointer-events: all;
   }
   /* ── LOBBY WHEEL (circular table) ── */
-  .lobby-wheel-wrap { position: relative; width: min(12rem, 60vw); min-height: min(10rem, 50vh); max-height: min(12rem, 55vh); aspect-ratio: 1/1; margin: 0 auto; flex: none; align-self: center; touch-action: none; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .lobby-wheel-wrap { position: relative; width: min(13rem, 65vw); min-height: min(13rem, 65vw); aspect-ratio: 1/1; margin: 0 auto; flex: none; align-self: center; touch-action: none; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; }
   .lobby-wheel-wrap svg { width: 100%; height: 100%; display: block; }
   .lobby-wheel-wrap text { user-select: none; -webkit-user-select: none; }
   @media (max-width: 30rem) {
@@ -5167,7 +5167,7 @@
   }
 
 /* Custom table lobby seats and the overflow tray. */
-.lobby-wheel-wrap.table-layout-active { aspect-ratio: auto; min-height: min(10rem, 50vh); max-height: min(12rem, 55vh); }
+.lobby-wheel-wrap.table-layout-active { aspect-ratio: auto; min-height: min(13rem, 65vw); }
 .table-lobby-seat { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
 .table-lobby-seat:active { cursor: grabbing; }
 .lobby-table-unseated { width: min(30rem, 90vw); max-height: 5.5rem; overflow-y: auto; margin: 0.25rem auto 0; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.35rem; }
