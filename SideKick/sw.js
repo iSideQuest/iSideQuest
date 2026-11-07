@@ -7,7 +7,7 @@ const CACHE_NAME = 'sidekick-v371';
 const PRECACHE = [
   './',
   './index.html',
-  './css/styles.css?v=367',
+  './css/styles.css?v=368',
   './js/sound.js?v=346',
   './js/i18n-data.js?v=347',
   './js/feature-data.js?v=348',
