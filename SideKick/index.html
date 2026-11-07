@@ -6639,6 +6639,7 @@ function initFirebase(cfg) {
       document.body.classList.toggle('user-mode', !!user && !isCreator);
       updateAccountButtonUI();
       try { if (document.getElementById('screen-lobby')?.classList.contains('active')) renderLobbyList(localPlayers || []); } catch {}
+      try { if (document.getElementById('screen-lobby')?.classList.contains('active')) renderLobbyList(localPlayers || []); } catch {}
       // Sync profile from Firebase into localStorage on login
       if (user) {
         syncProfileFromFirebase();
@@ -10197,7 +10198,6 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
       const viewX = minX - 12, viewY = minY - 12;
       const viewW = maxX - minX + 24, viewH = maxY - minY + 24;
       svg.setAttribute('viewBox', viewX + ' ' + viewY + ' ' + viewW + ' ' + viewH);
-      let svgContent = '<rect x="' + minX + '" y="' + minY + '" width="' + (maxX - minX) + '" height="' + (maxY - minY) + '" rx="14" ry="14" fill="rgba(124,92,191,0.12)" stroke="rgba(124,92,191,0.5)" stroke-width="2"/>';
       oriented.forEach(p => {
         svgContent += '<rect x="' + (p.x - 24).toFixed(1) + '" y="' + (p.y - 24).toFixed(1) + '" width="48" height="48" rx="5" ry="5" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>';
       });
@@ -10619,6 +10619,7 @@ function renderLobbyTable(players, ids) {
       if (wrap) wrap.style.aspectRatio = hasEnds ? '3 / 1' : '2 / 1';
 
 
+      let content = '';
       let seatIndex = 0;
       for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) {
         const cell = r * 4 + c, enabled = !!grid[cell];
