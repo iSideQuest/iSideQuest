@@ -10078,15 +10078,31 @@ window.toggleGameOrientation = async function() {
       window.gameLandscape = true;
       document.body.classList.add('game-landscape');
       if (!locked) {
-        // Fallback: rotate the active game container via CSS since native lock failed
-        document.body.classList.add('game-landscape-css');
+        // Fallback: rotate the active game container via inline styles
+        const s = document.getElementById('screen-active');
+        if (s) {
+          const cw = s.offsetWidth || window.innerWidth;
+          const ch = s.offsetHeight || window.innerHeight;
+          const rw = window.innerHeight;
+          const rh = window.innerWidth;
+          const scale = Math.min(rw / ch, rh / cw) * 0.95;
+          s.style.transform = 'rotate(90deg) scale(' + scale + ')';
+          s.style.transformOrigin = 'top left';
+          s.style.position = 'fixed';
+          s.style.top = '0px';
+          s.style.left = rw + 'px';
+          s.style.width = cw + 'px';
+          s.style.height = ch + 'px';
+          s.style.zIndex = '9999';
+        }
       }
     } else {
       try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch(e) {}
       try { if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('portrait-primary'); } catch(e) {}
       window.gameLandscape = false;
       document.body.classList.remove('game-landscape');
-      document.body.classList.remove('game-landscape-css');
+      const s = document.getElementById('screen-active');
+      if (s) { s.style.transform = ''; s.style.transformOrigin = ''; s.style.position = ''; s.style.top = ''; s.style.left = ''; s.style.width = ''; s.style.height = ''; s.style.zIndex = ''; }
     }
     const btn = document.getElementById('orient-toggle-btn');
     if (btn) btn.textContent = window.gameLandscape ? '\u21BA' : '\u21BB';
