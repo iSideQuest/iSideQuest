@@ -495,9 +495,9 @@
     <!-- Top section: locked -->
     <div style="flex:none;">
       <!-- Page header -->
-      <div class="logo" style="font-size:2rem;letter-spacing:0.04em;margin-bottom:0.4rem;text-align:center;" data-i18n="playerLobby">Player Lobby</div>
+      <div class="logo" style="font-size:2rem;letter-spacing:0.04em;margin-bottom:0.2rem;text-align:center;" data-i18n="playerLobby">Player Lobby</div>
 
-      <div class="card lobby-table-select-card" id="lobby-table-select-card" style="display:none;">
+      <div class="card lobby-table-select-card" id="lobby-table-select-card" style="display:none;margin-bottom:0.2rem;">
         <div class="lobby-table-select-title">Select Your Table</div>
         <div class="lobby-table-select-options">
           <button class="btn-secondary lobby-table-select-choice" id="lobby-select-circle" onclick="selectLobbyTableType('circle')" aria-pressed="false">
@@ -510,7 +510,7 @@
         </div>
       </div>
       <!-- Combined card: QR + room code (top), Invite/Create (below) -->
-      <div class="card" style="max-width:30rem;margin-bottom:0.35rem;text-align:center; padding: 0.4rem 0.5rem 0.2rem;">
+      <div class="card" style="max-width:30rem;margin-bottom:0.2rem;text-align:center; padding: 0.4rem 0.5rem 0.2rem;">
         <div style="display:flex;align-items:center;justify-content:center;gap:1rem;">
           <div style="background:#fff;border-radius:0.5rem;padding:0.2rem;display:inline-block;">
             <div id="qr-code-lobby"></div>
@@ -523,7 +523,7 @@
         </div>
       </div>
 
-      <div style="text-align:center;margin-bottom:0.3rem;">
+      <div style="text-align:center;margin-bottom:0.15rem;">
         <span id="lobby-player-list-label" style="font-size:0.85rem;font-weight:700;color:var(--text);" data-i18n="playerListDrag">Player List (Drag to Reorder)</span>
       </div>
     </div>
@@ -542,7 +542,7 @@
     <!-- Bottom section: locked -->
     <div style="flex:none;">
       <!-- Card: 1st Player options + Start Game -->
-      <div id="first-opt-card" class="card" style="max-width:30rem;margin:0.3rem auto 0.3rem;padding:0.5rem 0.7rem;border-radius:0.625rem;background:var(--lobby-list-bg);">
+      <div id="first-opt-card" class="card" style="max-width:30rem;margin:0.2rem auto 0.2rem;padding:0.4rem 0.7rem;border-radius:0.625rem;background:var(--lobby-list-bg);">
         <div style="position:relative;text-align:center;font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;"><span data-i18n="chooseFirst">Choose Option For 1st Player</span><span style="position:absolute;right:0;top:50%;transform:translateY(-50%);">👑</span></div>
         <div style="display:flex;gap:0.5rem;">
           <button class="btn-secondary btn-sm first-opt-btn" id="first-opt-spot1" onclick="selectFirstPlayerOption('spot1')" style="flex:1;font-size:0.82rem;" data-i18n="spot1Opt">Tap Player</button>
