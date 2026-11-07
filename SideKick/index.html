@@ -6276,7 +6276,11 @@ function kbCaretMirrorPos(el, s) {
 function kbCaretUpdate() {
   const el = kbActiveInput;
   const caret = document.getElementById('kb-fake-caret');
-  if (!el || !caret) return;
+  if (caret) caret.style.display = 'none';
+  if (!el) return;
+  // Keep the native caret at the insertion point.
+  try { el.focus(); } catch {}
+  return;
   const s = el.selectionStart, e = el.selectionEnd;
   // Only show for a collapsed caret on the focused field; native highlight covers ranges
   if (s == null || s !== e || document.activeElement !== el) { caret.style.display = 'none'; return; }
@@ -10195,8 +10199,9 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
         minX = Math.min(minX, p.x - AVATAR_R - 8); maxX = Math.max(maxX, p.x + AVATAR_R + 8);
         minY = Math.min(minY, p.y - AVATAR_R - 8); maxY = Math.max(maxY, p.y + AVATAR_R + 8);
       });
+      const _passExtra = (ctx === 'active' && isMyTurn && (passDir === 'both' || !passDir)) ? 36 : 0;
       const viewX = minX - 12, viewY = minY - 12;
-      const viewW = maxX - minX + 24, viewH = maxY - minY + 24;
+      const viewW = maxX - minX + 24, viewH = maxY - minY + 24 + _passExtra;
       svg.setAttribute('viewBox', viewX + ' ' + viewY + ' ' + viewW + ' ' + viewH);
       let svgContent = '';
       oriented.forEach(p => {
