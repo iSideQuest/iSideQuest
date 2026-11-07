@@ -518,7 +518,7 @@
           <div class="room-code" id="display-code" style="margin-top:0;font-size:3.2rem;letter-spacing:0.2em;">----</div>
         </div>
         <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.4rem;flex-wrap:wrap;">
-          <button class="btn-secondary btn-sm" id="lobby-invite-btn" onclick="openInviteFriendsOverlay()" style="display:none;">👥 Invite Friends</button>
+          <button class="btn-secondary btn-sm" id="lobby-invite-btn" onclick="openInviteFriendsOverlay()">👥 Invite Friends</button>
           <button class="btn-secondary btn-sm" id="lobby-create-btn" onclick="openStandinOverlay()">＋ Create Player</button>
         </div>
       </div>
@@ -10088,7 +10088,7 @@ function applyUIMode() {
   try {
     const ab = document.getElementById('active-ui-btn');
     const wb = document.getElementById('active-ui-btn-wait');
-    const label = uiMode === 'classic' ? 'UI' : (uiMode === 'wheel' ? 'Wheel' : 'Table');
+    const label = uiMode === 'classic' ? 'UI' : (uiMode === 'wheel' ? 'Circle' : 'Table');
     if (ab) ab.textContent = label;
     if (wb) wb.textContent = label;
 
@@ -10227,8 +10227,17 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
         }
       });
       if (ctx === 'active' && isMyTurn && (passDir === 'both' || !passDir)) {
-        svgContent += '<text x="' + (viewX + 8) + '" y="200" text-anchor="start" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="12" font-weight="700">Pass Left</text>';
-        svgContent += '<text x="' + (viewX + viewW - 8) + '" y="200" text-anchor="end" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="12" font-weight="700">Pass Right</text>';
+        const _ap = players.find(p => p.id === activePlayerId);
+        const _n = players.length;
+        const _cw = _ap ? players[(players.indexOf(_ap) + 1) % _n] : null;
+        const _ccw = _ap ? players[(players.indexOf(_ap) - 1 + _n) % _n] : null;
+        const _leftName = _cw ? (_cw.id === myIdParam ? 'You' : (_cw.name || '')) : '';
+        const _rightName = _ccw ? (_ccw.id === myIdParam ? 'You' : (_ccw.name || '')) : '';
+        const _passY = maxY + 16;
+        svgContent += '<text x="' + (viewX + 8) + '" y="' + _passY + '" text-anchor="start" fill="rgba(255,255,255,0.85)" font-family="Inter,sans-serif" font-size="13" font-weight="700">Pass Left \u2190</text>';
+        svgContent += '<text x="' + (viewX + 8) + '" y="' + (_passY + 16) + '" text-anchor="start" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-size="10" font-weight="600">to ' + esc(_leftName) + '</text>';
+        svgContent += '<text x="' + (viewX + viewW - 8) + '" y="' + _passY + '" text-anchor="end" fill="rgba(255,255,255,0.85)" font-family="Inter,sans-serif" font-size="13" font-weight="700">Pass Right \u2192</text>';
+        svgContent += '<text x="' + (viewX + viewW - 8) + '" y="' + (_passY + 16) + '" text-anchor="end" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-size="10" font-weight="600">to ' + esc(_rightName) + '</text>';
       }
       const defs = '<defs><filter id="tableglow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
       svg.innerHTML = defs + svgContent;
@@ -10915,6 +10924,7 @@ function tableLayoutForFirebase(layout) {
   saved.slots = resizeTableSlots(saved.slots, count).map(playerId => playerId || '');
   return saved;
 }
+window.persistTableLayout = persistTableLayout;
 function persistTableLayout(layout) {
   if (!db || !roomCode) return;
   update(ref(db, 'rooms/' + roomCode), { tableLayout: tableLayoutForFirebase(layout) })
@@ -16136,7 +16146,7 @@ if ('serviceWorker' in navigator) {
 <!-- UI mode menu (Classic / Wheel / Table) -->
 <div class="sound-mode-menu" id="ui-mode-menu">
   <button class="sound-mode-opt" data-mode="classic" onclick="setUIMode('classic')"><span class="smo-icon">📋</span> Classic</button>
-  <button class="sound-mode-opt" data-mode="wheel" onclick="setUIMode('wheel')"><span class="smo-icon">🎡</span> Wheel</button>
+  <button class="sound-mode-opt" data-mode="wheel" onclick="setUIMode('wheel')"><span class="smo-icon">🎡</span> Circle</button>
   <button class="sound-mode-opt" data-mode="table" onclick="setUIMode('table')"><span class="smo-icon">🪑</span> Table</button>
 </div>
 
