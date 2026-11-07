@@ -10198,6 +10198,7 @@ function renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn)
       const viewX = minX - 12, viewY = minY - 12;
       const viewW = maxX - minX + 24, viewH = maxY - minY + 24;
       svg.setAttribute('viewBox', viewX + ' ' + viewY + ' ' + viewW + ' ' + viewH);
+      let svgContent = '';
       oriented.forEach(p => {
         svgContent += '<rect x="' + (p.x - 24).toFixed(1) + '" y="' + (p.y - 24).toFixed(1) + '" width="48" height="48" rx="5" ry="5" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>';
       });
@@ -10517,7 +10518,7 @@ function renderLobbyView(players) {
       if (wrap) wrap.classList.add('table-layout-active');
       if (controls) controls.style.display = isHost ? '' : 'none';
       const inviteBtn = document.getElementById('lobby-invite-btn');
-      if (inviteBtn) inviteBtn.style.display = (isHost && currentUser) ? '' : 'none';
+      if (inviteBtn) inviteBtn.style.display = isHost ? '' : 'none';
       renderLobbyTable(players || []);
     } else {
       if (wheelSvg) wheelSvg.style.display = '';
@@ -13557,7 +13558,7 @@ window.closeFriendsOverlay = function() {
 // ── INVITE FRIENDS OVERLAY (Lobby) ──────────────────────
 window.openInviteFriendsOverlay = async function() {
   if (!requireDb()) return;
-  if (!currentUser) return; // guests have no friends list — tile is hidden for them
+  if (!currentUser) { if (window.showAlert) window.showAlert('Sign in to invite friends.'); return; }
   document.getElementById('invite-friends-overlay').classList.add('show');
   await loadFriendsData();
   renderInviteFriendsList();
@@ -14368,7 +14369,7 @@ function renderLobbyWheel(players, ids, opts) {
   if (defs) html = html.replace('stroke-width="2"/>', 'stroke-width="2"/><defs>' + defs + '</defs>');
   svg.innerHTML = html;
   // Center: Invite half (signed-in) and/or Create half (host)
-  const canInvite = isHost && currentUser;
+  const canInvite = isHost;
   const canCreate = isHost;
   if (canInvite || canCreate) {
     let ch = '';
