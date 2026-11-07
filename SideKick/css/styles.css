@@ -2219,6 +2219,13 @@
     position: fixed; top: 50%; left: 50%; width: 100vh; height: 100vw;
     transform: translate(-50%, -50%) rotate(90deg); transform-origin: center center; z-index: 9999;
   }
+  /* Rotate overlays in landscape fallback mode so they stay aligned */
+  body.game-landscape .tools-overlay.show,
+  body.game-landscape .host-crown-overlay.show,
+  body.game-landscape #account-overlay.show {
+    position: fixed; top: 50%; left: 50%; width: 100vh; height: 100vw;
+    transform: translate(-50%, -50%) rotate(90deg); transform-origin: center center; z-index: 10000;
+  }
 
 
   /* ── ACTIVE TOP BAR ── */
@@ -2335,8 +2342,8 @@
   }
   .table-overlay {
     position: absolute;
-    top: 4.25rem;
-    bottom: 4.25rem;
+    top: 2.5rem;
+    bottom: 2.5rem;
     left: 0;
     right: 0;
     display: none;

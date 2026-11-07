@@ -10072,10 +10072,11 @@ window.gameLandscape = false;
 window.toggleGameOrientation = async function() {
   try {
     if (!window.gameLandscape) {
+      // Set flag FIRST so the portrait-lock touchstart listener doesn't fight us
+      window.gameLandscape = true;
       // switch to landscape
       let locked = false;
       try { if (screen.orientation && screen.orientation.lock) { await screen.orientation.lock('landscape'); locked = true; } } catch(e) { console.warn('[SK] lock landscape failed', e); }
-      window.gameLandscape = true;
       document.body.classList.add('game-landscape');
       if (!locked) {
         // Fallback: rotate the active game container via inline styles
