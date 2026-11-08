@@ -5956,6 +5956,19 @@ window.addEventListener('resize', () => {
 });
 window.addEventListener('orientationchange', () => {
   setTimeout(rescaleCurrentScreen, 200);
+  // Update landscape state based on actual device orientation
+  try {
+    const isLandscape = window.innerWidth > window.innerHeight;
+    if (isLandscape && !window.gameLandscape) {
+      window.gameLandscape = true;
+      const btn = document.getElementById('orient-toggle-btn');
+      if (btn) btn.textContent = '\\u21BA';
+    } else if (!isLandscape && window.gameLandscape) {
+      window.gameLandscape = false;
+      const btn = document.getElementById('orient-toggle-btn');
+      if (btn) btn.textContent = '\\u21BB';
+    }
+  } catch(e) {}
 });
 window.addEventListener('focusin', () => setTimeout(rescaleCurrentScreen, 150));
 window.addEventListener('focusout', () => setTimeout(rescaleCurrentScreen, 150));
@@ -10074,26 +10087,36 @@ window.toggleGameOrientation = async function() {
     if (!window.gameLandscape) {
       // Set flag FIRST so the portrait-lock touchstart listener doesn't fight us
       window.gameLandscape = true;
+      document.body.classList.add('game-landscape');
       // switch to landscape
       let locked = false;
-      try { if (screen.orientation && screen.orientation.lock) { await screen.orientation.lock('landscape'); locked = true; } } catch(e) { console.warn('[SK] lock landscape failed', e); }
+      try {
+        // Try fullscreen first (required by some browsers for orientation lock)
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+          try { await document.documentElement.requestFullscreen(); } catch(e) {}
+        }
+        if (screen.orientation && typeof screen.orientation.lock === 'function') {
+          await screen.orientation.lock('landscape');
+          locked = true;
+        }
+      } catch(e) {
+        console.warn('[SK] lock landscape failed', e);
+        locked = false;
+      }
       if (!locked) {
         // Native lock unavailable: unlock portrait so the device can be rotated manually
         try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch(e) {}
-        if (window.showAlert) window.showAlert('Native rotation not available. Please rotate your device manually to landscape, then tap the button again to lock portrait.');
+        if (window.showAlert) window.showAlert('Please rotate your device to landscape. Tap the button again to lock portrait.');
       }
     } else {
+      try { if (document.fullscreenElement) await document.exitFullscreen(); } catch(e) {}
       try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch(e) {}
       try { if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('portrait-primary'); } catch(e) {}
       window.gameLandscape = false;
-      document.body.classList.remove('game-landscape');
-      const s = document.getElementById('screen-active');
-      if (s) { s.style.transform = ''; s.style.transformOrigin = ''; s.style.position = ''; s.style.top = ''; s.style.left = ''; s.style.width = ''; s.style.height = ''; s.style.zIndex = ''; }
     }
     const btn = document.getElementById('orient-toggle-btn');
-    if (btn) btn.textContent = window.gameLandscape ? '\u21BA' : '\u21BB';
+    if (btn) btn.textContent = window.gameLandscape ? '\\u21BA' : '\\u21BB';
     haptic(10);
-    if (window.showAlert && !window.gameLandscape) {}
   } catch(e) {
     console.error('[SK] toggleGameOrientation', e);
     if (window.showAlert) window.showAlert('Orientation toggle failed: ' + (e && e.message ? e.message : e));
