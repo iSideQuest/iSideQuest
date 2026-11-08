@@ -10077,9 +10077,24 @@ window.toggleGameOrientation = async function() {
       // switch to landscape
       let locked = false;
       try { if (screen.orientation && screen.orientation.lock) { await screen.orientation.lock('landscape'); locked = true; } } catch(e) { console.warn('[SK] lock landscape failed', e); }
-      document.body.classList.add('game-landscape');
       if (!locked) {
-        // Fallback: rotate via CSS since native lock failed (class already added)
+        // Fallback: rotate via inline styles with scaling to fit
+        const s = document.getElementById('screen-active');
+        if (s) {
+          const cw = s.offsetWidth || window.innerWidth;
+          const ch = s.offsetHeight || window.innerHeight;
+          const rw = window.innerHeight;
+          const rh = window.innerWidth;
+          const scale = Math.min(rw / ch, rh / cw) * 0.95;
+          s.style.transform = 'rotate(90deg) scale(' + scale + ')';
+          s.style.transformOrigin = 'top left';
+          s.style.position = 'fixed';
+          s.style.top = '0px';
+          s.style.left = rw + 'px';
+          s.style.width = cw + 'px';
+          s.style.height = ch + 'px';
+          s.style.zIndex = '9999';
+        }
       }
     } else {
       try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch(e) {}
