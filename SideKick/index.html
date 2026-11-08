@@ -10082,7 +10082,6 @@ window.toggleGameOrientation = async function() {
         try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch(e) {}
         if (window.showAlert) window.showAlert('Native rotation not available. Please rotate your device manually to landscape, then tap the button again to lock portrait.');
       }
-      }
     } else {
       try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch(e) {}
       try { if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('portrait-primary'); } catch(e) {}
