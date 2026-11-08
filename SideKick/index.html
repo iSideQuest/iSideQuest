@@ -594,7 +594,6 @@
   <div class="touch-guard touch-guard-top"></div>
   <div class="touch-guard touch-guard-bottom"></div>
   <button class="exit-btn" onclick="confirmLeave()">Exit Room</button>
-  <button class="exit-btn orient-toggle-btn" id="orient-toggle-btn" onclick="toggleGameOrientation()" style="top:auto;bottom:0.875rem;right:auto;left:7rem;z-index:50;" title="Toggle orientation">&#x21BB;</button>
   <!-- Host game menu (bottom-left) -->
   <div class="host-game-menu" id="host-game-menu-active">
     <button class="host-game-menu-btn" id="host-game-menu-btn-active" onclick="openHostCrownMenu()">Host Menu</button>
@@ -5956,19 +5955,6 @@ window.addEventListener('resize', () => {
 });
 window.addEventListener('orientationchange', () => {
   setTimeout(rescaleCurrentScreen, 200);
-  // Update landscape state based on actual device orientation
-  try {
-    const isLandscape = window.innerWidth > window.innerHeight;
-    if (isLandscape && !window.gameLandscape) {
-      window.gameLandscape = true;
-      const btn = document.getElementById('orient-toggle-btn');
-      if (btn) btn.textContent = '\\u21BA';
-    } else if (!isLandscape && window.gameLandscape) {
-      window.gameLandscape = false;
-      const btn = document.getElementById('orient-toggle-btn');
-      if (btn) btn.textContent = '\\u21BB';
-    }
-  } catch(e) {}
 });
 window.addEventListener('focusin', () => setTimeout(rescaleCurrentScreen, 150));
 window.addEventListener('focusout', () => setTimeout(rescaleCurrentScreen, 150));
@@ -10080,45 +10066,6 @@ window.openUIModeMenu = function(anchor) {
     document.addEventListener('touchstart', closer, true);
   }, 0);
   try { haptic(5); } catch {}
-};
-window.gameLandscape = false;
-window.toggleGameOrientation = async function() {
-  try {
-    if (!window.gameLandscape) {
-      // Set flag FIRST so the portrait-lock touchstart listener doesn't fight us
-      window.gameLandscape = true;
-      document.body.classList.add('game-landscape');
-      // switch to landscape
-      let locked = false;
-      try {
-        if (screen.orientation && typeof screen.orientation.lock === 'function') {
-          await screen.orientation.lock('landscape');
-          locked = true;
-        }
-      } catch(e) {
-        console.warn('[SK] lock landscape failed', e);
-        locked = false;
-      }
-      if (!locked) {
-        // Native lock failed: unlock portrait so device can rotate manually
-        try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch(e) {}
-      }
-      if (!locked) {
-        if (window.showAlert) window.showAlert('Please rotate your device to landscape. Tap the button again to lock portrait.');
-      }
-    } else {
-      try { if (document.fullscreenElement) await document.exitFullscreen(); } catch(e) {}
-      try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch(e) {}
-      try { if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('portrait-primary'); } catch(e) {}
-      window.gameLandscape = false;
-    }
-    const btn = document.getElementById('orient-toggle-btn');
-    if (btn) btn.textContent = window.gameLandscape ? '\\u21BA' : '\\u21BB';
-    haptic(10);
-  } catch(e) {
-    console.error('[SK] toggleGameOrientation', e);
-    if (window.showAlert) window.showAlert('Orientation toggle failed: ' + (e && e.message ? e.message : e));
-  }
 };
 // reset orientation state when leaving game
 const _origLeaveRoom2 = window.leaveRoom;

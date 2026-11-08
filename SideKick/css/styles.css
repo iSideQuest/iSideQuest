@@ -2214,31 +2214,6 @@
     text-transform: uppercase;
   }
   .exit-btn:active { background: rgba(180,0,0,0.5); color: #fff; }
-  /* Landscape mode for active game - larger table UI */
-  @media (orientation: landscape) {
-    .table-overlay svg { max-width: 95vw; max-height: 95vh; }
-    .active-center-its { font-size: 3rem; }
-    .active-center-name { font-size: 1.5rem; }
-  }
-  /* Landscape orientation support for active game */
-  @media (orientation: landscape) {
-    .table-overlay { top: 1rem; bottom: 1rem; }
-    .table-overlay svg { max-width: 90vw; max-height: 90vh; }
-    .active-center { top: 25%; }
-    .active-center-its { font-size: 3rem; }
-    .active-center-name { font-size: 1.5rem; }
-    .exit-btn { font-size: 0.75rem; padding: 0.3rem 0.5rem; }
-  }
-  /* Landscape mode for active game (toggled by user) */
-  body.game-landscape .table-overlay svg { max-width: 90vw; max-height: 90vh; }
-  body.game-landscape .active-center-its { font-size: 3rem; }
-  body.game-landscape .active-center-name { font-size: 1.5rem; }
-  /* Landscape mode for active game */
-  body.game-landscape .table-overlay svg { max-width: 90vw; max-height: 90vh; }
-  body.game-landscape .active-center-its { font-size: 3rem; }
-  body.game-landscape .active-center-name { font-size: 1.5rem; }
-  /* CSS fallback for landscape toggle when native orientation lock is unavailable */
-
   /* CSS fallback for landscape toggle when native orientation lock is unavailable */
 
 
