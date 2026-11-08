@@ -10091,10 +10091,6 @@ window.toggleGameOrientation = async function() {
       // switch to landscape
       let locked = false;
       try {
-        // Try fullscreen first (required by some browsers for orientation lock)
-        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-          try { await document.documentElement.requestFullscreen(); } catch(e) {}
-        }
         if (screen.orientation && typeof screen.orientation.lock === 'function') {
           await screen.orientation.lock('landscape');
           locked = true;
@@ -10104,8 +10100,10 @@ window.toggleGameOrientation = async function() {
         locked = false;
       }
       if (!locked) {
-        // Native lock unavailable: unlock portrait so the device can be rotated manually
+        // Native lock failed: unlock portrait so device can rotate manually
         try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch(e) {}
+      }
+      if (!locked) {
         if (window.showAlert) window.showAlert('Please rotate your device to landscape. Tap the button again to lock portrait.');
       }
     } else {
