@@ -10632,7 +10632,12 @@ function renderLobbyTable(players, ids) {
       let autoChanged = false;
       if (isHost) {
         unseated.slice().forEach(p => {
-          const empty = slots.findIndex((v, i) => i < seats.length && !v);
+          let empty = -1;
+          if (p.id === myId) {
+            // Host defaults to a bottom-row seat when available
+            empty = slots.findIndex((v, i) => i < seats.length && !v && seats[i] && seats[i].row === 1);
+          }
+          if (empty < 0) empty = slots.findIndex((v, i) => i < seats.length && !v);
           if (empty >= 0) { slots[empty] = p.id; seated.add(p.id); autoChanged = true; }
         });
         unseated = list.filter(p => !seated.has(p.id));
@@ -11104,10 +11109,16 @@ function reconcileTableLayout(room) {
     layout.slots = resizeTableSlots(layout.slots, grid.filter(Boolean).length + tableLayoutEndSeatSides(mode).length);
     for (let i = 0; i < layout.slots.length; i++) if (layout.slots[i] && !ids.has(layout.slots[i])) { layout.slots[i] = null; changed = true; }
     if (isHost) {
+      const topCount = grid.filter((on, i) => i < 4 && on).length;
       const assigned = new Set(layout.slots.filter(Boolean));
       players.forEach(p => {
         if (assigned.has(p.id)) return;
-        const empty = layout.slots.indexOf(null);
+        let empty = -1;
+        if (p.id === myId) {
+          // Host defaults to a bottom-row seat when available
+          empty = layout.slots.findIndex((v, i) => v == null && i >= topCount);
+        }
+        if (empty < 0) empty = layout.slots.indexOf(null);
         if (empty >= 0) { layout.slots[empty] = p.id; assigned.add(p.id); changed = true; }
       });
     }
