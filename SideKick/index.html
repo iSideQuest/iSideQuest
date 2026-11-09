@@ -2523,6 +2523,17 @@ import { configureCollectionEditor } from './js/collection-editor.js?v=352';
 import { configureCollectionPhoto, getCollectionPhotoData, setCollectionPhotoData, updateCollectionPhotoPreview, closeCollectionPhoto } from './js/collection-photo.js?v=354';
 import { configureCollectionDiscovery } from './js/collection-discovery.js?v=353';
 import { FEATURE_DEFS_GRID, HIDDEN_FEATURES, FEATURE_INFO } from './js/feature-data.js?v=350';
+import { NAMED_THEMES, applyTheme, updateDirArrows, applyFullTheme, toggleTheme, openThemesOverlay, closeThemesOverlay, selectTheme, resetThemeToDefault } from './js/theme.js?v=356';
+// Expose theme functions on window for HTML onclick handlers
+window.NAMED_THEMES = NAMED_THEMES;
+window.applyTheme = applyTheme;
+window.updateDirArrows = updateDirArrows;
+window.applyFullTheme = applyFullTheme;
+window.toggleTheme = toggleTheme;
+window.openThemesOverlay = openThemesOverlay;
+window.closeThemesOverlay = closeThemesOverlay;
+window.selectTheme = selectTheme;
+window.resetThemeToDefault = resetThemeToDefault;
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, onValue, update, remove, push, serverTimestamp, runTransaction, goOffline, goOnline }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -13059,12 +13070,6 @@ function clearAccountState() {
   resetThemeToDefault();
   updateAccountButtonUI();
 }
-// Back to the Original theme on logout so the next session (including
-// guests) doesn't inherit the previous account's custom theme.
-function resetThemeToDefault() {
-  try { localStorage.setItem('sk_named_theme', 'default'); } catch {}
-  applyFullTheme('default', document.body.classList.contains('light-mode'));
-}
 
 function genFriendCode() {
   let code = '';
@@ -15318,136 +15323,6 @@ function makeDraggable(listEl, onReorder) {
     });
   });
 }
-
-// ── THEME SYSTEM ─────────────────────────────
-const NAMED_THEMES = ['default','8bit','cyberpunk','fantasy','galaxy','forest','ocean','sunset','steampunk','vaporwave','nord','dracula','gothic','halloween','viking','compact'];
-
-function applyTheme(isLight) {
-  document.body.classList.toggle('light-mode', isLight);
-  const knob = document.getElementById('theme-knob');
-  if (knob) knob.style.transform = isLight ? 'translateX(2.5rem)' : 'translateX(0)';
-  updateDirArrows();
-}
-
-function updateDirArrows() {
-  const isLight = document.body.classList.contains('light-mode');
-  const prefix = isLight ? 'Black' : 'White';
-  document.querySelectorAll('.dir-arrow').forEach(img => {
-    const name = img.getAttribute('data-arrow');
-    if (!name) return;
-    const target = 'img/svg/' + prefix + name + '.svg';
-    if (img.getAttribute('src') !== target) img.setAttribute('src', target);
-  });
-}
-
-function applyFullTheme(themeName, isLight) {
-  NAMED_THEMES.forEach(t => document.body.classList.remove('theme-' + t));
-  const toggleBtn = document.getElementById('theme-toggle-btn');
-  if (themeName && themeName !== 'default') {
-    document.body.classList.add('theme-' + themeName);
-    applyTheme(false);
-    if (toggleBtn) toggleBtn.style.display = 'none';
-  } else {
-    applyTheme(isLight);
-    if (toggleBtn) toggleBtn.style.display = '';
-  }
-}
-
-window.toggleTheme = function() {
-  const isLight = !document.body.classList.contains('light-mode');
-  const ts = String(Date.now());
-  localStorage.setItem('sk_theme', isLight ? 'light' : 'dark');
-  localStorage.setItem('sk_theme_ts', ts);
-  const namedTheme = localStorage.getItem('sk_named_theme') || 'default';
-  if (namedTheme === 'default') applyFullTheme('default', isLight);
-  // Sync to Firebase
-  const uid = currentUser?.uid;
-  if (uid && db) {
-    set(ref(db, `users/${uid}/theme`), isLight ? 'light' : 'dark').catch(() => {});
-    set(ref(db, `users/${uid}/namedTheme`), namedTheme).catch(() => {});
-    set(ref(db, `users/${uid}/themeTs`), Date.now()).catch(() => {});
-  }
-};
-
-window.openThemesOverlay = function() {
-  const current = localStorage.getItem('sk_named_theme') || 'default';
-  document.querySelectorAll('.theme-option').forEach(el => el.classList.remove('selected'));
-  const activeOpt = document.getElementById('theme-opt-' + current);
-  if (activeOpt) {
-    activeOpt.classList.add('selected');
-    const radio = activeOpt.querySelector('input[type="radio"]');
-    if (radio) radio.checked = true;
-  }
-  document.getElementById('themes-overlay').classList.add('show');
-};
-
-window.closeThemesOverlay = function() {
-  document.getElementById('themes-overlay').classList.remove('show');
-};
-
-window.openMyAwards = function() {
-  const list = document.getElementById('awards-history-list');
-  if (!list) return;
-  list.innerHTML = '';
-  const uid = currentUser?.uid || '';
-  const awards = uid ? JSON.parse(localStorage.getItem('sk_awards_' + uid) || '[]') : [];
-  if (awards.length === 0) {
-    list.innerHTML = '<div class="awards-history-empty">No awards yet — play a game with Achievement Awards enabled to earn some!</div>';
-  } else {
-    awards.slice().reverse().forEach(a => {
-      const dateStr = a.date ? new Date(a.date).toLocaleDateString() : '';
-      list.innerHTML += '<div class="awards-history-item">' +
-        '<div class="awards-history-trophy">' + (a.trophy || '🏆') + '</div>' +
-        '<div class="awards-history-info">' +
-          '<div class="awards-history-category">' + esc(a.category || 'Award') + '</div>' +
-          '<div class="awards-history-stat">' + esc(a.stat || '') + '</div>' +
-        '</div>' +
-        '<div class="awards-history-date">' + dateStr + '</div>' +
-      '</div>';
-    });
-  }
-  document.getElementById('my-awards-overlay').classList.add('show');
-};
-
-window.closeMyAwards = function() {
-  document.getElementById('my-awards-overlay').classList.remove('show');
-};
-
-window.selectTheme = function(themeName) {
-  localStorage.setItem('sk_named_theme', themeName);
-  localStorage.setItem('sk_theme_ts', String(Date.now()));
-  const isLight = document.body.classList.contains('light-mode');
-  applyFullTheme(themeName, isLight);
-  document.querySelectorAll('.theme-option').forEach(el => el.classList.remove('selected'));
-  const activeOpt = document.getElementById('theme-opt-' + themeName);
-  if (activeOpt) {
-    activeOpt.classList.add('selected');
-    const radio = activeOpt.querySelector('input[type="radio"]');
-    if (radio) radio.checked = true;
-  }
-  // Sync to Firebase — named themes always force dark, so save that too
-  const uid = currentUser?.uid;
-  if (uid && db) {
-    set(ref(db, `users/${uid}/namedTheme`), themeName).catch(() => {});
-    if (themeName !== 'default') {
-      localStorage.setItem('sk_theme', 'dark');
-      set(ref(db, `users/${uid}/theme`), 'dark').catch(() => {});
-    }
-    set(ref(db, `users/${uid}/themeTs`), Date.now()).catch(() => {});
-  }
-};
-
-// Apply saved theme on load
-(function() {
-  const saved = localStorage.getItem('sk_theme');
-  const namedTheme = localStorage.getItem('sk_named_theme') || 'default';
-  applyFullTheme(namedTheme, saved === 'light');
-})();
-
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
 // ── D&D TURN COMPONENTS ──────────────────────
 const DND_CELLS = ['movement','action','bonus','object'];
 
