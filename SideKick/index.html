@@ -8451,8 +8451,8 @@ window.hostMenuAction = async function(action) {
     openToolsOverlay();
   } else if (action === 'end-round') {
     const doEndRound = async () => {
-      // If both Rounds and VP are enabled, collect VP for this round first
-      if (featureRoundsEnabled && featureVPEnabled) {
+      // If Rounds is enabled, collect scores for this round first
+      if (featureRoundsEnabled) {
         if (await showConfirm(`End Round ${currentRound} and collect Victory Points?`)) {
           // Close host menu
           closeHostCrownMenu();
@@ -15409,7 +15409,7 @@ window.nextRoundAfterVP = async function(isFinalRound) {
     // Write final totals to vpScores and transition to ceremony
     updates[`rooms/${roomCode}/vpScores`] = finalScores;
     updates[`rooms/${roomCode}/vpReady`] = null;
-    updates[`rooms/${roomCode}/status`] = featureAwardsEnabled ? 'ceremony' : 'vp-ceremony';
+    updates[`rooms/${roomCode}/status`] = featureAwardsEnabled ? 'ceremony' : (featureVPEnabled ? 'vp-ceremony' : 'gameover');
     if (!featureAwardsEnabled) {
       updates[`rooms/${roomCode}/vpCeremonyStep`] = 'standby';
     } else {
