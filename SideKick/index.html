@@ -10807,7 +10807,7 @@ function resolveActiveTableLayout() {
 
 function defaultTableGrid() {
   const grid = new Array(TABLE_GRID_SIZE).fill(false);
-  [1, 2, 5, 6].forEach(i => { grid[i] = true; });
+  [1, 5].forEach(i => { grid[i] = true; });
   return grid;
 }
 function normalizeTableGrid(grid) {
@@ -15317,8 +15317,8 @@ function showRoundVPEntryOverlay(room) {
       });
       siList.dataset.pids = pendingIds;
     }
-    // Initially hide; show after host submits their own score
-    siSection.style.display = (pending.length && roundVPSubmitted) ? 'flex' : 'none';
+    // Show if there are pending standin players
+    siSection.style.display = pending.length ? 'flex' : 'none';
   }
 
   // Host sees "Next Round" or "Final Results" button once all ready
