@@ -1756,7 +1756,7 @@
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="closeSidekickInfo(); startInDepthTour()"><span>Home<br>Page</span></button>
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openHostingTour()"><span>Host Room</span></button>
       <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openJoiningTour()"><span>Join Room</span></button>
-      <button class="btn-secondary" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openProfileTour()"><span>Profile</span></button>
+      <button class="btn-secondary" id="tour-profile-btn" style="border-radius:1rem;font-size:0.8rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2rem;min-width:0;aspect-ratio:1/1;padding:0.4rem 0.2rem;line-height:1.25;" onclick="openProfileTour()"><span>Profile</span></button>
     </div>
     <button class="btn-secondary btn-sm" style="width:100%;" onclick="closeSidekickInfo()" data-i18n="close">Close</button>
   </div>
@@ -3409,6 +3409,8 @@ window.closeUpgradeLockOverlay = function() {
 };
 window.openSidekickInfo = function(opts) {
   document.getElementById('sidekick-info-overlay').classList.add('show');
+  const profileBtn = document.getElementById('tour-profile-btn');
+  if (profileBtn) profileBtn.style.display = (typeof isCreator !== 'undefined' && isCreator) ? '' : 'none';
   const quiet = opts && opts.quiet;
   if (!quiet) {
     try {
@@ -6639,7 +6641,7 @@ function initFirebase(cfg) {
         return;
       }
       currentUser = user;
-      isCreator = user ? CREATOR_UIDS.includes(user.uid) : false;
+      isCreator = user ? (CREATOR_UIDS.includes(user.uid) || user.email === 'isidequestcontact@gmail.com') : false;
       document.body.classList.toggle('user-mode', !!user && !isCreator);
       updateAccountButtonUI();
       try { if (document.getElementById('screen-lobby')?.classList.contains('active')) renderLobbyList(localPlayers || []); } catch {}
@@ -6766,7 +6768,7 @@ async function syncPassword() {
 
 // On auth state change, also check creator bypass
 onAuthStateChanged(auth, user => {
-  if (user && CREATOR_UIDS.includes(user.uid)) {
+  if (user && (CREATOR_UIDS.includes(user.uid) || user.email === 'isidequestcontact@gmail.com')) {
     localStorage.setItem(PW_STORAGE_KEY, _sidekickPassword || 'bypass');
     document.getElementById('password-gate').classList.add('hidden');
   }
