@@ -3408,6 +3408,7 @@ window.closeUpgradeLockOverlay = function() {
   document.getElementById('locked-feature-overlay').classList.remove('show');
 };
 window.openSidekickInfo = function(opts) {
+  if (!isCreator) { if (window.showAlert) window.showAlert('Coming Soon...'); return; }
   document.getElementById('sidekick-info-overlay').classList.add('show');
   const profileBtn = document.getElementById('tour-profile-btn');
   if (profileBtn) profileBtn.style.display = (typeof isCreator !== 'undefined' && isCreator) ? '' : 'none';
