@@ -46,5 +46,9 @@ export const FEATURE_INFO = {
   dnd: {
     title: 'D&D',
     body: `Add D&D-style turn components to your game.\n\nWhen enabled, each player's turn includes structured phases like Actions, Bonus Actions, Movement, and Reactions — just like in Dungeons & Dragons.\n\nPerfect for tabletop RPG sessions where you want to track turn structure alongside your board game night.`
+  },
+  playerSkip: {
+    title: 'Skip Player',
+    body: `Temporarily skip a player's turn.\n\nWhen enabled, the host can skip a player's turn. The skipped player is marked and their turn is passed to the next player.\n\nGreat for players who need to step away or are eliminated from the game.`
   }
 };

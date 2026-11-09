@@ -85,7 +85,7 @@ export const I18N_STRINGS = {
     featRounds: 'Rounds',
     featDnD: 'D&D',
     featUndo: 'Undo Pass',
-    featPlayerSkip: 'Temporarily Skip Player',
+    featPlayerSkip: 'Skip Player',
     skip: 'Skip',
     unskip: 'Unskip',
     settings: '⚙ Settings',
