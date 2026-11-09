@@ -7,12 +7,11 @@ export const FEATURE_DEFS_GRID = [
   { key: 'rounds',  icon: '🔢', name: 'Rounds',         hasSettings: true,  settingKey: 'rounds',  var: 'featureRoundsEnabled' , creatorOnly: true },
   { key: 'undo',    icon: '↩️', name: 'Undo Pass',      hasSettings: false, var: 'featureUndoEnabled' },
   { key: 'timers',  icon: '⏱️', name: 'Timers',         hasSettings: true,  settingKey: 'timers',  var: 'featureTimersEnabled' },
-  { key: 'status',  icon: '🩹', name: 'Status Effects',  hasSettings: false, var: 'featureStatusEffectsEnabled' },
   { key: 'dnd',     icon: '⚔️', name: 'D&D',            hasSettings: false, var: 'featureDndEnabled' },
   { key: 'playerSkip', icon: '⏭️', name: 'Player Skip', hasSettings: false, var: 'featurePlayerSkipEnabled' }
 ];
 // Shelved for now — hidden from Step 3 and presets for every account
-export const HIDDEN_FEATURES = ['timers', 'status', 'dnd'];
+export const HIDDEN_FEATURES = ['timers', 'dnd'];
 
 export const FEATURE_INFO = {
   nudge: {
@@ -30,10 +29,6 @@ export const FEATURE_INFO = {
   vp: {
     title: 'Victory Points',
     body: `When the host ends the game, every player is prompted to enter their final Victory Point total.\n\nOnce all players have submitted their scores, the host starts the Achievement Awards. The player with the most Victory Points receives a special announcement during the ceremony!\n\nPerfect for any game that tracks points — like Wingspan, Ticket to Ride, or Catan.`
-  },
-  status: {
-    title: 'Status Effects',
-    body: `Players can apply status effects to themselves at any time using the Status button in the bottom-left corner of the game screen.\n\nWhen a player with an active status becomes the active player, an alert appears describing the effect. They can choose to Keep or Remove the status, then tap OK to begin their turn normally.\n\nAvailable statuses:\n• Paralyzed — Your turn must be skipped.\n• Poisoned — Lose a set number of HP this turn.\n\nMore status effects can be added in future updates!`
   },
   rounds: {
     title: 'Rounds',

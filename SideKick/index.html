@@ -320,9 +320,6 @@
             <span class="fc-name" data-i18n="featVP">Victory Points</span>
             <span class="fc-desc" data-i18n="featVPDesc">Collect scores, crown a winner</span>
           </div>
-          <div class="feature-card" data-feature="status" onclick="toggleFeature('status')">
-            <span class="fc-name" data-i18n="featStatus">Status Effects</span>
-          </div>
           <div class="feature-card" data-feature="rounds" onclick="toggleFeature('rounds')">
             <span class="fc-name" data-i18n="featRounds">Rounds</span>
             <span class="fc-desc" data-i18n="featRoundsDesc">Track the round count</span>
@@ -598,7 +595,7 @@
   <div class="host-game-menu" id="host-game-menu-active">
     <button class="host-game-menu-btn" id="host-game-menu-btn-active" onclick="openHostCrownMenu()">Host Menu</button>
   </div>
-  <button class="status-effects-btn" id="status-btn-active" onclick="openStatusMenu()" title="Status Effects">🩹</button>
+
   <!-- Nudge counter shown to active player -->
   <!-- Nudge counter - hidden, tracked for awards only -->
   <div class="nudge-active-counter" id="nudge-active-counter" style="display:none!important;">
@@ -757,7 +754,7 @@
     <button class="host-game-menu-btn" id="host-game-menu-btn-wait" onclick="openHostCrownMenu()">Host Menu</button>
   </div>
   <button class="undo-turn-btn" id="undo-turn-btn" onclick="undoTurn()" title="Undo">Undo</button>
-  <button class="status-effects-btn" id="status-btn-wait" onclick="openStatusMenu()" title="Status Effects">🩹</button>
+
   <!-- Round indicator (top-center, visible when Rounds feature is on) -->
   <div class="round-indicator" id="round-indicator-wait">
     <div class="round-indicator-label" id="round-label-wait">Round 1</div>
@@ -1059,13 +1056,6 @@
       <label style="display:flex; align-items:center; gap:0.3rem; cursor:pointer; font-size:0.78rem; color:var(--text);">
         <input type="radio" name="vp-mode" value="lowest" onchange="onVPModeChange(this.value)" style="accent-color:var(--accent);"> Lowest
       </label>
-    </div>
-
-    <!-- STATUS EFFECTS -->
-    <div class="feature-row creator-only" style="margin-bottom:1.25rem;">
-      <label class="feature-toggle" style="flex-shrink:0;"><input class="neo-toggle-input" id="feature-status-toggle" type="checkbox" onchange="onStatusEffectsToggle(this.checked)"><span class="toggle-slider"></span></label>
-      <span class="feature-name">Status Effects</span>
-      <button class="feature-info-btn" onclick="showFeatureInfo('status')" title="What is this?">?</button>
     </div>
 
     <!-- ROUNDS -->
@@ -1948,7 +1938,6 @@
         <div class="feature-card" data-feature="awards" onclick="togglePresetFeature('awards')"><span class="fc-name">Awards</span></div>
         <div class="feature-card" data-feature="timers" onclick="togglePresetFeature('timers')"><span class="fc-name">Timers</span></div>
         <div class="feature-card" data-feature="vp" onclick="togglePresetFeature('vp')"><span class="fc-name">Victory Points</span></div>
-        <div class="feature-card" data-feature="status" onclick="togglePresetFeature('status')"><span class="fc-name">Status Effects</span></div>
         <div class="feature-card" data-feature="rounds" onclick="togglePresetFeature('rounds')"><span class="fc-name">Rounds</span></div>
         <div class="feature-card" data-feature="dnd" onclick="togglePresetFeature('dnd')"><span class="fc-name">D&D</span></div>
         <div class="feature-card" data-feature="undo" onclick="togglePresetFeature('undo')"><span class="fc-name">Undo Pass</span></div>
@@ -2271,7 +2260,7 @@
     <button class="tool-list-btn" onclick="openTool('timers')">Timers</button>
     <button class="tool-list-btn" onclick="openTool('rng')">Random Number</button>
     <button class="tool-list-btn" onclick="openTool('picker')">Player Picker</button>
-    <button class="tool-list-btn" onclick="openTool('status')">Status Effects</button>
+
     <button class="tool-list-btn" onclick="openSpeedRoundFromTool()">Speed Round</button>
     <button class="tool-list-btn" onclick="openTool('score')">Score Tracker</button>
     <button class="tool-list-btn" onclick="openGameNotes()"><span data-i18n="gameNotes">📝 Game Notes</span></button>
@@ -2503,52 +2492,6 @@
 
 </div>
 
-<!-- ═══════════════════════════════════════════ -->
-<!--  STATUS EFFECTS MENU OVERLAY                -->
-<!-- ═══════════════════════════════════════════ -->
-<div class="status-overlay" id="status-menu-overlay">
-  <div class="status-menu-modal">
-    <div class="status-menu-title">🩹 Status Effects</div>
-    <div class="rng-section-label" style="margin-top:0;" id="status-menu-subtitle">Your active statuses</div>
-
-    <!-- Paralyzed -->
-    <div class="status-toggle-row" id="status-opt-paralyzed" onclick="toggleMyStatus('paralyzed')">
-      <div class="status-toggle-info">
-        <span class="status-toggle-icon">😵</span>
-        <div>
-          <div class="status-toggle-name">Paralyzed</div>
-          <div class="status-toggle-desc">Your turn must be skipped.</div>
-        </div>
-      </div>
-      <div class="status-pill" id="status-pill-paralyzed">
-        <div class="status-pill-thumb"></div>
-        <span class="status-pill-label" id="status-opt-paralyzed-label">OFF</span>
-      </div>
-    </div>
-
-    <!-- Poisoned -->
-    <div class="status-toggle-row" id="status-opt-poisoned" onclick="toggleMyStatus('poisoned')">
-      <div class="status-toggle-info">
-        <span class="status-toggle-icon">☠️</span>
-        <div>
-          <div class="status-toggle-name">Poisoned</div>
-          <div class="status-toggle-desc">Lose HP each turn.</div>
-        </div>
-      </div>
-      <div class="status-pill" id="status-pill-poisoned">
-        <div class="status-pill-thumb"></div>
-        <span class="status-pill-label" id="status-opt-poisoned-label">OFF</span>
-      </div>
-    </div>
-    <div id="poison-hp-row" style="display:none; align-items:center; gap:0.5rem; margin-bottom:0.3rem;">
-      <span style="font-size:0.85rem; color:var(--muted);">HP to lose:</span>
-      <input type="number" id="poison-hp-input" value="5" min="1" max="999" style="width:4.375rem; margin:0; padding:0.4rem 0.6rem; font-size:0.9rem;">
-      <button class="btn-primary btn-sm" style="width:auto; padding:0.65rem 1rem;" onclick="confirmPoisonHP()">✓ Set</button>
-    </div>
-
-    <button class="btn-secondary btn-sm" style="margin-top:0.5rem;" onclick="closeStatusMenu()">Close</button>
-  </div>
-</div>
 
 <!-- ═══════════════════════════════════════════ -->
 <!--  STATUS ALERT (shown at turn start)         -->
@@ -3589,7 +3532,7 @@ window.startPracticeGame = async function() {
       currentRound: 0,
       features: {
         passDirection: 'both', nudge: false, awards: false, victoryPoints: false,
-        statusEffects: false, dndTurnComponents: false, timers: false,
+        dndTurnComponents: false, timers: false,
         rounds: false, turnMode: 'classic', undo: true, playerSkip: false
       },
       players: {
@@ -4494,7 +4437,7 @@ window.openVoicePresetEdit = function(id) {
     _editingPresetDir = '';
   }
   if (preset && preset.features) {
-    _editingPresetFeatures = { nudge: !!preset.features.nudge, awards: !!preset.features.awards, timers: !!preset.features.timers, vp: !!preset.features.vp, status: !!preset.features.statusEffects, rounds: !!preset.features.rounds, dnd: !!preset.features.dnd, undo: !!preset.features.undo, playerSkip: !!preset.features.playerSkip };
+    _editingPresetFeatures = { nudge: !!preset.features.nudge, awards: !!preset.features.awards, timers: !!preset.features.timers, vp: !!preset.features.vp, rounds: !!preset.features.rounds, dnd: !!preset.features.dnd, undo: !!preset.features.undo, playerSkip: !!preset.features.playerSkip };
   } else if (preset) {
     _editingPresetFeatures = { nudge: false, awards: false, timers: false, vp: false, status: false, rounds: false, dnd: false, undo: false, playerSkip: false };
   } else {
@@ -4572,7 +4515,6 @@ window.saveCurrentVoicePreset = async function() {
       timers: !!_editingPresetFeatures.timers,
       awards: !!_editingPresetFeatures.awards,
       vp: !!_editingPresetFeatures.vp,
-      statusEffects: !!_editingPresetFeatures.status,
       dnd: !!_editingPresetFeatures.dnd,
       rounds: !!_editingPresetFeatures.rounds,
       undo: !!_editingPresetFeatures.undo,
@@ -4617,7 +4559,6 @@ async function createRoomFromPreset(preset) {
     window.featureTimersEnabled = !!preset.features.timers;
     window.featureAwardsEnabled = !!preset.features.awards;
     window.featureVPEnabled = !!preset.features.vp;
-    window.featureStatusEffectsEnabled = !!preset.features.statusEffects;
     window.featureDndEnabled = !!preset.features.dnd;
     window.featureRoundsEnabled = !!preset.features.rounds;
     window.featureUndoEnabled = !!preset.features.undo;
@@ -4638,7 +4579,6 @@ async function createRoomFromPreset(preset) {
     nudgeMode: typeof nudgeMode !== 'undefined' ? nudgeMode : 'multi',
     awards: typeof featureAwardsEnabled !== 'undefined' ? featureAwardsEnabled : false,
     victoryPoints: typeof featureVPEnabled !== 'undefined' ? featureVPEnabled : false,
-    statusEffects: typeof featureStatusEffectsEnabled !== 'undefined' ? featureStatusEffectsEnabled : false,
     dndTurnComponents: typeof featureDndEnabled !== 'undefined' ? featureDndEnabled : false,
     timers: typeof featureTimersEnabled !== 'undefined' ? featureTimersEnabled : false,
     timerTurnOn: false, timerTurnVisible: true, timerRoundOn: false, timerRoundVisible: true, timerGameOn: false, timerGameVisible: true, timerCountdownOn: false, timerCountdownVisible: true, timerCountdownSecs: 30,
@@ -5371,7 +5311,6 @@ async function createSpeedRoundRoom() {
       nudgeMode: 'multi',
       awards: featureAwardsEnabled,
       victoryPoints: featureVPEnabled,
-      statusEffects: featureStatusEffectsEnabled,
       dndTurnComponents: featureDndEnabled,
       timers: featureTimersEnabled,
       timerTurnOn: false,
@@ -5799,7 +5738,6 @@ let featureNudgeEnabled = false;
 let featureAwardsEnabled = false;
 let featureVPEnabled = false;
 let vpHighestWins = true; // true = highest wins, false = lowest wins
-let featureStatusEffectsEnabled = false;
 let featureDndEnabled = false;
 let featureRoundsEnabled = false;
 let featureUndoEnabled = false;
@@ -6886,7 +6824,6 @@ function resetCreateWizardState() {
   featureAwardsEnabled = false;
   featureVPEnabled     = false;
   vpHighestWins = true;
-  featureStatusEffectsEnabled = false;
   featureDndEnabled    = false;
   featureTimersEnabled = false;
   featureRoundsEnabled = false;
@@ -7399,10 +7336,6 @@ window.openTool = function(toolId) {
     openPickerOverlay();
     return;
   }
-  if (toolId === 'status') {
-    openStatusMenu();
-    return;
-  }
   if (toolId === 'score') {
     openScoreOverlay();
     return;
@@ -7886,367 +7819,6 @@ window.runTeamMaker = function() {
   broadcastSharedReveal('', 'Team draw', { teams: teams.map(t => t.slice()) });
 };
 
-// ── STATUS EFFECTS ────────────────────────────────
-// Status data lives under rooms/{code}/players/{myId}/statusEffects
-// Each connected client can write their own player's status at any time.
-// The turn-start check fires inside listenGameState when isMe && turnChanged,
-// reading the active player's stored statuses from the room snapshot.
-
-const STATUS_DEFS = {
-  paralyzed: {
-    icon: '😵',
-    name: 'Paralyzed',
-    desc: 'Your turn must be skipped. Pass your turn without taking any action.'
-  },
-  poisoned: {
-    icon: '☠️',
-    name: 'Poisoned',
-    desc: 'You are poisoned! Apply the listed HP loss to your character this turn.'
-  }
-};
-
-let pendingStatusAlerts = []; // queue of statuses to alert through, one at a time
-let currentStatusAlertKey = null;
-
-window.openStatusMenu = function() {
-  if (!featureStatusEffectsEnabled) {
-    showAlert('Status Effects is not enabled for this room. The host can turn it on in Room Settings.');
-    return;
-  }
-  refreshStatusMenuUI();
-  document.getElementById('status-menu-overlay').classList.add('show');
-};
-window.closeStatusMenu = function() {
-  document.getElementById('status-menu-overlay').classList.remove('show');
-  backToToolsIfHome();
-  document.getElementById('poison-hp-row').style.display = 'none';
-};
-
-function refreshStatusMenuUI() {
-  if (!db || !roomCode || !myId) return;
-  get(ref(db, `rooms/${roomCode}/players/${myId}/statusEffects`)).then(snap => {
-    const effects = snap.exists() ? snap.val() : {};
-    const pBtn  = document.getElementById('status-opt-paralyzed');
-    const pLbl  = document.getElementById('status-opt-paralyzed-label');
-    const poBtn = document.getElementById('status-opt-poisoned');
-    const poLbl = document.getElementById('status-opt-poisoned-label');
-    const hasParalyzed = !!effects.paralyzed;
-    const hasPoisoned  = !!(effects.poisoned?.active);
-    pBtn.classList.toggle('active', hasParalyzed);
-    pLbl.textContent = hasParalyzed ? 'ON' : 'OFF';
-    poBtn.classList.toggle('active', hasPoisoned);
-    poLbl.textContent = hasPoisoned ? 'ON' : 'OFF';
-    // Update the corner button indicators
-    updateStatusButtonIndicator(effects);
-  }).catch(() => {});
-}
-
-window.toggleMyStatus = function(key) {
-  if (!db || !roomCode || !myId) return;
-  get(ref(db, `rooms/${roomCode}/players/${myId}/statusEffects`)).then(snap => {
-    const effects = snap.exists() ? snap.val() : {};
-    if (key === 'paralyzed') {
-      const nowOn = !effects.paralyzed;
-      update(ref(db, `rooms/${roomCode}/players/${myId}/statusEffects`), { paralyzed: nowOn })
-        .then(() => refreshStatusMenuUI());
-    } else if (key === 'poisoned') {
-      const nowActive = !(effects.poisoned?.active);
-      if (nowActive) {
-        // Show HP input row so player can set the amount before applying
-        document.getElementById('poison-hp-row').style.display = 'flex';
-        document.getElementById('poison-hp-input').value = effects.poisoned?.hpLoss || 5;
-      } else {
-        update(ref(db, `rooms/${roomCode}/players/${myId}/statusEffects/poisoned`), { active: false, hpLoss: 0 })
-          .then(() => { document.getElementById('poison-hp-row').style.display = 'none'; refreshStatusMenuUI(); });
-      }
-    }
-  }).catch(() => {});
-};
-
-window.confirmPoisonHP = function() {
-  const hp = parseInt(document.getElementById('poison-hp-input').value) || 5;
-  update(ref(db, `rooms/${roomCode}/players/${myId}/statusEffects/poisoned`), { active: true, hpLoss: hp })
-    .then(() => { document.getElementById('poison-hp-row').style.display = 'none'; refreshStatusMenuUI(); });
-};
-
-function updateStatusButtonIndicator(effects) {
-  const hasAny = !!effects.paralyzed || !!(effects.poisoned?.active);
-  ['status-btn-active','status-btn-wait'].forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) btn.classList.toggle('has-status', hasAny);
-  });
-}
-
-// Called from listenGameState when the local player's turn just started.
-// Reads their active statuses and queues up alerts for each one.
-function checkStatusEffectsOnTurnStart(room) {
-  if (!featureStatusEffectsEnabled) return;
-  const effects = room.players?.[myId]?.statusEffects || {};
-  pendingStatusAlerts = [];
-  if (effects.paralyzed) pendingStatusAlerts.push('paralyzed');
-  if (effects.poisoned?.active) pendingStatusAlerts.push('poisoned');
-  if (pendingStatusAlerts.length > 0) showNextStatusAlert();
-}
-
-function showNextStatusAlert() {
-  if (pendingStatusAlerts.length === 0) return;
-  currentStatusAlertKey = pendingStatusAlerts.shift();
-  const def = STATUS_DEFS[currentStatusAlertKey];
-  if (!def) { showNextStatusAlert(); return; }
-
-  document.getElementById('status-alert-icon').textContent = def.icon;
-  document.getElementById('status-alert-name').textContent = def.name;
-
-  // For poison, augment the description with the actual HP amount
-  let desc = def.desc;
-  if (currentStatusAlertKey === 'poisoned') {
-    get(ref(db, `rooms/${roomCode}/players/${myId}/statusEffects/poisoned`)).then(snap => {
-      const hp = snap.exists() ? (snap.val()?.hpLoss || 5) : 5;
-      document.getElementById('status-alert-desc').textContent = `You lose ${hp} HP this turn. Apply this to your character now.`;
-    });
-  } else {
-    document.getElementById('status-alert-desc').textContent = desc;
-  }
-
-  document.getElementById('status-alert-overlay').classList.add('show');
-}
-
-window.resolveStatusAlert = function(choice) {
-  if (choice === 'remove' && currentStatusAlertKey && db && roomCode && myId) {
-    if (currentStatusAlertKey === 'paralyzed') {
-      update(ref(db, `rooms/${roomCode}/players/${myId}/statusEffects`), { paralyzed: false });
-    } else if (currentStatusAlertKey === 'poisoned') {
-      update(ref(db, `rooms/${roomCode}/players/${myId}/statusEffects/poisoned`), { active: false, hpLoss: 0 });
-    }
-  }
-  // 'keep': do nothing, status stays; 'remove': already written above
-  // Either way, move to the next status in the queue (if any)
-  if (pendingStatusAlerts.length > 0) {
-    document.getElementById('status-alert-overlay').classList.remove('show');
-    showNextStatusAlert();
-  }
-  // If no more statuses, the OK button reveals itself for the final close
-};
-
-window.closeStatusAlert = function() {
-  document.getElementById('status-alert-overlay').classList.remove('show');
-  currentStatusAlertKey = null;
-};
-
-window.goHome = function() {
-  // If friend was on Step 1 via invite and bails to home, mark invite as Left for host
-  if (pendingInviteCode && currentUser) {
-    const code = pendingInviteCode;
-    try { update(ref(db, `rooms/${code}/invites/${currentUser.uid}`), { status: 'left' }); } catch {}
-  }
-  pendingInviteCode = null;
-  // If there's an active room, close it and clear the session
-  if (roomCode) {
-    cleanupListeners();
-    if (isHost && db) {
-      remove(ref(db, `rooms/${roomCode}`)).catch(() => {});
-    }
-    roomCode = null; myId = null; isHost = false;
-    clearSession();
-  }
-  editingRoom = false;
-  startingNewGame = false;
-  // Reset QR (inline lobby card)
-  const qrBox = document.getElementById('qr-code-lobby');
-  if (qrBox) qrBox.innerHTML = '';
-  // Clear any inputs and errors when going back
-  document.getElementById('host-name').value = '';
-  document.getElementById('join-name').value = '';
-  document.getElementById('join-code').value = '';
-  document.getElementById('create-status').textContent = '';
-  document.getElementById('join-status').textContent = '';
-  // Reset all room settings selections
-  myColor = '';
-  roomAvatarSelection = '';
-  resetCreateWizardState();
-  createStep = 1;
-  joinStep = 1;
-  // Reset color picker button
-  const colorLabel = document.getElementById('host-color-label');
-  if (colorLabel) { colorLabel.textContent = 'Choose\nColor'; colorLabel.style.color = ''; }
-  const joinColorLabel = document.getElementById('join-color-label');
-  if (joinColorLabel) { joinColorLabel.textContent = 'Choose\nColor'; joinColorLabel.style.color = ''; }
-  const colorBtn = document.getElementById('host-color-btn');
-  if (colorBtn) { colorBtn.style.background = ''; colorBtn.style.borderColor = ''; colorBtn.classList.remove('light-fill'); }
-  const joinColorBtn = document.getElementById('join-color-btn');
-  if (joinColorBtn) { joinColorBtn.style.background = ''; joinColorBtn.style.borderColor = ''; joinColorBtn.classList.remove('light-fill'); }
-  // Reset avatar button
-  const hostAvLabel = document.getElementById('host-avatar-label');
-  setAvatarLabel(hostAvLabel, '');
-  const joinAvLabel = document.getElementById('join-avatar-label');
-  setAvatarLabel(joinAvLabel, '');
-  // Reset required notes
-  const colorNote = document.getElementById('color-required-note');
-  if (colorNote) colorNote.style.display = 'none';
-  const avatarNote = document.getElementById('avatar-required-note');
-  if (avatarNote) avatarNote.style.display = 'none';
-  // Reset wizard steps
-  renderCreateStep();
-  renderJoinStep();
-  showScreen('home');
-};
-
-window.goBackToCreate = async function() {
-  if (!roomCode) return;
-  // Navigate back to create wizard in edit mode — room stays alive
-  cleanupListeners();
-  resetFirstPlayerOption();
-  editingRoom = true;
-  const nameEl = document.getElementById('host-name');
-  if (nameEl && myName) nameEl.value = myName;
-  // Color button
-  if (myColor) {
-    const colorBtn = document.getElementById('host-color-btn');
-    const colorLabel = document.getElementById('host-color-label');
-    if (colorBtn) { colorBtn.style.background = myColor; colorBtn.style.borderColor = myColor; colorBtn.classList.toggle('light-fill', isLightColor(myColor)); }
-    const colorName = PLAYER_COLORS.find(c => c.hex === myColor)?.name || myColor;
-    if (colorLabel) { colorLabel.textContent = colorName; colorLabel.style.color = isLightColor(myColor) ? '#000' : '#fff'; }
-  }
-  // Avatar button
-  const savedAv = roomAvatarSelection || getSavedAvatar();
-  if (savedAv) {
-    const avLabel = document.getElementById('host-avatar-label');
-    setAvatarLabel(avLabel, savedAv);
-  }
-  // Turn mode
-  if (turnMode) {
-    if (turnMode === 'classic' && passDirection) {
-      const dirEl = document.getElementById('tm-inline-' + passDirection);
-      if (dirEl) dirEl.classList.add('selected');
-    }
-    const selTxt = document.getElementById('tm-summary');
-    const dirLabels = { cw: '↻ Left', both: '↔ Left & Right', ccw: '↺ Right' };
-    if (selTxt) {
-      if (turnMode === 'classic') {
-        selTxt.innerHTML = 'Turn Direction — <span>' + (dirLabels[passDirection] || passDirection) + '</span>';
-      } else {
-        selTxt.innerHTML = '⚡ Speed Round — <span>' + (speedMode === 'firstToTap' ? '1st To Tap' : 'Down The Line') + '</span> · ' + speedRoundsTotal + ' rounds';
-      }
-    }
-    document.getElementById('tm-required-note').style.display = 'none';
-  }
-  // Sync feature toggle checkboxes with the JS variables
-  const toggleMap = {
-    'feature-nudge-toggle': featureNudgeEnabled,
-    'feature-awards-toggle': featureAwardsEnabled,
-    'feature-vp-toggle': featureVPEnabled,
-    'feature-status-toggle': featureStatusEffectsEnabled,
-    'feature-dnd-toggle': featureDndEnabled,
-    'feature-rounds-toggle': featureRoundsEnabled,
-    'feature-timers-toggle': featureTimersEnabled
-  };
-  Object.entries(toggleMap).forEach(([id, val]) => {
-    const el = document.getElementById(id);
-    if (el) el.checked = val;
-  });
-  // Sync VP mode row visibility and radio selection
-  const vpModeRow = document.getElementById('vp-mode-row');
-  if (vpModeRow) {
-    vpModeRow.style.display = featureVPEnabled ? 'flex' : 'none';
-    const vpRadio = document.querySelector('input[name="vp-mode"][value="' + (vpHighestWins ? 'highest' : 'lowest') + '"]');
-    if (vpRadio) vpRadio.checked = true;
-  }
-  // Sync edit buttons visibility
-  const nudgeEditBtn = document.getElementById('nudge-edit-btn');
-  if (nudgeEditBtn) nudgeEditBtn.classList.toggle('visible', featureNudgeEnabled);
-  const timersEditBtn = document.getElementById('timers-edit-btn');
-  if (timersEditBtn) timersEditBtn.classList.toggle('visible', featureTimersEnabled);
-  const roundsEditBtn = document.getElementById('rounds-edit-btn');
-  if (roundsEditBtn) roundsEditBtn.classList.toggle('visible', featureRoundsEnabled);
-  document.getElementById('nudge-delay').value = nudgeDelaySeconds;
-  document.getElementById('rounds-total').value = roundsTotal || 3;
-  updateFeaturesSummary();
-  createStep = 3;
-  renderCreateStep();
-  renderEditRoomButtons();
-  showScreen('create');
-};
-
-window.onCreateFinalBtn = function() {
-  if (startingNewGame) { startNewGame(); } else if (editingRoom) { returnToLobby(); } else { createRoom(); }
-};
-
-function renderEditRoomButtons() {
-  const finalBtn = document.getElementById('create-final-btn');
-  if (finalBtn) {
-    if (startingNewGame) { finalBtn.innerHTML = 'Start Game <span class="play-tri">▶</span>'; }
-    else if (editingRoom) { finalBtn.innerHTML = 'Back to Lobby <span class="play-tri">▶</span>'; }
-    else { finalBtn.textContent = 'Create Room'; }
-  }
-}
-
-window.saveRoomChanges = async function() {
-  if (!db || !roomCode) return;
-  const name = document.getElementById('host-name').value.trim();
-  if (!name) { status('create-status', 'Enter your name.', 'error'); return; }
-  if (!turnMode || (turnMode === 'classic' && !passDirection)) {
-    document.getElementById('tm-required-note').style.display = 'block';
-    status('create-status', 'Choose a turn mode to continue.', 'error');
-    return;
-  }
-  document.getElementById('tm-required-note').style.display = 'none';
-  myName = name;
-  const av = roomAvatarSelection || '👤';
-  const updates = {};
-  updates[`rooms/${roomCode}/players/${myId}/name`] = name;
-  updates[`rooms/${roomCode}/players/${myId}/color`] = myColor;
-  updates[`rooms/${roomCode}/players/${myId}/avatar`] = av;
-  updates[`rooms/${roomCode}/features/passDirection`] = passDirection;
-  updates[`rooms/${roomCode}/features/turnMode`] = turnMode;
-  updates[`rooms/${roomCode}/features/speedMode`] = turnMode === 'speedRound' ? speedMode : '';
-  updates[`rooms/${roomCode}/features/speedRoundsTotal`] = turnMode === 'speedRound' ? speedRoundsTotal : 0;
-  updates[`rooms/${roomCode}/features/nudge`] = featureNudgeEnabled;
-  updates[`rooms/${roomCode}/features/nudgeDelay`] = featureNudgeEnabled ? (parseInt(document.getElementById('nudge-delay').value) || 30) : 0;
-  updates[`rooms/${roomCode}/features/nudgeMode`] = featureNudgeEnabled ? (document.querySelector('input[name="nudge-mode"]:checked')?.value || 'multi') : 'multi';
-  updates[`rooms/${roomCode}/features/awards`] = featureAwardsEnabled;
-  updates[`rooms/${roomCode}/features/victoryPoints`] = featureVPEnabled;
-  updates[`rooms/${roomCode}/features/vpHighestWins`] = vpHighestWins;
-  updates[`rooms/${roomCode}/features/statusEffects`] = featureStatusEffectsEnabled;
-  updates[`rooms/${roomCode}/features/dndTurnComponents`] = featureDndEnabled;
-  updates[`rooms/${roomCode}/features/timers`] = featureTimersEnabled;
-  updates[`rooms/${roomCode}/features/timerTurnOn`] = featureTimersEnabled && document.getElementById('timer-turn-on').checked;
-  updates[`rooms/${roomCode}/features/timerTurnVisible`] = document.getElementById('timer-turn-visible').checked;
-  updates[`rooms/${roomCode}/features/timerRoundOn`] = featureTimersEnabled && document.getElementById('timer-round-on').checked;
-  updates[`rooms/${roomCode}/features/timerRoundVisible`] = document.getElementById('timer-round-visible').checked;
-  updates[`rooms/${roomCode}/features/timerGameOn`] = featureTimersEnabled && document.getElementById('timer-game-on').checked;
-  updates[`rooms/${roomCode}/features/timerGameVisible`] = document.getElementById('timer-game-visible').checked;
-  updates[`rooms/${roomCode}/features/timerCountdownOn`] = featureTimersEnabled && document.getElementById('timer-countdown-on').checked;
-  updates[`rooms/${roomCode}/features/timerCountdownVisible`] = document.getElementById('timer-countdown-visible').checked;
-  updates[`rooms/${roomCode}/features/timerCountdownSecs`] = (parseInt(document.getElementById('timer-countdown-min').value)||0)*60 + (parseInt(document.getElementById('timer-countdown-sec').value)||30);
-  updates[`rooms/${roomCode}/features/rounds`] = featureRoundsEnabled;
-  updates[`rooms/${roomCode}/features/roundsTotal`] = featureRoundsEnabled ? (parseInt(document.getElementById('rounds-total').value) || 3) : 0;
-  updates[`rooms/${roomCode}/features/undo`] = featureUndoEnabled;
-  updates[`rooms/${roomCode}/features/playerSkip`] = featurePlayerSkipEnabled;
-  await update(ref(db), updates);
-  haptic(20);
-  editingRoom = false;
-  document.getElementById('display-code').textContent = roomCode;
-  showScreen('lobby');
-  generateLobbyQR();
-  listenLobby();
-};
-
-window.returnToLobby = function() {
-  editingRoom = false;
-  startingNewGame = false;
-  document.getElementById('display-code').textContent = roomCode;
-  showScreen('lobby');
-  generateLobbyQR();
-  listenLobby();
-};
-
-window.confirmLeave = async function() {
-  if (await showConfirm('Leave the room?')) {
-    resetOrientation();
-    if (isHost) { closeRoom(); } else { leaveRoom(); }
-  }
-};
-
 // ── QR CODE ──────────────────────────────────
 let qrVisible = false;
 
@@ -8535,12 +8107,12 @@ window.closeMidGameSettings = function() {
 // ── HOST MENU FEATURE GRID ──
 const MG_KEY_MAP = {
   nudge: 'nudge', awards: 'awards', vp: 'victoryPoints',
-  timers: 'timers', status: 'statusEffects', rounds: 'rounds',
+  timers: 'timers', rounds: 'rounds',
   dnd: 'dndTurnComponents', undo: 'undo', playerSkip: 'playerSkip'
 };
 const MG_VAR_MAP = {
   nudge: 'featureNudgeEnabled', awards: 'featureAwardsEnabled', vp: 'featureVPEnabled',
-  timers: 'featureTimersEnabled', status: 'featureStatusEffectsEnabled', rounds: 'featureRoundsEnabled',
+  timers: 'featureTimersEnabled', rounds: 'featureRoundsEnabled',
   dnd: 'featureDndEnabled', undo: 'featureUndoEnabled', playerSkip: 'featurePlayerSkipEnabled'
 };
 
@@ -8550,7 +8122,6 @@ function isMGFeatureEnabled(key) {
     case 'awards': return featureAwardsEnabled;
     case 'vp':     return featureVPEnabled;
     case 'timers': return featureTimersEnabled;
-    case 'status': return featureStatusEffectsEnabled;
     case 'rounds': return featureRoundsEnabled;
     case 'dnd':    return featureDndEnabled;
     case 'undo':   return featureUndoEnabled;
@@ -8565,7 +8136,6 @@ function setMGFeatureState(key, enabled) {
     case 'awards': featureAwardsEnabled = enabled; break;
     case 'vp':     featureVPEnabled = enabled; break;
     case 'timers': featureTimersEnabled = enabled; break;
-    case 'status': featureStatusEffectsEnabled = enabled; break;
     case 'rounds': featureRoundsEnabled = enabled; break;
     case 'dnd':    featureDndEnabled = enabled; break;
     case 'undo':   featureUndoEnabled = enabled; break;
@@ -8702,7 +8272,6 @@ window.saveMidGameSettings = async function() {
   const awardsOn      = featureAwardsEnabled;
   const vpOn          = featureVPEnabled;
   const timersOn      = featureTimersEnabled;
-  const statusOn      = featureStatusEffectsEnabled;
   const dndOn         = featureDndEnabled;
   const roundsOn      = featureRoundsEnabled;
   const undoOn        = featureUndoEnabled;
@@ -8717,7 +8286,6 @@ window.saveMidGameSettings = async function() {
     nudgeMode:             nudgeOn ? (document.querySelector('input[name="mg-nudge-mode"]:checked')?.value || 'multi') : 'multi',
     awards:                awardsOn,
     victoryPoints:         vpOn,
-    statusEffects:         statusOn,
     dndTurnComponents:     dndOn,
     rounds:                roundsOn,
     roundsTotal:           roundsTotalMg,
@@ -8780,7 +8348,6 @@ window.onVPModeChange = function(val) {
 };
 
 window.onStatusEffectsToggle = function(checked) {
-  featureStatusEffectsEnabled = checked;
   updateFeaturesSummary();
 };
 
@@ -8819,7 +8386,7 @@ function setFeatureEnabled(key, enabled) {
   const toggleMap = {
     nudge: 'feature-nudge-toggle', awards: 'feature-awards-toggle',
     timers: 'feature-timers-toggle', vp: 'feature-vp-toggle',
-    status: 'feature-status-toggle', rounds: 'feature-rounds-toggle',
+    rounds: 'feature-rounds-toggle',
     dnd: 'feature-dnd-toggle', undo: 'feature-undo-toggle'
   };
   const cb = document.getElementById(toggleMap[key]);
@@ -8829,7 +8396,6 @@ function setFeatureEnabled(key, enabled) {
   if (key === 'awards')     window.onAwardsToggle(enabled);
   if (key === 'timers')     window.onTimersToggle(enabled);
   if (key === 'vp')         window.onVPToggle(enabled);
-  if (key === 'status')     window.onStatusEffectsToggle(enabled);
   if (key === 'rounds')     window.onRoundsToggle(enabled);
   if (key === 'dnd')        window.onDndToggle(enabled);
   if (key === 'undo')       window.onUndoToggle(enabled);
@@ -8918,7 +8484,6 @@ function updateFeaturesSummary() {
   if (featureAwardsEnabled)        active.push(t('featAwards'));
   if (featureTimersEnabled)        active.push(t('featTimers'));
   if (featureVPEnabled)            active.push(t('featVP'));
-  if (featureStatusEffectsEnabled) active.push(t('featStatus'));
   if (featureDndEnabled)           active.push(t('featDnD'));
   if (featureRoundsEnabled)        active.push(t('featRounds'));
   if (featureUndoEnabled)          active.push(t('featUndo'));
@@ -11709,7 +11274,6 @@ window.createRoom = async function() {
       nudgeMode: featureNudgeEnabled ? (document.querySelector('input[name="nudge-mode"]:checked')?.value || 'multi') : 'multi',
       awards: featureAwardsEnabled,
       victoryPoints: featureVPEnabled,
-      statusEffects: featureStatusEffectsEnabled,
       dndTurnComponents: featureDndEnabled,
       timers: featureTimersEnabled,
       timerTurnOn:          featureTimersEnabled && document.getElementById('timer-turn-on').checked,
@@ -12872,7 +12436,6 @@ window.startNewGameSetup = async function() {
     'feature-nudge-toggle': featureNudgeEnabled,
     'feature-awards-toggle': featureAwardsEnabled,
     'feature-vp-toggle': featureVPEnabled,
-    'feature-status-toggle': featureStatusEffectsEnabled,
     'feature-dnd-toggle': featureDndEnabled,
     'feature-rounds-toggle': featureRoundsEnabled,
     'feature-timers-toggle': featureTimersEnabled
@@ -12925,7 +12488,6 @@ window.startNewGame = async function() {
   updates[`rooms/${roomCode}/features/awards`] = featureAwardsEnabled;
   updates[`rooms/${roomCode}/features/victoryPoints`] = featureVPEnabled;
   updates[`rooms/${roomCode}/features/vpHighestWins`] = vpHighestWins;
-  updates[`rooms/${roomCode}/features/statusEffects`] = featureStatusEffectsEnabled;
   updates[`rooms/${roomCode}/features/dndTurnComponents`] = featureDndEnabled;
   updates[`rooms/${roomCode}/features/timers`] = featureTimersEnabled;
   updates[`rooms/${roomCode}/features/timerTurnOn`] = featureTimersEnabled && document.getElementById('timer-turn-on').checked;
@@ -13042,7 +12604,6 @@ function listenGameState() {
     featureAwardsEnabled = !!roomFeatures.awards;
     featureVPEnabled              = !!roomFeatures.victoryPoints;
     vpHighestWins                 = roomFeatures.vpHighestWins !== false;
-    featureStatusEffectsEnabled   = !!roomFeatures.statusEffects;
     featureDndEnabled             = !!roomFeatures.dndTurnComponents;
     featureTimersEnabled          = !!roomFeatures.timers;
     featureRoundsEnabled          = !!roomFeatures.rounds;
@@ -13202,18 +12763,8 @@ function listenGameState() {
         }
       }
       suppressNextTurnSound = false;
-      // Status Effects: alert this player of any active statuses at turn start
-      if (turnChanged || firstTurn) checkStatusEffectsOnTurnStart(room);
+
       // D&D Turn Components: show action tracker overlay on turn start
-      if (featureDndEnabled && (turnChanged || firstTurn)) showDndOverlay();
-      // Status Effects button — visible for all players when feature is on
-      ['status-btn-active'].forEach(id => {
-        const btn = document.getElementById(id);
-        if (btn) {
-          btn.classList.toggle('visible', featureStatusEffectsEnabled);
-          btn.classList.toggle('host-offset', isHost);
-        }
-      });
       // Player Skip button — visible for ALL players when feature is enabled
       const skipBtnA = document.getElementById('active-skip-btn');
       if (skipBtnA) {
@@ -13258,18 +12809,6 @@ function listenGameState() {
         undoBtn.classList.toggle('visible', canUndo);
         const hostBtnVisible = isHost && document.getElementById('host-manage-btn-wait')?.classList.contains('visible');
         undoBtn.classList.toggle('stacked', canUndo && hostBtnVisible);
-      }
-      // Status Effects button — visible for all players when feature is on
-      const statusBtnWait = document.getElementById('status-btn-wait');
-      if (statusBtnWait) {
-        statusBtnWait.classList.toggle('visible', featureStatusEffectsEnabled);
-        statusBtnWait.classList.toggle('host-offset', isHost);
-      }
-      // Also refresh the status button indicator in case statuses changed
-      if (featureStatusEffectsEnabled) {
-        const effects = room.players?.[myId]?.statusEffects || {};
-        updateStatusButtonIndicator(effects);
-      }
       // Player Skip button — visible for ALL players when feature is enabled
       const skipBtnW = document.getElementById('active-skip-btn-wait');
       if (skipBtnW) {
