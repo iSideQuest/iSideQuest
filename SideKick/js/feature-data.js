@@ -4,7 +4,7 @@ export const FEATURE_DEFS_GRID = [
   { key: 'awards',  icon: '🏆', name: 'Awards',         hasSettings: false, var: 'featureAwardsEnabled' },
   { key: 'nudge',   icon: '👉', name: 'Nudge',          hasSettings: true,  settingKey: 'nudge',   var: 'featureNudgeEnabled' },
   { key: 'vp',      icon: '🏅', name: 'Victory Points',  hasSettings: false, var: 'featureVPEnabled' },
-  { key: 'rounds',  icon: '🔢', name: 'Rounds',         hasSettings: true,  settingKey: 'rounds',  var: 'featureRoundsEnabled' }, creatorOnly: true },
+  { key: 'rounds',  icon: '🔢', name: 'Rounds',         hasSettings: true,  settingKey: 'rounds',  var: 'featureRoundsEnabled' , creatorOnly: true },
   { key: 'undo',    icon: '↩️', name: 'Undo Pass',      hasSettings: false, var: 'featureUndoEnabled' },
   { key: 'timers',  icon: '⏱️', name: 'Timers',         hasSettings: true,  settingKey: 'timers',  var: 'featureTimersEnabled' },
   { key: 'status',  icon: '🩹', name: 'Status Effects',  hasSettings: false, var: 'featureStatusEffectsEnabled' },
