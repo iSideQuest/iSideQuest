@@ -12809,6 +12809,7 @@ function listenGameState() {
         undoBtn.classList.toggle('visible', canUndo);
         const hostBtnVisible = isHost && document.getElementById('host-manage-btn-wait')?.classList.contains('visible');
         undoBtn.classList.toggle('stacked', canUndo && hostBtnVisible);
+      }
       // Player Skip button — visible for ALL players when feature is enabled
       const skipBtnW = document.getElementById('active-skip-btn-wait');
       if (skipBtnW) {
