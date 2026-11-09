@@ -1,4 +1,4 @@
-// SideKick Theme System
+﻿// SideKick Theme System
 // Extracted from index.html inline module.
 // Dependencies (globals): currentUser, db, set, ref, t, localStorage, document, window
 
@@ -108,4 +108,3 @@ export function resetThemeToDefault() {
 })();
 
 // Note: openMyAwards and closeMyAwards remain in the main module.
-'@ | Set-Content -Encoding utf8 C:\Users\brian\Desktop\SideKick\js\theme.js
