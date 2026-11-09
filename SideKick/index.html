@@ -15279,6 +15279,79 @@ function showRoundVPEntryOverlay(room) {
     });
   }
 
+  // Host-only: enter round VP scores for hosted (stand-in) players who have no device
+  const siSection = document.getElementById('vp-standin-section');
+  const siList = document.getElementById('vp-standin-list');
+  if (siSection && siList) {
+    const pending = (isHost && typeof localPlayers !== 'undefined')
+      ? localPlayers.filter((p) => p && p.standin && !vpRoundReady[p.id]) : [];
+    const pendingIds = pending.map((p) => p.id).join(',');
+    const typingHere = siList.contains(document.activeElement);
+    if (!(typingHere && siList.dataset.pids === pendingIds)) {
+      const stash = {};
+      let focusPid = null;
+      siList.querySelectorAll('input').forEach((inp) => {
+        stash[inp.dataset.pid] = inp.value;
+        if (inp === document.activeElement) focusPid = inp.dataset.pid;
+      });
+      siList.innerHTML = '';
+      pending.forEach((p) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;gap:0.5rem;width:100%;';
+        row.innerHTML =
+          '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.85rem;font-weight:700;color:var(--text);">' +
+            esc(p.avatar || '👤') + ' ' + esc(p.name || '?') + '</span>' +
+          '<input id="vp-round-score-' + p.id + '" data-pid="' + p.id + '" maxlength="4" placeholder="0" style="width:4.5rem;padding:0.5rem 0.4rem;font-size:1rem;text-align:center;border-radius:0.5rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;">' +
+          '<button onclick="submitRoundVPForStandin(\'' + p.id + '\')" style="padding:0.5rem 0.9rem;border-radius:0.5rem;border:1px solid var(--accent);background:rgba(124,92,191,0.25);color:var(--text);font-size:0.85rem;font-weight:800;cursor:pointer;">' + esc(t('vpSet')) + '</button>';
+        siList.appendChild(row);
+      });
+      siList.querySelectorAll('input').forEach((inp) => {
+        if (stash[inp.dataset.pid] != null) inp.value = stash[inp.dataset.pid];
+        if (typeof isCustomKbEnabled === 'function' && isCustomKbEnabled()) {
+          inp.setAttribute('readonly', 'readonly');
+          inp.setAttribute('inputmode', 'none');
+        } else {
+          inp.setAttribute('inputmode', 'numeric');
+        }
+        if (inp.dataset.pid === focusPid) { try { inp.focus({ preventScroll: true }); } catch { try { inp.focus(); } catch {} } }
+      });
+      siList.dataset.pids = pendingIds;
+    }
+    // Initially hide; show after host submits their own score
+    siSection.style.display = (pending.length && roundVPSubmitted) ? 'flex' : 'none';
+  }
+      const stash = {};
+      let focusPid = null;
+      siList.querySelectorAll('input').forEach((inp) => {
+        stash[inp.dataset.pid] = inp.value;
+        if (inp === document.activeElement) focusPid = inp.dataset.pid;
+      });
+      siList.innerHTML = '';
+      pending.forEach((p) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;gap:0.5rem;width:100%;';
+        row.innerHTML =
+          '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.85rem;font-weight:700;color:var(--text);">' +
+            esc(p.avatar || '👤') + ' ' + esc(p.name || '?') + '</span>' +
+          '<input id="vp-round-score-' + p.id + '" data-pid="' + p.id + '" maxlength="4" placeholder="0" style="width:4.5rem;padding:0.5rem 0.4rem;font-size:1rem;text-align:center;border-radius:0.5rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;">' +
+          '<button onclick="submitRoundVPForStandin(\'' + p.id + '\')" style="padding:0.5rem 0.9rem;border-radius:0.5rem;border:1px solid var(--accent);background:rgba(124,92,191,0.25);color:var(--text);font-size:0.85rem;font-weight:800;cursor:pointer;">' + esc(t('vpSet')) + '</button>';
+        siList.appendChild(row);
+      });
+      siList.querySelectorAll('input').forEach((inp) => {
+        if (stash[inp.dataset.pid] != null) inp.value = stash[inp.dataset.pid];
+        if (typeof isCustomKbEnabled === 'function' && isCustomKbEnabled()) {
+          inp.setAttribute('readonly', 'readonly');
+          inp.setAttribute('inputmode', 'none');
+        } else {
+          inp.setAttribute('inputmode', 'numeric');
+        }
+        if (inp.dataset.pid === focusPid) { try { inp.focus({ preventScroll: true }); } catch { try { inp.focus(); } catch {} } }
+      });
+      siList.dataset.pids = pendingIds;
+    }
+    siSection.style.display = pending.length ? 'flex' : 'none';
+  }
+
   // Host sees "Next Round" or "Final Results" button once all ready
   const beginBtn = document.getElementById('vp-begin-btn');
   if (beginBtn && isHost) {
@@ -15302,6 +15375,36 @@ window.submitRoundVP = async function() {
   document.getElementById('vp-input-section').style.display   = 'none';
   document.getElementById('vp-waiting-section').style.display = 'flex';
   roundVPSubmitted = true;
+  // Show standin section for additional created players after host submits their score
+  const siSection = document.getElementById('vp-standin-section');
+  if (siSection) {
+    const pending = (isHost && typeof localPlayers !== 'undefined')
+      ? localPlayers.filter((p) => p && p.standin && !vpRoundReady[p.id]) : [];
+    siSection.style.display = pending.length ? 'flex' : 'none';
+  }
+};
+window.submitRoundVPForStandin = async function(pid) {
+  if (!db || !roomCode || !isHost || !pid) return;
+  const inp = document.getElementById('vp-round-score-' + pid);
+  let val = inp ? parseInt((inp.value || '').trim(), 10) : NaN;
+  if (isNaN(val) || val < 0) val = 0;
+  if (val > 9999) val = 9999;
+  const updates = {};
+  updates[`rooms/${roomCode}/vpRoundDraft/${pid}`] = val;
+  updates[`rooms/${roomCode}/vpRoundReady/${pid}`]   = true;
+  await update(ref(db), updates);
+  // Remove the submitted player's row
+  const row = inp ? inp.closest('div') : null;
+  if (row) row.remove();
+  // Hide section if no more pending standins
+  const siSection = document.getElementById('vp-standin-section');
+  const siList = document.getElementById('vp-standin-list');
+  if (siSection && siList) {
+    const remaining = siList.querySelectorAll('input').length;
+    siSection.style.display = remaining > 0 ? 'flex' : 'none';
+  }
+  if (inp) { try { inp.blur(); } catch {} }
+  haptic(10);
 };
 
 window.nextRoundAfterVP = async function(isFinalRound) {
