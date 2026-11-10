@@ -9096,21 +9096,30 @@ window.toggleLobbyView = function() {
   renderLobbyView(localPlayers || []);
 };
 window.checkForUpdatesManual = async function() {
+  // Create a blocking overlay so the user can't interact until the check completes
+  const overlay = document.createElement('div');
+  overlay.id = 'update-check-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;font-weight:700;';
+  overlay.textContent = 'Checking for updates...';
+  document.body.appendChild(overlay);
   try {
     if (!('serviceWorker' in navigator)) { if (window.showAlert) window.showAlert('Service workers not supported in this browser.'); return; }
     const reg = window._swReg;
     if (!reg) { if (window.showAlert) window.showAlert('No service worker registered yet. Try again in a moment.'); return; }
-    if (window.showAlert) window.showAlert('Checking for updates...');
     await reg.update();
     await new Promise(r => setTimeout(r, 1500));
     if (reg.waiting) {
+      // Remove blocking overlay before showing confirm dialog
+      overlay.remove();
       const ok = await window.showConfirm('A new version is available. Reload now?');
       if (ok) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
     } else {
+      overlay.remove();
       if (window.showAlert) window.showAlert('You are on the latest version.');
     }
   } catch (e) {
     console.error('[SK] checkForUpdatesManual error:', e);
+    overlay.remove();
     if (window.showAlert) window.showAlert('Update check failed: ' + (e && e.message ? e.message : e));
   }
 };
@@ -14570,6 +14579,8 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
       window._swReg = reg;
+      // Check for updates immediately on load
+      reg.update().catch(() => {});
       // Periodically check for updates while the app is open (every 5 min)
       window._swUpdateInterval = setInterval(() => { reg.update().catch(() => {}); }, 300000);
 
