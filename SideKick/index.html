@@ -14535,7 +14535,7 @@ const _tourStateGetters = {
 };
 for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
   try {
-    Object.defineProperty(window, _name, { get: _getter, configurable: true });
+    Object.defineProperty(window, _name, { get: _getter, set: (v) => { try { eval(_name + ' = v'); } catch(e) {} }, configurable: true });
   } catch(e) {}
 }
 // Load tours module now that globals are exposed
