@@ -3329,24 +3329,6 @@ window.togglePresetFeature = function(key) {
     else if (key === 'rounds') { try { openFeatureSettings('rounds'); } catch {} }
   }
 };
-function updatePresetEditUI() {
-  // Timers, Status Effects and D&D are shelved — hidden for every account
-  document.querySelectorAll('#preset-features-grid .feature-card').forEach(el => {
-    const hide = HIDDEN_FEATURES.includes(el.dataset.feature);
-    el.style.display = hide ? 'none' : '';
-    if (hide) _editingPresetFeatures[el.dataset.feature] = false;
-  });
-  // Turn dir
-  document.querySelectorAll('#preset-dir-cw, #preset-dir-ccw, #preset-dir-both').forEach(el => el.classList.remove('selected'));
-  const dirEl = document.getElementById('preset-dir-' + _editingPresetDir);
-  if (dirEl) dirEl.classList.add('selected');
-  // Features - use 'added' class to match .feature-card.added styling
-  document.querySelectorAll('#preset-features-grid .feature-card').forEach(el => {
-    const k = el.dataset.feature;
-    if (el.style.display === 'none') return;
-    el.classList.toggle('added', !!_editingPresetFeatures[k]);
-  });
-}
 window.openHostPresetGame = async function() {
   // Wait for auth to resolve if needed
   if (!currentUser) {
@@ -14787,6 +14769,7 @@ window.t = t;
 window.esc = esc;
 window.uid = uid;
 window.saveSession = saveSession;
+window.HIDDEN_FEATURES = HIDDEN_FEATURES;
 window.requireHostAccount = requireHostAccount;
 window.claimRoomCode = claimRoomCode;
 window.openSidekickInfo = openSidekickInfo;
@@ -14824,7 +14807,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=357');
+    const tours = await import('./js/tours.js?v=358');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };

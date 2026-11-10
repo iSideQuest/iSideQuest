@@ -798,7 +798,23 @@ window.openVoicePresetEdit = function(id) {
     _editingPresetFeatures = { nudge: false, awards: false, timers: false, vp: false, status: false, rounds: false, dnd: false, undo: false, playerSkip: false };
   }
   document.getElementById('voice-preset-edit-overlay').classList.add('show');
-  setTimeout(updatePresetEditUI, 50);
+  setTimeout(window.updatePresetEditUI, 50);
+};
+window.updatePresetEditUI = function() {
+  const HIDDEN_FEATURES = window.HIDDEN_FEATURES || [];
+  document.querySelectorAll('#preset-features-grid .feature-card').forEach(el => {
+    const hide = HIDDEN_FEATURES.includes(el.dataset.feature);
+    el.style.display = hide ? 'none' : '';
+    if (hide) _editingPresetFeatures[el.dataset.feature] = false;
+  });
+  document.querySelectorAll('#preset-dir-cw, #preset-dir-ccw, #preset-dir-both').forEach(el => el.classList.remove('selected'));
+  const dirEl = document.getElementById('preset-dir-' + _editingPresetDir);
+  if (dirEl) dirEl.classList.add('selected');
+  document.querySelectorAll('#preset-features-grid .feature-card').forEach(el => {
+    const k = el.dataset.feature;
+    if (el.style.display === 'none') return;
+    el.classList.toggle('added', !!_editingPresetFeatures[k]);
+  });
 };
 window.closeVoicePresetEdit = function() {
   document.getElementById('voice-preset-edit-overlay').classList.remove('show');
@@ -875,7 +891,7 @@ window.saveCurrentVoicePreset = async function() {
     },
     createdAt: Date.now()
   };
-  await saveVoicePreset(preset);
+  await window.saveVoicePreset(preset);
   closeVoicePresetEdit();
   renderVoicePresets();
   window.showToast('Preset saved');
