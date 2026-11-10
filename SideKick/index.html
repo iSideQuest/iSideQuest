@@ -13011,7 +13011,6 @@ window.goBackToCreate = async function() {
     'feature-nudge-toggle': featureNudgeEnabled,
     'feature-awards-toggle': featureAwardsEnabled,
     'feature-vp-toggle': featureVPEnabled,
-    'feature-status-toggle': featureStatusEffectsEnabled,
     'feature-dnd-toggle': featureDndEnabled,
     'feature-rounds-toggle': featureRoundsEnabled,
     'feature-timers-toggle': featureTimersEnabled
@@ -13075,7 +13074,7 @@ window.saveRoomChanges = async function() {
   updates[`rooms/${roomCode}/features/awards`] = featureAwardsEnabled;
   updates[`rooms/${roomCode}/features/victoryPoints`] = featureVPEnabled;
   updates[`rooms/${roomCode}/features/vpHighestWins`] = vpHighestWins;
-  updates[`rooms/${roomCode}/features/statusEffects`] = featureStatusEffectsEnabled;
+
   updates[`rooms/${roomCode}/features/dndTurnComponents`] = featureDndEnabled;
   updates[`rooms/${roomCode}/features/timers`] = featureTimersEnabled;
   updates[`rooms/${roomCode}/features/timerTurnOn`] = featureTimersEnabled && document.getElementById('timer-turn-on').checked;
@@ -14773,6 +14772,10 @@ window.t = t;
 window.esc = esc;
 window.uid = uid;
 window.openSidekickInfo = openSidekickInfo;
+window.getVoicePresets = getVoicePresets;
+window.loadVoicePresetsFromFirebase = loadVoicePresetsFromFirebase;
+window.saveVoicePreset = saveVoicePreset;
+window.deleteVoicePresetConfirm = deleteVoicePresetConfirm;
 // Mutable state via getters
 const _tourStateGetters = {
   roomCode: () => roomCode, myId: () => myId, isHost: () => isHost,
