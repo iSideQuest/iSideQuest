@@ -14786,10 +14786,22 @@ window.showConfirm = showConfirm || (m => confirm(m));
 window.t = t;
 window.esc = esc;
 window.uid = uid;
+window.saveSession = saveSession;
+window.requireHostAccount = requireHostAccount;
+window.claimRoomCode = claimRoomCode;
 window.openSidekickInfo = openSidekickInfo;
 window.getVoicePresets = getVoicePresets;
 window.loadVoicePresetsFromFirebase = loadVoicePresetsFromFirebase;
 window.saveVoicePreset = saveVoicePreset;
+window.deleteVoicePreset = deleteVoicePreset;
+window.PLAYER_COLORS = PLAYER_COLORS;
+window.isLightColor = isLightColor;
+window.getSavedColor = getSavedColor;
+window.getSavedName = getSavedName;
+window.setAvatarLabel = setAvatarLabel;
+window.escapeHtml = escapeHtml;
+window.normalizePhrase = normalizePhrase;
+window.isImageAvatar = isImageAvatar;
 // deleteVoicePresetConfirm is exposed by tours.js
 // Mutable state via getters
 const _tourStateGetters = {
@@ -14812,7 +14824,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=356');
+    const tours = await import('./js/tours.js?v=357');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };

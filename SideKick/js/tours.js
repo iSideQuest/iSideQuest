@@ -55,7 +55,7 @@ function tourGuard(e) {
       window._tourPulseT = setTimeout(() => { ring.style.boxShadow = ''; }, 350);
     }
   } catch {}
-  haptic(3);
+  window.haptic(3);
 }
 document.addEventListener('click', tourGuard, true);
 function tourFocusEl(step) {
@@ -197,7 +197,7 @@ function updateTutorial() {
   tutorialStep++;
   if (tutorialStep === 8) _tutorialStartActive = practiceActiveId(_tutorialRoom);
   renderTutorialStep();
-  haptic(10);
+  window.haptic(10);
 }
 function renderTutorialStep() {
   const texts = [
@@ -272,7 +272,7 @@ window.startTutorial = function() {
   } catch {}
   renderTutorialStep();
   document.getElementById('tutorial-coach').style.display = 'block';
-  haptic(15);
+  window.haptic(15);
   updateTutorial();
 };
 async function tutorialCleanup() {
@@ -368,7 +368,7 @@ window.toggleTourVoice = function() {
   tourStopVoice();
   updateTourVoiceBtn();
   if (tourVoiceOn) tourSpeak();
-  haptic(5);
+  window.haptic(5);
 };
 // ── COACH MINI-BAR (collapsed tour card, tap to expand) ──
 function setMiniText(html) {
@@ -410,7 +410,7 @@ window.coachMiniNav = function(e, d) {
   if (tourMode === 'manual' || tourMode === 'indepth') {
     if (d < 0) indepthBack(); else indepthNext();
   }
-  haptic(5);
+  window.haptic(5);
 };
 function positionCoachForStep(s) {
   const coach = document.getElementById('tutorial-coach');
@@ -472,7 +472,7 @@ function tourJoinSetup() {
     const jcb = document.getElementById('join-color-btn'), jcl = document.getElementById('join-color-label');
     if (jcb) { jcb.style.background = ''; jcb.style.borderColor = ''; jcb.classList.remove('light-fill'); }
     if (jcl) { jcl.innerHTML = 'Choose<br>Color'; jcl.style.color = ''; }
-    setAvatarLabel(document.getElementById('join-avatar-label'), '');
+    window.setAvatarLabel(document.getElementById('join-avatar-label'), '');
     joinStep = 1; renderJoinStep(); updateJoinCollapseSummary();
     showScreen('join');
   } catch {}
@@ -518,12 +518,12 @@ function tourJoinRestore() {
     document.getElementById('join-code').value = s.code || '';
     myColor = s.color || ''; roomAvatarSelection = s.avatar || '';
     const jcb = document.getElementById('join-color-btn'), jcl = document.getElementById('join-color-label');
-    if (jcb) { jcb.style.background = myColor; jcb.style.borderColor = myColor; jcb.classList.toggle('light-fill', !!(myColor && isLightColor(myColor))); }
+    if (jcb) { jcb.style.background = myColor; jcb.style.borderColor = myColor; jcb.classList.toggle('light-fill', !!(myColor && window.isLightColor(myColor))); }
     if (jcl) {
-      if (myColor) { jcl.textContent = (PLAYER_COLORS.find(c => c.hex === myColor) || {}).name || 'Custom'; jcl.style.color = isLightColor(myColor) ? '#000' : '#fff'; }
+      if (myColor) { jcl.textContent = (window.PLAYER_COLORS.find(c => c.hex === myColor) || {}).name || 'Custom'; jcl.style.color = window.isLightColor(myColor) ? '#000' : '#fff'; }
       else { jcl.innerHTML = 'Choose<br>Color'; jcl.style.color = ''; }
     }
-    setAvatarLabel(document.getElementById('join-avatar-label'), s.avatar || '');
+    window.setAvatarLabel(document.getElementById('join-avatar-label'), s.avatar || '');
     joinStep = s.step || 1; renderJoinStep(); updateJoinCollapseSummary();
   } catch {}
 }
@@ -603,7 +603,7 @@ window.startManualTour = function(kind, title) {
   renderInDepthStep();
   document.getElementById('tutorial-coach').style.display = 'block';
   document.getElementById('tour-title').textContent = manualTitle;
-  haptic(15);
+  window.haptic(15);
 };
 window.endManualTour = function() {
   tourMode = null;
@@ -651,6 +651,11 @@ const INDEPTH_STEPS = [
   { sel: '#screen-home [onclick="openContactOverlay()"]', title: 'Contact', text: 'If you have any questions, feedback or ideas, email us here.' }
 ];
 let indepthStep = 0;
+let _editingVoicePresetId = null;
+let _editingPresetColor = '';
+let _editingPresetAvatar = '';
+let _editingPresetDir = '';
+let _editingPresetFeatures = {};
 window.startInDepthTour = function() {
   try { if (tourMode === 'guided' && tutorialStep > 0) endTutorial(); } catch {}
   tourMode = 'indepth';
@@ -660,7 +665,7 @@ window.startInDepthTour = function() {
   indepthStep = 1;
   renderInDepthStep();
   document.getElementById('tutorial-coach').style.display = 'block';
-  haptic(15);
+  window.haptic(15);
 };
 function renderInDepthStep() {
   const steps = manualSteps || INDEPTH_STEPS;
@@ -700,12 +705,12 @@ window.indepthNext = function() {
   if (indepthStep >= (manualSteps || INDEPTH_STEPS).length) { quitTour(); return; }
   indepthStep++;
   renderInDepthStep();
-  haptic(5);
+  window.haptic(5);
 };
 window.indepthBack = function() {
   if (indepthStep > 1) indepthStep--;
   renderInDepthStep();
-  haptic(5);
+  window.haptic(5);
 };
 window.endInDepthTour = function() {
   tourMode = null;
@@ -736,7 +741,7 @@ window.closeVoicePresetsOverlay = function() {
 function renderVoicePresets() {
   const el = document.getElementById('voice-presets-list');
   if (!el) return;
-  const list = getVoicePresets();
+  const list = window.getVoicePresets();
   if (!list.length) {
     el.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;text-align:center;padding:0.8rem;">No presets yet. Tap + New Preset to save Step 2 & 3 for hosting.</div>';
     return;
@@ -748,8 +753,8 @@ function renderVoicePresets() {
     el.innerHTML += `<div style="display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.75rem;background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;">
       <div style="font-size:1.2rem;flex-shrink:0;">🏠</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-weight:700;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.name)}</div>
-        <div style="font-size:0.72rem;color:var(--muted);">${dirLabel ? escapeHtml(dirLabel) + ' • ' : ''}${featCount} feature${featCount===1?'':'s'}</div>
+        <div style="font-weight:700;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${window.escapeHtml(p.name)}</div>
+        <div style="font-size:0.72rem;color:var(--muted);">${dirLabel ? window.escapeHtml(dirLabel) + ' • ' : ''}${featCount} feature${featCount===1?'':'s'}</div>
       </div>
       <button class="btn-secondary btn-sm" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="openVoicePresetEdit('${p.id}')">Edit</button>
       <button class="btn-primary btn-sm" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="createRoomFromPresetId('${p.id}')">Start</button>
@@ -759,7 +764,7 @@ function renderVoicePresets() {
 }
 window.openVoicePresetEdit = function(id) {
   _editingVoicePresetId = id || null;
-  const preset = id ? getVoicePresets().find(p=>p.id===id) : null;
+  const preset = id ? window.getVoicePresets().find(p=>p.id===id) : null;
   document.getElementById('voice-preset-edit-title').textContent = preset ? 'Edit Preset' : 'New Preset';
   document.getElementById('voice-preset-name').value = preset ? preset.name : '';
   // Step 1: Player Settings
@@ -808,12 +813,12 @@ function updatePresetEditColorBtn() {
   const label = document.getElementById('preset-color-label');
   if (!btn || !label) return;
   if (_editingPresetColor) {
-    const colorName = PLAYER_COLORS.find(c => c.hex === _editingPresetColor)?.name || 'Custom';
+    const colorName = window.PLAYER_COLORS.find(c => c.hex === _editingPresetColor)?.name || 'Custom';
     btn.style.background = _editingPresetColor;
     btn.style.borderColor = _editingPresetColor;
-    btn.classList.toggle('light-fill', isLightColor(_editingPresetColor));
+    btn.classList.toggle('light-fill', window.isLightColor(_editingPresetColor));
     label.textContent = colorName;
-    label.style.color = isLightColor(_editingPresetColor) ? '#000' : '#fff';
+    label.style.color = window.isLightColor(_editingPresetColor) ? '#000' : '#fff';
   } else {
     btn.style.background = '';
     btn.style.borderColor = '';
@@ -829,7 +834,7 @@ function updatePresetEditAvatarBtn() {
   const avatar = _editingPresetAvatar;
   if (avatar) {
     btn.classList.add('avatar-filled');
-    if (isImageAvatar(avatar)) {
+    if (window.isImageAvatar(avatar)) {
       label.textContent = '';
       const img = document.createElement('img');
       img.src = avatar; img.alt = 'avatar';
@@ -847,16 +852,16 @@ function updatePresetEditAvatarBtn() {
 }
 window.saveCurrentVoicePreset = async function() {
   const name = document.getElementById('voice-preset-name').value.trim();
-  if (!name) { showToast('Enter a preset name', true); return; }
-  if (!_editingPresetDir) { showToast('Choose a turn direction (Step 2)', true); return; }
+  if (!name) { window.showToast('Enter a preset name', true); return; }
+  if (!_editingPresetDir) { window.showToast('Choose a turn direction (Step 2)', true); return; }
   const playerName = document.getElementById('voice-preset-player-name').value.trim() || '';
   const preset = {
     id: _editingVoicePresetId || ('vp_' + Date.now().toString(36) + Math.random().toString(36).slice(2,5)),
     name: name,
-    phrase: normalizePhrase(name),
+    phrase: window.normalizePhrase(name),
     gameName: name,
     voiceEnabled: false,
-    profile: { name: playerName || getSavedName()||'', color: _editingPresetColor || getSavedColor()||'', avatar: _editingPresetAvatar || getSavedAvatar()||'👤' },
+    profile: { name: playerName || window.getSavedName()||'', color: _editingPresetColor || window.getSavedColor()||'', avatar: _editingPresetAvatar || getSavedAvatar()||'👤' },
     turn: { turnMode: _editingPresetDir === 'both' ? 'classic' : 'classic', passDirection: _editingPresetDir, speedMode: '' },
     features: {
       nudge: !!_editingPresetFeatures.nudge,
@@ -873,32 +878,32 @@ window.saveCurrentVoicePreset = async function() {
   await saveVoicePreset(preset);
   closeVoicePresetEdit();
   renderVoicePresets();
-  showToast('Preset saved');
+  window.showToast('Preset saved');
 };
 window.deleteVoicePresetConfirm = async function(id) {
-  if (await showConfirm('Delete this preset?')) {
-    await deleteVoicePreset(id);
+  if (await window.showConfirm('Delete this preset?')) {
+    await window.deleteVoicePreset(id);
     renderVoicePresets();
   }
 };
 window.createRoomFromPresetId = async function(id) {
-  const preset = getVoicePresets().find(p=>p.id===id);
+  const preset = window.getVoicePresets().find(p=>p.id===id);
   if (preset) await createRoomFromPreset(preset);
 };
 
 async function createRoomFromPreset(preset) {
-  if (!requireHostAccount()) return;
+  if (!window.requireHostAccount()) return;
   // Apply preset profile to current session (do NOT persist to user profile)
   if (preset.profile) {
-    if (preset.profile.name) myName = preset.profile.name;
-    if (preset.profile.color) myColor = preset.profile.color;
-    if (preset.profile.avatar) roomAvatarSelection = preset.profile.avatar;
+    if (preset.profile.name) window.myName = preset.profile.name;
+    if (preset.profile.color) window.myColor = preset.profile.color;
+    if (preset.profile.avatar) window.roomAvatarSelection = preset.profile.avatar;
   }
   // Apply turn mode if preset has it
   if (preset.turn && preset.turn.turnMode) {
-    turnMode = preset.turn.turnMode;
-    if (preset.turn.passDirection) passDirection = preset.turn.passDirection;
-    if (preset.turn.speedMode) speedMode = preset.turn.speedMode;
+    window.turnMode = preset.turn.turnMode;
+    if (preset.turn.passDirection) window.passDirection = preset.turn.passDirection;
+    if (preset.turn.speedMode) window.speedMode = preset.turn.speedMode;
   }
   // Apply features — set window mirrors directly (isFeatureEnabled reads from window)
   // Do NOT use setFeatureEnabled() here — it triggers onNudgeToggle/onRoundsToggle which open overlays
@@ -914,11 +919,11 @@ async function createRoomFromPreset(preset) {
   }
   // Use existing create-room flow but skip wizard — directly create lobby
   // Reuse the same logic as showCreateRoom's final step: generate code and set room
-  isHost = true;
-  myId = uid();
-  myName = preset.profile ? preset.profile.name : getSavedName();
-  const claimed = await claimRoomCode();
-  roomCode = claimed.code;
+  window.isHost = true;
+  window.myId = window.uid();
+  window.myName = preset.profile ? preset.profile.name : window.getSavedName();
+  const claimed = await window.claimRoomCode();
+  window.roomCode = claimed.code;
   let roomRef = claimed.roomRef;
   const features = {
     passDirection: (typeof passDirection !== 'undefined' ? passDirection : ''),
@@ -938,26 +943,26 @@ async function createRoomFromPreset(preset) {
     undo: typeof featureUndoEnabled !== 'undefined' ? featureUndoEnabled : false,
     playerSkip: typeof featurePlayerSkipEnabled !== 'undefined' ? featurePlayerSkipEnabled : false
   };
-  await set(roomRef, {
-    host: myId,
-    hostAuthUid: currentUser ? currentUser.uid : null,
+  await window.set(roomRef, {
+    host: window.myId,
+    hostAuthUid: window.currentUser ? window.currentUser.uid : null,
     status: 'lobby',
     activePlayerIndex: 0,
     lastActivity: Date.now(),
     features: features,
     currentRound: 0,
     buzzCurrentRound: 0, buzzPhase: '', buzzScores: {}, buzzTapOrder: {},
-    players: { [myId]: { name: myName, order: 0, joinedAt: Date.now(), color: myColor, avatar: roomAvatarSelection || '👤', authUid: currentUser ? currentUser.uid : null } }
+    players: { [window.myId]: { name: window.myName, order: 0, joinedAt: Date.now(), color: window.myColor, avatar: window.roomAvatarSelectionvatarSelection || '👤', authUid: currentUser ? currentUser.uid : null } }
   });
-  haptic(20);
-  document.getElementById('display-code').textContent = roomCode;
-  saveSession();
+  window.haptic(20);
+  document.getElementById('display-code').textContent = window.roomCode;
+  window.saveSession();
   closeVoicePresetsOverlay();
   const vl = document.getElementById('voice-listening-overlay');
   if (vl) vl.classList.remove('show');
   showScreen('lobby');
   generateLobbyQR();
   listenLobby();
-  showToast('Started ' + preset.name);
+  window.showToast('Started ' + preset.name);
 }
 
