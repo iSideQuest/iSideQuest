@@ -12866,6 +12866,250 @@ window.leaveRoom = async function() {
   showScreen('home');
 };
 
+window.runTeamMaker = function() {
+  const names = getPickerNames();
+  const resultsEl = document.getElementById('picker-results');
+  if (names.length === 0) {
+    resultsEl.innerHTML = '<p class="status error">Enter at least one name first.</p>';
+    return;
+  }
+  let teamCount = parseInt(document.getElementById('picker-team-count').value) || 2;
+  teamCount = Math.max(2, Math.min(teamCount, names.length));
+
+  const shuffled = shuffleArray(names);
+  const teams = Array.from({length: teamCount}, () => []);
+  shuffled.forEach((name, i) => teams[i % teamCount].push(name));
+
+  resultsEl.innerHTML = '';
+  teams.forEach((team, i) => {
+    const color = TEAM_COLORS[i % TEAM_COLORS.length];
+    const group = document.createElement('div');
+    group.className = 'picker-team-group';
+    group.style.borderColor = color;
+    const title = document.createElement('div');
+    title.className = 'picker-team-title';
+    title.style.color = color;
+    title.textContent = `Team ${i + 1} (${team.length})`;
+    const chipRow = document.createElement('div');
+    chipRow.className = 'picker-chip-row';
+    team.forEach(name => {
+      const chip = document.createElement('span');
+      chip.className = 'picker-name-chip picked';
+      chip.style.background = color;
+      chip.style.borderColor = color;
+      chip.textContent = name;
+      chipRow.appendChild(chip);
+    });
+    group.appendChild(title);
+    group.appendChild(chipRow);
+    resultsEl.appendChild(group);
+  });
+  broadcastSharedReveal('', 'Team draw', { teams: teams.map(t => t.slice()) });
+};
+
+
+window.goHome = function() {
+  // If friend was on Step 1 via invite and bails to home, mark invite as Left for host
+  if (pendingInviteCode && currentUser) {
+    const code = pendingInviteCode;
+    try { update(ref(db, `rooms/${code}/invites/${currentUser.uid}`), { status: 'left' }); } catch {}
+  }
+  pendingInviteCode = null;
+  // If there's an active room, close it and clear the session
+  if (roomCode) {
+    cleanupListeners();
+    if (isHost && db) {
+      remove(ref(db, `rooms/${roomCode}`)).catch(() => {});
+    }
+    roomCode = null; myId = null; isHost = false;
+    clearSession();
+  }
+  editingRoom = false;
+  startingNewGame = false;
+  // Reset QR (inline lobby card)
+  const qrBox = document.getElementById('qr-code-lobby');
+  if (qrBox) qrBox.innerHTML = '';
+  // Clear any inputs and errors when going back
+  document.getElementById('host-name').value = '';
+  document.getElementById('join-name').value = '';
+  document.getElementById('join-code').value = '';
+  document.getElementById('create-status').textContent = '';
+  document.getElementById('join-status').textContent = '';
+  // Reset all room settings selections
+  myColor = '';
+  roomAvatarSelection = '';
+  resetCreateWizardState();
+  createStep = 1;
+  joinStep = 1;
+  // Reset color picker button
+  const colorLabel = document.getElementById('host-color-label');
+  if (colorLabel) { colorLabel.textContent = 'Choose\nColor'; colorLabel.style.color = ''; }
+  const joinColorLabel = document.getElementById('join-color-label');
+  if (joinColorLabel) { joinColorLabel.textContent = 'Choose\nColor'; joinColorLabel.style.color = ''; }
+  const colorBtn = document.getElementById('host-color-btn');
+  if (colorBtn) { colorBtn.style.background = ''; colorBtn.style.borderColor = ''; colorBtn.classList.remove('light-fill'); }
+  const joinColorBtn = document.getElementById('join-color-btn');
+  if (joinColorBtn) { joinColorBtn.style.background = ''; joinColorBtn.style.borderColor = ''; joinColorBtn.classList.remove('light-fill'); }
+  // Reset avatar button
+  const hostAvLabel = document.getElementById('host-avatar-label');
+  setAvatarLabel(hostAvLabel, '');
+  const joinAvLabel = document.getElementById('join-avatar-label');
+  setAvatarLabel(joinAvLabel, '');
+  // Reset required notes
+  const colorNote = document.getElementById('color-required-note');
+  if (colorNote) colorNote.style.display = 'none';
+  const avatarNote = document.getElementById('avatar-required-note');
+  if (avatarNote) avatarNote.style.display = 'none';
+  // Reset wizard steps
+  renderCreateStep();
+  renderJoinStep();
+  showScreen('home');
+};
+
+
+window.goBackToCreate = async function() {
+  if (!roomCode) return;
+  // Navigate back to create wizard in edit mode — room stays alive
+  cleanupListeners();
+  resetFirstPlayerOption();
+  editingRoom = true;
+  const nameEl = document.getElementById('host-name');
+  if (nameEl && myName) nameEl.value = myName;
+  // Color button
+  if (myColor) {
+    const colorBtn = document.getElementById('host-color-btn');
+    const colorLabel = document.getElementById('host-color-label');
+    if (colorBtn) { colorBtn.style.background = myColor; colorBtn.style.borderColor = myColor; colorBtn.classList.toggle('light-fill', isLightColor(myColor)); }
+    const colorName = PLAYER_COLORS.find(c => c.hex === myColor)?.name || myColor;
+    if (colorLabel) { colorLabel.textContent = colorName; colorLabel.style.color = isLightColor(myColor) ? '#000' : '#fff'; }
+  }
+  // Avatar button
+  const savedAv = roomAvatarSelection || getSavedAvatar();
+  if (savedAv) {
+    const avLabel = document.getElementById('host-avatar-label');
+    setAvatarLabel(avLabel, savedAv);
+  }
+  // Turn mode
+  if (turnMode) {
+    if (turnMode === 'classic' && passDirection) {
+      const dirEl = document.getElementById('tm-inline-' + passDirection);
+      if (dirEl) dirEl.classList.add('selected');
+    }
+    const selTxt = document.getElementById('tm-summary');
+    const dirLabels = { cw: '↻ Left', both: '↔ Left & Right', ccw: '↺ Right' };
+    if (selTxt) {
+      if (turnMode === 'classic') {
+        selTxt.innerHTML = 'Turn Direction — <span>' + (dirLabels[passDirection] || passDirection) + '</span>';
+      } else {
+        selTxt.innerHTML = '⚡ Speed Round — <span>' + (speedMode === 'firstToTap' ? '1st To Tap' : 'Down The Line') + '</span> · ' + speedRoundsTotal + ' rounds';
+      }
+    }
+    document.getElementById('tm-required-note').style.display = 'none';
+  }
+  // Sync feature toggle checkboxes with the JS variables
+  const toggleMap = {
+    'feature-nudge-toggle': featureNudgeEnabled,
+    'feature-awards-toggle': featureAwardsEnabled,
+    'feature-vp-toggle': featureVPEnabled,
+    'feature-status-toggle': featureStatusEffectsEnabled,
+    'feature-dnd-toggle': featureDndEnabled,
+    'feature-rounds-toggle': featureRoundsEnabled,
+    'feature-timers-toggle': featureTimersEnabled
+  };
+  Object.entries(toggleMap).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = val;
+  });
+  // Sync VP mode row visibility and radio selection
+  const vpModeRow = document.getElementById('vp-mode-row');
+  if (vpModeRow) {
+    vpModeRow.style.display = featureVPEnabled ? 'flex' : 'none';
+    const vpRadio = document.querySelector('input[name="vp-mode"][value="' + (vpHighestWins ? 'highest' : 'lowest') + '"]');
+    if (vpRadio) vpRadio.checked = true;
+  }
+  // Sync edit buttons visibility
+  const nudgeEditBtn = document.getElementById('nudge-edit-btn');
+  if (nudgeEditBtn) nudgeEditBtn.classList.toggle('visible', featureNudgeEnabled);
+  const timersEditBtn = document.getElementById('timers-edit-btn');
+  if (timersEditBtn) timersEditBtn.classList.toggle('visible', featureTimersEnabled);
+  const roundsEditBtn = document.getElementById('rounds-edit-btn');
+  if (roundsEditBtn) roundsEditBtn.classList.toggle('visible', featureRoundsEnabled);
+  document.getElementById('nudge-delay').value = nudgeDelaySeconds;
+  document.getElementById('rounds-total').value = roundsTotal || 3;
+  updateFeaturesSummary();
+  createStep = 3;
+  renderCreateStep();
+  renderEditRoomButtons();
+  showScreen('create');
+};
+
+
+window.onCreateFinalBtn = function() {
+  if (startingNewGame) { startNewGame(); } else if (editingRoom) { returnToLobby(); } else { createRoom(); }
+};
+
+
+window.saveRoomChanges = async function() {
+  if (!db || !roomCode) return;
+  const name = document.getElementById('host-name').value.trim();
+  if (!name) { status('create-status', 'Enter your name.', 'error'); return; }
+  if (!turnMode || (turnMode === 'classic' && !passDirection)) {
+    document.getElementById('tm-required-note').style.display = 'block';
+    status('create-status', 'Choose a turn mode to continue.', 'error');
+    return;
+  }
+  document.getElementById('tm-required-note').style.display = 'none';
+  myName = name;
+  const av = roomAvatarSelection || '👤';
+  const updates = {};
+  updates[`rooms/${roomCode}/players/${myId}/name`] = name;
+  updates[`rooms/${roomCode}/players/${myId}/color`] = myColor;
+  updates[`rooms/${roomCode}/players/${myId}/avatar`] = av;
+  updates[`rooms/${roomCode}/features/passDirection`] = passDirection;
+  updates[`rooms/${roomCode}/features/turnMode`] = turnMode;
+  updates[`rooms/${roomCode}/features/speedMode`] = turnMode === 'speedRound' ? speedMode : '';
+  updates[`rooms/${roomCode}/features/speedRoundsTotal`] = turnMode === 'speedRound' ? speedRoundsTotal : 0;
+  updates[`rooms/${roomCode}/features/nudge`] = featureNudgeEnabled;
+  updates[`rooms/${roomCode}/features/nudgeDelay`] = featureNudgeEnabled ? (parseInt(document.getElementById('nudge-delay').value) || 30) : 0;
+  updates[`rooms/${roomCode}/features/nudgeMode`] = featureNudgeEnabled ? (document.querySelector('input[name="nudge-mode"]:checked')?.value || 'multi') : 'multi';
+  updates[`rooms/${roomCode}/features/awards`] = featureAwardsEnabled;
+  updates[`rooms/${roomCode}/features/victoryPoints`] = featureVPEnabled;
+  updates[`rooms/${roomCode}/features/vpHighestWins`] = vpHighestWins;
+  updates[`rooms/${roomCode}/features/statusEffects`] = featureStatusEffectsEnabled;
+  updates[`rooms/${roomCode}/features/dndTurnComponents`] = featureDndEnabled;
+  updates[`rooms/${roomCode}/features/timers`] = featureTimersEnabled;
+  updates[`rooms/${roomCode}/features/timerTurnOn`] = featureTimersEnabled && document.getElementById('timer-turn-on').checked;
+  updates[`rooms/${roomCode}/features/timerTurnVisible`] = document.getElementById('timer-turn-visible').checked;
+  updates[`rooms/${roomCode}/features/timerRoundOn`] = featureTimersEnabled && document.getElementById('timer-round-on').checked;
+  updates[`rooms/${roomCode}/features/timerRoundVisible`] = document.getElementById('timer-round-visible').checked;
+  updates[`rooms/${roomCode}/features/timerGameOn`] = featureTimersEnabled && document.getElementById('timer-game-on').checked;
+  updates[`rooms/${roomCode}/features/timerGameVisible`] = document.getElementById('timer-game-visible').checked;
+  updates[`rooms/${roomCode}/features/timerCountdownOn`] = featureTimersEnabled && document.getElementById('timer-countdown-on').checked;
+  updates[`rooms/${roomCode}/features/timerCountdownVisible`] = document.getElementById('timer-countdown-visible').checked;
+  updates[`rooms/${roomCode}/features/timerCountdownSecs`] = (parseInt(document.getElementById('timer-countdown-min').value)||0)*60 + (parseInt(document.getElementById('timer-countdown-sec').value)||30);
+  updates[`rooms/${roomCode}/features/rounds`] = featureRoundsEnabled;
+  updates[`rooms/${roomCode}/features/roundsTotal`] = featureRoundsEnabled ? (parseInt(document.getElementById('rounds-total').value) || 3) : 0;
+  updates[`rooms/${roomCode}/features/undo`] = featureUndoEnabled;
+  updates[`rooms/${roomCode}/features/playerSkip`] = featurePlayerSkipEnabled;
+  await update(ref(db), updates);
+  haptic(20);
+  editingRoom = false;
+  document.getElementById('display-code').textContent = roomCode;
+  showScreen('lobby');
+  generateLobbyQR();
+  listenLobby();
+};
+
+
+
+function renderEditRoomButtons() {
+  const finalBtn = document.getElementById('create-final-btn');
+  if (finalBtn) {
+    if (startingNewGame) { finalBtn.innerHTML = 'Start Game <span class="play-tri">▶</span>'; }
+    else if (editingRoom) { finalBtn.innerHTML = 'Back to Lobby <span class="play-tri">▶</span>'; }
+    else { finalBtn.textContent = 'Create Room'; }
+  }
+}
 window.closeRoom = async function() {
   window.gameLandscape = false;
   document.body.classList.remove('game-landscape');
