@@ -3347,7 +3347,22 @@ function updatePresetEditUI() {
     el.classList.toggle('added', !!_editingPresetFeatures[k]);
   });
 }
-window.openHostPresetGame = function() {
+window.openHostPresetGame = async function() {
+  // Wait for auth to resolve if needed
+  if (!currentUser) {
+    // Check if there's a pending auth state
+    try {
+      await new Promise((resolve) => {
+        if (currentUser) { resolve(); return; }
+        const timeout = setTimeout(() => resolve(), 2000);
+        const unsub = onAuthStateChanged(auth, (user) => {
+          clearTimeout(timeout);
+          if (unsub) unsub();
+          resolve();
+        });
+      });
+    } catch(e) {}
+  }
   if (!currentUser) {
     showToast('To use Host Preset Room, you must create and log into an account.');
     haptic(5);
