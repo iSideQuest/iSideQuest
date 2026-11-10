@@ -827,7 +827,7 @@ window.openVoicePresetEdit = function(id) {
 window.updatePresetEditUI = function() {
   const HIDDEN_FEATURES = window.HIDDEN_FEATURES || [];
   document.querySelectorAll('#preset-features-grid .feature-card').forEach(el => {
-    const hide = HIDDEN_FEATURES.includes(el.dataset.feature);
+    const hide = HIDDEN_FEATURES.includes(el.dataset.feature) || (el.dataset.feature === 'rounds' && !window.isCreator);
     el.style.display = hide ? 'none' : '';
     if (hide) _editingPresetFeatures[el.dataset.feature] = false;
   });

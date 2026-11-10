@@ -12959,6 +12959,12 @@ window.goHome = function() {
 };
 
 
+window.returnToLobby = function() {
+  editingRoom = false;
+  showScreen('lobby');
+  listenLobby();
+  renderEditRoomButtons();
+};
 window.goBackToCreate = async function() {
   if (!roomCode) return;
   // Navigate back to create wizard in edit mode — room stays alive
@@ -14758,6 +14764,7 @@ document.addEventListener('visibilitychange', () => {
 // ── Expose globals for extracted modules (tours.js) ──
 window.haptic = haptic;
 window.showScreen = showScreen;
+Object.defineProperty(window, 'isCreator', { get: () => isCreator, configurable: true });
 window.nudgeMode = nudgeMode;
 window.generateLobbyQR = generateLobbyQR;
 window.listenLobby = listenLobby;
@@ -14805,7 +14812,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=360');
+    const tours = await import('./js/tours.js?v=361');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
