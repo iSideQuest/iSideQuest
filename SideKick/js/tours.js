@@ -656,6 +656,30 @@ let _editingPresetColor = '';
 let _editingPresetAvatar = '';
 let _editingPresetDir = '';
 let _editingPresetFeatures = {};
+// Expose preset-edit state on window so index.html color/avatar pickers can access them
+function _exposePresetState() {
+  const vars = ['_editingVoicePresetId','_editingPresetColor','_editingPresetAvatar','_editingPresetDir','_editingPresetFeatures'];
+  const getters = {
+    _editingVoicePresetId: () => _editingVoicePresetId,
+    _editingPresetColor: () => _editingPresetColor,
+    _editingPresetAvatar: () => _editingPresetAvatar,
+    _editingPresetDir: () => _editingPresetDir,
+    _editingPresetFeatures: () => _editingPresetFeatures,
+  };
+  const setters = {
+    _editingVoicePresetId: (v) => { _editingVoicePresetId = v; },
+    _editingPresetColor: (v) => { _editingPresetColor = v; },
+    _editingPresetAvatar: (v) => { _editingPresetAvatar = v; },
+    _editingPresetDir: (v) => { _editingPresetDir = v; },
+    _editingPresetFeatures: (v) => { _editingPresetFeatures = v; },
+  };
+  for (const name of vars) {
+    try {
+      Object.defineProperty(window, name, { get: getters[name], set: setters[name], configurable: true });
+    } catch(e) {}
+  }
+}
+_exposePresetState();
 window.startInDepthTour = function() {
   try { if (tourMode === 'guided' && tutorialStep > 0) endTutorial(); } catch {}
   tourMode = 'indepth';
@@ -824,7 +848,7 @@ window.closeVoicePresetEdit = function() {
   _editingPresetColor = '';
   _editingPresetAvatar = '';
 };
-function updatePresetEditColorBtn() {
+window.updatePresetEditColorBtn = function updatePresetEditColorBtn() {
   const btn = document.getElementById('preset-color-btn');
   const label = document.getElementById('preset-color-label');
   if (!btn || !label) return;
@@ -843,7 +867,7 @@ function updatePresetEditColorBtn() {
     label.style.color = '';
   }
 }
-function updatePresetEditAvatarBtn() {
+window.updatePresetEditAvatarBtn = function updatePresetEditAvatarBtn() {
   const btn = document.getElementById('preset-avatar-btn');
   const label = document.getElementById('preset-avatar-label');
   if (!btn || !label) return;

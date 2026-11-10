@@ -3301,29 +3301,24 @@ async function deleteVoicePreset(id) {
 }
 
 // ── VOICE PRESETS OVERLAY ────────────────────────
-let _editingVoicePresetId = null;
-let _editingPresetDir = '';
-let _editingPresetFeatures = {};
-let _editingPresetColor = '';
-let _editingPresetAvatar = '';
 let _avatarPickerContext = '';
 let _standinColor = '';
 let _standinAvatar = '';
 let _editProfileDirectEntry = false;
 window.selectPresetDir = function(dir) {
-  _editingPresetDir = dir;
+  window._editingPresetDir = dir;
   document.querySelectorAll('#preset-dir-cw, #preset-dir-ccw, #preset-dir-both').forEach(el => el.classList.remove('selected'));
   const el = document.getElementById('preset-dir-' + dir);
   if (el) el.classList.add('selected');
   haptic(5);
 };
 window.togglePresetFeature = function(key) {
-  _editingPresetFeatures[key] = !_editingPresetFeatures[key];
+  window._editingPresetFeatures[key] = !window._editingPresetFeatures[key];
   const el = document.querySelector('#preset-features-grid .feature-card[data-feature="' + key + '"]');
-  if (el) el.classList.toggle('added', !!_editingPresetFeatures[key]);
+  if (el) el.classList.toggle('added', !!window._editingPresetFeatures[key]);
   haptic(5);
   // Open settings for features that have them, mirroring the main Create Room flow
-  if (_editingPresetFeatures[key]) {
+  if (window._editingPresetFeatures[key]) {
     if (key === 'nudge') { try { openFeatureSettings('nudge'); } catch {} }
     else if (key === 'timers') { try { openFeatureSettings('timers'); } catch {} }
     else if (key === 'rounds') { try { openFeatureSettings('rounds'); } catch {} }
@@ -4138,10 +4133,10 @@ let pendingEditAvatar = null;
 
 window.openRoomAvatarOverlay = function(context) {
   _avatarPickerContext = context || '';
-  const current = context === 'preset' ? (_editingPresetAvatar || '') : (context === 'standin' ? (_standinAvatar || '') : (roomAvatarSelection || getSavedAvatar()));
+  const current = context === 'preset' ? (window._editingPresetAvatar || '') : (context === 'standin' ? (_standinAvatar || '') : (roomAvatarSelection || getSavedAvatar()));
   renderAvatarPicker('room-avatar', current, avatar => {
     if (_avatarPickerContext === 'preset') {
-      _editingPresetAvatar = avatar;
+      window._editingPresetAvatar = avatar;
     } else if (_avatarPickerContext === 'standin') {
       _standinAvatar = avatar;
       updateStandinAvatarBtn();
@@ -4165,7 +4160,7 @@ window.confirmRoomAvatar = function() {
     return;
   }
   if (_avatarPickerContext === 'preset') {
-    updatePresetEditAvatarBtn();
+    window.updatePresetEditAvatarBtn();
     closeRoomAvatarOverlay();
     _avatarPickerContext = '';
     haptic(5);
@@ -8568,7 +8563,7 @@ let tempSelectedColor = '#cc0000';
 
 window.openColorPicker = function(context) {
   colorPickerContext = context;
-  tempSelectedColor = context === 'preset' ? _editingPresetColor : (context === 'standin' ? _standinColor : myColor);
+  tempSelectedColor = context === 'preset' ? window._editingPresetColor : (context === 'standin' ? _standinColor : myColor);
   const grid = document.getElementById('color-grid');
   grid.innerHTML = '';
   PLAYER_COLORS.forEach(c => {
@@ -8592,8 +8587,8 @@ window.confirmColor = function() {
   if (!tempSelectedColor) {
     // Nothing picked — keep the Choose Color placeholder, never "Custom"
     if (colorPickerContext === 'preset') {
-      _editingPresetColor = '';
-      updatePresetEditColorBtn();
+      window._editingPresetColor = '';
+      window.updatePresetEditColorBtn();
     } else if (colorPickerContext === 'standin') {
       _standinColor = '';
       updateStandinColorBtn();
@@ -8612,8 +8607,8 @@ window.confirmColor = function() {
   const colorName = PLAYER_COLORS.find(c => c.hex === tempSelectedColor)?.name || 'Custom';
   const isLight = ['#FFFFFF','#ffffff','#F5F5F5','#f5f5f5','#fffb05','#6effac'].includes(tempSelectedColor);
   if (colorPickerContext === 'preset') {
-    _editingPresetColor = tempSelectedColor;
-    updatePresetEditColorBtn();
+    window._editingPresetColor = tempSelectedColor;
+    window.updatePresetEditColorBtn();
   } else if (colorPickerContext === 'standin') {
     _standinColor = tempSelectedColor;
     updateStandinColorBtn();
@@ -14807,7 +14802,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=358');
+    const tours = await import('./js/tours.js?v=359');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
