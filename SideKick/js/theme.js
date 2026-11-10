@@ -107,4 +107,34 @@ export function resetThemeToDefault() {
   applyFullTheme(namedTheme, saved === 'light');
 })();
 
-// Note: openMyAwards and closeMyAwards remain in the main module.
+export function openMyAwards() {
+  const list = document.getElementById('awards-history-list');
+  if (!list) return;
+  list.innerHTML = '';
+  const uid = (typeof currentUser !== 'undefined' && currentUser) ? currentUser.uid : '';
+  const awards = uid ? JSON.parse(localStorage.getItem('sk_awards_' + uid) || '[]') : [];
+  if (awards.length === 0) {
+    list.innerHTML = '<div class="awards-history-empty">No awards yet — play a game with Achievement Awards enabled to earn some!</div>';
+  } else {
+    awards.slice().reverse().forEach(a => {
+      const dateStr = a.date ? new Date(a.date).toLocaleDateString() : '';
+      list.innerHTML += '<div class="awards-history-item">' +
+        '<div class="awards-history-trophy">' + (a.trophy || '🏆') + '</div>' +
+        '<div class="awards-history-info">' +
+          '<div class="awards-history-category">' + esc(a.category || 'Award') + '</div>' +
+          '<div class="awards-history-stat">' + esc(a.stat || '') + '</div>' +
+        '</div>' +
+        '<div class="awards-history-date">' + dateStr + '</div>' +
+      '</div>';
+    });
+  }
+  const overlay = document.getElementById('my-awards-overlay');
+  if (overlay) overlay.classList.add('show');
+}
+
+export function closeMyAwards() {
+  const overlay = document.getElementById('my-awards-overlay');
+  if (overlay) overlay.classList.remove('show');
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }

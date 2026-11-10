@@ -2523,7 +2523,9 @@ import { configureCollectionEditor } from './js/collection-editor.js?v=352';
 import { configureCollectionPhoto, getCollectionPhotoData, setCollectionPhotoData, updateCollectionPhotoPreview, closeCollectionPhoto } from './js/collection-photo.js?v=354';
 import { configureCollectionDiscovery } from './js/collection-discovery.js?v=353';
 import { FEATURE_DEFS_GRID, HIDDEN_FEATURES, FEATURE_INFO } from './js/feature-data.js?v=350';
-import { NAMED_THEMES, applyTheme, updateDirArrows, applyFullTheme, toggleTheme, openThemesOverlay, closeThemesOverlay, selectTheme, resetThemeToDefault } from './js/theme.js?v=358';
+import { NAMED_THEMES, applyTheme, updateDirArrows, applyFullTheme, toggleTheme, openThemesOverlay, closeThemesOverlay, selectTheme, resetThemeToDefault, openMyAwards, closeMyAwards } from './js/theme.js?v=359';
+// Utility: escape HTML
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 // Expose theme functions on window for HTML onclick handlers
 window.NAMED_THEMES = NAMED_THEMES;
 window.applyTheme = applyTheme;
@@ -2534,6 +2536,8 @@ window.openThemesOverlay = openThemesOverlay;
 window.closeThemesOverlay = closeThemesOverlay;
 window.selectTheme = selectTheme;
 window.resetThemeToDefault = resetThemeToDefault;
+window.openMyAwards = openMyAwards;
+window.closeMyAwards = closeMyAwards;
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, onValue, update, remove, push, serverTimestamp, runTransaction, goOffline, goOnline }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
