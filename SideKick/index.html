@@ -14758,6 +14758,9 @@ document.addEventListener('visibilitychange', () => {
 // ── Expose globals for extracted modules (tours.js) ──
 window.haptic = haptic;
 window.showScreen = showScreen;
+window.nudgeMode = nudgeMode;
+window.generateLobbyQR = generateLobbyQR;
+window.listenLobby = listenLobby;
 window.showAlert = showAlert || (m => alert(m));
 window.showConfirm = showConfirm || (m => confirm(m));
 window.t = t;
@@ -14802,7 +14805,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=359');
+    const tours = await import('./js/tours.js?v=360');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };

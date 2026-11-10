@@ -966,22 +966,22 @@ async function createRoomFromPreset(preset) {
   window.roomCode = claimed.code;
   let roomRef = claimed.roomRef;
   const features = {
-    passDirection: (typeof passDirection !== 'undefined' ? passDirection : ''),
-    nudge: typeof featureNudgeEnabled !== 'undefined' ? featureNudgeEnabled : false,
-    nudgeDelay: typeof featureNudgeEnabled !== 'undefined' && featureNudgeEnabled ? (parseInt(document.getElementById('nudge-delay')?.value)||30) : 0,
-    nudgeMode: typeof nudgeMode !== 'undefined' ? nudgeMode : 'multi',
-    awards: typeof featureAwardsEnabled !== 'undefined' ? featureAwardsEnabled : false,
-    victoryPoints: typeof featureVPEnabled !== 'undefined' ? featureVPEnabled : false,
-    dndTurnComponents: typeof featureDndEnabled !== 'undefined' ? featureDndEnabled : false,
-    timers: typeof featureTimersEnabled !== 'undefined' ? featureTimersEnabled : false,
+    passDirection: (typeof window.passDirection !== 'undefined' ? window.passDirection : ''),
+    nudge: typeof window.featureNudgeEnabled !== 'undefined' ? window.featureNudgeEnabled : false,
+    nudgeDelay: typeof window.featureNudgeEnabled !== 'undefined' && window.featureNudgeEnabled ? (parseInt(document.getElementById('nudge-delay')?.value)||30) : 0,
+    nudgeMode: typeof window.nudgeMode !== 'undefined' ? window.nudgeMode : 'multi',
+    awards: typeof window.featureAwardsEnabled !== 'undefined' ? window.featureAwardsEnabled : false,
+    victoryPoints: typeof window.featureVPEnabled !== 'undefined' ? window.featureVPEnabled : false,
+    dndTurnComponents: typeof window.featureDndEnabled !== 'undefined' ? window.featureDndEnabled : false,
+    timers: typeof window.featureTimersEnabled !== 'undefined' ? window.featureTimersEnabled : false,
     timerTurnOn: false, timerTurnVisible: true, timerRoundOn: false, timerRoundVisible: true, timerGameOn: false, timerGameVisible: true, timerCountdownOn: false, timerCountdownVisible: true, timerCountdownSecs: 30,
-    rounds: typeof featureRoundsEnabled !== 'undefined' ? featureRoundsEnabled : false,
+    rounds: typeof window.featureRoundsEnabled !== 'undefined' ? window.featureRoundsEnabled : false,
     roundsTotal: 0,
-    turnMode: typeof turnMode !== 'undefined' ? turnMode : '',
-    speedMode: typeof speedMode !== 'undefined' ? speedMode : '',
+    turnMode: typeof window.turnMode !== 'undefined' ? window.turnMode : '',
+    speedMode: typeof window.speedMode !== 'undefined' ? window.speedMode : '',
     speedRoundsTotal: 0,
-    undo: typeof featureUndoEnabled !== 'undefined' ? featureUndoEnabled : false,
-    playerSkip: typeof featurePlayerSkipEnabled !== 'undefined' ? featurePlayerSkipEnabled : false
+    undo: typeof window.featureUndoEnabled !== 'undefined' ? window.featureUndoEnabled : false,
+    playerSkip: typeof window.featurePlayerSkipEnabled !== 'undefined' ? window.featurePlayerSkipEnabled : false
   };
   await window.set(roomRef, {
     host: window.myId,
@@ -1000,9 +1000,9 @@ async function createRoomFromPreset(preset) {
   closeVoicePresetsOverlay();
   const vl = document.getElementById('voice-listening-overlay');
   if (vl) vl.classList.remove('show');
-  showScreen('lobby');
-  generateLobbyQR();
-  listenLobby();
+  window.showScreen('lobby');
+  window.generateLobbyQR();
+  window.listenLobby();
   window.showToast('Started ' + preset.name);
 }
 
