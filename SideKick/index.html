@@ -10080,16 +10080,57 @@ function clearWheelTapZones(ctx) {
 
 // ── HOST MANAGE PLAYERS PANEL ──────────────────
 let manageUnsub = null;
+let manageViewMode = 'circle';
+window.toggleManageView = function(mode) {
+  manageViewMode = mode === 'table' ? 'table' : 'circle';
+  const wheelWrap = document.getElementById('mg-wheel-wrap');
+  const tableWrap = document.getElementById('mg-table-wrap');
+  const circleBtn = document.getElementById('mg-view-circle');
+  const tableBtn = document.getElementById('mg-view-table');
+  if (wheelWrap) wheelWrap.style.display = manageViewMode === 'circle' ? '' : 'none';
+  if (tableWrap) tableWrap.style.display = manageViewMode === 'table' ? '' : 'none';
+  if (circleBtn) circleBtn.classList.toggle('active-ctrl', manageViewMode === 'circle');
+  if (tableBtn) tableBtn.classList.toggle('active-ctrl', manageViewMode === 'table');
+  // Re-render with current players
+  const playersRef = ref(db, `rooms/${roomCode}/players`);
+  get(playersRef).then(snap => {
+    if (!snap.exists()) return;
+    const _mgPlayers = buildOrderedPlayers(snap.val());
+    const wheelWrap = document.getElementById('mg-wheel-wrap');
+    const tableWrap = document.getElementById('mg-table-wrap');
+    if (wheelWrap) wheelWrap.style.display = manageViewMode === 'circle' ? '' : 'none';
+    if (tableWrap) tableWrap.style.display = manageViewMode === 'table' ? '' : 'none';
+    if (manageViewMode === 'table') {
+      renderLobbyTable(_mgPlayers, { svg: 'mg-table-svg', unseated: 'mg-table-unseated' });
+    } else {
+      renderLobbyWheel(_mgPlayers, { wrap: 'mg-wheel-wrap', svg: 'mg-wheel-svg', center: 'mg-wheel-center', kicks: 'mg-wheel-kicks' }, { kick: kickPlayer, allowTap: false, minSegs: 1, crowns: false, knockedX: true });
+    }
+    renderManageSkipList(_mgPlayers);
+  }).catch(() => {});
+};
 window.openManagePanel = function() {
   if (!db || !roomCode) return;
   document.getElementById('manage-overlay').classList.add('show');
+  const wheelWrap = document.getElementById('mg-wheel-wrap');
+  const tableWrap = document.getElementById('mg-table-wrap');
+  const circleBtn = document.getElementById('mg-view-circle');
+  const tableBtn = document.getElementById('mg-view-table');
+  if (wheelWrap) wheelWrap.style.display = manageViewMode === 'circle' ? '' : 'none';
+  if (tableWrap) tableWrap.style.display = manageViewMode === 'table' ? '' : 'none';
+  if (circleBtn) circleBtn.classList.toggle('active-ctrl', manageViewMode === 'circle');
+  if (tableBtn) tableBtn.classList.toggle('active-ctrl', manageViewMode === 'table');
   // Subscribe to live updates
   if (manageUnsub) manageUnsub();
   const playersRef = ref(db, `rooms/${roomCode}/players`);
   manageUnsub = onValue(playersRef, snap => {
     if (!snap.exists()) return;
-    renderLobbyWheel(buildOrderedPlayers(snap.val()), { wrap: 'mg-wheel-wrap', svg: 'mg-wheel-svg', center: 'mg-wheel-center', kicks: 'mg-wheel-kicks' }, { kick: kickPlayer, allowTap: false, minSegs: 1, crowns: false, knockedX: true });
-    renderManageSkipList(buildOrderedPlayers(snap.val()));
+    const _mgPlayers = buildOrderedPlayers(snap.val());
+    if (manageViewMode === 'table') {
+      renderLobbyTable(_mgPlayers, { svg: 'mg-table-svg', unseated: 'mg-table-unseated' });
+    } else {
+      renderLobbyWheel(_mgPlayers, { wrap: 'mg-wheel-wrap', svg: 'mg-wheel-svg', center: 'mg-wheel-center', kicks: 'mg-wheel-kicks' }, { kick: kickPlayer, allowTap: false, minSegs: 1, crowns: false, knockedX: true });
+    }
+    renderManageSkipList(_mgPlayers);
   });
 };
 
@@ -14812,7 +14853,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=362');
+    const tours = await import('./js/tours.js?v=363');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
@@ -14919,10 +14960,18 @@ if ('serviceWorker' in navigator) {
     <div style="text-align:center; margin-bottom:0.75rem;">
       <div style="font-size:1.05rem; font-weight:800; color:var(--text);">👥 Manage Players</div>
     </div>
+    <div style="display:flex; gap:0.4rem; margin-bottom:0.6rem; justify-content:center;">
+      <button class="ctrl-btn" id="mg-view-circle" onclick="toggleManageView('circle')" style="padding:0.35rem 0.75rem; font-size:0.8rem;">Circle</button>
+      <button class="ctrl-btn" id="mg-view-table" onclick="toggleManageView('table')" style="padding:0.35rem 0.75rem; font-size:0.8rem;">Table</button>
+    </div>
     <div id="mg-wheel-wrap" class="lobby-wheel-wrap">
       <svg id="mg-wheel-svg" viewBox="0 0 400 400"></svg>
       <div class="lobby-wheel-center" id="mg-wheel-center"></div>
       <div id="mg-wheel-kicks"></div>
+    </div>
+    <div id="mg-table-wrap" style="display:none;">
+      <svg id="mg-table-svg" viewBox="0 0 400 400" style="width:100%; max-width:24rem; display:block; margin:0 auto;"></svg>
+      <div id="mg-table-unseated" style="margin-top:0.5rem;"></div>
     </div>
     <div id="mg-skip-list" style="margin-top:0.75rem;"></div>
     <div style="margin-top:1rem;">
