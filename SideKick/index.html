@@ -9086,7 +9086,7 @@ window.toggleLobbyView = function() {
   if (lobbyViewMode && isHost) ensureGridTableLayout();
   try { localStorage.setItem('sk_lobby_view', lobbyViewMode ? 'table' : 'circle'); } catch {}
   if (manageTableActive) {
-    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', unseated: 'mg-table-unseated' });
+    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated' });
   } else {
     renderLobbyView(localPlayers || []);
   }
@@ -9645,7 +9645,7 @@ window.toggleGridCell = function(row, col) {
   window._tableLayout = layout;
   renderLobbyList(localPlayers || []);
   if (manageTableActive) {
-    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', unseated: 'mg-table-unseated' });
+    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated' });
   }
   updateStartButton();
   persistTableLayout(layout);
@@ -9663,7 +9663,7 @@ window.setTableEndSeatMode = function(mode) {
   window._tableLayout = layout;
   renderLobbyList(localPlayers || []);
   if (manageTableActive) {
-    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', unseated: 'mg-table-unseated' });
+    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated' });
   }
   updateStartButton();
   persistTableLayout(layout);
@@ -9688,7 +9688,7 @@ function toggleEndSeatSide(side) {
   window._tableLayout = layout;
   renderLobbyList(localPlayers || []);
   if (manageTableActive) {
-    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', unseated: 'mg-table-unseated' });
+    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated' });
   }
   updateStartButton();
   persistTableLayout(layout);
@@ -10117,7 +10117,7 @@ window.toggleManageView = function(mode) {
     if (wheelWrap) wheelWrap.style.display = manageViewMode === 'circle' ? '' : 'none';
     if (tableWrap) tableWrap.style.display = manageViewMode === 'table' ? '' : 'none';
     if (manageViewMode === 'table') {
-      renderLobbyTable(_mgPlayers, { svg: 'mg-table-svg', unseated: 'mg-table-unseated' });
+      renderLobbyTable(_mgPlayers, { svg: 'mg-table-svg', tray: 'mg-table-unseated' });
     } else {
       renderLobbyWheel(_mgPlayers, { wrap: 'mg-wheel-wrap', svg: 'mg-wheel-svg', center: 'mg-wheel-center', kicks: 'mg-wheel-kicks' }, { kick: kickPlayer, allowTap: false, minSegs: 1, crowns: false, knockedX: true });
     }
@@ -10143,7 +10143,7 @@ window.openManagePanel = function() {
     if (!snap.exists()) return;
     const _mgPlayers = buildOrderedPlayers(snap.val());
     if (manageViewMode === 'table') {
-      renderLobbyTable(_mgPlayers, { svg: 'mg-table-svg', unseated: 'mg-table-unseated' });
+      renderLobbyTable(_mgPlayers, { svg: 'mg-table-svg', tray: 'mg-table-unseated' });
     } else {
       renderLobbyWheel(_mgPlayers, { wrap: 'mg-wheel-wrap', svg: 'mg-wheel-svg', center: 'mg-wheel-center', kicks: 'mg-wheel-kicks' }, { kick: kickPlayer, allowTap: false, minSegs: 1, crowns: false, knockedX: true });
     }
@@ -14870,7 +14870,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=364');
+    const tours = await import('./js/tours.js?v=365');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
@@ -14989,6 +14989,10 @@ if ('serviceWorker' in navigator) {
     <div id="mg-table-wrap" style="display:none;">
       <svg id="mg-table-svg" viewBox="0 0 400 400" style="width:100%; max-width:24rem; display:block; margin:0 auto;"></svg>
       <div id="mg-table-unseated" style="margin-top:0.5rem;"></div>
+    </div>
+    <div style="display:flex; gap:0.4rem; margin-top:0.75rem; justify-content:center;">
+      <button class="btn-secondary btn-sm" onclick="openStandinOverlay()" style="flex:1;">+ Create Player</button>
+      <button class="btn-secondary btn-sm" onclick="openInviteFriendsOverlay()" style="flex:1;">Invite Friends</button>
     </div>
     <div id="mg-skip-list" style="margin-top:0.75rem;"></div>
     <div style="margin-top:1rem;">
