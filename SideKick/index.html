@@ -1705,7 +1705,7 @@
         <div role="button" class="show-awards-btn" id="show-awards-no" style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-weight:700;font-size:0.85rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;text-align:center;">No</div>
       </div>
     </div>
-    <button class="btn-primary btn-sm" style="width:100%;" onclick="confirmChangePassword()" data-i18n="changePassword">Change Password</button>
+    <button class="btn-primary btn-sm" style="width:100%;" onclick="confirmChangePassword()" data-i18n="changePassword">Change Account Password</button>
     <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="document.getElementById('account-settings-overlay').classList.remove('show')" data-i18n="close">Close</button>
   </div>
 </div>
@@ -14812,7 +14812,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=361');
+    const tours = await import('./js/tours.js?v=362');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };

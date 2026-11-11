@@ -144,7 +144,7 @@
     linkGoogle: 'Link Google account',
     email: 'Email',
     accountEmail: 'Account Email',
-    changePassword: 'Change Password',
+    changePassword: 'Change Account Password',
     play: 'Play',
     buzz: 'Buzz',
     friends: 'Friends',

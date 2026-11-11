@@ -1003,6 +1003,6 @@ async function createRoomFromPreset(preset) {
   window.showScreen('lobby');
   window.generateLobbyQR();
   window.listenLobby();
-  window.showToast('Started ' + preset.name);
+  // No toast � user is taken directly to the lobby
 }
 
