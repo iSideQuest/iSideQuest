@@ -590,7 +590,7 @@
   <!-- Touch guards: prevent accidental pass-turn taps on button zones -->
   <div class="touch-guard touch-guard-top"></div>
   <div class="touch-guard touch-guard-bottom"></div>
-  <button class="exit-btn" onclick="confirmLeave()">Exit Room</button>
+  <button class="exit-btn" onclick="confirmLeaveRoom()">Exit Room</button>
   <!-- Host game menu (bottom-left) -->
   <div class="host-game-menu" id="host-game-menu-active">
     <button class="host-game-menu-btn" id="host-game-menu-btn-active" onclick="openHostCrownMenu()">Host Menu</button>
@@ -748,7 +748,7 @@
   <!-- Touch guards: prevent accidental pass-turn taps on button zones -->
   <div class="touch-guard touch-guard-top"></div>
   <div class="touch-guard touch-guard-bottom"></div>
-  <button class="exit-btn" onclick="confirmLeave()">Exit Room</button>
+  <button class="exit-btn" onclick="confirmLeaveRoom()">Exit Room</button>
   <!-- Host game menu (bottom-left) -->
   <div class="host-game-menu" id="host-game-menu-wait">
     <button class="host-game-menu-btn" id="host-game-menu-btn-wait" onclick="openHostCrownMenu()">Host Menu</button>
@@ -9085,7 +9085,11 @@ window.toggleLobbyView = function() {
   lobbyViewMode = !lobbyViewMode;
   if (lobbyViewMode && isHost) ensureGridTableLayout();
   try { localStorage.setItem('sk_lobby_view', lobbyViewMode ? 'table' : 'circle'); } catch {}
-  renderLobbyView(localPlayers || []);
+  if (manageTableActive) {
+    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', unseated: 'mg-table-unseated' });
+  } else {
+    renderLobbyView(localPlayers || []);
+  }
 };
 window.checkForUpdatesManual = async function() {
   // Create a blocking overlay so the user can't interact until the check completes
@@ -9640,6 +9644,9 @@ window.toggleGridCell = function(row, col) {
   layout.slots = resizeTableSlots(layout.slots, grid.filter(Boolean).length + tableLayoutEndSeatSides(mode).length);
   window._tableLayout = layout;
   renderLobbyList(localPlayers || []);
+  if (manageTableActive) {
+    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', unseated: 'mg-table-unseated' });
+  }
   updateStartButton();
   persistTableLayout(layout);
   try { haptic(5); } catch {}
@@ -9655,6 +9662,9 @@ window.setTableEndSeatMode = function(mode) {
   layout.slots = resizeTableSlots(layout.slots, grid.filter(Boolean).length + tableLayoutEndSeatSides(mode).length);
   window._tableLayout = layout;
   renderLobbyList(localPlayers || []);
+  if (manageTableActive) {
+    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', unseated: 'mg-table-unseated' });
+  }
   updateStartButton();
   persistTableLayout(layout);
   try { haptic(5); } catch {}
@@ -9677,6 +9687,9 @@ function toggleEndSeatSide(side) {
   layout.slots = resizeTableSlots(layout.slots, grid.filter(Boolean).length + tableLayoutEndSeatSides(newMode).length);
   window._tableLayout = layout;
   renderLobbyList(localPlayers || []);
+  if (manageTableActive) {
+    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', unseated: 'mg-table-unseated' });
+  }
   updateStartButton();
   persistTableLayout(layout);
   try { haptic(5); } catch {}
@@ -9810,7 +9823,7 @@ window.lobbyTableSeatPointerDown = function(e, seatIndex) {
   beginLobbyTableDrag(e, 'seated', playerId, seatIndex);
 };
 function lobbyTableSeatAtPoint(clientX, clientY, layout) {
-  const svg = document.getElementById('lobby-table-svg');
+  const svg = document.getElementById(manageTableActive ? 'mg-table-svg' : 'lobby-table-svg');
   if (!svg || !svg.createSVGPoint || !svg.getScreenCTM) return -1;
   try {
     const matrix = svg.getScreenCTM();
@@ -9843,7 +9856,7 @@ function finishLobbyTableDrag(e) {
   const layout = window._tableLayout;
   if (!layout || layout.template !== 'grid') return;
   const slots = resizeTableSlots(layout.slots, tableSeatCapacity(layout));
-  const trayEl = document.getElementById('lobby-table-unseated');
+  const trayEl = document.getElementById(manageTableActive ? 'mg-table-unseated' : 'lobby-table-unseated');
   const trayRect = trayEl && trayEl.getBoundingClientRect();
   const droppedInTray = !!(trayRect && trayEl.style.display !== 'none' &&
     e.clientX >= trayRect.left && e.clientX <= trayRect.right &&
@@ -10081,12 +10094,15 @@ function clearWheelTapZones(ctx) {
 // ── HOST MANAGE PLAYERS PANEL ──────────────────
 let manageUnsub = null;
 let manageViewMode = 'circle';
+let manageTableActive = false;
 window.toggleManageView = function(mode) {
   manageViewMode = mode === 'table' ? 'table' : 'circle';
+  manageTableActive = (manageViewMode === 'table');
   const wheelWrap = document.getElementById('mg-wheel-wrap');
   const tableWrap = document.getElementById('mg-table-wrap');
   const circleBtn = document.getElementById('mg-view-circle');
   const tableBtn = document.getElementById('mg-view-table');
+  manageTableActive = (manageViewMode === 'table');
   if (wheelWrap) wheelWrap.style.display = manageViewMode === 'circle' ? '' : 'none';
   if (tableWrap) tableWrap.style.display = manageViewMode === 'table' ? '' : 'none';
   if (circleBtn) circleBtn.classList.toggle('active-ctrl', manageViewMode === 'circle');
@@ -10117,6 +10133,7 @@ window.openManagePanel = function() {
   const tableBtn = document.getElementById('mg-view-table');
   if (wheelWrap) wheelWrap.style.display = manageViewMode === 'circle' ? '' : 'none';
   if (tableWrap) tableWrap.style.display = manageViewMode === 'table' ? '' : 'none';
+  manageTableActive = (manageViewMode === 'table');
   if (circleBtn) circleBtn.classList.toggle('active-ctrl', manageViewMode === 'circle');
   if (tableBtn) tableBtn.classList.toggle('active-ctrl', manageViewMode === 'table');
   // Subscribe to live updates
@@ -14853,7 +14870,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=363');
+    const tours = await import('./js/tours.js?v=364');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
