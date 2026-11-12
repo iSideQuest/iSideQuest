@@ -1334,6 +1334,9 @@
       <div class="profile-menu-item" onclick="openMyCollection()">
         <div class="profile-menu-title" data-i18n="myCollection">My Collection</div>
       </div>
+      <div class="profile-menu-item" onclick="openCollectionShelf()">
+        <div class="profile-menu-title">Collection Shelf</div>
+      </div>
       <div class="profile-menu-item" onclick="openToolsOverlay(true)">
         <div class="profile-menu-title" data-i18n="SideKick Tools">Game Features</div>
       </div>
@@ -1410,6 +1413,26 @@
       <div id="collection-db-results" style="display:flex;flex-direction:column;gap:0.4rem;max-height:50vh;overflow-y:auto;"></div>
     </div>
   </div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  COLLECTION SHELF (visual Kallax-style shelf) -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tools-overlay" id="collection-shelf-overlay">
+  <div class="tools-modal" style="max-height:90vh; display:flex; flex-direction:column; overflow:hidden; max-width:40rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem;">
+      <button class="btn-secondary btn-sm" style="padding:0.35rem 0.8rem;white-space:nowrap;" onclick="closeCollectionShelf()"><span class="play-tri">◀</span> Back</button>
+      <div class="tools-modal-title" style="font-size:1.05rem;margin:0;flex:1;text-align:center;">Collection Shelf <span id="shelf-count" style="font-size:0.78rem;color:var(--muted);"></span></div>
+      <button class="btn-secondary btn-sm" style="padding:0.35rem 0.8rem;" onclick="pickRandomShelfGame()" title="Pick at random">🎲</button>
+    </div>
+    <div style="display:flex;gap:0.5rem;margin-bottom:0.6rem;align-items:center;">
+      <input id="shelf-search" placeholder="Search by name…" oninput="renderShelf()" style="flex:1;min-width:0;margin-bottom:0;">
+      <button class="btn-secondary btn-sm" style="flex-shrink:0;white-space:nowrap;" onclick="clearShelfFilters()">Clear</button>
+    </div>
+    <div id="shelf-container" style="flex:1;min-height:0;overflow-y:auto;padding:0.5rem;background:linear-gradient(180deg,#2a1f14 0%,#1a1410 100%);border-radius:0.5rem;border:2px solid #3a2a1a;">
+      <!-- Shelf rendered here -->
+    </div>
+  </div>
+</div>
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
@@ -2517,7 +2540,7 @@
 <script type="module">
 import { soundMode, soundModeIcon, soundModeEnabled, openSoundModeMenu, setSoundMode, updateSoundButtons, toggleSound, speakName, playTurnSound, playNudgeSound, playBuzzerSound, getAudioContext, resetOrientation, requestWakeLock, releaseWakeLock, getCustomAudio, configureSoundServices } from './js/sound.js?v=346';
 import { I18N_STRINGS } from './js/i18n-data.js?v=348';
-import { configureCollectionStore, loadCollection } from './js/collection-store.js?v=352';
+import { configureCollectionStore, loadCollection, collectionState } from './js/collection-store.js?v=352';
 import { configureCollectionList, renderCollectionFilters, renderCollection, buildCollectionGameRow } from './js/collection-list.js?v=352';
 import { configureCollectionEditor } from './js/collection-editor.js?v=352';
 import { configureCollectionPhoto, getCollectionPhotoData, setCollectionPhotoData, updateCollectionPhotoPreview, closeCollectionPhoto } from './js/collection-photo.js?v=354';
@@ -12183,6 +12206,65 @@ window.closeCollection = function() {
   document.getElementById('collection-overlay').classList.remove('show');
 };
 
+// ── Collection Shelf (visual Kallax-style) ──
+window.openCollectionShelf = async function() {
+  await loadCollection();
+  renderShelf();
+  document.getElementById('collection-shelf-overlay').classList.add('show');
+};
+window.closeCollectionShelf = function() {
+  document.getElementById('collection-shelf-overlay').classList.remove('show');
+};
+window.renderShelf = function() {
+  const container = document.getElementById('shelf-container');
+  if (!container) return;
+  const searchEl = document.getElementById('shelf-search');
+  const query = (searchEl && searchEl.value || '').trim().toLowerCase();
+  const games = (collectionState && collectionState.games) ? collectionState.games : [];
+  const filtered = query ? games.filter(g => (g.name || '').toLowerCase().indexOf(query) !== -1) : games;
+  const countEl = document.getElementById('shelf-count');
+  if (countEl) countEl.textContent = games.length ? '(' + games.length + ')' : '';
+  if (!filtered.length) {
+    container.innerHTML = '<div class="shelf-empty">' + (games.length ? 'No games match your search.' : 'Your collection is empty.<br>Add games from My Collection first.') + '</div>';
+    return;
+  }
+  // Group games into rows of ~6-8 (Kallax cubbies)
+  const perRow = 7;
+  const rows = [];
+  for (let i = 0; i < filtered.length; i += perRow) {
+    rows.push(filtered.slice(i, i + perRow));
+  }
+  const colors = ['#4a6fa5','#6a8f5a','#a56a4a','#8a5a8f','#5a8fa5','#a5a55a','#a55a6a','#5a5a8f'];
+  container.innerHTML = '<div class="shelf-unit">' + rows.map((row, ri) => {
+    return '<div class="shelf-row">' + row.map((g, gi) => {
+      const color = colors[(ri * perRow + gi) % colors.length];
+      const name = (g.name || 'Untitled');
+      const photo = g.photo ? '<img class="shelf-game-photo" src="' + g.photo + '" alt="">' : '';
+      const spine = !g.photo ? '<div class="shelf-game-spine">' + name + '</div>' : '';
+      return '<div class="shelf-game" style="background:' + color + ';" onclick="openShelfGameDetail('' + g.id + '')" title="' + name + '">' + photo + spine + '</div>';
+    }).join('') + '</div>';
+  }).join('') + '</div>';
+};
+window.pickRandomShelfGame = function() {
+  const games = (collectionState && collectionState.games) ? collectionState.games : [];
+  if (!games.length) { if (window.showAlert) window.showAlert('Your collection is empty.'); return; }
+  const pick = games[Math.floor(Math.random() * games.length)];
+  if (pick) {
+    const searchEl = document.getElementById('shelf-search');
+    if (searchEl) searchEl.value = pick.name || '';
+    renderShelf();
+  }
+};
+window.openShelfGameDetail = function(id) {
+  // Reuse existing collection detail
+  if (window.openCollectionDetail) window.openCollectionDetail(id);
+};
+window.clearShelfFilters = function() {
+  const searchEl = document.getElementById('shelf-search');
+  if (searchEl) searchEl.value = '';
+  renderShelf();
+};
+
 // ── GAME DATABASE SEARCH ──────────────────────
 document.getElementById('collection-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeCollection();
@@ -14903,7 +14985,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=371');
+    const tours = await import('./js/tours.js?v=372');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
