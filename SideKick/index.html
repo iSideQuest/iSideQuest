@@ -1501,12 +1501,7 @@
 </div>
 
 <!-- FRIEND PROFILE (read-only: card + awards + text-only collection) -->
-<div class="tools-overlay" id="friend-profile-overlay" style="z-index:9650;">
-  <div class="tools-modal" style="max-height:85vh; overflow-y:auto; text-align:center;">
-    <div id="friend-profile-body"></div>
-    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeFriendProfile()" data-i18n="close">Close</button>
-  </div>
-</div>
+
 
 <!-- BARCODE SCANNER -->
 <div class="tools-overlay" id="barcode-scanner-overlay" style="z-index:9670;">
@@ -1668,26 +1663,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <!--  EDIT PROFILE OVERLAY (Combined)            -->
 <!-- ═══════════════════════════════════════════ -->
-<div class="avatar-overlay" id="edit-profile-overlay">
-  <div class="avatar-modal" style="gap:0.9rem; text-align:center;">
-    <div class="avatar-modal-title" data-i18n="editProfile">Edit Profile</div>
-    <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
-      <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;">Preferred Name</div>
-      <input type="text" id="edit-profile-name-input" placeholder="Your name" maxlength="20" style="width:100%;padding:0.75rem 0.85rem;font-size:1rem;border-radius:0.75rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.75rem;">
-      <div style="display:flex;gap:2rem;justify-content:center;margin-top:0.25rem;">
-        <button class="color-picker-btn" id="edit-profile-color-btn" onclick="openEditProfileColorOverlay()" style="width:6rem;height:6rem;flex:0 0 6rem;margin:0;padding:0.5rem;border-radius:1rem;">
-          <span id="edit-profile-color-label" style="font-size:0.66rem;line-height:1.2;" data-i18n="chooseColor">Choose<br>Color</span>
-        </button>
-        <button class="color-picker-btn" id="edit-profile-avatar-btn" onclick="openEditProfileAvatarOverlay()" style="width:6rem;height:6rem;flex:0 0 6rem;margin:0;padding:0.5rem;border-radius:1rem;overflow:hidden;">
-          <span id="edit-profile-avatar-label" style="font-size:0.66rem;line-height:1.2;" data-i18n="chooseAvatar">Choose<br>Avatar</span>
-        </button>
-      </div>
-      <button class="btn-secondary btn-sm" id="edit-profile-title-btn" onclick="openTitlePicker()" style="width:100%;margin-top:0.75rem;">Title: <span id="edit-profile-title-label" style="font-weight:800;">No Title</span></button>
-    </div>
-    <button class="btn-primary" style="width:100%;margin-top:1.1rem;" onclick="saveEditProfile()">Save Profile</button>
-    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeEditProfileOverlay()" data-i18n="close">Close</button>
-  </div>
-</div>
+
 <!-- Title Picker Popup -->
 <div class="avatar-overlay" id="title-picker-overlay">
   <div class="avatar-modal" style="gap:0.6rem; text-align:center;">
@@ -14939,7 +14915,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=381');
+    const tours = await import('./js/tours.js?v=382');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
@@ -15177,5 +15153,31 @@ if ('serviceWorker' in navigator) {
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js" defer></script>
+<div class="avatar-overlay" id="edit-profile-overlay">
+  <div class="avatar-modal" style="gap:0.9rem; text-align:center;">
+    <div class="avatar-modal-title" data-i18n="editProfile">Edit Profile</div>
+    <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
+      <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-bottom:0.4rem;">Preferred Name</div>
+      <input type="text" id="edit-profile-name-input" placeholder="Your name" maxlength="20" style="width:100%;padding:0.75rem 0.85rem;font-size:1rem;border-radius:0.75rem;border:1px solid var(--border);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:0.75rem;">
+      <div style="display:flex;gap:2rem;justify-content:center;margin-top:0.25rem;">
+        <button class="color-picker-btn" id="edit-profile-color-btn" onclick="openEditProfileColorOverlay()" style="width:6rem;height:6rem;flex:0 0 6rem;margin:0;padding:0.5rem;border-radius:1rem;">
+          <span id="edit-profile-color-label" style="font-size:0.66rem;line-height:1.2;" data-i18n="chooseColor">Choose<br>Color</span>
+        </button>
+        <button class="color-picker-btn" id="edit-profile-avatar-btn" onclick="openEditProfileAvatarOverlay()" style="width:6rem;height:6rem;flex:0 0 6rem;margin:0;padding:0.5rem;border-radius:1rem;overflow:hidden;">
+          <span id="edit-profile-avatar-label" style="font-size:0.66rem;line-height:1.2;" data-i18n="chooseAvatar">Choose<br>Avatar</span>
+        </button>
+      </div>
+      <button class="btn-secondary btn-sm" id="edit-profile-title-btn" onclick="openTitlePicker()" style="width:100%;margin-top:0.75rem;">Title: <span id="edit-profile-title-label" style="font-weight:800;">No Title</span></button>
+    </div>
+    <button class="btn-primary" style="width:100%;margin-top:1.1rem;" onclick="saveEditProfile()">Save Profile</button>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.4rem;" onclick="closeEditProfileOverlay()" data-i18n="close">Close</button>
+  </div>
+</div>
+<div class="tools-overlay" id="friend-profile-overlay" style="z-index:9650;">
+  <div class="tools-modal" style="max-height:85vh; overflow-y:auto; text-align:center;">
+    <div id="friend-profile-body"></div>
+    <button class="btn-secondary btn-sm" style="width:100%;margin-top:0.6rem;" onclick="closeFriendProfile()" data-i18n="close">Close</button>
+  </div>
+</div>
 </body>
 </html>
