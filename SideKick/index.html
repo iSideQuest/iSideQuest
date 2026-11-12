@@ -9105,7 +9105,7 @@ window.toggleLobbyView = function() {
   if (lobbyViewMode && isHost) ensureGridTableLayout();
   try { localStorage.setItem('sk_lobby_view', lobbyViewMode ? 'table' : 'circle'); } catch {}
   if (manageTableActive) {
-    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated' });
+    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated', wrap: 'mg-table-wrap' });
   } else {
     renderLobbyView(localPlayers || []);
   }
@@ -9454,7 +9454,7 @@ const TABLE_GRID_COLS = 4;
 const TABLE_END_MODES = ['off', 'left', 'right', 'both'];
 
 function resolveActiveTableLayout() {
-  if (roomTableMode !== 'square') return null;
+  if (!manageTableActive && roomTableMode !== 'square') return null;
   return window._tableLayout || null;
 }
 
@@ -9664,7 +9664,7 @@ window.toggleGridCell = function(row, col) {
   window._tableLayout = layout;
   renderLobbyList(localPlayers || []);
   if (manageTableActive) {
-    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated' });
+    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated', wrap: 'mg-table-wrap' });
   }
   updateStartButton();
   persistTableLayout(layout);
@@ -9682,7 +9682,7 @@ window.setTableEndSeatMode = function(mode) {
   window._tableLayout = layout;
   renderLobbyList(localPlayers || []);
   if (manageTableActive) {
-    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated' });
+    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated', wrap: 'mg-table-wrap' });
   }
   updateStartButton();
   persistTableLayout(layout);
@@ -9707,7 +9707,7 @@ function toggleEndSeatSide(side) {
   window._tableLayout = layout;
   renderLobbyList(localPlayers || []);
   if (manageTableActive) {
-    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated' });
+    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated', wrap: 'mg-table-wrap' });
   }
   updateStartButton();
   persistTableLayout(layout);
@@ -10139,7 +10139,7 @@ window.toggleManageView = function(mode) {
     if (wheelWrap) wheelWrap.style.display = manageViewMode === 'circle' ? '' : 'none';
     if (tableWrap) tableWrap.style.display = manageViewMode === 'table' ? '' : 'none';
     if (manageViewMode === 'table') {
-      renderLobbyTable(_mgPlayers, { svg: 'mg-table-svg', tray: 'mg-table-unseated' });
+      renderLobbyTable(_mgPlayers, { svg: 'mg-table-svg', tray: 'mg-table-unseated', wrap: 'mg-table-wrap' });
     } else {
       renderLobbyWheel(_mgPlayers, { wrap: 'mg-wheel-wrap', svg: 'mg-wheel-svg', center: 'mg-wheel-center', kicks: 'mg-wheel-kicks' }, { kick: kickPlayer, allowTap: false, minSegs: 1, crowns: false, knockedX: true });
     }
@@ -10168,7 +10168,7 @@ window.openManagePanel = function() {
     if (!snap.exists()) return;
     const _mgPlayers = buildOrderedPlayers(snap.val());
     if (manageViewMode === 'table') {
-      renderLobbyTable(_mgPlayers, { svg: 'mg-table-svg', tray: 'mg-table-unseated' });
+      renderLobbyTable(_mgPlayers, { svg: 'mg-table-svg', tray: 'mg-table-unseated', wrap: 'mg-table-wrap' });
     } else {
       renderLobbyWheel(_mgPlayers, { wrap: 'mg-wheel-wrap', svg: 'mg-wheel-svg', center: 'mg-wheel-center', kicks: 'mg-wheel-kicks' }, { kick: kickPlayer, allowTap: false, minSegs: 1, crowns: false, knockedX: true });
     }
@@ -14895,7 +14895,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=369');
+    const tours = await import('./js/tours.js?v=370');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
