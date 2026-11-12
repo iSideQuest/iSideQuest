@@ -1433,7 +1433,6 @@
     </div>
   </div>
 </div>
-</div>
 
 <!-- ═══════════════════════════════════════════ -->
 <!--  COLLECTION — ADD / EDIT GAME               -->
@@ -14985,7 +14984,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=372');
+    const tours = await import('./js/tours.js?v=373');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
