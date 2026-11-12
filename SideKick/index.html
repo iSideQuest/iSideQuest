@@ -8744,14 +8744,18 @@ function applyUIMode() {
     // Wheel overlays
     const wOvA = document.getElementById('wheel-overlay-active');
     const wOvW = document.getElementById('wheel-overlay-wait');
-    if (wOvA) wOvA.classList.toggle('visible', isWheel);
-    if (wOvW) wOvW.classList.toggle('visible', isWheel);
+    const showWheel = isWheel || (isTable && !_tableViable);
+    if (wOvA) wOvA.classList.toggle('visible', showWheel);
+    if (wOvW) wOvW.classList.toggle('visible', showWheel);
 
     // Table overlays
+    const _layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
+    const _tableViable = _layout && _layout.template === 'grid' && Array.isArray(_layout.grid);
+    const isTableViable = isTable && _tableViable;
     const tOvA = document.getElementById('table-overlay-active');
     const tOvW = document.getElementById('table-overlay-wait');
-    if (tOvA) tOvA.classList.toggle('visible', isTable);
-    if (tOvW) tOvW.classList.toggle('visible', isTable);
+    if (tOvA) tOvA.classList.toggle('visible', isTableViable);
+    if (tOvW) tOvW.classList.toggle('visible', isTableViable);
 
     // Hide waiting screen text behind wheel/table overlay
     const waitWrap = document.getElementById('wait-content-wrap');
@@ -8759,6 +8763,12 @@ function applyUIMode() {
   } catch(e) { console.error('[SideKick] applyUIMode error:', e); }
 }
 function renderCurrentUI(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn) {
+  const _layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
+  const _tableViable = _layout && _layout.template === 'grid' && Array.isArray(_layout.grid);
+  if (uiMode === 'table' && !_tableViable) {
+    renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn);
+    return;
+  }
   if (uiMode === 'wheel') renderWheel(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn);
   else if (uiMode === 'table') renderTable(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn);
 }
@@ -14870,7 +14880,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=365');
+    const tours = await import('./js/tours.js?v=366');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
