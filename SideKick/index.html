@@ -8697,6 +8697,9 @@ window.leaveRoom = async function() {
 window.setUIMode = function(mode) {
   if (mode !== 'classic' && mode !== 'wheel' && mode !== 'table') return;
   uiMode = mode;
+  if (mode === 'table') {
+    try { ensureGridTableLayout(); window._tableLayout = window._tableLayout || ensureGridTableLayout(); } catch(e) {}
+  }
   try { localStorage.setItem('sk_ui_mode', mode); } catch {}
   // Sync to Firebase if logged in
   try { if (typeof currentUser !== 'undefined' && currentUser && currentUser.uid && typeof syncProfileToFirebase === 'function') syncProfileToFirebase(currentUser.uid, { uiMode: mode }); } catch {}
@@ -8742,6 +8745,9 @@ function applyUIMode() {
     if (tapB) tapB.style.display = showTap ? '' : 'none';
 
     // Table overlays
+    if (isTable && !(window._tableLayout && window._tableLayout.template === 'grid')) {
+      try { window._tableLayout = ensureGridTableLayout(); } catch(e) {}
+    }
     const _layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
     const _tableViable = !!(_layout && _layout.template === 'grid' && Array.isArray(_layout.grid));
     const isTableViable = isTable && _tableViable;
@@ -8763,6 +8769,9 @@ function applyUIMode() {
   } catch(e) { console.error('[SideKick] applyUIMode error:', e); }
 }
 function renderCurrentUI(ctx, players, activePlayerId, myIdParam, passDir, isMyTurn) {
+  if (uiMode === 'table' && !(window._tableLayout && window._tableLayout.template === 'grid')) {
+    try { window._tableLayout = ensureGridTableLayout(); } catch(e) {}
+  }
   const _layout = (typeof window._tableLayout !== 'undefined') ? window._tableLayout : null;
   const _tableViable = _layout && _layout.template === 'grid' && Array.isArray(_layout.grid);
   if (uiMode === 'table' && !_tableViable) {
@@ -10108,6 +10117,9 @@ let manageTableActive = false;
 window.toggleManageView = function(mode) {
   manageViewMode = mode === 'table' ? 'table' : 'circle';
   manageTableActive = (manageViewMode === 'table');
+  if (manageTableActive) {
+    try { ensureGridTableLayout(); } catch(e) {}
+  }
   const wheelWrap = document.getElementById('mg-wheel-wrap');
   const tableWrap = document.getElementById('mg-table-wrap');
   const circleBtn = document.getElementById('mg-view-circle');
@@ -10144,6 +10156,9 @@ window.openManagePanel = function() {
   if (wheelWrap) wheelWrap.style.display = manageViewMode === 'circle' ? '' : 'none';
   if (tableWrap) tableWrap.style.display = manageViewMode === 'table' ? '' : 'none';
   manageTableActive = (manageViewMode === 'table');
+  if (manageTableActive) {
+    try { ensureGridTableLayout(); } catch(e) {}
+  }
   if (circleBtn) circleBtn.classList.toggle('active-ctrl', manageViewMode === 'circle');
   if (tableBtn) tableBtn.classList.toggle('active-ctrl', manageViewMode === 'table');
   // Subscribe to live updates
@@ -14880,7 +14895,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=367');
+    const tours = await import('./js/tours.js?v=368');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
