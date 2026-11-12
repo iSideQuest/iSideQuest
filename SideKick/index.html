@@ -12207,8 +12207,15 @@ window.closeCollection = function() {
 
 // ── Collection Shelf (visual Kallax-style) ──
 window.openCollectionShelf = function() {
-  document.getElementById('collection-shelf-overlay').classList.add('show');
-  loadCollection().then(function() { renderShelf(); }).catch(function() { renderShelf(); });
+  var overlay = document.getElementById('collection-shelf-overlay');
+  if (overlay) {
+    overlay.classList.add('show');
+    // Force reflow to ensure overlay renders immediately
+    void overlay.offsetHeight;
+  }
+  requestAnimationFrame(function() {
+    loadCollection().then(function() { renderShelf(); }).catch(function() { renderShelf(); });
+  });
 };
 window.closeCollectionShelf = function() {
   document.getElementById('collection-shelf-overlay').classList.remove('show');
@@ -14989,7 +14996,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=376');
+    const tours = await import('./js/tours.js?v=377');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
