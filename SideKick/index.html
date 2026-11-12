@@ -14895,7 +14895,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=368');
+    const tours = await import('./js/tours.js?v=369');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
@@ -15011,9 +15011,9 @@ if ('serviceWorker' in navigator) {
       <div class="lobby-wheel-center" id="mg-wheel-center"></div>
       <div id="mg-wheel-kicks"></div>
     </div>
-    <div id="mg-table-wrap" style="display:none;">
-      <svg id="mg-table-svg" viewBox="0 0 400 400" style="width:100%; max-width:24rem; display:block; margin:0 auto;"></svg>
-      <div id="mg-table-unseated" style="margin-top:0.5rem;"></div>
+    <div id="mg-table-wrap" class="lobby-wheel-wrap table-layout-active" style="display:none;">
+      <svg id="mg-table-svg" viewBox="0 0 400 400"></svg>
+      <div id="mg-table-unseated" class="lobby-table-unseated" style="display:none; margin-top:0.5rem;"></div>
     </div>
     <div style="display:flex; gap:0.4rem; margin-top:0.75rem; justify-content:center;">
       <button class="btn-secondary btn-sm" onclick="openStandinOverlay()" style="flex:1;">+ Create Player</button>
