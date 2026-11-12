@@ -11,19 +11,14 @@ export function configureShelf(services = {}) {
 }
 
 export function openCollectionShelf() {
-  var overlay = document.getElementById('collection-shelf-overlay');
-  if (overlay) {
-    overlay.style.display = 'flex';
-    void overlay.offsetHeight;
-  }
+  if (window.showScreen) window.showScreen('collection-shelf');
   requestAnimationFrame(function() {
     loadCollection().then(function() { renderShelf(); }).catch(function() { renderShelf(); });
   });
 }
 
 export function closeCollectionShelf() {
-  var overlay = document.getElementById('collection-shelf-overlay');
-  if (overlay) overlay.style.display = 'none';
+  if (window.showScreen) window.showScreen('profile');
 }
 
 export function renderShelf() {

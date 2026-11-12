@@ -1356,6 +1356,23 @@
 
   </div>
 </div>
+<div id="screen-collection-shelf" class="screen">
+  <div class="screen-content-scaler" id="scaler-collection-shelf" style="display:flex;flex-direction:column;height:100%;width:100%;max-width:40rem;margin:0 auto;">
+    <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem;padding:0.5rem 0;">
+      <button class="btn-secondary btn-sm" style="padding:0.35rem 0.8rem;white-space:nowrap;" onclick="closeCollectionShelf()"><span class="play-tri">◀</span> Back</button>
+      <div class="tools-modal-title" style="font-size:1.05rem;margin:0;flex:1;text-align:center;">Collection Shelf <span id="shelf-count" style="font-size:0.78rem;color:var(--muted);"></span></div>
+      <button class="btn-secondary btn-sm" style="padding:0.35rem 0.8rem;" onclick="pickRandomShelfGame()" title="Pick at random">🎲</button>
+    </div>
+    <div style="display:flex;gap:0.5rem;margin-bottom:0.6rem;align-items:center;">
+      <input id="shelf-search" placeholder="Search by name…" oninput="renderShelf()" style="flex:1;min-width:0;margin-bottom:0;">
+      <button class="btn-secondary btn-sm" style="flex-shrink:0;white-space:nowrap;" onclick="clearShelfFilters()">Clear</button>
+    </div>
+    <div id="shelf-container" style="flex:1;min-height:0;overflow-y:auto;padding:0.5rem;background:linear-gradient(180deg,#2a1f14 0%,#1a1410 100%);border-radius:0.5rem;border:2px solid #3a2a1a;">
+      <!-- Shelf rendered here -->
+    </div>
+  </div>
+</div>
+
 
 <!-- ═══════════════════════════════════════════ -->
 <!--  MY COLLECTION (board games library)        -->
@@ -14922,7 +14939,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=380');
+    const tours = await import('./js/tours.js?v=381');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
@@ -15160,21 +15177,5 @@ if ('serviceWorker' in navigator) {
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js" defer></script>
-<div id="collection-shelf-overlay" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;padding:1rem;box-sizing:border-box;">
-  <div class="tools-modal" style="max-height:90vh; display:flex; flex-direction:column; overflow:hidden; max-width:40rem;">
-    <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem;">
-      <button class="btn-secondary btn-sm" style="padding:0.35rem 0.8rem;white-space:nowrap;" onclick="closeCollectionShelf()"><span class="play-tri">◀</span> Back</button>
-      <div class="tools-modal-title" style="font-size:1.05rem;margin:0;flex:1;text-align:center;">Collection Shelf <span id="shelf-count" style="font-size:0.78rem;color:var(--muted);"></span></div>
-      <button class="btn-secondary btn-sm" style="padding:0.35rem 0.8rem;" onclick="pickRandomShelfGame()" title="Pick at random">🎲</button>
-    </div>
-    <div style="display:flex;gap:0.5rem;margin-bottom:0.6rem;align-items:center;">
-      <input id="shelf-search" placeholder="Search by name…" oninput="renderShelf()" style="flex:1;min-width:0;margin-bottom:0;">
-      <button class="btn-secondary btn-sm" style="flex-shrink:0;white-space:nowrap;" onclick="clearShelfFilters()">Clear</button>
-    </div>
-    <div id="shelf-container" style="flex:1;min-height:0;overflow-y:auto;padding:0.5rem;background:linear-gradient(180deg,#2a1f14 0%,#1a1410 100%);border-radius:0.5rem;border:2px solid #3a2a1a;">
-      <!-- Shelf rendered here -->
-    </div>
-  </div>
-</div>
 </body>
 </html>
