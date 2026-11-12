@@ -1417,7 +1417,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <!--  COLLECTION SHELF (visual Kallax-style shelf) -->
 <!-- ═══════════════════════════════════════════ -->
-<div class="tools-overlay" id="collection-shelf-overlay">
+<div id="collection-shelf-overlay" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;padding:1rem;box-sizing:border-box;">
   <div class="tools-modal" style="max-height:90vh; display:flex; flex-direction:column; overflow:hidden; max-width:40rem;">
     <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem;">
       <button class="btn-secondary btn-sm" style="padding:0.35rem 0.8rem;white-space:nowrap;" onclick="closeCollectionShelf()"><span class="play-tri">◀</span> Back</button>
@@ -14937,7 +14937,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=378');
+    const tours = await import('./js/tours.js?v=379');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };

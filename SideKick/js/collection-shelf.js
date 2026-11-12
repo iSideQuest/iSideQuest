@@ -13,7 +13,7 @@ export function configureShelf(services = {}) {
 export function openCollectionShelf() {
   var overlay = document.getElementById('collection-shelf-overlay');
   if (overlay) {
-    overlay.classList.add('show');
+    overlay.style.display = 'flex';
     void overlay.offsetHeight;
   }
   requestAnimationFrame(function() {
@@ -23,7 +23,7 @@ export function openCollectionShelf() {
 
 export function closeCollectionShelf() {
   var overlay = document.getElementById('collection-shelf-overlay');
-  if (overlay) overlay.classList.remove('show');
+  if (overlay) overlay.style.display = 'none';
 }
 
 export function renderShelf() {
