@@ -9105,7 +9105,11 @@ window.toggleLobbyView = function() {
   if (lobbyViewMode && isHost) ensureGridTableLayout();
   try { localStorage.setItem('sk_lobby_view', lobbyViewMode ? 'table' : 'circle'); } catch {}
   if (manageTableActive) {
-    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated', wrap: 'mg-table-wrap' });
+    const _svg = document.getElementById('mg-table-svg');
+    if (_svg) _svg.innerHTML = '';
+    requestAnimationFrame(() => {
+      renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated', wrap: 'mg-table-wrap' });
+    });
   } else {
     renderLobbyView(localPlayers || []);
   }
@@ -9902,7 +9906,11 @@ function finishLobbyTableDrag(e) {
   if (!changed) return;
   layout.slots = slots;
   window._tableLayout = layout;
-  renderLobbyView(localPlayers || []);
+  if (manageTableActive) {
+    renderLobbyTable(localPlayers || [], { svg: 'mg-table-svg', tray: 'mg-table-unseated', wrap: 'mg-table-wrap' });
+  } else {
+    renderLobbyView(localPlayers || []);
+  }
   updateStartButton();
   try { haptic(5); } catch {}
   if (db && roomCode) {
@@ -14895,7 +14903,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=370');
+    const tours = await import('./js/tours.js?v=371');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
