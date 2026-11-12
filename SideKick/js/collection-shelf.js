@@ -11,6 +11,7 @@ export function configureShelf(services = {}) {
 }
 
 export function openCollectionShelf() {
+  console.log('[Shelf] openCollectionShelf called');
   var overlay = document.getElementById('collection-shelf-overlay');
   if (overlay) {
     overlay.style.display = 'flex';
