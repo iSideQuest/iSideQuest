@@ -2540,6 +2540,7 @@
 import { soundMode, soundModeIcon, soundModeEnabled, openSoundModeMenu, setSoundMode, updateSoundButtons, toggleSound, speakName, playTurnSound, playNudgeSound, playBuzzerSound, getAudioContext, resetOrientation, requestWakeLock, releaseWakeLock, getCustomAudio, configureSoundServices } from './js/sound.js?v=346';
 import { I18N_STRINGS } from './js/i18n-data.js?v=348';
 import { configureCollectionStore, loadCollection, collectionState } from './js/collection-store.js?v=352';
+import { configureShelf, openCollectionShelf, closeCollectionShelf, renderShelf, pickRandomShelfGame, openShelfGameDetail, clearShelfFilters } from './js/collection-shelf.js?v=1';
 import { configureCollectionList, renderCollectionFilters, renderCollection, buildCollectionGameRow } from './js/collection-list.js?v=352';
 import { configureCollectionEditor } from './js/collection-editor.js?v=352';
 import { configureCollectionPhoto, getCollectionPhotoData, setCollectionPhotoData, updateCollectionPhotoPreview, closeCollectionPhoto } from './js/collection-photo.js?v=354';
@@ -5486,6 +5487,7 @@ let auth = null;
 let currentUser = null; // Firebase Auth user object, or null if signed out
 let collectionEditUPC = '';
 configureCollectionStore({ getDb: () => db, getCurrentUser: () => currentUser, ref, get, set, update, remove });
+configureShelf({ haptic, showAlert: message => window.showAlert(message), openCollectionDetail: id => window.openCollectionDetail(id) });
 configureCollectionDiscovery({ getDb: () => db, get, ref, escapeHtml, showAlert: message => window.showAlert(message), setPendingUPC: value => { collectionEditUPC = value; }, addGameFromDatabase: game => window.addGameFromDatabase(game) });
 configureCollectionPhoto({ showAlert: message => window.showAlert(message) });
 configureCollectionList({ escapeHtml, showAlert: message => window.showAlert(message), openCollectionDetail: id => window.openCollectionDetail(id), haptic });
@@ -12204,75 +12206,14 @@ window.showCollectionMenu = function() {
 window.closeCollection = function() {
   document.getElementById('collection-overlay').classList.remove('show');
 };
+window.openCollectionShelf = openCollectionShelf;
+window.closeCollectionShelf = closeCollectionShelf;
+window.renderShelf = renderShelf;
+window.pickRandomShelfGame = pickRandomShelfGame;
+window.openShelfGameDetail = openShelfGameDetail;
+window.clearShelfFilters = clearShelfFilters;
 
 // ── Collection Shelf (visual Kallax-style) ──
-window.openCollectionShelf = function() {
-  var overlay = document.getElementById('collection-shelf-overlay');
-  if (overlay) {
-    overlay.classList.add('show');
-    // Force reflow to ensure overlay renders immediately
-    void overlay.offsetHeight;
-  }
-  requestAnimationFrame(function() {
-    loadCollection().then(function() { renderShelf(); }).catch(function() { renderShelf(); });
-  });
-};
-window.closeCollectionShelf = function() {
-  document.getElementById('collection-shelf-overlay').classList.remove('show');
-};
-window.renderShelf = function() {
-  const container = document.getElementById('shelf-container');
-  if (!container) return;
-  const searchEl = document.getElementById('shelf-search');
-  const query = (searchEl && searchEl.value || '').trim().toLowerCase();
-  const games = (collectionState && collectionState.games) ? collectionState.games : [];
-  const filtered = query ? games.filter(function(g) { return (g.name || '').toLowerCase().indexOf(query) !== -1; }) : games;
-  const countEl = document.getElementById('shelf-count');
-  if (countEl) countEl.textContent = games.length ? '(' + games.length + ')' : '';
-  if (!filtered.length) {
-    container.innerHTML = '<div class="shelf-empty">' + (games.length ? 'No games match your search.' : 'Your collection is empty.<br>Add games from My Collection first.') + '</div>';
-    return;
-  }
-  const perRow = 7;
-  const rows = [];
-  for (let i = 0; i < filtered.length; i += perRow) {
-    rows.push(filtered.slice(i, i + perRow));
-  }
-  const colors = ['#4a6fa5','#6a8f5a','#a56a4a','#8a5a8f','#5a8fa5','#a5a55a','#a55a6a','#5a5a8f'];
-  container.innerHTML = '<div class="shelf-unit">' + rows.map(function(row, ri) {
-    return '<div class="shelf-row">' + row.map(function(g, gi) {
-      const color = colors[(ri * perRow + gi) % colors.length];
-      const name = (g.name || 'Untitled');
-      const photo = g.photo ? '<img class="shelf-game-photo" src="' + g.photo + '" alt="">' : '';
-      const spine = !g.photo ? '<div class="shelf-game-spine">' + name + '</div>' : '';
-      return '<div class="shelf-game" style="background:' + color + ';" data-game-id="' + g.id + '" title="' + name + '">' + photo + spine + '</div>';
-    }).join('') + '</div>';
-  }).join('') + '</div>';
-  // Add click handlers after rendering
-  container.querySelectorAll('.shelf-game').forEach(function(el) {
-    el.addEventListener('click', function() {
-      openShelfGameDetail(el.getAttribute('data-game-id'));
-    });
-  });
-};
-window.pickRandomShelfGame = function() {
-  const games = (collectionState && collectionState.games) ? collectionState.games : [];
-  if (!games.length) { if (window.showAlert) window.showAlert('Your collection is empty.'); return; }
-  const pick = games[Math.floor(Math.random() * games.length)];
-  if (pick) {
-    const searchEl = document.getElementById('shelf-search');
-    if (searchEl) searchEl.value = pick.name || '';
-    renderShelf();
-  }
-};
-window.openShelfGameDetail = function(id) {
-  if (window.openCollectionDetail) window.openCollectionDetail(id);
-};
-window.clearShelfFilters = function() {
-  const searchEl = document.getElementById('shelf-search');
-  if (searchEl) searchEl.value = '';
-  renderShelf();
-};
 
 // ── Collection Shelf (visual Kallax-style) ──
 
@@ -14996,7 +14937,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=377');
+    const tours = await import('./js/tours.js?v=378');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
