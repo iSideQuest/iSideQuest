@@ -12206,63 +12206,6 @@ window.closeCollection = function() {
 };
 
 // ── Collection Shelf (visual Kallax-style) ──
-window.openCollectionShelf = async function() {
-  await loadCollection();
-  renderShelf();
-  document.getElementById('collection-shelf-overlay').classList.add('show');
-};
-window.closeCollectionShelf = function() {
-  document.getElementById('collection-shelf-overlay').classList.remove('show');
-};
-window.renderShelf = function() {
-  const container = document.getElementById('shelf-container');
-  if (!container) return;
-  const searchEl = document.getElementById('shelf-search');
-  const query = (searchEl && searchEl.value || '').trim().toLowerCase();
-  const games = (collectionState && collectionState.games) ? collectionState.games : [];
-  const filtered = query ? games.filter(g => (g.name || '').toLowerCase().indexOf(query) !== -1) : games;
-  const countEl = document.getElementById('shelf-count');
-  if (countEl) countEl.textContent = games.length ? '(' + games.length + ')' : '';
-  if (!filtered.length) {
-    container.innerHTML = '<div class="shelf-empty">' + (games.length ? 'No games match your search.' : 'Your collection is empty.<br>Add games from My Collection first.') + '</div>';
-    return;
-  }
-  // Group games into rows of ~6-8 (Kallax cubbies)
-  const perRow = 7;
-  const rows = [];
-  for (let i = 0; i < filtered.length; i += perRow) {
-    rows.push(filtered.slice(i, i + perRow));
-  }
-  const colors = ['#4a6fa5','#6a8f5a','#a56a4a','#8a5a8f','#5a8fa5','#a5a55a','#a55a6a','#5a5a8f'];
-  container.innerHTML = '<div class="shelf-unit">' + rows.map((row, ri) => {
-    return '<div class="shelf-row">' + row.map((g, gi) => {
-      const color = colors[(ri * perRow + gi) % colors.length];
-      const name = (g.name || 'Untitled');
-      const photo = g.photo ? '<img class="shelf-game-photo" src="' + g.photo + '" alt="">' : '';
-      const spine = !g.photo ? '<div class="shelf-game-spine">' + name + '</div>' : '';
-      return '<div class="shelf-game" style="background:' + color + ';" onclick="openShelfGameDetail('' + g.id + '')" title="' + name + '">' + photo + spine + '</div>';
-    }).join('') + '</div>';
-  }).join('') + '</div>';
-};
-window.pickRandomShelfGame = function() {
-  const games = (collectionState && collectionState.games) ? collectionState.games : [];
-  if (!games.length) { if (window.showAlert) window.showAlert('Your collection is empty.'); return; }
-  const pick = games[Math.floor(Math.random() * games.length)];
-  if (pick) {
-    const searchEl = document.getElementById('shelf-search');
-    if (searchEl) searchEl.value = pick.name || '';
-    renderShelf();
-  }
-};
-window.openShelfGameDetail = function(id) {
-  // Reuse existing collection detail
-  if (window.openCollectionDetail) window.openCollectionDetail(id);
-};
-window.clearShelfFilters = function() {
-  const searchEl = document.getElementById('shelf-search');
-  if (searchEl) searchEl.value = '';
-  renderShelf();
-};
 
 // ── GAME DATABASE SEARCH ──────────────────────
 document.getElementById('collection-overlay').addEventListener('click', function(e) {
@@ -14984,7 +14927,7 @@ for (const [_name, _getter] of Object.entries(_tourStateGetters)) {
 // Load tours module now that globals are exposed
 (async () => {
   try {
-    const tours = await import('./js/tours.js?v=373');
+    const tours = await import('./js/tours.js?v=374');
     if (tours.tourPickVoice) window.configureToursSound = () => {
       configureSoundServices({ haptic, getLanguage: () => window.lang || 'en', pickVoice: tours.tourPickVoice });
     };
