@@ -11,8 +11,9 @@ export function configureShelf(services = {}) {
 }
 
 // Drag state
-let dragState = null; // { gameId, startIndex, ghostEl, startX, startY, moved }
+let dragState = null; // { gameId, ghostEl, targetId }
 let longPressTimer = null;
+let shelfReturn = false;
 
 export function openCollectionShelf() {
   if (window.showScreen) window.showScreen('collection-shelf');
@@ -63,11 +64,6 @@ export function renderShelf() {
       longPressTimer = setTimeout(function() {
         startDrag(gameId, el, e);
       }, 500);
-      // Track initial position
-      if (!dragState) {
-        el._startX = e.clientX;
-        el._startY = e.clientY;
-      }
     });
     el.addEventListener('pointerup', function(e) {
       if (longPressTimer) {
@@ -75,8 +71,7 @@ export function renderShelf() {
         longPressTimer = null;
       }
       if (dragState && dragState.dragging) {
-        // Drop
-        finishDrag(e);
+        // Drop handled by global pointerup
       } else if (!dragState) {
         // Quick tap -> show details
         openShelfGameDetail(gameId);
@@ -116,19 +111,16 @@ function startDrag(gameId, el, e) {
   dragState = {
     gameId: gameId,
     ghost: ghost,
-    startX: e.clientX,
-    startY: e.clientY,
-    moved: false,
+    targetId: null,
+    dragging: true,
   };
   if (shelfServices.haptic) try { shelfServices.haptic(10); } catch {}
 }
 
 function onPointerMove(e) {
   if (!dragState || !dragState.ghost) return;
-  dragState.moved = true;
-  const rect = dragState.ghost.getBoundingClientRect();
-  dragState.ghost.style.left = (e.clientX - rect.width / 2) + 'px';
-  dragState.ghost.style.top = (e.clientY - rect.height / 2) + 'px';
+  dragState.ghost.style.left = (e.clientX - dragState.ghost.offsetWidth / 2) + 'px';
+  dragState.ghost.style.top = (e.clientY - dragState.ghost.offsetHeight / 2) + 'px';
   // Highlight target
   document.querySelectorAll('.shelf-game').forEach(function(el) {
     el.classList.remove('shelf-drag-target');
@@ -137,6 +129,9 @@ function onPointerMove(e) {
   const targetGame = target ? target.closest('.shelf-game') : null;
   if (targetGame && targetGame.getAttribute('data-game-id') !== dragState.gameId) {
     targetGame.classList.add('shelf-drag-target');
+    dragState.targetId = targetGame.getAttribute('data-game-id');
+  } else if (!targetGame) {
+    dragState.targetId = null;
   }
 }
 
@@ -145,24 +140,16 @@ function onPointerUp(e) {
   if (dragState.ghost) {
     dragState.ghost.remove();
   }
-  // Find drop target
-  const target = document.elementFromPoint(e.clientX, e.clientY);
-  const targetGame = target ? target.closest('.shelf-game') : null;
-  const targetId = targetGame ? targetGame.getAttribute('data-game-id') : null;
   // Clean up
   document.querySelectorAll('.shelf-game').forEach(function(el) {
     el.style.opacity = '';
     el.classList.remove('shelf-drag-target');
   });
-  if (targetId && targetId !== dragState.gameId) {
-    swapGames(dragState.gameId, targetId);
+  if (dragState.targetId && dragState.targetId !== dragState.gameId) {
+    swapGames(dragState.gameId, dragState.targetId);
     renderShelf();
   }
   dragState = null;
-}
-
-function finishDrag(e) {
-  // Handled by onPointerUp
 }
 
 function cancelDrag() {
@@ -216,6 +203,8 @@ export function pickRandomShelfGame() {
 }
 
 export function openShelfGameDetail(id) {
+  shelfReturn = true;
+  window._shelfReturn = true;
   var co = document.getElementById('collection-overlay');
   if (co) co.style.display = 'flex';
   if (window.openCollectionDetail) window.openCollectionDetail(id);
@@ -226,3 +215,12 @@ export function clearShelfFilters() {
   if (searchEl) searchEl.value = '';
   renderShelf();
 }
+
+// Expose shelfReturn check for closeCollectionDetail
+window._shelfReturn = false;
+window.closeCollectionDetailFromShelf = function() {
+  shelfReturn = false;
+  document.getElementById('collection-detail').style.display = 'none';
+  if (window.showScreen) window.showScreen('collection-shelf');
+  renderShelf();
+};

@@ -165,7 +165,13 @@ window.openCollectionDetail = function(id) {
 };
 window.closeCollectionDetail = function() {
   document.getElementById('collection-detail').style.display = 'none';
-  document.getElementById('collection-library').style.display = '';
+  if (window._shelfReturn) {
+    window._shelfReturn = false;
+    if (window.showScreen) window.showScreen('collection-shelf');
+    if (window.renderShelf) window.renderShelf();
+  } else {
+    document.getElementById('collection-library').style.display = '';
+  }
 };
 
 window.openCollectionEdit = function(id) {

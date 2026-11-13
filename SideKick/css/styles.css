@@ -5233,6 +5233,8 @@
   transition: transform 0.15s, box-shadow 0.15s;
   box-shadow: 2px 2px 4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
   overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .shelf-game:hover { transform: translateY(-3px); box-shadow: 2px 4px 8px rgba(0,0,0,0.5); }
 .shelf-game-moving { outline: 3px solid #ffcc00; transform: scale(1.1); box-shadow: 0 0 12px rgba(255,204,0,0.6); z-index: 10; }
@@ -5249,6 +5251,7 @@
   white-space: nowrap;
   max-height: 100%;
   line-height: 1;
+  pointer-events: none;
 }
 .shelf-game-photo {
   width: 100%;
