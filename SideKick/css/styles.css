@@ -5262,3 +5262,16 @@
   text-align: center;
   padding: 2rem 1rem;
 }
+
+
+/* ── Collection Shelf drag ── */
+.shelf-drag-ghost {
+  pointer-events: none;
+  transition: none !important;
+  border-radius: 0.25rem;
+}
+.shelf-drag-target {
+  outline: 3px dashed #ffcc00;
+  transform: scale(1.05);
+  transition: transform 0.1s;
+}
