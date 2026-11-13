@@ -1453,94 +1453,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <!--  THEMES OVERLAY                             -->
 <!-- ═══════════════════════════════════════════ -->
-<div class="themes-overlay" id="themes-overlay">
-  <div class="themes-modal">
-    <div class="themes-modal-title">Themes</div>
-    <div class="themes-grid">
-      <label class="theme-option selected" id="theme-opt-default" onclick="selectTheme('default')">
-        <input type="radio" name="sk-theme-choice" value="default" checked style="display:none;">
-        <div class="theme-preview preview-default"></div>
-        <div class="theme-option-name">Original</div>
-      </label>
-      <label class="theme-option" id="theme-opt-8bit" onclick="selectTheme('8bit')">
-        <input type="radio" name="sk-theme-choice" value="8bit" style="display:none;">
-        <div class="theme-preview preview-8bit">8</div>
-        <div class="theme-option-name">8-Bit</div>
-      </label>
-      <label class="theme-option" id="theme-opt-cyberpunk" onclick="selectTheme('cyberpunk')">
-        <input type="radio" name="sk-theme-choice" value="cyberpunk" style="display:none;">
-        <div class="theme-preview preview-cyberpunk">◈</div>
-        <div class="theme-option-name">Cyberpunk</div>
-      </label>
-      <label class="theme-option" id="theme-opt-fantasy" onclick="selectTheme('fantasy')">
-        <input type="radio" name="sk-theme-choice" value="fantasy" style="display:none;">
-        <div class="theme-preview preview-fantasy">⚔</div>
-        <div class="theme-option-name">Fantasy</div>
-      </label>
-      <label class="theme-option" id="theme-opt-galaxy" onclick="selectTheme('galaxy')">
-        <input type="radio" name="sk-theme-choice" value="galaxy" style="display:none;">
-        <div class="theme-preview preview-galaxy">✦</div>
-        <div class="theme-option-name">Galaxy</div>
-      </label>
-      <label class="theme-option" id="theme-opt-forest" onclick="selectTheme('forest')">
-        <input type="radio" name="sk-theme-choice" value="forest" style="display:none;">
-        <div class="theme-preview preview-forest">🌿</div>
-        <div class="theme-option-name">Forest</div>
-      </label>
-      <label class="theme-option" id="theme-opt-ocean" onclick="selectTheme('ocean')">
-        <input type="radio" name="sk-theme-choice" value="ocean" style="display:none;">
-        <div class="theme-preview preview-ocean">🌊</div>
-        <div class="theme-option-name">Ocean</div>
-      </label>
-      <label class="theme-option" id="theme-opt-sunset" onclick="selectTheme('sunset')">
-        <input type="radio" name="sk-theme-choice" value="sunset" style="display:none;">
-        <div class="theme-preview preview-sunset">🌅</div>
-        <div class="theme-option-name">Sunset</div>
-      </label>
-      <label class="theme-option" id="theme-opt-steampunk" onclick="selectTheme('steampunk')">
-        <input type="radio" name="sk-theme-choice" value="steampunk" style="display:none;">
-        <div class="theme-preview preview-steampunk">⚙</div>
-        <div class="theme-option-name">Steampunk</div>
-      </label>
-      <label class="theme-option" id="theme-opt-vaporwave" onclick="selectTheme('vaporwave')">
-        <input type="radio" name="sk-theme-choice" value="vaporwave" style="display:none;">
-        <div class="theme-preview preview-vaporwave">🌴</div>
-        <div class="theme-option-name">Vaporwave</div>
-      </label>
-      <label class="theme-option" id="theme-opt-nord" onclick="selectTheme('nord')">
-        <input type="radio" name="sk-theme-choice" value="nord" style="display:none;">
-        <div class="theme-preview preview-nord">❄</div>
-        <div class="theme-option-name">Nord</div>
-      </label>
-      <label class="theme-option" id="theme-opt-dracula" onclick="selectTheme('dracula')">
-        <input type="radio" name="sk-theme-choice" value="dracula" style="display:none;">
-        <div class="theme-preview preview-dracula">🧛</div>
-        <div class="theme-option-name">Dracula</div>
-      </label>
-      <label class="theme-option" id="theme-opt-gothic" onclick="selectTheme('gothic')">
-        <input type="radio" name="sk-theme-choice" value="gothic" style="display:none;">
-        <div class="theme-preview preview-gothic">🕸</div>
-        <div class="theme-option-name">Gothic</div>
-      </label>
-      <label class="theme-option" id="theme-opt-halloween" onclick="selectTheme('halloween')">
-        <input type="radio" name="sk-theme-choice" value="halloween" style="display:none;">
-        <div class="theme-preview preview-halloween">🎃</div>
-        <div class="theme-option-name">Halloween</div>
-      </label>
-      <label class="theme-option" id="theme-opt-viking" onclick="selectTheme('viking')">
-        <input type="radio" name="sk-theme-choice" value="viking" style="display:none;">
-        <div class="theme-preview preview-viking">⚔</div>
-        <div class="theme-option-name">Viking</div>
-      </label>
-      <label class="theme-option" id="theme-opt-compact" onclick="selectTheme('compact')">
-        <input type="radio" name="sk-theme-choice" value="compact" style="display:none;">
-        <div class="theme-preview preview-compact">≡</div>
-        <div class="theme-option-name">Compact</div>
-      </label>
-    </div>
-    <button class="btn-secondary btn-sm" style="margin-top:0.25rem;width:100%;" onclick="closeThemesOverlay()">Done</button>
-  </div>
-</div>
+
 
 <!-- ═══════════════════════════════════════════ -->
 <!--  MY AWARDS OVERLAY                          -->
@@ -15201,6 +15114,94 @@ if ('serviceWorker' in navigator) {
     <button class="tool-list-btn" onclick="openGameNotes()"><span data-i18n="gameNotes">📝 Game Notes</span></button>
 
     <button class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="closeToolsOverlay()">Close</button>
+  </div>
+</div>
+<div class="themes-overlay" id="themes-overlay">
+  <div class="themes-modal">
+    <div class="themes-modal-title">Themes</div>
+    <div class="themes-grid">
+      <label class="theme-option selected" id="theme-opt-default" onclick="selectTheme('default')">
+        <input type="radio" name="sk-theme-choice" value="default" checked style="display:none;">
+        <div class="theme-preview preview-default"></div>
+        <div class="theme-option-name">Original</div>
+      </label>
+      <label class="theme-option" id="theme-opt-8bit" onclick="selectTheme('8bit')">
+        <input type="radio" name="sk-theme-choice" value="8bit" style="display:none;">
+        <div class="theme-preview preview-8bit">8</div>
+        <div class="theme-option-name">8-Bit</div>
+      </label>
+      <label class="theme-option" id="theme-opt-cyberpunk" onclick="selectTheme('cyberpunk')">
+        <input type="radio" name="sk-theme-choice" value="cyberpunk" style="display:none;">
+        <div class="theme-preview preview-cyberpunk">◈</div>
+        <div class="theme-option-name">Cyberpunk</div>
+      </label>
+      <label class="theme-option" id="theme-opt-fantasy" onclick="selectTheme('fantasy')">
+        <input type="radio" name="sk-theme-choice" value="fantasy" style="display:none;">
+        <div class="theme-preview preview-fantasy">⚔</div>
+        <div class="theme-option-name">Fantasy</div>
+      </label>
+      <label class="theme-option" id="theme-opt-galaxy" onclick="selectTheme('galaxy')">
+        <input type="radio" name="sk-theme-choice" value="galaxy" style="display:none;">
+        <div class="theme-preview preview-galaxy">✦</div>
+        <div class="theme-option-name">Galaxy</div>
+      </label>
+      <label class="theme-option" id="theme-opt-forest" onclick="selectTheme('forest')">
+        <input type="radio" name="sk-theme-choice" value="forest" style="display:none;">
+        <div class="theme-preview preview-forest">🌿</div>
+        <div class="theme-option-name">Forest</div>
+      </label>
+      <label class="theme-option" id="theme-opt-ocean" onclick="selectTheme('ocean')">
+        <input type="radio" name="sk-theme-choice" value="ocean" style="display:none;">
+        <div class="theme-preview preview-ocean">🌊</div>
+        <div class="theme-option-name">Ocean</div>
+      </label>
+      <label class="theme-option" id="theme-opt-sunset" onclick="selectTheme('sunset')">
+        <input type="radio" name="sk-theme-choice" value="sunset" style="display:none;">
+        <div class="theme-preview preview-sunset">🌅</div>
+        <div class="theme-option-name">Sunset</div>
+      </label>
+      <label class="theme-option" id="theme-opt-steampunk" onclick="selectTheme('steampunk')">
+        <input type="radio" name="sk-theme-choice" value="steampunk" style="display:none;">
+        <div class="theme-preview preview-steampunk">⚙</div>
+        <div class="theme-option-name">Steampunk</div>
+      </label>
+      <label class="theme-option" id="theme-opt-vaporwave" onclick="selectTheme('vaporwave')">
+        <input type="radio" name="sk-theme-choice" value="vaporwave" style="display:none;">
+        <div class="theme-preview preview-vaporwave">🌴</div>
+        <div class="theme-option-name">Vaporwave</div>
+      </label>
+      <label class="theme-option" id="theme-opt-nord" onclick="selectTheme('nord')">
+        <input type="radio" name="sk-theme-choice" value="nord" style="display:none;">
+        <div class="theme-preview preview-nord">❄</div>
+        <div class="theme-option-name">Nord</div>
+      </label>
+      <label class="theme-option" id="theme-opt-dracula" onclick="selectTheme('dracula')">
+        <input type="radio" name="sk-theme-choice" value="dracula" style="display:none;">
+        <div class="theme-preview preview-dracula">🧛</div>
+        <div class="theme-option-name">Dracula</div>
+      </label>
+      <label class="theme-option" id="theme-opt-gothic" onclick="selectTheme('gothic')">
+        <input type="radio" name="sk-theme-choice" value="gothic" style="display:none;">
+        <div class="theme-preview preview-gothic">🕸</div>
+        <div class="theme-option-name">Gothic</div>
+      </label>
+      <label class="theme-option" id="theme-opt-halloween" onclick="selectTheme('halloween')">
+        <input type="radio" name="sk-theme-choice" value="halloween" style="display:none;">
+        <div class="theme-preview preview-halloween">🎃</div>
+        <div class="theme-option-name">Halloween</div>
+      </label>
+      <label class="theme-option" id="theme-opt-viking" onclick="selectTheme('viking')">
+        <input type="radio" name="sk-theme-choice" value="viking" style="display:none;">
+        <div class="theme-preview preview-viking">⚔</div>
+        <div class="theme-option-name">Viking</div>
+      </label>
+      <label class="theme-option" id="theme-opt-compact" onclick="selectTheme('compact')">
+        <input type="radio" name="sk-theme-choice" value="compact" style="display:none;">
+        <div class="theme-preview preview-compact">≡</div>
+        <div class="theme-option-name">Compact</div>
+      </label>
+    </div>
+    <button class="btn-secondary btn-sm" style="margin-top:0.25rem;width:100%;" onclick="closeThemesOverlay()">Done</button>
   </div>
 </div>
 </body>
