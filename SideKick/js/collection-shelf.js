@@ -32,7 +32,8 @@ export function renderShelf() {
   if (!container) return;
   const searchEl = document.getElementById('shelf-search');
   const query = (searchEl && searchEl.value || '').trim().toLowerCase();
-  const games = (collectionState && collectionState.games) ? collectionState.games : [];
+  // Sort by order field if present
+  const games = (collectionState && collectionState.games) ? collectionState.games.slice().sort(function(a, b) { return (a.order != null ? a.order : 0) - (b.order != null ? b.order : 0); }) : [];
   const filtered = query ? games.filter(function(g) { return (g.name || '').toLowerCase().indexOf(query) !== -1; }) : games;
   const countEl = document.getElementById('shelf-count');
   if (countEl) countEl.textContent = games.length ? '(' + games.length + ')' : '';
@@ -117,7 +118,21 @@ function swapGames(id1, id2) {
   const tmp = games[idx1];
   games[idx1] = games[idx2];
   games[idx2] = tmp;
+  // Update order field on each game
+  games.forEach(function(g, i) { g.order = i; });
   saveCollectionLocal(games);
+  // Persist order to Firebase for logged-in users
+  try {
+    const user = (window.currentUser || null);
+    const db = (typeof window.db !== 'undefined') ? window.db : null;
+    if (db && user && user.uid) {
+      const updates = {};
+      games.forEach(function(g) {
+        updates['users/' + user.uid + '/collection/' + g.id + '/order'] = g.order;
+      });
+      if (window.update) window.update(window.ref(db, '/'), updates).catch(function() {});
+    }
+  } catch (e) {}
   if (shelfServices.haptic) try { shelfServices.haptic(5); } catch {}
 }
 
@@ -133,6 +148,9 @@ export function pickRandomShelfGame() {
 }
 
 export function openShelfGameDetail(id) {
+  // Show the collection overlay first so the detail is visible
+  var co = document.getElementById('collection-overlay');
+  if (co) co.style.display = 'flex';
   if (window.openCollectionDetail) window.openCollectionDetail(id);
 }
 

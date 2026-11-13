@@ -1,4 +1,4 @@
-// Collection persistence/cache boundary. UI and Firebase initialization stay in index.html.
+﻿// Collection persistence/cache boundary. UI and Firebase initialization stay in index.html.
 export const collectionState = { games: [] };
 
 let collectionServices = {
@@ -69,6 +69,7 @@ export async function loadCollection() {
             else delete game.photo;
           }
         } catch {}
+        collectionState.games.sort(function(a, b) { return (a.order != null ? a.order : 0) - (b.order != null ? b.order : 0); });
         saveCollectionLocal(collectionState.games);
         return collectionState.games;
       }
@@ -78,6 +79,7 @@ export async function loadCollection() {
     }
   }
   collectionState.games = loadCollectionLocal();
+  collectionState.games.sort(function(a, b) { return (a.order != null ? a.order : 0) - (b.order != null ? b.order : 0); });
   return collectionState.games;
 }
 
