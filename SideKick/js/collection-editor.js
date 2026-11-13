@@ -165,6 +165,7 @@ window.openCollectionDetail = function(id) {
 };
 window.closeCollectionDetail = function() {
   document.getElementById('collection-detail').style.display = 'none';
+  document.getElementById('collection-overlay').style.display = 'none';
   if (window._shelfReturn) {
     window._shelfReturn = false;
     if (window.showScreen) window.showScreen('collection-shelf');

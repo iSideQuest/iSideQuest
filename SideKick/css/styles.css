@@ -5278,3 +5278,8 @@
   transform: scale(1.05);
   transition: transform 0.1s;
 }
+/* ── Collection Shelf filter overlay ── */
+#shelf-filter-overlay .btn-secondary.btn-sm {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.85rem;
+}
