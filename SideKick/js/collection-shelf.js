@@ -1,4 +1,4 @@
-﻿import { collectionState, loadCollection } from './collection-store.js?v=352';
+﻿import { collectionState, loadCollection, saveCollectionLocal } from './collection-store.js?v=352';
 
 const shelfServices = {
   showAlert: (msg) => { if (window.showAlert) window.showAlert(msg); },
@@ -10,6 +10,11 @@ export function configureShelf(services = {}) {
   Object.assign(shelfServices, services);
 }
 
+// Drag state
+let moveModeGameId = null;
+let longPressTimer = null;
+let longPressTarget = null;
+
 export function openCollectionShelf() {
   if (window.showScreen) window.showScreen('collection-shelf');
   requestAnimationFrame(function() {
@@ -19,6 +24,7 @@ export function openCollectionShelf() {
 
 export function closeCollectionShelf() {
   if (window.showScreen) window.showScreen('profile');
+  cancelMoveMode();
 }
 
 export function renderShelf() {
@@ -46,14 +52,73 @@ export function renderShelf() {
       const name = (g.name || 'Untitled');
       const photo = g.photo ? '<img class="shelf-game-photo" src="' + g.photo + '" alt="">' : '';
       const spine = !g.photo ? '<div class="shelf-game-spine">' + name + '</div>' : '';
-      return '<div class="shelf-game" style="background:' + color + ';" data-game-id="' + g.id + '" title="' + name + '">' + photo + spine + '</div>';
+      const isMoving = (moveModeGameId === g.id) ? ' shelf-game-moving' : '';
+      return '<div class="shelf-game' + isMoving + '" style="background:' + color + ';" data-game-id="' + g.id + '" title="' + name + '">' + photo + spine + '</div>';
     }).join('') + '</div>';
   }).join('') + '</div>';
+  // Add event handlers
   container.querySelectorAll('.shelf-game').forEach(function(el) {
-    el.addEventListener('click', function() {
-      openShelfGameDetail(el.getAttribute('data-game-id'));
+    const gameId = el.getAttribute('data-game-id');
+    // Long press to enter move mode
+    el.addEventListener('pointerdown', function(e) {
+      longPressTarget = gameId;
+      longPressTimer = setTimeout(function() {
+        enterMoveMode(gameId);
+      }, 500);
+    });
+    el.addEventListener('pointerup', function(e) {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+      if (moveModeGameId && moveModeGameId !== gameId) {
+        // Swap games
+        swapGames(moveModeGameId, gameId);
+        cancelMoveMode();
+      } else if (moveModeGameId === gameId) {
+        // Tapping same game cancels move mode
+        cancelMoveMode();
+      } else if (!moveModeGameId && longPressTarget === gameId) {
+        // Quick tap (not long press) -> show details
+        openShelfGameDetail(gameId);
+      }
+      longPressTarget = null;
+    });
+    el.addEventListener('pointerleave', function() {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+      longPressTarget = null;
+    });
+    el.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
     });
   });
+}
+
+function enterMoveMode(gameId) {
+  moveModeGameId = gameId;
+  if (shelfServices.haptic) try { shelfServices.haptic(10); } catch {}
+  renderShelf();
+}
+
+function cancelMoveMode() {
+  moveModeGameId = null;
+  renderShelf();
+}
+
+function swapGames(id1, id2) {
+  const games = collectionState.games;
+  const idx1 = games.findIndex(function(g) { return g.id === id1; });
+  const idx2 = games.findIndex(function(g) { return g.id === id2; });
+  if (idx1 < 0 || idx2 < 0 || idx1 === idx2) return;
+  // Swap
+  const tmp = games[idx1];
+  games[idx1] = games[idx2];
+  games[idx2] = tmp;
+  saveCollectionLocal(games);
+  if (shelfServices.haptic) try { shelfServices.haptic(5); } catch {}
 }
 
 export function pickRandomShelfGame() {
