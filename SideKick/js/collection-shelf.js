@@ -1,4 +1,4 @@
-﻿import { collectionState, loadCollection, saveCollectionLocal } from './collection-store.js?v=352';
+﻿import { collectionState, loadCollection, saveCollectionLocal } from './collection-store.js?v=353';
 
 const shelfServices = {
   showAlert: (msg) => { if (window.showAlert) window.showAlert(msg); },
