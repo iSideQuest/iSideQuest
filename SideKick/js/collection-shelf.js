@@ -218,9 +218,68 @@ export function pickRandomShelfGame() {
 
 export function openShelfGameDetail(id) {
   window._shelfReturn = true;
-  var co = document.getElementById('collection-overlay');
-  if (co) co.style.display = 'flex';
-  if (window.openCollectionDetail) window.openCollectionDetail(id);
+  // Dedicated shelf game detail overlay (NOT My Collection overlay)
+  var detailOverlay = document.getElementById('shelf-game-detail-overlay');
+  if (!detailOverlay) {
+    detailOverlay = document.createElement('div');
+    detailOverlay.id = 'shelf-game-detail-overlay';
+    detailOverlay.style.position = 'fixed';
+    detailOverlay.style.inset = '0';
+    detailOverlay.style.background = 'rgba(0,0,0,0.85)';
+    detailOverlay.style.zIndex = '10000';
+    detailOverlay.style.display = 'flex';
+    detailOverlay.style.alignItems = 'center';
+    detailOverlay.style.justifyContent = 'center';
+    document.body.appendChild(detailOverlay);
+  }
+  var game = (collectionState && collectionState.games) ? collectionState.games.find(function(g) { return g.id === id; }) : null;
+  if (!game) return;
+  var ratingVal = typeof game.rating === 'number' ? game.rating : 0;
+  var stars = '';
+  for (var i = 1; i <= 5; i++) {
+    stars += ratingVal >= i ? '★' : ratingVal >= i - 0.5 ? '☆' : '☆';
+  }
+  var catLabels = (game.categories || []).map(function(k) {
+    var def = { coop:'🤝', competitive:'⚔️', teams:'👥', solo:'🧍', party:'🎉' }[k];
+    return def ? '<span class="shelf-game-tag cat">' + def + ' ' + k + '</span>' : '';
+  }).join('');
+  var mechLabels = (game.mechanics || []).map(function(k) {
+    var def = { 'deck-builder':'🃏', 'worker-placement':'🧱', 'area-control':'🗺️', drafting:'🔄', 'card-game':'🎴', dice:'🎲', 'engine-building':'🏗️', deduction:'🕵️' }[k];
+    return def ? '<span class="shelf-game-tag mech">' + def + ' ' + k + '</span>' : '';
+  }).join('');
+  detailOverlay.innerHTML =
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:1rem;max-width:90vw;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:0.75rem;">' +
+    '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">' +
+    '<button class="btn-secondary btn-sm" onclick="closeShelfGameDetail()"><span class="play-tri">◀</span> Back</button>' +
+    '<div style="font-size:1.1rem;font-weight:800;color:var(--text);flex:1;text-align:center;">' + (game.name || 'Untitled') + '</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:1rem;align-items:flex-start;">' +
+    (game.photo ? '<img src="' + game.photo + '" alt="" style="width:8rem;height:8rem;object-fit:cover;border-radius:0.5rem;">' : '<div style="width:8rem;height:8rem;background:#333;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;font-size:3rem;">🎲</div>') +
+    '<div style="flex:1;">' +
+    '<div style="font-size:1rem;color:var(--muted);margin-bottom:0.25rem;">Rating: ' + stars + ' (' + ratingVal + '/5)</div>' +
+    (game.minPlayers && game.maxPlayers ? '<div style="font-size:0.85rem;color:var(--text);">👥 ' + game.minPlayers + '–' + game.maxPlayers + ' players</div>' : '') +
+    (game.playTime ? '<div style="font-size:0.85rem;color:var(--text);">⏱ ' + game.playTime + '</div>' : '') +
+    (game.notes ? '<div style="font-size:0.8rem;color:var(--text);margin-top:0.5rem;white-space:pre-wrap;">' + game.notes + '</div>' : '') +
+    '<div style="font-size:0.7rem;color:var(--muted);margin-top:0.5rem;">Barcode: ' + (game.upc || '—') + '</div>' +
+    '</div>' +
+    '</div>' +
+    '<div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-top:0.25rem;">Tags</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;">' + catLabels + mechLabels + '</div>' +
+    '<div style="margin-top:1rem;display:flex;gap:0.5rem;">' +
+    '<button class="btn-secondary btn-sm" onclick="closeShelfGameDetail()">Back</button>' +
+    '<button class="btn-primary btn-sm" onclick="closeShelfGameDetail(); window.openCollectionEdit(\'' + game.id + '\')">Edit</button>' +
+    '<button class="btn-secondary btn-sm" style="color:#ff5c5c;" onclick="window.deleteCollectionGame(\'' + game.id + '\')">Delete</button>' +
+    '</div>' +
+    '</div>';
+  detailOverlay.style.display = 'flex';
+}
+
+export function closeShelfGameDetail() {
+  var overlay = document.getElementById('shelf-game-detail-overlay');
+  if (overlay) overlay.style.display = 'none';
+  window._shelfReturn = false;
+  if (window.showScreen) window.showScreen('collection-shelf');
+  if (window.renderShelf) window.renderShelf();
 }
 
 export function clearShelfFilters() {
@@ -233,6 +292,7 @@ export function clearShelfFilters() {
 window.closeCollectionDetailFromShelf = function() {
   window._shelfReturn = false;
   document.getElementById('collection-detail').style.display = 'none';
+  document.getElementById('collection-overlay').style.display = 'none';
   if (window.showScreen) window.showScreen('collection-shelf');
   if (window.renderShelf) window.renderShelf();
 };
