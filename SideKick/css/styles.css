@@ -5225,11 +5225,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  width: calc(33.33% - 0.4rem);
-  height: calc(33.33% - 0.4rem);
-  max-width: 3.5rem;
-  max-height: 3.5rem;
+  width: calc((100% - 0.7rem) / 3);
+  aspect-ratio: 1 / 1;
   border-radius: 0.25rem;
+  flex-shrink: 0;
   cursor: pointer;
   position: relative;
   transition: transform 0.15s, box-shadow 0.15s;

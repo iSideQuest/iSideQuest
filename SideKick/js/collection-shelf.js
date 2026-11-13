@@ -107,9 +107,12 @@ export function renderShelf() {
     });
     el.addEventListener('contextmenu', function(e) { e.preventDefault(); });
   });
-  // Global drag listeners
-  document.addEventListener('pointermove', onPointerMove, { passive: false });
-  document.addEventListener('pointerup', onPointerUp, { passive: false });
+  // Global drag listeners (only add once)
+  if (!window._shelfDragListenersAdded) {
+    document.addEventListener('pointermove', onPointerMove, { passive: false });
+    document.addEventListener('pointerup', onPointerUp, { passive: false });
+    window._shelfDragListenersAdded = true;
+  }
 }
 
 function startDrag(gameId, el, e) {
@@ -348,6 +351,9 @@ window.closeShelfFilters = function() {
   var filterOverlay = document.getElementById('shelf-filter-overlay');
   if (filterOverlay) filterOverlay.style.display = 'none';
 };
+
+window.closeShelfGameDetail = closeShelfGameDetail;
+window.openShelfGameDetail = openShelfGameDetail;
 
 window.setShelfFilter = function(type, value) {
   if (!window._shelfFilters) window._shelfFilters = {};

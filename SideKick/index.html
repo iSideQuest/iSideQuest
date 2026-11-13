@@ -1357,7 +1357,7 @@
   </div>
 </div>
 <div id="screen-collection-shelf" class="screen">
-  <div class="screen-content-scaler" id="scaler-collection-shelf" style="display:flex;flex-direction:column;height:100%;width:100%;max-width:40rem;margin:0 auto;">
+  <div class="screen-content-scaler" id="scaler-collection-shelf" style="display:flex;flex-direction:column;height:100%;width:100%;max-width:90vw;margin:0 auto;">
     <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem;padding:0.5rem 0;">
       <button class="btn-secondary btn-sm" style="padding:0.35rem 0.8rem;white-space:nowrap;" onclick="closeCollectionShelf()"><span class="play-tri">◀</span> Back</button>
       <div class="tools-modal-title" style="font-size:1.05rem;margin:0;flex:1;text-align:center;">Collection Shelf <span id="shelf-count" style="font-size:0.78rem;color:var(--muted);"></span></div>
@@ -2018,7 +2018,7 @@
 import { soundMode, soundModeIcon, soundModeEnabled, openSoundModeMenu, setSoundMode, updateSoundButtons, toggleSound, speakName, playTurnSound, playNudgeSound, playBuzzerSound, getAudioContext, resetOrientation, requestWakeLock, releaseWakeLock, getCustomAudio, configureSoundServices } from './js/sound.js?v=346';
 import { I18N_STRINGS } from './js/i18n-data.js?v=348';
 import { configureCollectionStore, loadCollection, collectionState } from './js/collection-store.js?v=353';
-import { configureShelf, openCollectionShelf, closeCollectionShelf, renderShelf, pickRandomShelfGame, openShelfGameDetail, clearShelfFilters } from './js/collection-shelf.js?v=10';
+import { configureShelf, openCollectionShelf, closeCollectionShelf, renderShelf, pickRandomShelfGame, openShelfGameDetail, clearShelfFilters } from './js/collection-shelf.js?v=11';
 import { configureCollectionList, renderCollectionFilters, renderCollection, buildCollectionGameRow } from './js/collection-list.js?v=352';
 import { configureCollectionEditor } from './js/collection-editor.js?v=352';
 import { configureCollectionPhoto, getCollectionPhotoData, setCollectionPhotoData, updateCollectionPhotoPreview, closeCollectionPhoto } from './js/collection-photo.js?v=354';
