@@ -80,7 +80,7 @@ export function renderShelf() {
     html += '</div>';
   });
   // Add button cell
-  html += '<div class="shelf-row"><div class="shelf-game shelf-game-add" data-action="add" title="Add Game"><div class="shelf-game-spine">+</div></div></div>';
+  html += '<div class="shelf-row"><div class="shelf-game shelf-game-add" onclick="window.openCollectionEdit(null)" title="Add Game"><div class="shelf-game-spine">+</div></div></div>';
   html += '</div>';
   container.innerHTML = html;
   // Add event handlers to game tiles
@@ -96,7 +96,7 @@ export function renderShelf() {
     el.addEventListener('pointerup', function(e) {
       if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
       if (dragState && dragState.dragging) {
-        // Drop handled by global pointerup (already fired or will fire)
+        // Drop handled globally
       } else if (!dragState) {
         openShelfGameDetail(gameId);
       }
@@ -106,14 +106,6 @@ export function renderShelf() {
     });
     el.addEventListener('contextmenu', function(e) { e.preventDefault(); });
   });
-  // Add button handler
-  var addBtn = container.querySelector('.shelf-game-add');
-  if (addBtn) {
-    addBtn.addEventListener('pointerup', function(e) {
-      e.preventDefault();
-      if (window.openCollectionEdit) window.openCollectionEdit(null);
-    });
-  }
   // Global drag listeners (only add once)
   if (!window._shelfDragListenersAdded) {
     document.addEventListener('pointermove', onPointerMove, { passive: false });
@@ -227,17 +219,65 @@ export function pickRandomShelfGame() {
 }
 
 export function openShelfGameDetail(id) {
-  window._shelfReturn = true;
-  var co = document.getElementById('collection-overlay');
-  if (co) co.style.display = 'flex';
-  if (window.openCollectionDetail) window.openCollectionDetail(id);
+  var overlay = document.getElementById('shelf-game-detail-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'shelf-game-detail-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.background = 'rgba(0,0,0,0.85)';
+    overlay.style.zIndex = '10000';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.padding = '1rem';
+    document.body.appendChild(overlay);
+  }
+  var game = (collectionState && collectionState.games) ? collectionState.games.find(function(g) { return g.id === id; }) : null;
+  if (!game) return;
+  var ratingVal = typeof game.rating === 'number' ? game.rating : 0;
+  var stars = '';
+  for (var i = 1; i <= 5; i++) {
+    stars += ratingVal >= i ? '★' : '☆';
+  }
+  var catLabels = (game.categories || []).map(function(k) {
+    var def = { coop:'🤝', competitive:'⚔️', teams:'👥', solo:'🧍', party:'🎉' }[k];
+    return def ? '<span class="shelf-game-tag cat">' + def + ' ' + k + '</span>' : '';
+  }).join('');
+  var mechLabels = (game.mechanics || []).map(function(k) {
+    var def = { 'deck-builder':'🃏', 'worker-placement':'🧱', 'area-control':'🗺️', drafting:'🔄', 'card-game':'🎴', dice:'🎲', 'engine-building':'🏗️', deduction:'🕵️' }[k];
+    return def ? '<span class="shelf-game-tag mech">' + def + ' ' + k + '</span>' : '';
+  }).join('');
+  overlay.innerHTML =
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:1rem;max-width:90vw;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:0.75rem;">' +
+    '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">' +
+    '<button class="btn-secondary btn-sm" onclick="closeShelfGameDetail()"><span class="play-tri">◀</span> Back</button>' +
+    '<div style="font-size:1.1rem;font-weight:800;color:var(--text);flex:1;text-align:center;">' + (game.name || 'Untitled') + '</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:1rem;align-items:flex-start;">' +
+    (game.photo ? '<img src="' + game.photo + '" alt="" style="width:8rem;height:8rem;object-fit:cover;border-radius:0.5rem;">' : '<div style="width:8rem;height:8rem;background:#333;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;font-size:3rem;">🎲</div>') +
+    '<div style="flex:1;">' +
+    '<div style="font-size:1rem;color:var(--muted);margin-bottom:0.25rem;">Rating: ' + stars + ' (' + ratingVal + '/5)</div>' +
+    (game.minPlayers && game.maxPlayers ? '<div style="font-size:0.85rem;color:var(--text);">👥 ' + game.minPlayers + '–' + game.maxPlayers + ' players</div>' : '') +
+    (game.playTime ? '<div style="font-size:0.85rem;color:var(--text);">⏱ ' + game.playTime + '</div>' : '') +
+    (game.notes ? '<div style="font-size:0.8rem;color:var(--text);margin-top:0.5rem;white-space:pre-wrap;">' + game.notes + '</div>' : '') +
+    '<div style="font-size:0.7rem;color:var(--muted);margin-top:0.5rem;">Barcode: ' + (game.upc || '—') + '</div>' +
+    '</div>' +
+    '</div>' +
+    '<div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-top:0.25rem;">Tags</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;">' + catLabels + mechLabels + '</div>' +
+    '<div style="margin-top:1rem;display:flex;gap:0.5rem;">' +
+    '<button class="btn-secondary btn-sm" onclick="closeShelfGameDetail()">Back</button>' +
+    '<button class="btn-primary btn-sm" onclick="closeShelfGameDetail(); window.openCollectionEdit(\'' + game.id + '\')">Edit</button>' +
+    '<button class="btn-secondary btn-sm" style="color:#ff5c5c;" onclick="window.deleteCollectionGame(\'' + game.id + '\')">Delete</button>' +
+    '</div>' +
+    '</div>';
+  overlay.style.display = 'flex';
 }
 
 export function closeShelfGameDetail() {
-  window._shelfReturn = false;
-  document.getElementById('collection-detail').style.display = 'none';
-  document.getElementById('collection-overlay').style.display = 'none';
-  if (window.showScreen) window.showScreen('collection-shelf');
+  var overlay = document.getElementById('shelf-game-detail-overlay');
+  if (overlay) overlay.style.display = 'none';
   if (window.renderShelf) window.renderShelf();
 }
 
