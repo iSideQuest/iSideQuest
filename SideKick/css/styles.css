@@ -5211,9 +5211,9 @@
   display: flex;
   gap: 0.35rem;
   padding: 0.35rem 0.5rem;
-  background: linear-gradient(180deg, #3a2a1a 0%, #2a1f14 100%);
-  border-top: 3px solid #4a3520;
-  border-bottom: 3px solid #1a1410;
+  background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+  border-top: 3px solid var(--border);
+  border-bottom: 3px solid var(--bg);
   min-height: 4.5rem;
   align-items: flex-end;
   flex-wrap: wrap;
