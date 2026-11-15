@@ -3,16 +3,24 @@
 const shelfServices = {
   showAlert: (msg) => { if (window.showAlert) window.showAlert(msg); },
   haptic: () => {},
-  openCollectionDetail: (id) => { if (window.openCollectionDetail) window.openCollectionDetail(id); },
 };
 
 export function configureShelf(services = {}) {
   Object.assign(shelfServices, services);
 }
 
+// ── Data helpers ──
+function getGames() {
+  return (collectionState && collectionState.games) ? collectionState.games : [];
+}
+
+function sortedGames() {
+  return getGames().slice().sort(function(a, b) { return (a.order != null ? a.order : 0) - (b.order != null ? b.order : 0); });
+}
+
 // Drag state
-let dragState = null; // { gameId, ghostEl, targetId, startX, startY, moved }
-let dragListenersAdded = false;
+let dragState = null;
+let longPressTimer = null;
 
 // ── PUBLIC ──
 export function openCollectionShelf() {
@@ -32,7 +40,7 @@ export function renderShelf() {
   if (!container) return;
   const searchEl = document.getElementById('shelf-search');
   const query = (searchEl && searchEl.value || '').trim().toLowerCase();
-  const games = (collectionState && collectionState.games) ? collectionState.games.slice().sort(function(a, b) { return (a.order != null ? a.order : 0) - (b.order != null ? b.order : 0); }) : [];
+  const games = sortedGames();
   let filtered = games;
   if (window._shelfFilters) {
     if (window._shelfFilters.players) {
@@ -75,7 +83,10 @@ export function renderShelf() {
       const name = (g.name || 'Untitled');
       const photo = g.photo ? '<img class="shelf-game-photo" src="' + g.photo + '" alt="">' : '';
       const spine = !g.photo ? '<div class="shelf-game-spine">' + name + '</div>' : '';
-      html += '<div class="shelf-game" style="background:' + color + ';" data-game-id="' + g.id + '" title="' + name + '">' + photo + spine + '</div>';
+      html += '<div class="shelf-game" style="background:' + color + ';" data-game-id="' + g.id + '" title="' + name + '">';
+      html += '<div class="shelf-game-name">' + name + '</div>';
+      html += photo + spine;
+      html += '</div>';
     });
     html += '</div>';
   });
@@ -86,85 +97,22 @@ export function renderShelf() {
   // Add event handlers to game tiles
   container.querySelectorAll('.shelf-game:not(.shelf-game-add)').forEach(function(el) {
     const gameId = el.getAttribute('data-game-id');
-    let startX = 0, startY = 0, moved = false;
     el.addEventListener('pointerdown', function(e) {
-      startX = e.clientX;
-      startY = e.clientY;
-      moved = false;
-      // Start drag state (but don't create ghost yet - wait for movement)
-      dragState = {
-        gameId: gameId,
-        ghost: null,
-        targetId: null,
-        startX: e.clientX,
-        startY: e.clientY,
-        moved: false,
-        source: el,
-      };
-    });
-    el.addEventListener('pointermove', function(e) {
-      if (!dragState || dragState.gameId !== gameId) return;
-      if (!dragState.moved && (Math.abs(e.clientX - dragState.startX) > 8 || Math.abs(e.clientY - dragState.startY) > 8)) {
-        dragState.moved = true;
-        // Create ghost
-        const rect = el.getBoundingClientRect();
-        const ghost = el.cloneNode(true);
-        ghost.classList.add('shelf-drag-ghost');
-        ghost.style.position = 'fixed';
-        ghost.style.left = (e.clientX - rect.width / 2) + 'px';
-        ghost.style.top = (e.clientY - rect.height / 2) + 'px';
-        ghost.style.width = rect.width + 'px';
-        ghost.style.height = rect.height + 'px';
-        ghost.style.pointerEvents = 'none';
-        ghost.style.zIndex = '10000';
-        ghost.style.opacity = '0.9';
-        ghost.style.transform = 'scale(1.05) rotate(2deg)';
-        document.body.appendChild(ghost);
-        dragState.ghost = ghost;
-        el.style.opacity = '0.3';
-        if (shelfServices.haptic) try { shelfServices.haptic(10); } catch {}
-      }
-      if (dragState.moved && dragState.ghost) {
-        const ghostRect = dragState.ghost.getBoundingClientRect();
-        dragState.ghost.style.left = (e.clientX - ghostRect.width / 2) + 'px';
-        dragState.ghost.style.top = (e.clientY - ghostRect.height / 2) + 'px';
-        // Highlight target
-        document.querySelectorAll('.shelf-game:not(.shelf-game-add)').forEach(function(t) {
-          t.classList.remove('shelf-drag-target');
-        });
-        const target = document.elementFromPoint(e.clientX, e.clientY);
-        const targetGame = target ? target.closest('.shelf-game:not(.shelf-game-add)') : null;
-        if (targetGame && targetGame.getAttribute('data-game-id') !== gameId) {
-          targetGame.classList.add('shelf-drag-target');
-          dragState.targetId = targetGame.getAttribute('data-game-id');
-        } else {
-          dragState.targetId = null;
-        }
-      }
+      longPressTimer = setTimeout(function() {
+        longPressTimer = null;
+        startDrag(gameId, el, e);
+      }, 500);
     });
     el.addEventListener('pointerup', function(e) {
-      if (dragState && dragState.gameId === gameId) {
-        if (dragState.moved) {
-          // Drop
-          if (dragState.ghost) { dragState.ghost.remove(); dragState.ghost = null; }
-          document.querySelectorAll('.shelf-game').forEach(function(t) {
-            t.style.opacity = '';
-            t.classList.remove('shelf-drag-target');
-          });
-          if (dragState.targetId && dragState.targetId !== dragState.gameId) {
-            swapGames(dragState.gameId, dragState.targetId);
-            renderShelf();
-          }
-          dragState = null;
-        } else {
-          // Quick tap -> show details
-          dragState = null;
-          openShelfGameDetail(gameId);
-        }
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+      if (dragState && dragState.dragging) {
+        // Drop handled globally
+      } else if (!dragState) {
+        openShelfGameDetail(gameId);
       }
     });
     el.addEventListener('pointerleave', function() {
-      // Don't cancel drag on leave - just let it continue
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
     });
     el.addEventListener('contextmenu', function(e) { e.preventDefault(); });
   });
@@ -173,12 +121,76 @@ export function renderShelf() {
   if (addBtn) {
     addBtn.addEventListener('pointerup', function(e) {
       e.preventDefault();
-      if (window.openCollectionEdit) window.openCollectionEdit(null);
+      openLootAddGame();
     });
+  }
+  // Global drag listeners (only add once)
+  if (!window._shelfDragListenersAdded) {
+    document.addEventListener('pointermove', onPointerMove, { passive: false });
+    document.addEventListener('pointerup', onPointerUp, { passive: false });
+    window._shelfDragListenersAdded = true;
   }
 }
 
+function startDrag(gameId, el, e) {
+  longPressTimer = null;
+  const rect = el.getBoundingClientRect();
+  const ghost = el.cloneNode(true);
+  ghost.classList.add('shelf-drag-ghost');
+  ghost.style.position = 'fixed';
+  ghost.style.left = (e.clientX - rect.width / 2) + 'px';
+  ghost.style.top = (e.clientY - rect.height / 2) + 'px';
+  ghost.style.width = rect.width + 'px';
+  ghost.style.height = rect.height + 'px';
+  ghost.style.pointerEvents = 'none';
+  ghost.style.zIndex = '10000';
+  ghost.style.opacity = '0.9';
+  ghost.style.transform = 'scale(1.05) rotate(2deg)';
+  document.body.appendChild(ghost);
+  el.style.opacity = '0.3';
+  dragState = {
+    gameId: gameId,
+    ghost: ghost,
+    targetId: null,
+    dragging: true,
+  };
+  if (shelfServices.haptic) try { shelfServices.haptic(10); } catch {}
+}
+
+function onPointerMove(e) {
+  if (!dragState || !dragState.ghost) return;
+  const ghostRect = dragState.ghost.getBoundingClientRect();
+  dragState.ghost.style.left = (e.clientX - ghostRect.width / 2) + 'px';
+  dragState.ghost.style.top = (e.clientY - ghostRect.height / 2) + 'px';
+  document.querySelectorAll('.shelf-game:not(.shelf-game-add)').forEach(function(el) {
+    el.classList.remove('shelf-drag-target');
+  });
+  const target = document.elementFromPoint(e.clientX, e.clientY);
+  const targetGame = target ? target.closest('.shelf-game:not(.shelf-game-add)') : null;
+  if (targetGame && targetGame.getAttribute('data-game-id') !== dragState.gameId) {
+    targetGame.classList.add('shelf-drag-target');
+    dragState.targetId = targetGame.getAttribute('data-game-id');
+  } else {
+    dragState.targetId = null;
+  }
+}
+
+function onPointerUp(e) {
+  if (!dragState) return;
+  if (dragState.ghost) { dragState.ghost.remove(); dragState.ghost = null; }
+  document.querySelectorAll('.shelf-game').forEach(function(el) {
+    el.style.opacity = '';
+    el.classList.remove('shelf-drag-target');
+  });
+  if (dragState.targetId && dragState.targetId !== dragState.gameId) {
+    swapGames(dragState.gameId, dragState.targetId);
+    renderShelf();
+  }
+  dragState = null;
+}
+
 function cancelDrag() {
+  if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
   if (dragState) {
     if (dragState.ghost) dragState.ghost.remove();
     document.querySelectorAll('.shelf-game').forEach(function(el) {
@@ -243,8 +255,8 @@ export function openShelfGameDetail(id) {
   if (!game) return;
   var ratingVal = typeof game.rating === 'number' ? game.rating : 0;
   var stars = '';
-  for (var i = 1; i <= 5; i++) {
-    stars += ratingVal >= i ? '★' : '☆';
+  for (var i = 1; i <= 10; i++) {
+    stars += ratingVal >= i ? '★' : (ratingVal >= i - 0.5 ? '★' : '☆');
   }
   var catLabels = (game.categories || []).map(function(k) {
     var def = { coop:'🤝', competitive:'⚔️', teams:'👥', solo:'🧍', party:'🎉' }[k];
@@ -261,7 +273,7 @@ export function openShelfGameDetail(id) {
     (game.photo ? '<img src="' + game.photo + '" alt="" style="width:8rem;height:8rem;object-fit:cover;border-radius:0.5rem;">' : '<div style="width:8rem;height:8rem;background:#333;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;font-size:3rem;">🎲</div>') +
     '</div>' +
     '<div style="text-align:center;">' +
-    '<div style="font-size:1rem;color:var(--muted);margin-bottom:0.25rem;">Rating: ' + stars + ' (' + ratingVal + '/5)</div>' +
+    '<div style="font-size:1rem;color:var(--muted);margin-bottom:0.25rem;">Rating: ' + stars + ' (' + ratingVal + '/10)</div>' +
     (game.minPlayers && game.maxPlayers ? '<div style="font-size:0.85rem;color:var(--text);">👥 ' + game.minPlayers + '–' + game.maxPlayers + ' players</div>' : '') +
     (game.playTime ? '<div style="font-size:0.85rem;color:var(--text);">⏱ ' + game.playTime + '</div>' : '') +
     (game.notes ? '<div style="font-size:0.8rem;color:var(--text);margin-top:0.5rem;white-space:pre-wrap;text-align:center;">' + game.notes + '</div>' : '') +
@@ -363,4 +375,8 @@ window.renderShelf = renderShelf;
 window.closeCollectionShelf = closeCollectionShelf;
 window.openCollectionShelf = openCollectionShelf;
 window.pickRandomShelfGame = pickRandomShelfGame;
-window.cancelDrag = cancelDrag;
+
+// Add Game button handler (uses collection-edit overlay from My Collection)
+window.openLootAddGame = function() {
+  // placeholder - not used
+};
