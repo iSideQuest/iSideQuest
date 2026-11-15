@@ -75,11 +75,7 @@ export function renderShelf() {
       const name = (g.name || 'Untitled');
       const photo = g.photo ? '<img class="shelf-game-photo" src="' + g.photo + '" alt="">' : '';
       const spine = !g.photo ? '<div class="shelf-game-spine">' + name + '</div>' : '';
-      // Game name above the image
-      html += '<div class="shelf-game" style="background:' + color + ';" data-game-id="' + g.id + '" title="' + name + '">';
-      html += '<div class="shelf-game-name">' + name + '</div>';
-      html += photo + spine;
-      html += '</div>';
+      html += '<div class="shelf-game" style="background:' + color + ';" data-game-id="' + g.id + '" title="' + name + '">' + photo + spine + '</div>';
     });
     html += '</div>';
   });
@@ -92,32 +88,46 @@ export function renderShelf() {
     const gameId = el.getAttribute('data-game-id');
     let startX = 0, startY = 0, moved = false;
     el.addEventListener('pointerdown', function(e) {
-      e.preventDefault();
       startX = e.clientX;
       startY = e.clientY;
       moved = false;
-      // Start timer for long-press (300ms)
-      longPressTimer = setTimeout(function() {
-        longPressTimer = null;
-        startDrag(gameId, el, e);
-      }, 300);
+      // Start drag state (but don't create ghost yet - wait for movement)
+      dragState = {
+        gameId: gameId,
+        ghost: null,
+        targetId: null,
+        startX: e.clientX,
+        startY: e.clientY,
+        moved: false,
+        source: el,
+      };
     });
     el.addEventListener('pointermove', function(e) {
-      if (longPressTimer && (Math.abs(e.clientX - startX) > 8 || Math.abs(e.clientY - startY) > 8)) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-        // If we haven't started dragging yet but moved enough, start drag
-        if (!dragState) {
-          startDrag(gameId, el, e);
-        }
+      if (!dragState || dragState.gameId !== gameId) return;
+      if (!dragState.moved && (Math.abs(e.clientX - dragState.startX) > 8 || Math.abs(e.clientY - dragState.startY) > 8)) {
+        dragState.moved = true;
+        // Create ghost
+        const rect = el.getBoundingClientRect();
+        const ghost = el.cloneNode(true);
+        ghost.classList.add('shelf-drag-ghost');
+        ghost.style.position = 'fixed';
+        ghost.style.left = (e.clientX - rect.width / 2) + 'px';
+        ghost.style.top = (e.clientY - rect.height / 2) + 'px';
+        ghost.style.width = rect.width + 'px';
+        ghost.style.height = rect.height + 'px';
+        ghost.style.pointerEvents = 'none';
+        ghost.style.zIndex = '10000';
+        ghost.style.opacity = '0.9';
+        ghost.style.transform = 'scale(1.05) rotate(2deg)';
+        document.body.appendChild(ghost);
+        dragState.ghost = ghost;
+        el.style.opacity = '0.3';
+        if (shelfServices.haptic) try { shelfServices.haptic(10); } catch {}
       }
-      if (dragState && dragState.dragging && dragState.gameId === gameId) {
-        // Update ghost position
-        if (dragState.ghost) {
-          const ghostRect = dragState.ghost.getBoundingClientRect();
-          dragState.ghost.style.left = (e.clientX - ghostRect.width / 2) + 'px';
-          dragState.ghost.style.top = (e.clientY - ghostRect.height / 2) + 'px';
-        }
+      if (dragState.moved && dragState.ghost) {
+        const ghostRect = dragState.ghost.getBoundingClientRect();
+        dragState.ghost.style.left = (e.clientX - ghostRect.width / 2) + 'px';
+        dragState.ghost.style.top = (e.clientY - ghostRect.height / 2) + 'px';
         // Highlight target
         document.querySelectorAll('.shelf-game:not(.shelf-game-add)').forEach(function(t) {
           t.classList.remove('shelf-drag-target');
@@ -133,32 +143,28 @@ export function renderShelf() {
       }
     });
     el.addEventListener('pointerup', function(e) {
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-      }
-      if (dragState && dragState.dragging) {
-        // Drop
-        if (dragState.ghost) { dragState.ghost.remove(); dragState.ghost = null; }
-        document.querySelectorAll('.shelf-game').forEach(function(t) {
-          t.style.opacity = '';
-          t.classList.remove('shelf-drag-target');
-        });
-        if (dragState.targetId && dragState.targetId !== dragState.gameId) {
-          swapGames(dragState.gameId, dragState.targetId);
-          renderShelf();
+      if (dragState && dragState.gameId === gameId) {
+        if (dragState.moved) {
+          // Drop
+          if (dragState.ghost) { dragState.ghost.remove(); dragState.ghost = null; }
+          document.querySelectorAll('.shelf-game').forEach(function(t) {
+            t.style.opacity = '';
+            t.classList.remove('shelf-drag-target');
+          });
+          if (dragState.targetId && dragState.targetId !== dragState.gameId) {
+            swapGames(dragState.gameId, dragState.targetId);
+            renderShelf();
+          }
+          dragState = null;
+        } else {
+          // Quick tap -> show details
+          dragState = null;
+          openShelfGameDetail(gameId);
         }
-        dragState = null;
-      } else if (!dragState) {
-        // Quick tap -> show details
-        openShelfGameDetail(gameId);
       }
     });
     el.addEventListener('pointerleave', function() {
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-      }
+      // Don't cancel drag on leave - just let it continue
     });
     el.addEventListener('contextmenu', function(e) { e.preventDefault(); });
   });
@@ -170,39 +176,9 @@ export function renderShelf() {
       if (window.openCollectionEdit) window.openCollectionEdit(null);
     });
   }
-  // Global drag listeners (only add once)
-  if (!window._shelfDragListenersAdded) {
-    window._shelfDragListenersAdded = true;
-  }
-}
-
-function startDrag(gameId, el, e) {
-  longPressTimer = null;
-  const rect = el.getBoundingClientRect();
-  const ghost = el.cloneNode(true);
-  ghost.classList.add('shelf-drag-ghost');
-  ghost.style.position = 'fixed';
-  ghost.style.left = (e.clientX - rect.width / 2) + 'px';
-  ghost.style.top = (e.clientY - rect.height / 2) + 'px';
-  ghost.style.width = rect.width + 'px';
-  ghost.style.height = rect.height + 'px';
-  ghost.style.pointerEvents = 'none';
-  ghost.style.zIndex = '10000';
-  ghost.style.opacity = '0.9';
-  ghost.style.transform = 'scale(1.05) rotate(2deg)';
-  document.body.appendChild(ghost);
-  el.style.opacity = '0.3';
-  dragState = {
-    gameId: gameId,
-    ghost: ghost,
-    targetId: null,
-    dragging: true,
-  };
-  if (shelfServices.haptic) try { shelfServices.haptic(10); } catch {}
 }
 
 function cancelDrag() {
-  if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
   if (dragState) {
     if (dragState.ghost) dragState.ghost.remove();
     document.querySelectorAll('.shelf-game').forEach(function(el) {
@@ -295,8 +271,8 @@ export function openShelfGameDetail(id) {
     '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;justify-content:center;">' + catLabels + mechLabels + '</div>' +
     '<div style="margin-top:1rem;display:flex;gap:0.5rem;justify-content:center;">' +
     '<button class="btn-secondary btn-sm" onclick="closeShelfGameDetail()"><span class="play-tri">◀</span> Back</button>' +
-    '<button class="btn-primary btn-sm" onclick="window._shelfEditReturn = true; closeShelfGameDetail(); window.openCollectionEdit(\'' + game.id + '\')">Edit</button>' +
-    '<button class="btn-secondary btn-sm" style="color:#ff5c5c;" onclick="deleteShelfGame(\'' + game.id + '\')">Delete</button>' +
+    '<button class="btn-primary btn-sm" onclick="closeShelfGameDetail(); window.openCollectionEdit(\'' + game.id + '\')">Edit</button>' +
+    '<button class="btn-secondary btn-sm" style="color:#ff5c5c;" onclick="window.deleteCollectionGame(\'' + game.id + '\')">Delete</button>' +
     '</div>' +
     '</div>';
   overlay.style.display = 'flex';
@@ -306,25 +282,6 @@ export function closeShelfGameDetail() {
   var overlay = document.getElementById('shelf-game-detail-overlay');
   if (overlay) overlay.style.display = 'none';
   if (window.renderShelf) window.renderShelf();
-}
-
-export function deleteShelfGame(id) {
-  if (!confirm('Remove this game from your shelf?')) return;
-  collectionState.games = collectionState.games.filter(function(g) { return g.id !== id; });
-  collectionState.games.forEach(function(g, i) { g.order = i; });
-  saveCollectionLocal(collectionState.games);
-  try {
-    const user = (window.currentUser || null);
-    const db = (typeof window.db !== 'undefined') ? window.db : null;
-    if (db && user && user.uid) {
-      if (window.remove) window.remove(window.ref(db, 'users/' + user.uid + '/collection/' + id));
-      if (window.remove) window.remove(window.ref(db, 'privatePhotos/' + user.uid + '/' + id));
-    }
-  } catch (e) {}
-  var overlay = document.getElementById('shelf-game-detail-overlay');
-  if (overlay) overlay.style.display = 'none';
-  if (window.renderShelf) window.renderShelf();
-  if (shelfServices.haptic) try { shelfServices.haptic(5); } catch {}
 }
 
 export function clearShelfFilters() {
@@ -400,10 +357,10 @@ window.setShelfFilter = function(type, value) {
 // Expose functions on window
 window.openShelfGameDetail = openShelfGameDetail;
 window.closeShelfGameDetail = closeShelfGameDetail;
-window.deleteShelfGame = deleteShelfGame;
 window.openShelfFilters = openShelfFilters;
 window.clearShelfFilters = clearShelfFilters;
 window.renderShelf = renderShelf;
 window.closeCollectionShelf = closeCollectionShelf;
 window.openCollectionShelf = openCollectionShelf;
 window.pickRandomShelfGame = pickRandomShelfGame;
+window.cancelDrag = cancelDrag;
