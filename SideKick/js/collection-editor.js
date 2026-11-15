@@ -198,9 +198,24 @@ window.openCollectionEdit = function(id) {
   if (galEl) galEl.value = '';
   renderCollectionEditChips();
   document.getElementById('collection-edit-overlay').classList.add('show');
+  // Scale modal to fit viewport
+  requestAnimationFrame(function() {
+    const modal = document.querySelector('#collection-edit-overlay .tools-modal');
+    if (!modal) return;
+    modal.style.transform = '';
+    modal.style.transformOrigin = 'top center';
+    const available = window.innerHeight * 0.95;
+    const needed = modal.scrollHeight;
+    if (needed > available) {
+      const scale = available / needed;
+      modal.style.transform = 'scale(' + scale + ')';
+    }
+  });
 };
 window.closeCollectionEdit = function() {
   collectionEditorServices.closePhoto();
+  const modal = document.querySelector('#collection-edit-overlay .tools-modal');
+  if (modal) modal.style.transform = '';
   document.getElementById('collection-edit-overlay').classList.remove('show');
   document.getElementById('collection-detail').style.display = 'none';
   document.getElementById('collection-db-search').style.display = 'none';
