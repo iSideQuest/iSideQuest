@@ -2044,7 +2044,7 @@ import { soundMode, soundModeIcon, soundModeEnabled, openSoundModeMenu, setSound
 import { I18N_STRINGS } from './js/i18n-data.js?v=348';
 import { configureCollectionStore, loadCollection, collectionState } from './js/collection-store.js?v=353';
 import { configureShelf, openCollectionShelf, closeCollectionShelf, renderShelf, pickRandomShelfGame, openShelfGameDetail, clearShelfFilters } from './js/collection-shelf.js?v=17';
-import { configureLootShelf, openLootShelf, closeLootShelf, renderLootShelf } from './js/loot-shelf.js?v=1';
+import { configureLootShelf, openLootShelf, closeLootShelf, renderLootShelf } from './js/loot-shelf.js';
 import { configureCollectionList, renderCollectionFilters, renderCollection, buildCollectionGameRow } from './js/collection-list.js?v=352';
 import { configureCollectionEditor } from './js/collection-editor.js?v=352';
 import { configureCollectionPhoto, getCollectionPhotoData, setCollectionPhotoData, updateCollectionPhotoPreview, closeCollectionPhoto } from './js/collection-photo.js?v=354';
@@ -4992,7 +4992,7 @@ let currentUser = null; // Firebase Auth user object, or null if signed out
 let collectionEditUPC = '';
 configureCollectionStore({ getDb: () => db, getCurrentUser: () => currentUser, ref, get, set, update, remove });
 configureShelf({ haptic, showAlert: message => window.showAlert(message), openCollectionDetail: id => window.openCollectionDetail(id) });
-configureLootShelf({ haptic, showAlert: message => window.showAlert(message), getCurrentUser: () => currentUser, getDb: () => db, get: get, ref: ref, set: set, update: update, remove: remove });
+// configureLootShelf({ haptic, showAlert: message => window.showAlert(message), getCurrentUser: () => currentUser, getDb: () => db, get: get, ref: ref, set: set, update: update, remove: remove });
 configureCollectionDiscovery({ getDb: () => db, get, ref, escapeHtml, showAlert: message => window.showAlert(message), setPendingUPC: value => { collectionEditUPC = value; }, addGameFromDatabase: game => window.addGameFromDatabase(game) });
 configureCollectionPhoto({ showAlert: message => window.showAlert(message) });
 configureCollectionList({ escapeHtml, showAlert: message => window.showAlert(message), openCollectionDetail: id => window.openCollectionDetail(id), haptic });
