@@ -5236,7 +5236,6 @@
   overflow: hidden;
   -webkit-user-select: none;
   user-select: none;
-  touch-action: none;
 }
 .shelf-game:hover { transform: translateY(-3px); box-shadow: 2px 4px 8px rgba(0,0,0,0.5); }
 .shelf-game-moving { outline: 3px solid #ffcc00; transform: scale(1.1); box-shadow: 0 0 12px rgba(255,204,0,0.6); z-index: 10; }
