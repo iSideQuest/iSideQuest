@@ -204,8 +204,14 @@ window.closeCollectionEdit = function() {
   document.getElementById('collection-edit-overlay').classList.remove('show');
   document.getElementById('collection-detail').style.display = 'none';
   document.getElementById('collection-db-search').style.display = 'none';
-  document.getElementById('collection-library').style.display = '';
-  renderCollection();
+  if (window._shelfEditReturn) {
+    window._shelfEditReturn = false;
+    if (window.showScreen) window.showScreen('collection-shelf');
+    if (window.renderShelf) window.renderShelf();
+  } else {
+    document.getElementById('collection-library').style.display = '';
+    renderCollection();
+  }
 };
 
 function renderCollectionEditChips() {

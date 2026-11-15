@@ -11,8 +11,8 @@ export function configureShelf(services = {}) {
 }
 
 // Drag state
-let dragState = null;
-let longPressTimer = null;
+let dragState = null; // { gameId, ghostEl, targetId, startX, startY, moved }
+let dragListenersAdded = false;
 
 // ── PUBLIC ──
 export function openCollectionShelf() {
@@ -75,41 +75,103 @@ export function renderShelf() {
       const name = (g.name || 'Untitled');
       const photo = g.photo ? '<img class="shelf-game-photo" src="' + g.photo + '" alt="">' : '';
       const spine = !g.photo ? '<div class="shelf-game-spine">' + name + '</div>' : '';
-      html += '<div class="shelf-game" style="background:' + color + ';" data-game-id="' + g.id + '" title="' + name + '">' + photo + spine + '</div>';
+      // Game name above the image
+      html += '<div class="shelf-game" style="background:' + color + ';" data-game-id="' + g.id + '" title="' + name + '">';
+      html += '<div class="shelf-game-name">' + name + '</div>';
+      html += photo + spine;
+      html += '</div>';
     });
     html += '</div>';
   });
   // Add button cell
-  html += '<div class="shelf-row"><div class="shelf-game shelf-game-add" onclick="window.openCollectionEdit(null)" title="Add Game"><div class="shelf-game-spine">+</div></div></div>';
+  html += '<div class="shelf-row"><div class="shelf-game shelf-game-add" data-action="add" title="Add Game"><div class="shelf-game-spine">+</div></div></div>';
   html += '</div>';
   container.innerHTML = html;
   // Add event handlers to game tiles
   container.querySelectorAll('.shelf-game:not(.shelf-game-add)').forEach(function(el) {
     const gameId = el.getAttribute('data-game-id');
+    let startX = 0, startY = 0, moved = false;
     el.addEventListener('pointerdown', function(e) {
       e.preventDefault();
+      startX = e.clientX;
+      startY = e.clientY;
+      moved = false;
+      // Start timer for long-press (300ms)
       longPressTimer = setTimeout(function() {
         longPressTimer = null;
         startDrag(gameId, el, e);
-      }, 500);
+      }, 300);
+    });
+    el.addEventListener('pointermove', function(e) {
+      if (longPressTimer && (Math.abs(e.clientX - startX) > 8 || Math.abs(e.clientY - startY) > 8)) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+        // If we haven't started dragging yet but moved enough, start drag
+        if (!dragState) {
+          startDrag(gameId, el, e);
+        }
+      }
+      if (dragState && dragState.dragging && dragState.gameId === gameId) {
+        // Update ghost position
+        if (dragState.ghost) {
+          const ghostRect = dragState.ghost.getBoundingClientRect();
+          dragState.ghost.style.left = (e.clientX - ghostRect.width / 2) + 'px';
+          dragState.ghost.style.top = (e.clientY - ghostRect.height / 2) + 'px';
+        }
+        // Highlight target
+        document.querySelectorAll('.shelf-game:not(.shelf-game-add)').forEach(function(t) {
+          t.classList.remove('shelf-drag-target');
+        });
+        const target = document.elementFromPoint(e.clientX, e.clientY);
+        const targetGame = target ? target.closest('.shelf-game:not(.shelf-game-add)') : null;
+        if (targetGame && targetGame.getAttribute('data-game-id') !== gameId) {
+          targetGame.classList.add('shelf-drag-target');
+          dragState.targetId = targetGame.getAttribute('data-game-id');
+        } else {
+          dragState.targetId = null;
+        }
+      }
     });
     el.addEventListener('pointerup', function(e) {
-      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
       if (dragState && dragState.dragging) {
-        // Drop handled globally
+        // Drop
+        if (dragState.ghost) { dragState.ghost.remove(); dragState.ghost = null; }
+        document.querySelectorAll('.shelf-game').forEach(function(t) {
+          t.style.opacity = '';
+          t.classList.remove('shelf-drag-target');
+        });
+        if (dragState.targetId && dragState.targetId !== dragState.gameId) {
+          swapGames(dragState.gameId, dragState.targetId);
+          renderShelf();
+        }
+        dragState = null;
       } else if (!dragState) {
+        // Quick tap -> show details
         openShelfGameDetail(gameId);
       }
     });
     el.addEventListener('pointerleave', function() {
-      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
     });
     el.addEventListener('contextmenu', function(e) { e.preventDefault(); });
   });
+  // Add button handler
+  var addBtn = container.querySelector('.shelf-game-add');
+  if (addBtn) {
+    addBtn.addEventListener('pointerup', function(e) {
+      e.preventDefault();
+      if (window.openCollectionEdit) window.openCollectionEdit(null);
+    });
+  }
   // Global drag listeners (only add once)
   if (!window._shelfDragListenersAdded) {
-    document.addEventListener('pointermove', onPointerMove, { passive: false });
-    document.addEventListener('pointerup', onPointerUp, { passive: false });
     window._shelfDragListenersAdded = true;
   }
 }
@@ -137,38 +199,6 @@ function startDrag(gameId, el, e) {
     dragging: true,
   };
   if (shelfServices.haptic) try { shelfServices.haptic(10); } catch {}
-}
-
-function onPointerMove(e) {
-  if (!dragState || !dragState.ghost) return;
-  const ghostRect = dragState.ghost.getBoundingClientRect();
-  dragState.ghost.style.left = (e.clientX - ghostRect.width / 2) + 'px';
-  dragState.ghost.style.top = (e.clientY - ghostRect.height / 2) + 'px';
-  document.querySelectorAll('.shelf-game:not(.shelf-game-add)').forEach(function(el) {
-    el.classList.remove('shelf-drag-target');
-  });
-  const target = document.elementFromPoint(e.clientX, e.clientY);
-  const targetGame = target ? target.closest('.shelf-game:not(.shelf-game-add)') : null;
-  if (targetGame && targetGame.getAttribute('data-game-id') !== dragState.gameId) {
-    targetGame.classList.add('shelf-drag-target');
-    dragState.targetId = targetGame.getAttribute('data-game-id');
-  } else {
-    dragState.targetId = null;
-  }
-}
-
-function onPointerUp(e) {
-  if (!dragState) return;
-  if (dragState.ghost) { dragState.ghost.remove(); dragState.ghost = null; }
-  document.querySelectorAll('.shelf-game').forEach(function(el) {
-    el.style.opacity = '';
-    el.classList.remove('shelf-drag-target');
-  });
-  if (dragState.targetId && dragState.targetId !== dragState.gameId) {
-    swapGames(dragState.gameId, dragState.targetId);
-    renderShelf();
-  }
-  dragState = null;
 }
 
 function cancelDrag() {
@@ -238,35 +268,35 @@ export function openShelfGameDetail(id) {
   var ratingVal = typeof game.rating === 'number' ? game.rating : 0;
   var stars = '';
   for (var i = 1; i <= 5; i++) {
-    stars += ratingVal >= i ? '\u2605' : '\u2606';
+    stars += ratingVal >= i ? '★' : '☆';
   }
   var catLabels = (game.categories || []).map(function(k) {
-    var def = { coop:'\U0001F91D', competitive:'\u2694\uFE0F', teams:'\U0001F465', solo:'\U0001F9CD', party:'\U0001F389' }[k];
+    var def = { coop:'🤝', competitive:'⚔️', teams:'👥', solo:'🧍', party:'🎉' }[k];
     return def ? '<span class="shelf-game-tag cat">' + def + ' ' + k + '</span>' : '';
   }).join('');
   var mechLabels = (game.mechanics || []).map(function(k) {
-    var def = { 'deck-builder':'\U0001F0CF', 'worker-placement':'\U0001F9F1', 'area-control':'\U0001F5FA\uFE0F', drafting:'\U0001F504', 'card-game':'\U0001F3B4', dice:'\U0001F3B2', 'engine-building':'\U0001F3D7\uFE0F', deduction:'\U0001F575\uFE0F' }[k];
+    var def = { 'deck-builder':'🃏', 'worker-placement':'🧱', 'area-control':'🗺️', drafting:'🔄', 'card-game':'🎴', dice:'🎲', 'engine-building':'🏗️', deduction:'🕵️' }[k];
     return def ? '<span class="shelf-game-tag mech">' + def + ' ' + k + '</span>' : '';
   }).join('');
   overlay.innerHTML =
     '<div style="background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:1rem;max-width:90vw;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:0.75rem;align-items:center;">' +
     '<div style="font-size:1.2rem;font-weight:800;color:var(--text);text-align:center;width:100%;">' + (game.name || 'Untitled') + '</div>' +
     '<div style="display:flex;justify-content:center;">' +
-    (game.photo ? '<img src="' + game.photo + '" alt="" style="width:8rem;height:8rem;object-fit:cover;border-radius:0.5rem;">' : '<div style="width:8rem;height:8rem;background:#333;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;font-size:3rem;">\U0001F3B2</div>') +
+    (game.photo ? '<img src="' + game.photo + '" alt="" style="width:8rem;height:8rem;object-fit:cover;border-radius:0.5rem;">' : '<div style="width:8rem;height:8rem;background:#333;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;font-size:3rem;">🎲</div>') +
     '</div>' +
     '<div style="text-align:center;">' +
     '<div style="font-size:1rem;color:var(--muted);margin-bottom:0.25rem;">Rating: ' + stars + ' (' + ratingVal + '/5)</div>' +
-    (game.minPlayers && game.maxPlayers ? '<div style="font-size:0.85rem;color:var(--text);">\U0001F465 ' + game.minPlayers + '\u2013' + game.maxPlayers + ' players</div>' : '') +
-    (game.playTime ? '<div style="font-size:0.85rem;color:var(--text);">\u23F1 ' + game.playTime + '</div>' : '') +
+    (game.minPlayers && game.maxPlayers ? '<div style="font-size:0.85rem;color:var(--text);">👥 ' + game.minPlayers + '–' + game.maxPlayers + ' players</div>' : '') +
+    (game.playTime ? '<div style="font-size:0.85rem;color:var(--text);">⏱ ' + game.playTime + '</div>' : '') +
     (game.notes ? '<div style="font-size:0.8rem;color:var(--text);margin-top:0.5rem;white-space:pre-wrap;text-align:center;">' + game.notes + '</div>' : '') +
-    '<div style="font-size:0.7rem;color:var(--muted);margin-top:0.5rem;">Barcode: ' + (game.upc || '\u2014') + '</div>' +
+    '<div style="font-size:0.7rem;color:var(--muted);margin-top:0.5rem;">Barcode: ' + (game.upc || '—') + '</div>' +
     '</div>' +
     '<div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-top:0.25rem;text-align:center;">Tags</div>' +
     '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;justify-content:center;">' + catLabels + mechLabels + '</div>' +
     '<div style="margin-top:1rem;display:flex;gap:0.5rem;justify-content:center;">' +
-    '<button class="btn-secondary btn-sm" onclick="closeShelfGameDetail()"><span class="play-tri">\u25C0</span> Back</button>' +
-    '<button class="btn-primary btn-sm" onclick="closeShelfGameDetail(); window.openCollectionEdit(\'' + game.id + '\')">Edit</button>' +
-    '<button class="btn-secondary btn-sm" style="color:#ff5c5c;" onclick="window.deleteCollectionGame(\'' + game.id + '\')">Delete</button>' +
+    '<button class="btn-secondary btn-sm" onclick="closeShelfGameDetail()"><span class="play-tri">◀</span> Back</button>' +
+    '<button class="btn-primary btn-sm" onclick="window._shelfEditReturn = true; closeShelfGameDetail(); window.openCollectionEdit(\'' + game.id + '\')">Edit</button>' +
+    '<button class="btn-secondary btn-sm" style="color:#ff5c5c;" onclick="deleteShelfGame(\'' + game.id + '\')">Delete</button>' +
     '</div>' +
     '</div>';
   overlay.style.display = 'flex';
@@ -278,20 +308,30 @@ export function closeShelfGameDetail() {
   if (window.renderShelf) window.renderShelf();
 }
 
+export function deleteShelfGame(id) {
+  if (!confirm('Remove this game from your shelf?')) return;
+  collectionState.games = collectionState.games.filter(function(g) { return g.id !== id; });
+  collectionState.games.forEach(function(g, i) { g.order = i; });
+  saveCollectionLocal(collectionState.games);
+  try {
+    const user = (window.currentUser || null);
+    const db = (typeof window.db !== 'undefined') ? window.db : null;
+    if (db && user && user.uid) {
+      if (window.remove) window.remove(window.ref(db, 'users/' + user.uid + '/collection/' + id));
+      if (window.remove) window.remove(window.ref(db, 'privatePhotos/' + user.uid + '/' + id));
+    }
+  } catch (e) {}
+  var overlay = document.getElementById('shelf-game-detail-overlay');
+  if (overlay) overlay.style.display = 'none';
+  if (window.renderShelf) window.renderShelf();
+  if (shelfServices.haptic) try { shelfServices.haptic(5); } catch {}
+}
+
 export function clearShelfFilters() {
   const searchEl = document.getElementById('shelf-search');
   if (searchEl) searchEl.value = '';
   renderShelf();
 }
-
-// Back button handler from shelf detail view
-window.closeCollectionDetailFromShelf = function() {
-  window._shelfReturn = false;
-  document.getElementById('collection-detail').style.display = 'none';
-  document.getElementById('collection-overlay').style.display = 'none';
-  if (window.showScreen) window.showScreen('collection-shelf');
-  if (window.renderShelf) window.renderShelf();
-};
 
 export function openShelfFilters() {
   var filterOverlay = document.getElementById('shelf-filter-overlay');
@@ -360,6 +400,7 @@ window.setShelfFilter = function(type, value) {
 // Expose functions on window
 window.openShelfGameDetail = openShelfGameDetail;
 window.closeShelfGameDetail = closeShelfGameDetail;
+window.deleteShelfGame = deleteShelfGame;
 window.openShelfFilters = openShelfFilters;
 window.clearShelfFilters = clearShelfFilters;
 window.renderShelf = renderShelf;
