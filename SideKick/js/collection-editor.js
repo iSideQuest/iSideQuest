@@ -1,5 +1,5 @@
-// Collection detail/editor behavior. UI, callbacks, and state stay feature-scoped.
-import { collectionState, saveCollectionRecord, deleteCollectionRecord } from './collection-store.js?v=352';
+﻿// Collection detail/editor behavior. UI, callbacks, and state stay feature-scoped.
+import { collectionState, saveCollectionRecord, deleteCollectionRecord } from './collection-store.js?v=353';
 import { COLLECTION_CATEGORIES, COLLECTION_MECHANICS, renderCollection, starsHTML, formatRating } from './collection-list.js?v=352';
 
 const collectionEditorServices = {

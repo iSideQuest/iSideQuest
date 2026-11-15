@@ -238,36 +238,33 @@ export function openShelfGameDetail(id) {
   var ratingVal = typeof game.rating === 'number' ? game.rating : 0;
   var stars = '';
   for (var i = 1; i <= 5; i++) {
-    stars += ratingVal >= i ? '★' : '☆';
+    stars += ratingVal >= i ? '\u2605' : '\u2606';
   }
   var catLabels = (game.categories || []).map(function(k) {
-    var def = { coop:'🤝', competitive:'⚔️', teams:'👥', solo:'🧍', party:'🎉' }[k];
+    var def = { coop:'\U0001F91D', competitive:'\u2694\uFE0F', teams:'\U0001F465', solo:'\U0001F9CD', party:'\U0001F389' }[k];
     return def ? '<span class="shelf-game-tag cat">' + def + ' ' + k + '</span>' : '';
   }).join('');
   var mechLabels = (game.mechanics || []).map(function(k) {
-    var def = { 'deck-builder':'🃏', 'worker-placement':'🧱', 'area-control':'🗺️', drafting:'🔄', 'card-game':'🎴', dice:'🎲', 'engine-building':'🏗️', deduction:'🕵️' }[k];
+    var def = { 'deck-builder':'\U0001F0CF', 'worker-placement':'\U0001F9F1', 'area-control':'\U0001F5FA\uFE0F', drafting:'\U0001F504', 'card-game':'\U0001F3B4', dice:'\U0001F3B2', 'engine-building':'\U0001F3D7\uFE0F', deduction:'\U0001F575\uFE0F' }[k];
     return def ? '<span class="shelf-game-tag mech">' + def + ' ' + k + '</span>' : '';
   }).join('');
   overlay.innerHTML =
-    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:1rem;max-width:90vw;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:0.75rem;">' +
-    '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">' +
-    '<button class="btn-secondary btn-sm" onclick="closeShelfGameDetail()"><span class="play-tri">◀</span> Back</button>' +
-    '<div style="font-size:1.1rem;font-weight:800;color:var(--text);flex:1;text-align:center;">' + (game.name || 'Untitled') + '</div>' +
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:1rem;max-width:90vw;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:0.75rem;align-items:center;">' +
+    '<div style="font-size:1.2rem;font-weight:800;color:var(--text);text-align:center;width:100%;">' + (game.name || 'Untitled') + '</div>' +
+    '<div style="display:flex;justify-content:center;">' +
+    (game.photo ? '<img src="' + game.photo + '" alt="" style="width:8rem;height:8rem;object-fit:cover;border-radius:0.5rem;">' : '<div style="width:8rem;height:8rem;background:#333;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;font-size:3rem;">\U0001F3B2</div>') +
     '</div>' +
-    '<div style="display:flex;gap:1rem;align-items:flex-start;">' +
-    (game.photo ? '<img src="' + game.photo + '" alt="" style="width:8rem;height:8rem;object-fit:cover;border-radius:0.5rem;">' : '<div style="width:8rem;height:8rem;background:#333;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;font-size:3rem;">🎲</div>') +
-    '<div style="flex:1;">' +
+    '<div style="text-align:center;">' +
     '<div style="font-size:1rem;color:var(--muted);margin-bottom:0.25rem;">Rating: ' + stars + ' (' + ratingVal + '/5)</div>' +
-    (game.minPlayers && game.maxPlayers ? '<div style="font-size:0.85rem;color:var(--text);">👥 ' + game.minPlayers + '–' + game.maxPlayers + ' players</div>' : '') +
-    (game.playTime ? '<div style="font-size:0.85rem;color:var(--text);">⏱ ' + game.playTime + '</div>' : '') +
-    (game.notes ? '<div style="font-size:0.8rem;color:var(--text);margin-top:0.5rem;white-space:pre-wrap;">' + game.notes + '</div>' : '') +
-    '<div style="font-size:0.7rem;color:var(--muted);margin-top:0.5rem;">Barcode: ' + (game.upc || '—') + '</div>' +
+    (game.minPlayers && game.maxPlayers ? '<div style="font-size:0.85rem;color:var(--text);">\U0001F465 ' + game.minPlayers + '\u2013' + game.maxPlayers + ' players</div>' : '') +
+    (game.playTime ? '<div style="font-size:0.85rem;color:var(--text);">\u23F1 ' + game.playTime + '</div>' : '') +
+    (game.notes ? '<div style="font-size:0.8rem;color:var(--text);margin-top:0.5rem;white-space:pre-wrap;text-align:center;">' + game.notes + '</div>' : '') +
+    '<div style="font-size:0.7rem;color:var(--muted);margin-top:0.5rem;">Barcode: ' + (game.upc || '\u2014') + '</div>' +
     '</div>' +
-    '</div>' +
-    '<div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-top:0.25rem;">Tags</div>' +
-    '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;">' + catLabels + mechLabels + '</div>' +
-    '<div style="margin-top:1rem;display:flex;gap:0.5rem;">' +
-    '<button class="btn-secondary btn-sm" onclick="closeShelfGameDetail()">Back</button>' +
+    '<div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-top:0.25rem;text-align:center;">Tags</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;justify-content:center;">' + catLabels + mechLabels + '</div>' +
+    '<div style="margin-top:1rem;display:flex;gap:0.5rem;justify-content:center;">' +
+    '<button class="btn-secondary btn-sm" onclick="closeShelfGameDetail()"><span class="play-tri">\u25C0</span> Back</button>' +
     '<button class="btn-primary btn-sm" onclick="closeShelfGameDetail(); window.openCollectionEdit(\'' + game.id + '\')">Edit</button>' +
     '<button class="btn-secondary btn-sm" style="color:#ff5c5c;" onclick="window.deleteCollectionGame(\'' + game.id + '\')">Delete</button>' +
     '</div>' +
