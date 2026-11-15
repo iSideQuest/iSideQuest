@@ -1337,6 +1337,9 @@
       <div class="profile-menu-item" onclick="openCollectionShelf()">
         <div class="profile-menu-title">Collection Shelf</div>
       </div>
+      <div class="profile-menu-item" onclick="openLootShelf()">
+        <div class="profile-menu-title">Loot Shelf</div>
+      </div>
       <div class="profile-menu-item" onclick="openToolsOverlay(true)">
         <div class="profile-menu-title" data-i18n="SideKick Tools">Game Features</div>
       </div>
@@ -1373,6 +1376,23 @@
     </div>
     <div style="margin-top:0.75rem;text-align:center;">
       <button class="btn-secondary btn-sm" onclick="closeCollectionShelf()" style="padding:0.4rem 1.2rem;"><span class="play-tri">◀</span> Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  LOOT SHELF (independent)                   -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="screen-loot-shelf" class="screen">
+  <div class="screen-content-scaler" id="scaler-loot-shelf" style="display:flex;flex-direction:column;height:100%;width:100%;max-width:90vw;margin:0 auto;">
+    <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem;padding:0.5rem 0;">
+      <div class="tools-modal-title" style="font-size:1.05rem;margin:0;flex:1;text-align:center;">Loot Shelf</div>
+    </div>
+    <div id="loot-shelf-container" style="flex:1;min-height:0;overflow-y:auto;padding:0.5rem;">
+      <!-- Loot shelf rendered here -->
+    </div>
+    <div style="margin-top:0.75rem;text-align:center;">
+      <button class="btn-secondary btn-sm" onclick="closeLootShelf()" style="padding:0.4rem 1.2rem;"><span class="play-tri">◀</span> Back</button>
     </div>
   </div>
 </div>
@@ -2023,6 +2043,7 @@ import { soundMode, soundModeIcon, soundModeEnabled, openSoundModeMenu, setSound
 import { I18N_STRINGS } from './js/i18n-data.js?v=348';
 import { configureCollectionStore, loadCollection, collectionState } from './js/collection-store.js?v=353';
 import { configureShelf, openCollectionShelf, closeCollectionShelf, renderShelf, pickRandomShelfGame, openShelfGameDetail, clearShelfFilters } from './js/collection-shelf.js?v=16';
+import { configureLootShelf, openLootShelf, closeLootShelf, renderLootShelf } from './js/loot-shelf.js?v=1';
 import { configureCollectionList, renderCollectionFilters, renderCollection, buildCollectionGameRow } from './js/collection-list.js?v=352';
 import { configureCollectionEditor } from './js/collection-editor.js?v=352';
 import { configureCollectionPhoto, getCollectionPhotoData, setCollectionPhotoData, updateCollectionPhotoPreview, closeCollectionPhoto } from './js/collection-photo.js?v=354';
@@ -4970,6 +4991,7 @@ let currentUser = null; // Firebase Auth user object, or null if signed out
 let collectionEditUPC = '';
 configureCollectionStore({ getDb: () => db, getCurrentUser: () => currentUser, ref, get, set, update, remove });
 configureShelf({ haptic, showAlert: message => window.showAlert(message), openCollectionDetail: id => window.openCollectionDetail(id) });
+configureLootShelf({ haptic, showAlert: message => window.showAlert(message), getCurrentUser: () => currentUser, getDb: () => db, get: get, ref: ref, set: set, update: update, remove: remove });
 configureCollectionDiscovery({ getDb: () => db, get, ref, escapeHtml, showAlert: message => window.showAlert(message), setPendingUPC: value => { collectionEditUPC = value; }, addGameFromDatabase: game => window.addGameFromDatabase(game) });
 configureCollectionPhoto({ showAlert: message => window.showAlert(message) });
 configureCollectionList({ escapeHtml, showAlert: message => window.showAlert(message), openCollectionDetail: id => window.openCollectionDetail(id), haptic });
@@ -11689,6 +11711,9 @@ window.closeCollection = function() {
   document.getElementById('collection-overlay').classList.remove('show');
 };
 window.openCollectionShelf = openCollectionShelf;
+window.openLootShelf = openLootShelf;
+window.closeLootShelf = closeLootShelf;
+window.renderLootShelf = renderLootShelf;
 window.closeCollectionShelf = closeCollectionShelf;
 window.renderShelf = renderShelf;
 window.pickRandomShelfGame = pickRandomShelfGame;
