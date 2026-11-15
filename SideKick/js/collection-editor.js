@@ -198,6 +198,9 @@ window.openCollectionEdit = function(id) {
   if (galEl) galEl.value = '';
   renderCollectionEditChips();
   document.getElementById('collection-edit-overlay').classList.add('show');
+  // Reset tags to collapsed
+  var tagsBody = document.getElementById('edit-tags-body');
+  if (tagsBody) tagsBody.style.display = 'none';
   // Scale modal to fit viewport
   requestAnimationFrame(function() {
     const modal = document.querySelector('#collection-edit-overlay .tools-modal');
@@ -211,6 +214,18 @@ window.openCollectionEdit = function(id) {
       modal.style.transform = 'scale(' + scale + ')';
     }
   });
+};
+window.toggleEditTags = function() {
+  var body = document.getElementById('edit-tags-body');
+  if (!body) return;
+  var btn = body.previousElementSibling;
+  if (body.style.display === 'none' || !body.style.display) {
+    body.style.display = 'block';
+    if (btn) btn.textContent = '▾ Category & Mechanics';
+  } else {
+    body.style.display = 'none';
+    if (btn) btn.textContent = '▸ Category & Mechanics';
+  }
 };
 window.closeCollectionEdit = function() {
   collectionEditorServices.closePhoto();

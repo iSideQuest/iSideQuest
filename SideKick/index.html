@@ -14658,7 +14658,7 @@ if ('serviceWorker' in navigator) {
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js" defer></script>
 <div class="tools-overlay" id="collection-edit-overlay">
-  <div class="tools-modal" style="max-height:98vh; overflow-y:hidden; padding:0.5rem; transform-origin:top center;">
+  <div class="tools-modal" style="max-height:90vh; overflow-y:auto; padding:0.5rem; transform-origin:top center;">
     <div class="tools-modal-title" id="collection-edit-title">Add Game</div>
 
     <input id="ce-name" placeholder="Game name" maxlength="40" style="margin-bottom:0.3rem;font-size:0.9rem;">
@@ -14677,12 +14677,11 @@ if ('serviceWorker' in navigator) {
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.2rem 0.4rem;margin-bottom:0.3rem;align-items:start;">
-      <div>
+    <div style="margin-bottom:0.3rem;">
+      <button class="btn-secondary btn-sm" style="width:100%;padding:0.25rem;font-size:0.7rem;" onclick="toggleEditTags()">▸ Category & Mechanics</button>
+      <div id="edit-tags-body" style="display:none;margin-top:0.3rem;">
         <div style="font-size:0.65rem;color:var(--muted);text-align:center;margin-bottom:0.1rem;">Category</div>
-        <div id="ce-categories" class="collection-chip-row"></div>
-      </div>
-      <div>
+        <div id="ce-categories" class="collection-chip-row" style="margin-bottom:0.3rem;"></div>
         <div style="font-size:0.65rem;color:var(--muted);text-align:center;margin-bottom:0.1rem;">Mechanics</div>
         <div id="ce-mechanics" class="collection-chip-row"></div>
       </div>
