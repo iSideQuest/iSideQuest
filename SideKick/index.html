@@ -14658,7 +14658,7 @@ if ('serviceWorker' in navigator) {
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js" defer></script>
 <div class="tools-overlay" id="collection-edit-overlay">
-  <div class="tools-modal" style="max-height:90vh; overflow-y:auto;">
+  <div class="tools-modal" style="max-height:95vh; overflow-y:auto; padding:0.75rem;">
     <div class="tools-modal-title" id="collection-edit-title">Add Game</div>
 
     <input id="ce-name" placeholder="Game name" maxlength="40" style="margin-bottom:0.5rem;">
@@ -14695,11 +14695,11 @@ if ('serviceWorker' in navigator) {
       <button type="button" class="btn-secondary btn-sm" style="padding:0.2rem 0.6rem;" onclick="clearCollectionRating()">✕</button>
     </div>
 
-    <textarea id="ce-notes" placeholder="Notes (optional)" rows="2" style="margin-bottom:0.6rem;"></textarea>
+    <textarea id="ce-notes" placeholder="Notes (optional)" rows="1" style="margin-bottom:0.4rem;"></textarea>
     <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.3rem;">Photo (only visible to you · tap photo to re-crop)</div>
     <div id="ce-photo-dropzone" ondragover="cePhotoDragOver(event)" ondragleave="cePhotoDragLeave(event)" ondrop="cePhotoDrop(event)" style="border:1.5px dashed transparent;border-radius:0.75rem;padding:0.35rem;margin-bottom:0.1rem;">
     <div id="ce-photo-preview-wrap" style="display:none;text-align:center;margin-bottom:0.5rem;">
-      <img id="ce-photo-preview" alt="" onclick="recropCollectionPhoto()" style="display:block;max-width:12rem;max-height:10rem;width:auto;height:auto;border-radius:0.75rem;border:1px solid var(--border);margin:0 auto;cursor:pointer;">
+      <img id="ce-photo-preview" alt="" onclick="recropCollectionPhoto()" style="display:block;max-width:8rem;max-height:6rem;width:auto;height:auto;border-radius:0.75rem;border:1px solid var(--border);margin:0 auto;cursor:pointer;">
       <div><button type="button" class="btn-secondary btn-sm" style="margin-top:0.4rem;" onclick="removeCollectionPhoto()">Remove Photo</button></div>
     </div>
     <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;">
