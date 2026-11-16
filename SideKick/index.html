@@ -1392,8 +1392,8 @@
       <!-- Loot shelf rendered here -->
     </div>
     <div id="loot-page-nav" style="display:none;padding:0.3rem 0;text-align:center;"></div>
-    <div style="margin-top:0.5rem;display:flex;gap:0.5rem;justify-content:center;">
-      <button class="btn-primary btn-sm" onclick="openLootAddGame()" style="padding:0.4rem 1.2rem;">+ Add Game</button>
+    <div style="margin-top:0.5rem;display:flex;flex-direction:column;gap:0.4rem;align-items:center;">
+      <button class="btn-primary btn-sm" onclick="openLootAddGame()" style="padding:0.4rem 1.2rem;width:100%;max-width:12rem;">+ Add Game</button>
       <button class="btn-secondary btn-sm" onclick="closeLootShelf()" style="padding:0.4rem 1.2rem;"><span class="play-tri">◀</span> Back</button>
     </div>
   </div>
@@ -2045,7 +2045,7 @@ import { soundMode, soundModeIcon, soundModeEnabled, openSoundModeMenu, setSound
 import { I18N_STRINGS } from './js/i18n-data.js?v=348';
 import { configureCollectionStore, loadCollection, collectionState } from './js/collection-store.js?v=353';
 import { configureShelf, openCollectionShelf, closeCollectionShelf, renderShelf, pickRandomShelfGame, openShelfGameDetail, clearShelfFilters } from './js/collection-shelf.js?v=16';
-import { configureLootShelf, openLootShelf, closeLootShelf, renderLootShelf } from './js/loot-shelf.js?v=4';
+import { configureLootShelf, openLootShelf, closeLootShelf, renderLootShelf } from './js/loot-shelf.js?v=5';
 import { configureCollectionList, renderCollectionFilters, renderCollection, buildCollectionGameRow } from './js/collection-list.js?v=352';
 import { configureCollectionEditor } from './js/collection-editor.js?v=352';
 import { configureCollectionPhoto, getCollectionPhotoData, setCollectionPhotoData, updateCollectionPhotoPreview, closeCollectionPhoto } from './js/collection-photo.js?v=354';
