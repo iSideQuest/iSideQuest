@@ -82,15 +82,24 @@ export function renderLootShelf() {
     }
   }
   html += '</div>';
-  // Add page navigation if multiple pages
-  if (totalPages > 1) {
-    html += '<div class="loot-page-nav">';
-    html += '<button class="btn-secondary btn-sm" onclick="lootPrevPage()" ' + (lootPage <= 0 ? 'disabled' : '') + '>Prev</button>';
-    html += '<span style="color:var(--muted);font-size:0.8rem;">Page ' + (lootPage + 1) + ' of ' + totalPages + '</span>';
-    html += '<button class="btn-secondary btn-sm" onclick="lootNextPage()" ' + (lootPage >= totalPages - 1 ? 'disabled' : '') + '>Next</button>';
-    html += '</div>';
-  }
   container.innerHTML = html;
+  // Render page navigation in dedicated div (outside scrollable container)
+  var pageNavEl = document.getElementById('loot-page-nav');
+  if (pageNavEl) {
+    if (totalPages > 1) {
+      pageNavEl.style.display = 'flex';
+      pageNavEl.style.gap = '0.5rem';
+      pageNavEl.style.justifyContent = 'center';
+      pageNavEl.style.alignItems = 'center';
+      pageNavEl.innerHTML =
+        '<button class="btn-secondary btn-sm" onclick="lootPrevPage()" ' + (lootPage <= 0 ? 'disabled' : '') + '>Prev</button>' +
+        '<span style="color:var(--muted);font-size:0.8rem;">Page ' + (lootPage + 1) + ' of ' + totalPages + '</span>' +
+        '<button class="btn-secondary btn-sm" onclick="lootNextPage()" ' + (lootPage >= totalPages - 1 ? 'disabled' : '') + '>Next</button>';
+    } else {
+      pageNavEl.style.display = 'none';
+      pageNavEl.innerHTML = '';
+    }
+  }
   // Add swipe handlers
   addSwipeHandlers(container);
 }
