@@ -5293,9 +5293,8 @@
   grid-template-rows: repeat(4, 1fr);
   gap: 0.5rem;
   width: 100%;
-  max-width: 24rem;
+  height: 100%;
   margin: 0 auto;
-  aspect-ratio: 3 / 4;
 }
 .loot-tile {
   display: flex;
