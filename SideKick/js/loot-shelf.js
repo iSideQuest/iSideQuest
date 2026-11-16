@@ -316,12 +316,6 @@ window.submitLootGame = function() {
   if (window.showAlert) window.showAlert('Game added!');
 };
 
-export function closeLootAddGame() {
-  var overlay = document.getElementById('loot-add-game-overlay');
-  if (overlay) overlay.style.display = 'none';
-}
-
-// ── Window exposures ──
 window.openLootShelf = openLootShelf;
 window.closeLootShelf = closeLootShelf;
 window.renderLootShelf = renderLootShelf;
