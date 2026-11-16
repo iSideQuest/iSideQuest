@@ -1386,7 +1386,7 @@
 <div id="screen-loot-shelf" class="screen">
   <div class="screen-content-scaler" id="scaler-loot-shelf" style="display:flex;flex-direction:column;height:100%;width:100%;max-width:90vw;margin:0 auto;">
     <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem;padding:0.5rem 0;">
-      <div class="tools-modal-title" style="font-size:1.05rem;margin:0;flex:1;text-align:center;">Loot Shelf</div>
+      <div class="tools-modal-title" style="font-size:1.05rem;margin:0;flex:1;text-align:center;">Loot Shelf <span id="loot-shelf-count" style="font-size:0.78rem;color:var(--muted);"></span></div>
     </div>
     <div id="loot-shelf-container" style="flex:1;min-height:0;overflow-y:auto;padding:0.5rem;">
       <!-- Loot shelf rendered here -->
@@ -2044,7 +2044,7 @@ import { soundMode, soundModeIcon, soundModeEnabled, openSoundModeMenu, setSound
 import { I18N_STRINGS } from './js/i18n-data.js?v=348';
 import { configureCollectionStore, loadCollection, collectionState } from './js/collection-store.js?v=353';
 import { configureShelf, openCollectionShelf, closeCollectionShelf, renderShelf, pickRandomShelfGame, openShelfGameDetail, clearShelfFilters } from './js/collection-shelf.js?v=16';
-import { configureLootShelf, openLootShelf, closeLootShelf, renderLootShelf } from './js/loot-shelf.js?v=2';
+import { configureLootShelf, openLootShelf, closeLootShelf, renderLootShelf } from './js/loot-shelf.js?v=3';
 import { configureCollectionList, renderCollectionFilters, renderCollection, buildCollectionGameRow } from './js/collection-list.js?v=352';
 import { configureCollectionEditor } from './js/collection-editor.js?v=352';
 import { configureCollectionPhoto, getCollectionPhotoData, setCollectionPhotoData, updateCollectionPhotoPreview, closeCollectionPhoto } from './js/collection-photo.js?v=354';

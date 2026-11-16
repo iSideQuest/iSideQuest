@@ -4,6 +4,7 @@
 const LOOT_KEY = 'sk_loot_shelf';
 
 let lootItems = [];
+let lootPage = 0;
 
 export function configureLootShelf(services) {
   // no-op for now, kept for API compatibility
@@ -12,6 +13,7 @@ export function configureLootShelf(services) {
 export function openLootShelf() {
   if (window.showScreen) window.showScreen('loot-shelf');
   loadLoot();
+  lootPage = 0;
   renderLootShelf();
 }
 
@@ -35,7 +37,19 @@ function saveLoot() {
 export function renderLootShelf() {
   var container = document.getElementById('loot-shelf-container');
   if (!container) return;
+  var countEl = document.getElementById('loot-shelf-count');
+  if (countEl) countEl.textContent = lootItems.length ? '(' + lootItems.length + ')' : '';
   var items = lootItems || [];
+  if (!items.length) {
+    container.innerHTML = '<div class="loot-empty">Your loot shelf is empty.</div>';
+    return;
+  }
+  var perPage = 12;
+  var totalPages = Math.ceil(items.length / perPage);
+  if (lootPage >= totalPages) lootPage = totalPages - 1;
+  if (lootPage < 0) lootPage = 0;
+  var startIdx = lootPage * perPage;
+  var pageItems = items.slice(startIdx, startIdx + perPage);
   var colors = ['#4a6fa5','#6a8f5a','#a56a4a','#8a5a8f','#5a8fa5','#a5a55a','#a55a6a','#5a5a8f'];
   var placeholderImages = [
     'https://picsum.photos/seed/loot1/200/200',
@@ -48,27 +62,80 @@ export function renderLootShelf() {
     'https://picsum.photos/seed/loot8/200/200',
   ];
   var html = '<div class="loot-grid">';
-  for (var i = 0; i < 12; i++) {
-    var item = items[i] || null;
+  for (var i = 0; i < perPage; i++) {
+    var item = pageItems[i] || null;
+    var globalIdx = startIdx + i;
     if (item) {
-      var color = colors[i % colors.length];
+      var color = colors[globalIdx % colors.length];
       var name = item.name || 'Item';
       var photo = item.photo ? '<img class="loot-tile-photo" src="' + item.photo + '" alt="">' : '';
-      html += '<div class="loot-tile" style="background:' + color + ';" data-index="' + i + '">';
+      html += '<div class="loot-tile" style="background:' + color + ';" data-index="' + globalIdx + '">';
       html += '<div class="loot-tile-name">' + escapeHtml(name) + '</div>';
       html += photo;
       html += '</div>';
     } else {
-      var imgUrl = placeholderImages[i % placeholderImages.length];
-      html += '<div class="loot-tile" style="background:#333;" data-index="' + i + '">';
+      var imgUrl = placeholderImages[globalIdx % placeholderImages.length];
+      html += '<div class="loot-tile" style="background:#333;" data-index="' + globalIdx + '">';
       html += '<img class="loot-tile-photo" src="' + imgUrl + '" alt="Test Game">';
-      html += '<div class="loot-tile-name">Test Game ' + (i + 1) + '</div>';
+      html += '<div class="loot-tile-name">Test Game ' + (globalIdx + 1) + '</div>';
       html += '</div>';
     }
   }
   html += '</div>';
+  // Add page navigation if multiple pages
+  if (totalPages > 1) {
+    html += '<div class="loot-page-nav">';
+    html += '<button class="btn-secondary btn-sm" onclick="lootPrevPage()" ' + (lootPage <= 0 ? 'disabled' : '') + '>Prev</button>';
+    html += '<span style="color:var(--muted);font-size:0.8rem;">Page ' + (lootPage + 1) + ' of ' + totalPages + '</span>';
+    html += '<button class="btn-secondary btn-sm" onclick="lootNextPage()" ' + (lootPage >= totalPages - 1 ? 'disabled' : '') + '>Next</button>';
+    html += '</div>';
+  }
   container.innerHTML = html;
+  // Add swipe handlers
+  addSwipeHandlers(container);
 }
+
+function addSwipeHandlers(container) {
+  var startX = 0;
+  var startY = 0;
+  var isSwiping = false;
+  container.ontouchstart = function(e) {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    isSwiping = true;
+  };
+  container.ontouchend = function(e) {
+    if (!isSwiping) return;
+    isSwiping = false;
+    var endX = e.changedTouches[0].clientX;
+    var endY = e.changedTouches[0].clientY;
+    var diffX = endX - startX;
+    var diffY = endY - startY;
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+      if (diffX < 0) {
+        lootNextPage();
+      } else {
+        lootPrevPage();
+      }
+    }
+  };
+}
+
+window.lootPrevPage = function() {
+  if (lootPage > 0) {
+    lootPage--;
+    renderLootShelf();
+  }
+};
+
+window.lootNextPage = function() {
+  var items = lootItems || [];
+  var totalPages = Math.ceil(items.length / 12);
+  if (lootPage < totalPages - 1) {
+    lootPage++;
+    renderLootShelf();
+  }
+};
 
 function escapeHtml(str) {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -95,13 +162,11 @@ export function openLootAddGame() {
   var modal = document.createElement('div');
   modal.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:1rem;max-width:90vw;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:0.6rem;width:100%;';
 
-  // Title
   var title = document.createElement('div');
   title.style.cssText = 'font-size:1.1rem;font-weight:800;color:var(--text);text-align:center;';
   title.textContent = 'Add Game';
   modal.appendChild(title);
 
-  // Name input
   var nameInput = document.createElement('input');
   nameInput.id = 'loot-game-name';
   nameInput.placeholder = 'Game name';
@@ -109,7 +174,6 @@ export function openLootAddGame() {
   nameInput.style.cssText = 'width:100%;margin-bottom:0.3rem;';
   modal.appendChild(nameInput);
 
-  // Upload image
   var uploadLabel = document.createElement('div');
   uploadLabel.style.cssText = 'font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.2rem;';
   uploadLabel.textContent = 'Upload Image';
@@ -144,7 +208,6 @@ export function openLootAddGame() {
   previewWrap.appendChild(previewImg);
   modal.appendChild(previewWrap);
 
-  // Rating
   var ratingLabel = document.createElement('div');
   ratingLabel.style.cssText = 'font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:0.2rem;';
   ratingLabel.textContent = 'Rating (0-10)';
@@ -160,7 +223,6 @@ export function openLootAddGame() {
   ratingValue.innerHTML = '<span id="loot-rating-value">0</span>/10';
   modal.appendChild(ratingValue);
 
-  // Add button
   var addBtn = document.createElement('button');
   addBtn.className = 'btn-primary';
   addBtn.style.cssText = 'width:100%;margin-top:0.5rem;';
@@ -168,7 +230,6 @@ export function openLootAddGame() {
   addBtn.addEventListener('click', submitLootGame);
   modal.appendChild(addBtn);
 
-  // Back button
   var backBtn = document.createElement('button');
   backBtn.className = 'btn-secondary btn-sm';
   backBtn.style.cssText = 'width:100%;margin-top:0.3rem;';
@@ -179,7 +240,6 @@ export function openLootAddGame() {
   overlay.appendChild(modal);
   overlay.style.display = 'flex';
 
-  // Render initial stars
   window._lootRating = 0;
   window._lootPhotoData = null;
   renderLootRatingStars(0);
@@ -205,7 +265,6 @@ function renderLootRatingStars(rating) {
   container.innerHTML = html;
   var valEl = document.getElementById('loot-rating-value');
   if (valEl) valEl.textContent = rating;
-  // Add click handler
   container.onclick = function(e) {
     var star = e.target.closest('[data-star]');
     if (!star) return;
@@ -237,7 +296,7 @@ window.submitLootGame = function() {
   var nameEl = document.getElementById('loot-game-name');
   var name = nameEl ? nameEl.value.trim() : '';
   if (!name) {
-    if (shelfServices.showAlert) shelfServices.showAlert('Enter a game name.');
+    if (window.showAlert) window.showAlert('Enter a game name.');
     return;
   }
   var game = {
@@ -254,11 +313,31 @@ window.submitLootGame = function() {
   window._lootRating = 0;
   closeLootAddGame();
   renderLootShelf();
-  if (shelfServices.haptic) try { shelfServices.haptic(5); } catch {}
+  if (window.showAlert) window.showAlert('Game added!');
 };
 
+export function closeLootAddGame() {
+  var overlay = document.getElementById('loot-add-game-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+// ── Window exposures ──
 window.openLootShelf = openLootShelf;
 window.closeLootShelf = closeLootShelf;
 window.renderLootShelf = renderLootShelf;
 window.openLootAddGame = openLootAddGame;
 window.closeLootAddGame = closeLootAddGame;
+window.lootPrevPage = function() {
+  if (lootPage > 0) {
+    lootPage--;
+    renderLootShelf();
+  }
+};
+window.lootNextPage = function() {
+  var items = lootItems || [];
+  var totalPages = Math.ceil(items.length / 12);
+  if (lootPage < totalPages - 1) {
+    lootPage++;
+    renderLootShelf();
+  }
+};
